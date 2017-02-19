@@ -69,7 +69,7 @@ class Runner {
       $port= (int)substr($address, $p + 1);
     }
 
-    return XPClass::forName(self::$modes[$mode])->newInstance($host, $port, ...$arguments);
+    return (new XPClass(self::$modes[$mode]))->newInstance($host, $port, ...$arguments);
   }
 
   /**
