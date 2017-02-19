@@ -12,8 +12,8 @@ class Route {
    * @param  web.Handler|function(web.Request, web.Response): void $handler
    */
   public function __construct($match, $handler) {
-    $this->match= Matches::for($match);
-    $this->handler= Handling::for($handler);
+    $this->match= Matches::cast($match);
+    $this->handler= Handling::cast($handler);
   }
 
   /**

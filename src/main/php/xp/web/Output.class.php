@@ -1,6 +1,6 @@
 <?php namespace xp\web;
 
-class Output implements \web\io\Input {
+class Output implements \web\io\Output {
   private $socket;
 
   public function __construct($socket) {

@@ -97,7 +97,7 @@ class Routing {
    * @return self
    */
   public function fallbacks($target) {
-    $this->fallback= Handling::for($target);
+    $this->fallback= Handling::cast($target);
     return $this;
   }
 

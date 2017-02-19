@@ -9,7 +9,7 @@ abstract class Matches {
     ]);
   }
 
-  public static function for($match) {
+  public static function cast($match) {
     if ($match instanceof \Closure) {
       return newinstance(Match::class, [], ['matches' => $match]);
     } else {

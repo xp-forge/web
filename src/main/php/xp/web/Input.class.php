@@ -14,7 +14,7 @@ class Input implements \web\io\Input {
 
   /** @return iterable */
   public function headers() {
-    while ($line= $socket->readLine()) {
+    while ($line= $this->socket->readLine()) {
       sscanf($line, '%[^:]: %s', $name, $value);
       yield $name => $value;
     }
