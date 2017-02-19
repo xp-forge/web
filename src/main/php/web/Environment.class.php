@@ -1,6 +1,7 @@
 <?php namespace web;
 
 class Environment {
+  private $profile, $webroot, $docroot, $config;
 
   public function __construct($profile, $webroot, $docroot, $config) {
     $this->profile= $profile;
