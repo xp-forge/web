@@ -3,7 +3,7 @@
 use web\routing\Target;
 use web\routing\Path;
 use web\routing\Matches;
-use web\routing\Route;
+use web\handler\Call;
 use web\routing\CannotRoute;
 use lang\Object;
 
@@ -96,8 +96,12 @@ class Routing {
    * @param  web.Handler|function(web.Request, web.Response): void $target
    * @return self
    */
-  public function fallbacks($target) {
-    $this->fallback= Handling::cast($target);
+  public function fallbacks($handler) {
+    if ($handler instanceof Handler) {
+      $this->fallback= $handler;
+    } else {
+      $this->fallback= new Call($handler);
+    }
     return $this;
   }
 

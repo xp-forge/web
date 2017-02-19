@@ -3,9 +3,9 @@
 use web\Request;
 use web\Response;
 use web\Routing;
+use web\Route;
 use web\Handler;
 use web\routing\CannotRoute;
-use web\routing\Route;
 use web\routing\Target;
 
 class RoutingTest extends \unittest\TestCase {

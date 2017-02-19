@@ -1,6 +1,6 @@
-<?php namespace web\routing;
+<?php namespace web;
 
-use web\Handler;
+use web\routing\Match;
 use web\handler\Call;
 
 class Route {
