@@ -25,6 +25,31 @@ class HttpProtocol implements \peer\server\ServerProtocol {
   }
 
   /**
+   * Sends an error
+   *
+   * @param  web.Response $response
+   * @param  int $status
+   * @param  lang.Throwable $error
+   * @return void
+   */
+  private function sendError($response, $status, $error) {
+    $loader= ClassLoader::getDefault();
+    $message= Status::message($status);
+
+    $response->answer($status, $message);
+    foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
+      if (!$loader->providesResource($variant)) continue;
+      return $response->write(sprintf(
+        $loader->getResource($variant),
+        $status,
+        $message,
+        $error->getMessage(),
+        $error->toString()
+      ));
+    }
+  }
+
+  /**
    * Initialize Protocol
    *
    * @return bool
@@ -49,23 +74,6 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    */
   public function handleDisconnect($socket) {
     $socket->close();
-  }
-
-  private function sendError($response, $status, $error) {
-    $loader= ClassLoader::getDefault();
-    $message= Status::message($status);
-
-    $response->answer($status, $message);
-    foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
-      if (!$loader->providesResource($variant)) continue;
-      return $response->write(sprintf(
-        $loader->getResource($variant),
-        $status,
-        $message,
-        $error->getMessage(),
-        $error->toString()
-      ));
-    }
   }
 
   /**
