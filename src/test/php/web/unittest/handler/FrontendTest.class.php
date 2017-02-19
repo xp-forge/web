@@ -21,7 +21,7 @@ class FrontendTest extends \unittest\TestCase {
 
     $frontend= new Frontend(
       newinstance(Actions::class, [], [
-        'for' => function($request) {
+        'from' => function($request) {
           $name= trim($request->uri()->getPath(), '/') ?: 'index';
           $request->pass('user', 'test');
 

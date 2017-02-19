@@ -20,7 +20,7 @@ class Frontend implements \web\Handler {
    * @return  void
    */
   public function handle($request, $response) {
-    $action= $this->actions->for($request);
+    $action= $this->actions->from($request);
     if (null === ($result= $action->perform($request, $response))) return;
 
     // Render template, passing request as well as the result returned from action

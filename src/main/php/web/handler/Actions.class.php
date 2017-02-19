@@ -9,5 +9,5 @@ interface Actions {
    * @param  web.Request $request
    * @return web.handler.Action
    */
-  public function for($request);
+  public function from($request);
 }
