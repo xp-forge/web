@@ -85,7 +85,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    * @param  lang.XPException $e
    */
   public function handleError($socket, $e) {
-    $e->printStackTrace();
+    // $e->printStackTrace();
     $socket->close();
   }
 }
