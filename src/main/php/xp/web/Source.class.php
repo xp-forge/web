@@ -1,5 +1,7 @@
 <?php namespace xp\web;
 
+use lang\XPClass;
+
 class Source {
   private $application;
 

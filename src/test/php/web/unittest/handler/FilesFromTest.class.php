@@ -6,11 +6,11 @@ use io\Path;
 use io\Folder;
 use io\File;
 use io\FileUtil;
-use web\handler\FilesIn;
+use web\handler\FilesFrom;
 use web\Request;
 use web\Response;
 
-class FilesInTest extends \unittest\TestCase {
+class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];
 
   private function pathWith($files) {
@@ -40,7 +40,7 @@ class FilesInTest extends \unittest\TestCase {
 
   #[@test]
   public function can_create() {
-    new FilesIn(new Path('.'));
+    new FilesFrom(new Path('.'));
   }
 
   #[@test]
@@ -48,7 +48,7 @@ class FilesInTest extends \unittest\TestCase {
     $in= new TestInput();
     $out= new TestOutput();
 
-    $files= (new FilesIn($this->pathWith(['test.html' => 'Test'])));
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
     $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
 
     $this->assertResponse(
@@ -67,7 +67,7 @@ class FilesInTest extends \unittest\TestCase {
     $in= new TestInput(['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
     $out= new TestOutput(); 
 
-    $files= (new FilesIn($this->pathWith(['test.html' => 'Test'])));
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
     $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
 
     $this->assertResponse(
@@ -82,7 +82,7 @@ class FilesInTest extends \unittest\TestCase {
     $in= new TestInput();
     $out= new TestOutput(); 
 
-    $files= (new FilesIn($this->pathWith(['index.html' => 'Home'])));
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Home'])));
     $files->handle(new Request('GET', 'http://localhost/', $in), new Response($out));
 
     $this->assertResponse(
@@ -101,7 +101,7 @@ class FilesInTest extends \unittest\TestCase {
     $in= new TestInput();
     $out= new TestOutput(); 
 
-    $files= (new FilesIn($this->pathWith([])));
+    $files= (new FilesFrom($this->pathWith([])));
     $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
 
     $this->assertResponse(
@@ -119,7 +119,7 @@ class FilesInTest extends \unittest\TestCase {
     $in= new TestInput();
     $out= new TestOutput(); 
 
-    $files= (new FilesIn($this->pathWith([])));
+    $files= (new FilesFrom($this->pathWith([])));
     $files->handle(new Request('GET', 'http://localhost/', $in), new Response($out));
 
     $this->assertResponse(

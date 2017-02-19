@@ -4,7 +4,7 @@ use io\Path;
 use io\File;
 use util\MimeType;
 
-class FilesIn implements \web\Handler {
+class FilesFrom implements \web\Handler {
   private $path;
 
   /** @param io.Path|io.Folder|string $path */
