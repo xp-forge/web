@@ -43,7 +43,6 @@ class FilesFrom implements \web\Handler {
       }
     }
 
-    clearstatcache();
     $response->answer(200, 'OK');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->transfer($file->in(), MimeType::getByFileName($file->filename), $file->size());
