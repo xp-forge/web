@@ -56,9 +56,11 @@ class HttpProtocol implements \peer\server\ServerProtocol {
   public function handleData($socket) {
     gc_enable();
 
-    $message= $socket->readLine();
-    if (4 !== sscanf($message, '%s %s HTTP/%d.%d', $method, $uri, $major, $minor)) return;
+    // Handling socket vagaries here; prevent blocking of readLine()
+    if ('' === ($message= $socket->readBinary(1))) return;
+    $message.= $socket->readLine();
 
+    sscanf($message, '%s %s HTTP/%d.%d', $method, $uri, $major, $minor);
     $request= new Request($method, 'http://localhost:8080'.$uri, new Input($socket));
     $response= new Response(new Output($socket));
 
