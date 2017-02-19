@@ -37,7 +37,7 @@ class RoutingTest extends \unittest\TestCase {
 
   #[@test]
   public function routes_for_empty_map() {
-    $this->assertEquals([], Routing::for([])->routes());
+    $this->assertEquals([], Routing::cast([])->routes());
   }
 
   #[@test]
@@ -49,12 +49,12 @@ class RoutingTest extends \unittest\TestCase {
   #[@test]
   public function for_self() {
     $routes= new Routing();
-    $this->assertEquals($routes, Routing::for($routes));
+    $this->assertEquals($routes, Routing::cast($routes));
   }
 
   #[@test]
   public function for_map() {
-    $this->assertEquals($this->handlers['specific'], Routing::for(['/api' => $this->handlers['specific']])
+    $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
       ->route(new Request('GET', 'http://localhost/api'))
     );
   }

@@ -25,7 +25,7 @@ abstract class Application implements \lang\Value {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $this->routing= Routing::for($this->routes());
+      $this->routing= Routing::cast($this->routes());
     }
     return $this->routing;    
   }

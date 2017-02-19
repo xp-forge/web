@@ -24,7 +24,7 @@ class Routing {
    * @param  var $routes
    * @return self
    */
-  public static function for($routes) {
+  public static function cast($routes) {
     if ($routes instanceof self) {
       return $routes;
     } else if (is_array($routes)) {
