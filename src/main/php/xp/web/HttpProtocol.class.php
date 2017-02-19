@@ -114,6 +114,8 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       \xp::gc();
 
       if ('Keep-Alive' === $request->header('Connection')) {
+        // TODO: If there is POST data and it hasn't been consumed, close connection
+      } else {
         $socket->close();
       }
     }
