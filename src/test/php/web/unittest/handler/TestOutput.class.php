@@ -2,7 +2,7 @@
 
 use io\streams\Streams;
 
-class TestOutput {
+class TestOutput implements \web\io\Output {
   public $bytes;
 
   public function begin($status, $message, $headers) {
