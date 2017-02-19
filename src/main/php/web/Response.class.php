@@ -13,9 +13,9 @@ class Response implements \io\streams\OutputStream {
     $this->target= $target;
   }
 
-  public function answer($status, $message) {
+  public function answer($status, $message= null) {
     $this->status= $status;
-    $this->message= $message;
+    $this->message= $message ?: Status::message($status);
   }
 
   public function header($name, $value) {

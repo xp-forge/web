@@ -3,6 +3,7 @@
 use web\Request;
 use web\Response;
 use web\Error;
+use web\Status;
 use lang\Throwable;
 use lang\ClassLoader;
 
@@ -50,18 +51,19 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     $socket->close();
   }
 
-  private function sendError($response, $profile, $status, $message, $detail) {
+  private function sendError($response, $status, $error) {
     $loader= ClassLoader::getDefault();
-    $response->answer($status, $message);
+    $message= Status::message($status);
 
-    foreach (['web/error-'.$profile.'.html', 'web/error.html'] as $variant) {
+    $response->answer($status, $message);
+    foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
       if (!$loader->providesResource($variant)) continue;
       return $response->write(sprintf(
         $loader->getResource($variant),
         $status,
         $message,
-        $detail->getMessage(),
-        $detail->toString()
+        $error->getMessage(),
+        $error->toString()
       ));
     }
   }
@@ -85,13 +87,16 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     try {
       $this->application->service($request, $response);
       $this->logging->__invoke($request, $response);
+    } catch (Error $e) {
+      $this->sendError($response, $e->status(), $e);
+      $this->logging->__invoke($request, $response, $e->compoundMessage());
     } catch (\Throwable $e) {   // PHP7
       $t= Throwable::wrap($e);
-      $this->sendError($response, $this->application->environment()->profile(), 500, 'Internal server error', $t);
+      $this->sendError($response, 500, $t);
       $this->logging->__invoke($request, $response, $t->compoundMessage());
     } catch (\Exception $e) {   // PHP5
       $t= Throwable::wrap($e);
-      $this->sendError($response, $this->application->environment()->profile(), 500, 'Internal server error', $t);
+      $this->sendError($response, 500, $t);
       $this->logging->__invoke($request, $response, $t->compoundMessage());
     } finally {
       gc_collect_cycles();
