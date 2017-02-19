@@ -1,4 +1,4 @@
-<?php namespace web\unittest\handler;
+<?php namespace web\unittest;
 
 class TestInput implements \web\io\Input {
   private $headers;

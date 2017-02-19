@@ -7,6 +7,8 @@ use web\handler\Action;
 use web\Request;
 use web\Response;
 use peer\URL;
+use web\unittest\TestInput;
+use web\unittest\TestOutput;
 
 class FrontendTest extends \unittest\TestCase {
 

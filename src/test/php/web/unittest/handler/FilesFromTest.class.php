@@ -9,10 +9,18 @@ use io\FileUtil;
 use web\handler\FilesFrom;
 use web\Request;
 use web\Response;
+use web\unittest\TestInput;
+use web\unittest\TestOutput;
 
 class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];
 
+  /**
+   * Creates files inside a temporary directory and returns its path
+   *
+   * @param  [:string] $files
+   * @return io.Path
+   */
   private function pathWith($files) {
     $folder= new Folder(Environment::tempDir(), uniqid($this->name, true));
     $folder->create(0777);

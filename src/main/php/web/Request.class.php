@@ -19,6 +19,19 @@ class Request {
     }
   }
 
+  private function encode($encoding, $param) {
+    if (is_array($param)) {
+      foreach ($param as &$value) {
+        $value= $this->encode($encoding, $value);
+      }
+      return $param;
+    } else if (null === $param) {
+      return null;
+    } else {
+      return iconv($encoding, \xp::ENCODING, $param);
+    }
+  }
+
   /** @return string */
   public function encoding() {
     if (null === $this->encoding) {
@@ -68,24 +81,30 @@ class Request {
     $this->values[$name]= $value;
   }
 
+  /**
+   * Gets request headers
+   *
+   * @return [:string]
+   */
   public function headers() { return $this->headers; }
 
-  public function header($name) {
+  /**
+   * Gets a header by name
+   *
+   * @param  string $name
+   * @param  var $default
+   * @return var
+   */
+  public function header($name, $default= null) {
     $name= strtolower($name);
-    return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : null;
+    return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : $default;
   }
 
-  private function encode($encoding, $param) {
-    if (is_array($param)) {
-      foreach ($param as &$value) {
-        $value= $this->encode($encoding, $value);
-      }
-      return $param;
-    } else {
-      return iconv($encoding, \xp::ENCODING, $param);
-    }
-  }
-
+  /**
+   * Gets request parameters
+   *
+   * @return [:var]
+   */
   public function params() {
     $result= [];
     $encoding= $this->encoding();
@@ -95,6 +114,13 @@ class Request {
     return $result;
   }
 
+  /**
+   * Gets a request paramer by name
+   *
+   * @param  string $name
+   * @param  var $default
+   * @return var
+   */
   public function param($name, $default= null) {
     return $this->encode($this->encoding(), $this->uri->getParam($name, $default));
   }

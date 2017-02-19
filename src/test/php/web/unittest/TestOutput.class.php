@@ -1,4 +1,4 @@
-<?php namespace web\unittest\handler;
+<?php namespace web\unittest;
 
 use io\streams\Streams;
 
