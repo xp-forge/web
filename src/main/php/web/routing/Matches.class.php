@@ -8,12 +8,4 @@ abstract class Matches {
       'matches' => function($request) { return true; }
     ]);
   }
-
-  public static function cast($match) {
-    if ($match instanceof \Closure) {
-      return newinstance(Match::class, [], ['matches' => $match]);
-    } else {
-      return $match;
-    }
-  }
 }

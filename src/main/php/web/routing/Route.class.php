@@ -1,6 +1,7 @@
 <?php namespace web\routing;
 
-use web\Handling;
+use web\Handler;
+use web\handler\Call;
 
 class Route {
   private $match, $hander;
@@ -12,8 +13,17 @@ class Route {
    * @param  web.Handler|function(web.Request, web.Response): void $handler
    */
   public function __construct($match, $handler) {
-    $this->match= Matches::cast($match);
-    $this->handler= Handling::cast($handler);
+    if ($match instanceof Match) {
+      $this->match= $match;
+    } else {
+      $this->match= newinstance(Match::class, [], ['matches' => $match]);
+    }
+
+    if ($handler instanceof Handler) {
+      $this->handler= $handler;
+    } else {
+      $this->handler= new Call($handler);
+    }
   }
 
   /**
