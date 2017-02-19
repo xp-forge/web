@@ -18,6 +18,9 @@ abstract class Application implements \lang\Value {
     $this->environment= $environment;
   }
 
+  /** @return web.Environment */
+  public function environment() { return $this->environment; }
+
   /**
    * Returns routing, lazily initialized
    *

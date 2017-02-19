@@ -2,6 +2,9 @@
 
 use web\Request;
 use web\Response;
+use web\Error;
+use lang\Throwable;
+use lang\ClassLoader;
 
 /**
  * HTTP protocol implementation
@@ -47,6 +50,22 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     $socket->close();
   }
 
+  private function sendError($response, $profile, $status, $message, $detail) {
+    $loader= ClassLoader::getDefault();
+    $response->answer($status, $message);
+
+    foreach (['web/error-'.$profile.'.html', 'web/error.html'] as $variant) {
+      if (!$loader->providesResource($variant)) continue;
+      return $response->write(sprintf(
+        $loader->getResource($variant),
+        $status,
+        $message,
+        $detail->getMessage(),
+        $detail->toString()
+      ));
+    }
+  }
+
   /**
    * Handle client data
    *
@@ -65,8 +84,16 @@ class HttpProtocol implements \peer\server\ServerProtocol {
 
     try {
       $this->application->service($request, $response);
-    } finally {
       $this->logging->__invoke($request, $response);
+    } catch (\Throwable $e) {   // PHP7
+      $t= Throwable::wrap($e);
+      $this->sendError($response, $this->application->environment()->profile(), 500, 'Internal server error', $t);
+      $this->logging->__invoke($request, $response, $t->compoundMessage());
+    } catch (\Exception $e) {   // PHP5
+      $t= Throwable::wrap($e);
+      $this->sendError($response, $this->application->environment()->profile(), 500, 'Internal server error', $t);
+      $this->logging->__invoke($request, $response, $t->compoundMessage());
+    } finally {
       gc_collect_cycles();
       gc_disable();
       clearstatcache();

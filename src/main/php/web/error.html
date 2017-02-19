@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Error %1$d [%2$s]</title>
+    <style type="text/css">
+      body { font-family: "Segoe UI",Arial,Helvetica; }
+      #content { margin: 2em; }
+      h1 image { float: left; margin-right: 0.5em; }
+      h1 #code { padding: 0.1em 0.5em; background-color: #cc0000; color: white; border-radius: 0.1em; }
+    </style>
+  </head>
+  <body bgcolor="#ffffff" text="#000000">
+    <div id="content">
+      <h1>
+        <img width="59" height="48" src="data:image/gif;base64,R0lGODlhOwAwAJEAAP///8wAAAAAAAAAACwAAAAAOwAwAAAC/ISPqWvBD6OctNrl7nUc9O+FWTJqmKmUiIqibMu8sAzPYR3jq8iDPhUICofEjq5BShWXweQR0oxEaaYSKwq9Ph9YbmbEZHJ3JGrjGi62mmnPt/qyKt3i7g1ojlmFK+M5PRVH1idhBzh0Blfod8exlJgyeGCHocLG9+imKMUIRkcE6YRU5qXZd/iVV1k6NYkaKom2WPZqupHX+gcIOynJS2iImrq5mis8HNlLykl7+DtBOSdy/Cy3nHVaG70ofHd7opztHI63Bf7ZnUM+c7xtTuU+5usijfNzz+MqVqEKt28O5B1ARgA19LNwUJ0TfAy9PUlYMGDEiRQrWqxYAAA7" alt="Error"/>
+
+        <span id="code">ERROR %1$d</span>
+        <span id="message">%2$s</span>
+      </h1>
+      <p id="detail">%3$s</p>
+      <xmp id="trace">%4$s</xmp>
+    </div>
+  </body>
+</html>
