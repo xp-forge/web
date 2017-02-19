@@ -1,20 +1,35 @@
 <?php namespace web;
 
+use io\Path;
 use lang\ElementNotFoundException;
 use util\CompositeProperties;
+use util\FilesystemPropertySource;
 use util\Objects;
 use util\PropertySource;
-use util\FilesystemPropertySource;
 use util\ResourcePropertySource;
 
+/**
+ * Environment wraps profile, web and document roots as well as configuration
+ * and provides accessors for them.
+ *
+ * @test  xp://web.unittest.EnvironmentTest
+ */
 class Environment {
   private $profile, $webroot, $docroot;
   private $sources= [];
 
+  /**
+   * Creates a new environment
+   *
+   * @param  string $profile
+   * @param  string|io.Path $webroot
+   * @param  string|io.Path $docroot
+   * @param  (string|util.PropertySource)[] $config
+   */
   public function __construct($profile, $webroot, $docroot, $config) {
     $this->profile= $profile;
-    $this->webroot= $webroot;
-    $this->docroot= $docroot;
+    $this->webroot= $webroot instanceof Path ? $webroot : new Path($webroot);
+    $this->docroot= $docroot instanceof Path ? $docroot : new Path($docroot);
     foreach ($config as $source) {
       if ($source instanceof PropertySource) {
         $this->sources[]= $source;
@@ -26,10 +41,13 @@ class Environment {
     }
   }
 
+  /** @return string */
   public function profile() { return $this->profile; }
 
+  /** @return io.Path */
   public function webroot() { return $this->webroot; }
 
+  /** @return io.Path */
   public function docroot() { return $this->docroot; }
 
   /**

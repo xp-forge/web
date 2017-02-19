@@ -8,6 +8,9 @@ use web\routing\CannotRoute;
 use lang\Object;
 
 /**
+ * Routing takes care of directing the request to the correct target
+ * by using one or more routes given to it.
+ *
  * @test  xp://web.unittest.RoutingTest
  */
 class Routing {
