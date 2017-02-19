@@ -57,6 +57,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     gc_enable();
 
     $message= $socket->readLine();
+    var_dump($message);
     sscanf($message, '%s %s HTTP/%d.%d', $method, $uri, $major, $minor);
     $request= new Request($method, 'http://localhost:8080'.$uri, new Input($socket));
     $response= new Response(new Output($socket));

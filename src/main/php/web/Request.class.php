@@ -6,6 +6,7 @@ class Request {
   private $lookup= [];
   private $headers= [];
   private $values= [];
+  private $encoding= null;
 
   public function __construct($method, $uri, $stream= null) {
     $this->method= $method;
@@ -16,6 +17,45 @@ class Request {
         $this->lookup[strtolower($name)]= $name;
       }
     }
+  }
+
+  /** @return string */
+  public function encoding() {
+    if (null === $this->encoding) {
+      $this->encoding= 'utf-8';
+
+      $offset= 0;
+      $query= $this->uri->getQuery();
+      while (false !== ($p= strpos($query, '%', $offset))) {
+        $chr= hexdec($query{$p + 1}.$query{$p + 2});
+
+        if ($chr < 0x80) {                              // OK, same as ASCII
+          $offset= $p + 3;
+          continue;
+        } else if ($chr >= 0xc2 && $chr <= 0xdf) {      // 2 byte sequence
+          $sequence= [substr($query, $p + 4, 2)];
+          $offset= $p + 6;
+        } else if ($chr >= 0xe0 && $chr <= 0xef) {      // 3 byte sequence
+          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2)];
+          $offset= $p + 9;
+        } else if ($chr >= 0xf0 && $chr <= 0xf4) {      // 4 byte sequence
+          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2), substr($query, $p + 10, 2)];
+          $offset= $p + 12;
+        } else {
+          $this->encoding= 'iso-8859-1';
+          break;
+        }
+
+        foreach ($sequence as $bytes) {
+          $chr= hexdec($bytes);
+          if ($chr < 0x80 || $chr > 0xbf) {
+            $this->encoding= 'iso-8859-1';
+            break 2;
+          }
+        }
+      }
+    }
+    return $this->encoding;
   }
 
   /** @return string */
@@ -35,11 +75,31 @@ class Request {
     return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : null;
   }
 
-  public function params() { return $this->uri->getParams(); }
+  private function encode($encoding, $param) {
+    if (is_array($param)) {
+      foreach ($param as &$value) {
+        $value= $this->encode($encoding, $value);
+      }
+      return $param;
+    } else {
+      return iconv($encoding, \xp::ENCODING, $param);
+    }
+  }
 
-  public function param($name) { }
+  public function params() {
+    $result= [];
+    $encoding= $this->encoding();
+    foreach ($this->uri->getParams() as $name => $param) {
+      $result[$name]= $this->encode($encoding, $param);
+    }
+    return $result;
+  }
 
-  public function values() {return $this->values; }
+  public function param($name, $default= null) {
+    return $this->encode($this->encoding(), $this->uri->getParam($name, $default));
+  }
+
+  public function values() { return $this->values; }
 
   public function value($name) {
     return isset($this->values[$name]) ? $this->values[$name] : null;
