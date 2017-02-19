@@ -52,7 +52,7 @@ abstract class Application implements \lang\Value {
   }
 
   /** @return string */
-  public function toString() { return nameof($this); }
+  public function toString() { return nameof($this).'('.$this->environment->docroot().')'; }
 
   /** @return string */
   public function hashCode() { return spl_object_hash($this); }
