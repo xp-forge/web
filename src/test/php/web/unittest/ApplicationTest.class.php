@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use web\Application;
+use web\Environment;
 use web\Handler;
 use web\Request;
 use web\Response;
@@ -8,6 +9,12 @@ use web\Routing;
 use lang\IllegalStateException;
 
 class ApplicationTest extends \unittest\TestCase {
+  private $environment;
+
+  /** @return void */
+  public function setUp() {
+    $this->environment= new Environment('dev', '.', 'static', []);
+  }
 
   /**
    * Assertion helper
@@ -17,7 +24,7 @@ class ApplicationTest extends \unittest\TestCase {
    * @throws unittest.AssertionFailedError
    */
   private function assertHandled(&$handled, $routes) {
-    with ($app= newinstance(Application::class, [], ['routes' => $routes])); {
+    with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
       $request= new Request('GET', 'http://test.example.com/');
       $response= new Response();
       $app->service($request, $response);
@@ -27,7 +34,7 @@ class ApplicationTest extends \unittest\TestCase {
 
   #[@test]
   public function can_create() {
-    newinstance(Application::class, [], [
+    newinstance(Application::class, [$this->environment], [
       'routes' => function() { /* Implementation irrelevant for this test */ }
     ]);
   }
@@ -35,7 +42,7 @@ class ApplicationTest extends \unittest\TestCase {
   #[@test]
   public function routing() {
     $routing= new Routing();
-    $app= newinstance(Application::class, [], [
+    $app= newinstance(Application::class, [$this->environment], [
       'routes' => function() use($routing) { return $routing; }
     ]);
     $this->assertEquals($routing, $app->routing());
@@ -45,7 +52,7 @@ class ApplicationTest extends \unittest\TestCase {
   public function routes_only_called_once() {
     $routing= new Routing();
     $called= 0;
-    $app= newinstance(Application::class, [], [
+    $app= newinstance(Application::class, [$this->environment], [
       'routes' => function() use($routing, &$called) {
         if (++$called > 1) {
           throw new IllegalStateException('Should not be reached');

@@ -5,8 +5,18 @@
  *
  * @test  xp://web.unittest.ApplicationTest
  */
-abstract class Application {
+abstract class Application implements \lang\Value {
   private $routing;
+  protected $environment;
+
+  /**
+   * Creates a new web application inside a given environment
+   *
+   * @param  web.Environment $environment
+   */
+  public function __construct(Environment $environment) {
+    $this->environment= $environment;
+  }
 
   /**
    * Returns routing, lazily initialized
@@ -39,5 +49,21 @@ abstract class Application {
    */
   public function service($request, $response) {
     $this->routing()->service($request, $response);
+  }
+
+  /** @return string */
+  public function toString() { return nameof($this); }
+
+  /** @return string */
+  public function hashCode() { return spl_object_hash($this); }
+
+  /**
+   * Comparison
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? strcmp($this->hashCode(), $value->hashCode()) : 1;
   }
 }
