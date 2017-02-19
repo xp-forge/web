@@ -1,0 +1,20 @@
+{
+  "name" : "xp-forge/web",
+  "type" : "library",
+  "homepage" : "http://xp-framework.net/",
+  "license" : "BSD-3-Clause",
+  "description" : "Web applications for the XP Framework",
+  "keywords": ["module", "xp"],
+  "require" : {
+    "xp-framework/core": "^8.0 | ^7.0",
+    "xp-framework/networing": "^8.0 | ^7.0",
+    "php": ">=5.6.0"
+  },
+  "require-dev" : {
+    "xp-framework/unittest": "^7.0"
+  },
+  "bin": ["bin/xp.xp-forge.web"],
+  "autoload" : {
+    "files" : ["src/main/php/autoload.php"]
+  }
+}
