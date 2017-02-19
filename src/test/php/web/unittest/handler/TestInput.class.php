@@ -1,6 +1,6 @@
 <?php namespace web\unittest\handler;
 
-class TestInput \web\io\Input {
+class TestInput implements \web\io\Input {
   private $headers;
 
   public function __construct($headers= []) {
