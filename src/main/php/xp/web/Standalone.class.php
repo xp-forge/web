@@ -24,6 +24,7 @@ abstract class Standalone {
     $application= (new Source($source, new Environment($profile, $webroot, $docroot, $config)))->application();
 
     $this->server->setProtocol(new HttpProtocol($application, function($request, $response, $message= null) {
+      $query= $request->uri()->getQuery();
       Console::writeLinef(
         "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s",
         date('Y-m-d H:i:s'),
@@ -31,7 +32,7 @@ abstract class Standalone {
         memory_get_usage() / 1024,
         $response->status(),
         $request->method(),
-        $request->uri()->getPath(),
+        $request->uri()->getPath().($query ? '?'.$query : ''),
         $message
       );
     }));

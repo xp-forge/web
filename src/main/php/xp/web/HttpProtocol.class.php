@@ -56,12 +56,11 @@ class HttpProtocol implements \peer\server\ServerProtocol {
   public function handleData($socket) {
     gc_enable();
 
-    // Handling socket vagaries here; prevent blocking of readLine()
-    if ('' === ($message= $socket->readBinary(1))) return;
-    $message.= $socket->readLine();
-
+    $input= new Input($socket);
+    $message= $socket->readLine();
     sscanf($message, '%s %s HTTP/%d.%d', $method, $uri, $major, $minor);
-    $request= new Request($method, 'http://localhost:8080'.$uri, new Input($socket));
+
+    $request= new Request($method, 'http://localhost:8080'.$uri, $input);
     $response= new Response(new Output($socket));
 
     try {
@@ -70,8 +69,12 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       $this->logging->__invoke($request, $response);
       gc_collect_cycles();
       gc_disable();
+      clearstatcache();
       \xp::gc();
-      $socket->close();
+
+      if ('Keep-Alive' === $request->header('Connection')) {
+        $socket->close();
+      }
     }
   }
 
@@ -82,7 +85,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    * @param  lang.XPException $e
    */
   public function handleError($socket, $e) {
-    // Console::$err->writeLine('* ', $socket->host, '~', $e);
+    $e->printStackTrace();
     $socket->close();
   }
 }

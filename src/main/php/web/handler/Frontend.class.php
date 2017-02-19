@@ -34,6 +34,7 @@ class Frontend implements \web\Handler {
         'uri'     => $request->uri()
       ]
     ]);
+
     $response->answer(200, 'OK');
     $response->send($rendered, 'text/html');
   }
