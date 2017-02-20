@@ -1,9 +1,8 @@
 <?php namespace web;
 
-use web\routing\Paths;
 use web\filters\Invocation;
 
-class Filters {
+class Filters implements Handler {
 
   /**
    * Creates a new instance
@@ -13,16 +12,10 @@ class Filters {
    */
   public function __construct($filters, $routing) {
     $this->filters= $filters;
-
-    // ['/pattern' => target1, '/pattern2' => target2]
-    if (is_array($routing)) {
-      $this->target= new Paths($routing);
-    } else {
-      $this->target= $routing;
-    }
+    $this->routing= Routing::cast($routing);
   }
 
-  public function route($request, $response) {
-    return (new Invocation($this->target, $this->filters))->proceed($request, $response);
+  public function handle($request, $response) {
+    return (new Invocation($this->routing, $this->filters))->proceed($request, $response);
   }
 }
