@@ -14,6 +14,7 @@ class Input implements \web\io\Input {
     $this->buffer= '';
   }
 
+  /** @return string */
   public function readLine() {
     if (null === $this->buffer) return null;    // EOF
 

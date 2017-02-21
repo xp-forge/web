@@ -16,6 +16,7 @@ class Request {
         $this->headers[$name]= $value;
         $this->lookup[strtolower($name)]= $name;
       }
+      // TODO: urlencoded payload
     }
   }
 
@@ -125,9 +126,21 @@ class Request {
     return $this->encode($this->encoding(), $this->uri->getParam($name, $default));
   }
 
+  /**
+   * Gets request values
+   *
+   * @return [:string]
+   */
   public function values() { return $this->values; }
 
-  public function value($name) {
-    return isset($this->values[$name]) ? $this->values[$name] : null;
+  /**
+   * Gets a value by name
+   *
+   * @param  string $name
+   * @param  var $default
+   * @return var
+   */
+  public function value($name, $default= null) {
+    return isset($this->values[$name]) ? $this->values[$name] : $default;
   }
 }
