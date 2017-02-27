@@ -9,6 +9,8 @@ class TestInput implements \web\io\Input {
     $this->headers= $headers;
   }
 
+  public function scheme() { return 'http'; }
+
   public function method() { return $this->method; }
 
   public function uri() { return $this->uri; }

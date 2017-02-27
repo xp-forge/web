@@ -31,7 +31,7 @@ class CallTest extends \unittest\TestCase {
       $handled[]= [$request, $response];
     };
 
-    $request= new Request(new TestInput('GET', 'http://localhost'));
+    $request= new Request(new TestInput('GET', '/'));
     $response= new Response(new TestOutput());
     (new Call($invokeable))->handle($request, $response);
 

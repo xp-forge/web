@@ -8,15 +8,17 @@ class Request {
   private $headers= [];
   private $values= [];
   private $encoding= null;
+  private $method, $uri;
 
   public function __construct(Input $input) {
-    $this->method= $input->method();
-    $this->uri= new URL($input->uri());
     foreach ($input->headers() as $name => $value) {
       $this->headers[$name]= $value;
       $this->lookup[strtolower($name)]= $name;
     }
     // TODO: urlencoded payload
+
+    $this->method= $input->method();
+    $this->uri= new URL($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
   }
 
   private function encode($encoding, $param) {

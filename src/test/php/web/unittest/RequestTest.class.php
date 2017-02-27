@@ -21,37 +21,45 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function can_create() {
-    new Request(new TestInput('GET', 'http://localhost/'));
+    new Request(new TestInput('GET', '/'));
   }
 
   #[@test]
   public function method() {
-    $this->assertEquals('GET', (new Request(new TestInput('GET', 'http://localhost/')))->method());
+    $this->assertEquals('GET', (new Request(new TestInput('GET', '/')))->method());
   }
 
   #[@test]
   public function uri() {
-    $this->assertEquals('http://localhost/', (new Request(new TestInput('GET', 'http://localhost/')))->uri()->getURL());
+    $this->assertEquals('http://localhost/', (new Request(new TestInput('GET', '/')))->uri()->getURL());
+  }
+
+  #[@test]
+  public function uri_respects_host_header() {
+    $this->assertEquals(
+      'http://example.com/',
+      (new Request(new TestInput('GET', '/', ['Host' => 'example.com'])))->uri()->getURL()
+    );
   }
 
   #[@test, @values('parameters')]
   public function params($query, $expected) {
-    $this->assertEquals(['fixture' => $expected], (new Request(new TestInput('GET', 'http://localhost/?'.$query)))->params());
+    $this->assertEquals(['fixture' => $expected], (new Request(new TestInput('GET', '/?'.$query)))->params());
   }
 
   #[@test, @values('parameters')]
   public function param_named($query, $expected) {
-    $this->assertEquals($expected, (new Request(new TestInput('GET', 'http://localhost/?'.$query)))->param('fixture'));
+    $this->assertEquals($expected, (new Request(new TestInput('GET', '/?'.$query)))->param('fixture'));
   }
 
   #[@test, @values(['', 'a=b'])]
   public function non_existant_param($query) {
-    $this->assertEquals(null, (new Request(new TestInput('GET', 'http://localhost/?'.$query)))->param('fixture'));
+    $this->assertEquals(null, (new Request(new TestInput('GET', '/?'.$query)))->param('fixture'));
   }
 
   #[@test, @values(['', 'a=b'])]
   public function non_existant_param_with_default($query) {
-    $this->assertEquals('test', (new Request(new TestInput('GET', 'http://localhost/?'.$query)))->param('fixture', 'test'));
+    $this->assertEquals('test', (new Request(new TestInput('GET', '/?'.$query)))->param('fixture', 'test'));
   }
 
   #[@test, @values([
@@ -60,22 +68,22 @@ class RequestTest extends \unittest\TestCase {
   #  [['Content-Length' => '6100', 'Content-Type' => 'text/html']]
   #])]
   public function headers($input) {
-    $this->assertEquals($input, (new Request(new TestInput('GET', 'http://localhost/', $input)))->headers());
+    $this->assertEquals($input, (new Request(new TestInput('GET', '/', $input)))->headers());
   }
 
   #[@test, @values(['x-test', 'X-Test', 'X-TEST'])]
   public function header_lookup_is_case_insensitive($lookup) {
     $input= ['X-Test' => 'test'];
-    $this->assertEquals('test', (new Request(new TestInput('GET', 'http://localhost/', $input)))->header($lookup));
+    $this->assertEquals('test', (new Request(new TestInput('GET', '/', $input)))->header($lookup));
   }
 
   #[@test]
   public function non_existant_header() {
-    $this->assertEquals(null, (new Request(new TestInput('GET', 'http://localhost/')))->header('X-Test'));
+    $this->assertEquals(null, (new Request(new TestInput('GET', '/')))->header('X-Test'));
   }
 
   #[@test]
   public function non_existant_header_with_default() {
-    $this->assertEquals('test', (new Request(new TestInput('GET', 'http://localhost/')))->header('X-Test', 'test'));
+    $this->assertEquals('test', (new Request(new TestInput('GET', '/')))->header('X-Test', 'test'));
   }
 }

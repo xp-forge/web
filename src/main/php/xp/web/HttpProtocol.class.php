@@ -92,10 +92,9 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     gc_enable();
 
     $input= new Input($socket);
-    if (null === ($message= $input->readLine())) return;
-    sscanf($message, '%s %s HTTP/%d.%d', $method, $uri, $major, $minor);
+    if (null === $input->method()) return;  // Ignore malformed requests
 
-    $request= new Request($method, 'http://localhost:8080'.$uri, $input);
+    $request= new Request($input);
     $response= new Response(new Output($socket));
 
     try {

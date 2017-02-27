@@ -1,7 +1,10 @@
 <?php namespace xp\web;
 
+use peer\CryptoSocket;
+
 class Input implements \web\io\Input {
   private $socket;
+  private $method, $uri;
   private $buffer= '';
 
   /**
@@ -12,6 +15,9 @@ class Input implements \web\io\Input {
   public function __construct($socket) {
     $this->socket= $socket;
     $this->buffer= '';
+
+    if (null === ($message= $this->readLine())) return;
+    sscanf($message, '%s %s HTTP/%d.%d', $this->method, $this->uri, $major, $minor);
   }
 
   /** @return string */
@@ -32,6 +38,15 @@ class Input implements \web\io\Input {
     $this->buffer= substr($this->buffer, $p + 2);
     return $return;
   }
+
+  /** @return string */
+  public function scheme() { return $this->socket instanceof CryptoSocket ? 'https' : 'http'; }
+
+  /** @return string */
+  public function method() { return $this->method; }
+
+  /** @return sring */
+  public function uri() { return $this->uri; }
 
   /** @return iterable */
   public function headers() {

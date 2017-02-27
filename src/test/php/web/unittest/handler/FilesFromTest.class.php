@@ -53,7 +53,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function existing_file() {
-    $in= new TestInput('GET', 'http://localhost/test.html');
+    $in= new TestInput('GET', '/test.html');
     $out= new TestOutput();
 
     $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
@@ -72,7 +72,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function existing_file_unmodified_since() {
-    $in= new TestInput('GET', 'http://localhost/test.html', ['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
+    $in= new TestInput('GET', '/test.html', ['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
@@ -87,7 +87,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function index_html() {
-    $in= new TestInput('GET', 'http://localhost/');
+    $in= new TestInput('GET', '/');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith(['index.html' => 'Home'])));
@@ -106,7 +106,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function non_existant_file() {
-    $in= new TestInput('GET', 'http://localhost/test.html');
+    $in= new TestInput('GET', '/test.html');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith([])));
@@ -124,7 +124,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function non_existant_index_html() {
-    $in= new TestInput('GET', 'http://localhost/');
+    $in= new TestInput('GET', '/');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith([])));

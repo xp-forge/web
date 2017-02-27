@@ -18,7 +18,7 @@ class FrontendTest extends \unittest\TestCase {
   #  ['/photos/bydate', 'photos/bydate']
   #])]
   public function handle($path, $action) {
-    $in= new TestInput('GET', 'http://localhost'.$path, ['Test' => 'true']);
+    $in= new TestInput('GET', $path, ['Test' => 'true']);
     $out= new TestOutput();
 
     $frontend= new Frontend(
