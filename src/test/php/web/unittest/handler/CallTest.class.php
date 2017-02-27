@@ -1,9 +1,11 @@
 <?php namespace web\unittest\handler;
 
+use lang\IllegalArgumentException;
 use web\handler\Call;
 use web\Request;
 use web\Response;
-use lang\IllegalArgumentException;
+use web\unittest\TestInput;
+use web\unittest\TestOutput;
 
 class CallTest extends \unittest\TestCase {
 
@@ -29,8 +31,8 @@ class CallTest extends \unittest\TestCase {
       $handled[]= [$request, $response];
     };
 
-    $request= new Request('GET', 'http://localhost');
-    $response= new Response();
+    $request= new Request(new TestInput('GET', 'http://localhost'));
+    $response= new Response(new TestOutput());
     (new Call($invokeable))->handle($request, $response);
 
     $this->assertEquals([[$request, $response]], $handled);

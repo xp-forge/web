@@ -2,6 +2,7 @@
 
 use web\Request;
 use web\routing\Path;
+use web\unittest\TestInput;
 
 class PathTest extends \unittest\TestCase {
   const BASE = 'http://test.example.com';
@@ -16,6 +17,6 @@ class PathTest extends \unittest\TestCase {
   #  ['/', false]
   #])]
   public function matches($path, $expected) {
-    $this->assertEquals($expected, (new Path('/test'))->matches(new Request('GET', self::BASE.$path)));
+    $this->assertEquals($expected, (new Path('/test'))->matches(new Request(new TestInput('GET', self::BASE.$path))));
   }
 }

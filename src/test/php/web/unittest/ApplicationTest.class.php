@@ -25,7 +25,7 @@ class ApplicationTest extends \unittest\TestCase {
    */
   private function assertHandled(&$handled, $routes) {
     with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
-      $request= new Request('GET', 'http://test.example.com/');
+      $request= new Request(new TestInput('GET', 'http://test.example.com/'));
       $response= new Response();
       $app->service($request, $response);
     }

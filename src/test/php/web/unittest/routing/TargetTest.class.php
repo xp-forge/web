@@ -2,6 +2,7 @@
 
 use web\Request;
 use web\routing\Target;
+use web\unittest\TestInput;
 
 class TargetTest extends \unittest\TestCase {
   const BASE = 'http://test.example.com';
@@ -11,7 +12,7 @@ class TargetTest extends \unittest\TestCase {
   #  ['POST', false]
   #])]
   public function method($method, $expected) {
-    $this->assertEquals($expected, (new Target('CONNECT', '*'))->matches(new Request($method, self::BASE)));
+    $this->assertEquals($expected, (new Target('CONNECT', '*'))->matches(new Request(new TestInput($method, self::BASE))));
   }
 
   #[@test, @values([
@@ -20,7 +21,7 @@ class TargetTest extends \unittest\TestCase {
   #  ['POST', false]
   #])]
   public function methods($method, $expected) {
-    $this->assertEquals($expected, (new Target(['GET', 'HEAD'], '*'))->matches(new Request($method, self::BASE)));
+    $this->assertEquals($expected, (new Target(['GET', 'HEAD'], '*'))->matches(new Request(new TestInput($method, self::BASE))));
   }
 
   #[@test, @values([
@@ -34,6 +35,6 @@ class TargetTest extends \unittest\TestCase {
   #  ['POST', '/', false]
   #])]
   public function method_and_path($method, $path, $expected) {
-    $this->assertEquals($expected, (new Target('GET', '/test'))->matches(new Request($method, self::BASE.$path)));
+    $this->assertEquals($expected, (new Target('GET', '/test'))->matches(new Request(new TestInput($method, self::BASE.$path))));
   }
 }

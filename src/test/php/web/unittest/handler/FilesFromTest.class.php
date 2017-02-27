@@ -53,11 +53,11 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function existing_file() {
-    $in= new TestInput();
+    $in= new TestInput('GET', 'http://localhost/test.html');
     $out= new TestOutput();
 
     $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
-    $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
+    $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
@@ -72,11 +72,11 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function existing_file_unmodified_since() {
-    $in= new TestInput(['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
+    $in= new TestInput('GET', 'http://localhost/test.html', ['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
-    $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
+    $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
       "HTTP/1.1 304 Not Modified\r\n".
@@ -87,11 +87,11 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function index_html() {
-    $in= new TestInput();
+    $in= new TestInput('GET', 'http://localhost/');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith(['index.html' => 'Home'])));
-    $files->handle(new Request('GET', 'http://localhost/', $in), new Response($out));
+    $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
@@ -106,11 +106,11 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function non_existant_file() {
-    $in= new TestInput();
+    $in= new TestInput('GET', 'http://localhost/test.html');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith([])));
-    $files->handle(new Request('GET', 'http://localhost/test.html', $in), new Response($out));
+    $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
       "HTTP/1.1 404 Not Found\r\n".
@@ -124,11 +124,11 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[@test]
   public function non_existant_index_html() {
-    $in= new TestInput();
+    $in= new TestInput('GET', 'http://localhost/');
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith([])));
-    $files->handle(new Request('GET', 'http://localhost/', $in), new Response($out));
+    $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
       "HTTP/1.1 404 Not Found\r\n".

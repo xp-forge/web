@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use peer\URL;
+use web\io\Input;
 
 class Request {
   private $lookup= [];
@@ -8,16 +9,14 @@ class Request {
   private $values= [];
   private $encoding= null;
 
-  public function __construct($method, $uri, $stream= null) {
-    $this->method= $method;
-    $this->uri= $uri instanceof URL ? $uri : new URL($uri);
-    if ($this->stream= $stream) {
-      foreach ($stream->headers() as $name => $value) {
-        $this->headers[$name]= $value;
-        $this->lookup[strtolower($name)]= $name;
-      }
-      // TODO: urlencoded payload
+  public function __construct(Input $input) {
+    $this->method= $input->method();
+    $this->uri= new URL($input->uri());
+    foreach ($input->headers() as $name => $value) {
+      $this->headers[$name]= $value;
+      $this->lookup[strtolower($name)]= $name;
     }
+    // TODO: urlencoded payload
   }
 
   private function encode($encoding, $param) {

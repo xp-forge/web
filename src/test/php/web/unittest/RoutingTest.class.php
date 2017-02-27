@@ -27,7 +27,7 @@ class RoutingTest extends \unittest\TestCase {
 
   #[@test, @expect(CannotRoute::class)]
   public function cannot_service_by_default() {
-    (new Routing())->service(new Request('GET', 'http://localhost/'), new Response());
+    (new Routing())->service(new Request(new TestInput('GET', 'http://localhost/')), new Response());
   }
 
   #[@test]
@@ -55,7 +55,7 @@ class RoutingTest extends \unittest\TestCase {
   #[@test]
   public function for_map() {
     $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
-      ->route(new Request('GET', 'http://localhost/api'))
+      ->route(new Request(new TestInput('GET', 'http://localhost/api')))
     );
   }
 
@@ -63,7 +63,7 @@ class RoutingTest extends \unittest\TestCase {
   public function fallbacks() {
     $this->assertEquals($this->handlers['default'], (new Routing())
       ->fallbacks($this->handlers['default'])
-      ->route(new Request('GET', 'http://localhost/'))
+      ->route(new Request(new TestInput('GET', 'http://localhost/')))
     );
   }
 
@@ -76,7 +76,7 @@ class RoutingTest extends \unittest\TestCase {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('/test', $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
-      ->route(new Request('GET', $url))
+      ->route(new Request(new TestInput('GET', $url)))
     );
   }
 
@@ -88,7 +88,7 @@ class RoutingTest extends \unittest\TestCase {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('CONNECT', $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
-      ->route(new Request($verb, 'http://localhost/'))
+      ->route(new Request(new TestInput($verb, 'http://localhost/')))
     );
   }
 
@@ -101,7 +101,7 @@ class RoutingTest extends \unittest\TestCase {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('GET|POST', $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
-      ->route(new Request($verb, 'http://localhost/'))
+      ->route(new Request(new TestInput($verb, 'http://localhost/')))
     );
   }
 
@@ -114,7 +114,7 @@ class RoutingTest extends \unittest\TestCase {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('GET /', $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
-      ->route(new Request($verb, 'http://localhost/'))
+      ->route(new Request(new TestInput($verb, 'http://localhost/')))
     );
   }
 
@@ -130,7 +130,7 @@ class RoutingTest extends \unittest\TestCase {
         $this->handlers['specific']
       )
       ->fallbacks($this->handlers['default'])
-      ->route(new Request($verb, 'http://localhost/'))
+      ->route(new Request(new TestInput($verb, 'http://localhost/')))
     );
   }
 
@@ -143,7 +143,7 @@ class RoutingTest extends \unittest\TestCase {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->with(new Route(new Target(['GET', 'HEAD'], '*'), $this->handlers['specific']))
       ->fallbacks($this->handlers['default'])
-      ->route(new Request($verb, 'http://localhost/'))
+      ->route(new Request(new TestInput($verb, 'http://localhost/')))
     );
   }
 }

@@ -18,7 +18,7 @@ class FrontendTest extends \unittest\TestCase {
   #  ['/photos/bydate', 'photos/bydate']
   #])]
   public function handle($path, $action) {
-    $in= new TestInput(['Test' => 'true']);
+    $in= new TestInput('GET', 'http://localhost'.$path, ['Test' => 'true']);
     $out= new TestOutput();
 
     $frontend= new Frontend(
@@ -44,7 +44,7 @@ class FrontendTest extends \unittest\TestCase {
     );
 
     $rendered= null;
-    $frontend->handle(new Request('GET', 'http://localhost'.$path, $in), new Response($out));
+    $frontend->handle(new Request($in), new Response($out));
 
     $this->assertEquals(
       [$action => [
