@@ -68,6 +68,24 @@ class RequestTest extends \unittest\TestCase {
     );
   }
 
+  #[@test]
+  public function special_charset_parameter_defined_in_spec() {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'];
+    $this->assertEquals(
+      ['fixture' => 'Ã¼'],
+      (new Request(new TestInput('POST', '/', $headers, 'fixture=%C3%BC&_charset_=iso-8859-1')))->params()
+    );
+  }
+
+  #[@test]
+  public function charset_in_mediatype_common_nonspec() {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded; charset=iso-8859-1'];
+    $this->assertEquals(
+      ['fixture' => 'Ã¼'],
+      (new Request(new TestInput('POST', '/', $headers, 'fixture=%C3%BC')))->params()
+    );
+  }
+
   #[@test, @values('parameters')]
   public function get_param_named($query, $expected) {
     $this->assertEquals($expected, (new Request(new TestInput('GET', '/?'.$query)))->param('fixture'));

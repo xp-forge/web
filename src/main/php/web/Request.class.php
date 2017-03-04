@@ -75,15 +75,16 @@ class Request {
 
       // Merge parameters from URL and urlencoded payload.
       $query= $this->uri->getQuery();
-      $mediaType= new ContentType($this->header('Content-Type'));
-      if ($mediaType->matches('application/x-www-form-urlencoded')) {
+      $type= new ContentType($this->header('Content-Type'));
+      if ($type->matches('application/x-www-form-urlencoded')) {
         $query.= '&'.$this->input->read($this->header('Content-Length', -1));
       }
       parse_str($query, $this->params);
 
-      // Support "; charset=XXX" although spec states this media type does not have 
-      // parameters! Then, as per spec, handle _charset_ special parameter
-      if ($this->encoding= $mediaType->param('charset', null)) {
+      // Be liberal in what we accept and support "; charset=XXX" although the spec
+      // states this media type does not have parameters! Then, handle the special
+      // parameter named "_charset_" as per spec.
+      if ($this->encoding= $type->param('charset', null)) {
         return;
       } else if (isset($this->params['_charset_'])) {
         $this->encoding= $this->params['_charset_'];
@@ -91,7 +92,7 @@ class Request {
         return;
       }
 
-      // Otherwise, detect encoding
+      // Otherwise, detect encoding.
       $this->encoding= 'utf-8';
 
       $offset= 0;
