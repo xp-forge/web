@@ -41,8 +41,16 @@ class Request {
   /** @return peer.URL */
   public function uri() { return $this->uri; }
 
+  /**
+   * Pass a named value along with this request
+   *
+   * @param  string $name
+   * @param  var $value
+   * @return self
+   */
   public function pass($name, $value) {
     $this->values[$name]= $value;
+    return $this;
   }
 
   /**

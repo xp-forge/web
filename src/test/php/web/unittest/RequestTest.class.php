@@ -125,4 +125,29 @@ class RequestTest extends \unittest\TestCase {
   public function non_existant_header_with_default() {
     $this->assertEquals('test', (new Request(new TestInput('GET', '/')))->header('X-Test', 'test'));
   }
+
+  #[@test]
+  public function non_existant_value() {
+    $this->assertEquals(null, (new Request(new TestInput('GET', '/')))->value('test'));
+  }
+
+  #[@test]
+  public function non_existant_value_with_default() {
+    $this->assertEquals('Test', (new Request(new TestInput('GET', '/')))->value('test', 'Test'));
+  }
+
+  #[@test]
+  public function pass_value() {
+    $this->assertEquals($this, (new Request(new TestInput('GET', '/')))->pass('test', $this)->value('test'));
+  }
+
+  #[@test]
+  public function values() {
+    $this->assertEquals([], (new Request(new TestInput('GET', '/')))->values());
+  }
+
+  #[@test]
+  public function pass_values() {
+    $this->assertEquals(['test' => $this], (new Request(new TestInput('GET', '/')))->pass('test', $this)->values());
+  }
 }
