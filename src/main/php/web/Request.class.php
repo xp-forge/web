@@ -8,69 +8,31 @@ class Request {
   private $headers= [];
   private $values= [];
   private $encoding= null;
-  private $method, $uri;
+  private $params= null;
+  private $method, $uri, $input;
 
   public function __construct(Input $input) {
     foreach ($input->headers() as $name => $value) {
       $this->headers[$name]= $value;
       $this->lookup[strtolower($name)]= $name;
     }
-    // TODO: urlencoded payload
 
     $this->method= $input->method();
     $this->uri= new URL($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
+    $this->input= $input;
   }
 
-  private function encode($encoding, $param) {
+  private function encode($param) {
     if (is_array($param)) {
       foreach ($param as &$value) {
-        $value= $this->encode($encoding, $value);
+        $value= $this->encode($value);
       }
       return $param;
     } else if (null === $param) {
       return null;
     } else {
-      return iconv($encoding, \xp::ENCODING, $param);
+      return iconv($this->encoding, \xp::ENCODING, $param);
     }
-  }
-
-  /** @return string */
-  public function encoding() {
-    if (null === $this->encoding) {
-      $this->encoding= 'utf-8';
-
-      $offset= 0;
-      $query= $this->uri->getQuery();
-      while (false !== ($p= strpos($query, '%', $offset))) {
-        $chr= hexdec($query{$p + 1}.$query{$p + 2});
-
-        if ($chr < 0x80) {                              // OK, same as ASCII
-          $offset= $p + 3;
-          continue;
-        } else if ($chr >= 0xc2 && $chr <= 0xdf) {      // 2 byte sequence
-          $sequence= [substr($query, $p + 4, 2)];
-          $offset= $p + 6;
-        } else if ($chr >= 0xe0 && $chr <= 0xef) {      // 3 byte sequence
-          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2)];
-          $offset= $p + 9;
-        } else if ($chr >= 0xf0 && $chr <= 0xf4) {      // 4 byte sequence
-          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2), substr($query, $p + 10, 2)];
-          $offset= $p + 12;
-        } else {
-          $this->encoding= 'iso-8859-1';
-          break;
-        }
-
-        foreach ($sequence as $bytes) {
-          $chr= hexdec($bytes);
-          if ($chr < 0x80 || $chr > 0xbf) {
-            $this->encoding= 'iso-8859-1';
-            break 2;
-          }
-        }
-      }
-    }
-    return $this->encoding;
   }
 
   /** @return string */
@@ -103,15 +65,78 @@ class Request {
   }
 
   /**
+   * Parses payload into parameters
+   *
+   * @see    http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
+   * @return void
+   */
+  private function parse() {
+    if (null === $this->params) {
+
+      // Merge parameters from URL and urlencoded payload.
+      $query= $this->uri->getQuery();
+      $mediaType= new ContentType($this->header('Content-Type'));
+      if ($mediaType->matches('application/x-www-form-urlencoded')) {
+        $query.= '&'.$this->input->read($this->header('Content-Length', -1));
+      }
+      parse_str($query, $this->params);
+
+      // Support "; charset=XXX" although spec states this media type does not have 
+      // parameters! Then, as per spec, handle _charset_ special parameter
+      if ($this->encoding= $mediaType->param('charset', null)) {
+        return;
+      } else if (isset($this->params['_charset_'])) {
+        $this->encoding= $this->params['_charset_'];
+        unset($this->params['_charset_']);
+        return;
+      }
+
+      // Otherwise, detect encoding
+      $this->encoding= 'utf-8';
+
+      $offset= 0;
+      while (false !== ($p= strpos($query, '%', $offset))) {
+        $chr= hexdec($query{$p + 1}.$query{$p + 2});
+
+        if ($chr < 0x80) {                              // OK, same as ASCII
+          $offset= $p + 3;
+          continue;
+        } else if ($chr >= 0xc2 && $chr <= 0xdf) {      // 2 byte sequence
+          $sequence= [substr($query, $p + 4, 2)];
+          $offset= $p + 6;
+        } else if ($chr >= 0xe0 && $chr <= 0xef) {      // 3 byte sequence
+          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2)];
+          $offset= $p + 9;
+        } else if ($chr >= 0xf0 && $chr <= 0xf4) {      // 4 byte sequence
+          $sequence= [substr($query, $p + 4, 2), substr($query, $p + 7, 2), substr($query, $p + 10, 2)];
+          $offset= $p + 12;
+        } else {
+          $this->encoding= 'iso-8859-1';
+          break;
+        }
+
+        foreach ($sequence as $bytes) {
+          $chr= hexdec($bytes);
+          if ($chr < 0x80 || $chr > 0xbf) {
+            $this->encoding= 'iso-8859-1';
+            break 2;
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Gets request parameters
    *
    * @return [:var]
    */
   public function params() {
+    $this->parse();
+
     $result= [];
-    $encoding= $this->encoding();
-    foreach ($this->uri->getParams() as $name => $param) {
-      $result[$name]= $this->encode($encoding, $param);
+    foreach ($this->params as $name => $param) {
+      $result[$name]= $this->encode($param);
     }
     return $result;
   }
@@ -124,7 +149,9 @@ class Request {
    * @return var
    */
   public function param($name, $default= null) {
-    return $this->encode($this->encoding(), $this->uri->getParam($name, $default));
+    $this->parse();
+
+    return isset($this->params[$name]) ? $this->encode($this->params[$name]) : $default;
   }
 
   /**

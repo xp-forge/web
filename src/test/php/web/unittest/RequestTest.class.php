@@ -43,22 +43,43 @@ class RequestTest extends \unittest\TestCase {
   }
 
   #[@test, @values('parameters')]
-  public function params($query, $expected) {
-    $this->assertEquals(['fixture' => $expected], (new Request(new TestInput('GET', '/?'.$query)))->params());
+  public function get_params($query, $expected) {
+    $this->assertEquals(
+      ['fixture' => $expected],
+      (new Request(new TestInput('GET', '/?'.$query, [])))->params()
+    );
   }
 
   #[@test, @values('parameters')]
-  public function param_named($query, $expected) {
+  public function post_params($query, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => strlen($query)];
+    $this->assertEquals(
+      ['fixture' => $expected],
+      (new Request(new TestInput('POST', '/', $headers, $query)))->params()
+    );
+  }
+
+  #[@test, @values('parameters')]
+  public function post_params_without_content_length($query, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'];
+    $this->assertEquals(
+      ['fixture' => $expected],
+      (new Request(new TestInput('POST', '/', $headers, $query)))->params()
+    );
+  }
+
+  #[@test, @values('parameters')]
+  public function get_param_named($query, $expected) {
     $this->assertEquals($expected, (new Request(new TestInput('GET', '/?'.$query)))->param('fixture'));
   }
 
   #[@test, @values(['', 'a=b'])]
-  public function non_existant_param($query) {
+  public function non_existant_get_param($query) {
     $this->assertEquals(null, (new Request(new TestInput('GET', '/?'.$query)))->param('fixture'));
   }
 
   #[@test, @values(['', 'a=b'])]
-  public function non_existant_param_with_default($query) {
+  public function non_existant_get_param_with_default($query) {
     $this->assertEquals('test', (new Request(new TestInput('GET', '/?'.$query)))->param('fixture', 'test'));
   }
 

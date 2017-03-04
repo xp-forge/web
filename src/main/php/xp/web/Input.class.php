@@ -55,4 +55,26 @@ class Input implements \web\io\Input {
       yield $name => $value;
     }
   }
+
+  /**
+   * Reads a given number of bytes
+   *
+   * @param  int $length Pass -1 to read all
+   * @return string
+   */
+  public function read($length= -1) {
+    $data= $this->buffer;
+    if (-1 === $length) {
+      while (!$this->socket->eof()) {
+        $data.= $this->socket->readBinary();
+      }
+      $this->buffer= null;
+    } else {
+      while (strlen($data) < $length) {
+        $data.= $this->socket->readBinary($length - strlen($data));
+      }
+      $this->buffer= $this->socket->eof() ? null : '';
+    }
+    return $data;
+  }
 }
