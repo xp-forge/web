@@ -11,6 +11,7 @@ class Request {
   private $params= null;
   private $method, $uri, $input;
 
+  /** @param web.io.Input $input */
   public function __construct(Input $input) {
     foreach ($input->headers() as $name => $value) {
       $this->headers[$name]= $value;
@@ -22,6 +23,12 @@ class Request {
     $this->input= $input;
   }
 
+  /**
+   * Encode a parameter's value to XP encoding
+   *
+   * @param  var $param
+   * @return var
+   */
   private function encode($param) {
     if (is_array($param)) {
       foreach ($param as &$value) {
