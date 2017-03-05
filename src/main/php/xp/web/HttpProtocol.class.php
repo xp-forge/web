@@ -107,16 +107,16 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     } catch (\Exception $e) {   // PHP5
       $this->sendError($request, $response, new InternalServerError($e));
     } finally {
+      if ('Keep-Alive' === $request->header('Connection')) {
+        $request->consume();
+      } else {
+        $socket->close();
+      }
+
       gc_collect_cycles();
       gc_disable();
       clearstatcache();
       \xp::gc();
-
-      if ('Keep-Alive' === $request->header('Connection')) {
-        // TODO: If there is POST data and it hasn't been consumed, close connection
-      } else {
-        $socket->close();
-      }
     }
   }
 

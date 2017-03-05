@@ -4,6 +4,7 @@ use peer\URL;
 use web\io\Input;
 
 class Request {
+  private $consumed= false;
   private $lookup= [];
   private $headers= [];
   private $values= [];
@@ -93,6 +94,7 @@ class Request {
     $type= new ContentType($this->header('Content-Type'));
     if ($type->matches('application/x-www-form-urlencoded')) {
       $query.= '&'.$this->input->read($this->header('Content-Length', -1));
+      $this->consumed= true;
     }
     parse_str($query, $this->params);
 
@@ -185,5 +187,20 @@ class Request {
    */
   public function value($name, $default= null) {
     return isset($this->values[$name]) ? $this->values[$name] : $default;
+  }
+
+  /**
+   * Consumes rest of data
+   *
+   * @return void
+   */
+  public function consume() {
+    if ($this->consumed) return;
+
+    if ($length= $this->header('Content-Length', 0)) {
+      $this->input->read($length);
+    } else if ('chunked' === $this->header('Transfer-Encoding')) {
+      // TBI: Chunked request
+    }
   }
 }
