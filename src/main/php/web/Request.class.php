@@ -208,6 +208,13 @@ class Request {
     return $this->cookies;
   }
 
+  /**
+   * Gets a cookie by name
+   *
+   * @param  string $name
+   * @param  var $default
+   * @return var
+   */
   public function cookie($name, $default= null) {
     if (null === $this->cookies) {
       $this->cookies();
