@@ -53,7 +53,7 @@ class FrontendTest extends \unittest\TestCase {
           'action'  => $action,
           'headers' => ['Test' => 'true'],
           'params'  => [],
-          'uri'     => new URI('http://localhost'.$path)
+          'uri'     => new URI('http://localhost', $path)
         ]
       ]],
       $rendered
