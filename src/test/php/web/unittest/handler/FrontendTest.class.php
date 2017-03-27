@@ -6,9 +6,9 @@ use web\handler\Actions;
 use web\handler\Action;
 use web\Request;
 use web\Response;
-use peer\URL;
 use web\unittest\TestInput;
 use web\unittest\TestOutput;
+use util\URI;
 
 class FrontendTest extends \unittest\TestCase {
 
@@ -24,7 +24,7 @@ class FrontendTest extends \unittest\TestCase {
     $frontend= new Frontend(
       newinstance(Actions::class, [], [
         'from' => function($request) {
-          $name= trim($request->uri()->getPath(), '/') ?: 'index';
+          $name= trim($request->uri()->path(), '/') ?: 'index';
           $request->pass('user', 'test');
 
           return newinstance(Action::class, [], [
@@ -53,7 +53,7 @@ class FrontendTest extends \unittest\TestCase {
           'action'  => $action,
           'headers' => ['Test' => 'true'],
           'params'  => [],
-          'uri'     => new URL('http://localhost'.$path)
+          'uri'     => new URI('http://localhost'.$path)
         ]
       ]],
       $rendered

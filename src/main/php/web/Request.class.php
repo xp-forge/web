@@ -1,6 +1,6 @@
 <?php namespace web;
 
-use peer\URL;
+use util\URI;
 use web\io\Input;
 
 class Request {
@@ -20,7 +20,7 @@ class Request {
     }
 
     $this->method= $input->method();
-    $this->uri= new URL($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
+    $this->uri= new URI($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
     $this->input= $input;
   }
 
@@ -46,7 +46,7 @@ class Request {
   /** @return string */
   public function method() { return $this->method; }
 
-  /** @return peer.URL */
+  /** @return util.URI */
   public function uri() { return $this->uri; }
 
   /**
@@ -90,7 +90,7 @@ class Request {
     if (null !== $this->params) return;
 
     // Merge parameters from URL and urlencoded payload.
-    $query= $this->uri->getQuery();
+    $query= $this->uri->query(false);
     $type= new ContentType($this->header('Content-Type'));
     if ($type->matches('application/x-www-form-urlencoded')) {
       $query.= '&'.$this->input->read($this->header('Content-Length', -1));

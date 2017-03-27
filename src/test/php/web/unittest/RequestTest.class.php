@@ -31,14 +31,14 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function uri() {
-    $this->assertEquals('http://localhost/', (new Request(new TestInput('GET', '/')))->uri()->getURL());
+    $this->assertEquals('http://localhost/', (string)(new Request(new TestInput('GET', '/')))->uri());
   }
 
   #[@test]
   public function uri_respects_host_header() {
     $this->assertEquals(
       'http://example.com/',
-      (new Request(new TestInput('GET', '/', ['Host' => 'example.com'])))->uri()->getURL()
+      (string)(new Request(new TestInput('GET', '/', ['Host' => 'example.com'])))->uri()
     );
   }
 

@@ -20,7 +20,7 @@ class FilesFrom implements \web\Handler {
    * @return  void
    */
   public function handle($request, $response) {
-    $target= new Path($this->path, $request->uri()->getPath());
+    $target= new Path($this->path, $request->uri()->path());
 
     if ($target->isFolder()) {
       $file= new File($target, 'index.html');
@@ -30,7 +30,7 @@ class FilesFrom implements \web\Handler {
 
     if (!$file->exists()) {
       $response->answer(404, 'Not Found');
-      $response->send('The file \''.$request->uri()->getPath().'\' was not found', 'text/plain');
+      $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
       return;
     }
 

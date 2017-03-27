@@ -21,7 +21,7 @@ class Path implements Match {
    */
   public function matches($request) {
     return 0 === strncmp(
-      rtrim($request->uri()->getPath(), '/').'/',
+      rtrim($request->uri()->path(), '/').'/',
       $this->suffix,
       strlen($this->suffix)
     );
