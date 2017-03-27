@@ -150,4 +150,35 @@ class RequestTest extends \unittest\TestCase {
   public function pass_values() {
     $this->assertEquals(['test' => $this], (new Request(new TestInput('GET', '/')))->pass('test', $this)->values());
   }
+
+  #[@test]
+  public function no_cookies() {
+    $this->assertEquals([], (new Request(new TestInput('GET', '/', [])))->cookies());
+  }
+
+  #[@test]
+  public function cookies() {
+    $this->assertEquals(
+      ['user' => 'thekid', 'tz' => 'Europe/Berlin'],
+      (new Request(new TestInput('GET', '/', ['Cookie' => 'user=thekid; tz=Europe%2FBerlin'])))->cookies()
+    );
+  }
+
+  #[@test]
+  public function non_existant_cookie() {
+    $this->assertEquals(null, (new Request(new TestInput('GET', '/', [])))->cookie('user'));
+  }
+
+  #[@test]
+  public function non_existant_cookie_with_guest() {
+    $this->assertEquals('guest', (new Request(new TestInput('GET', '/', [])))->cookie('user', 'guest'));
+  }
+
+  #[@test]
+  public function cookie() {
+    $this->assertEquals(
+      'Europe/Berlin',
+      (new Request(new TestInput('GET', '/', ['Cookie' => 'user=thekid; tz=Europe%2FBerlin'])))->cookie('tz')
+    );
+  }
 }

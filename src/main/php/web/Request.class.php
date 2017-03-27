@@ -10,6 +10,7 @@ class Request {
   private $values= [];
   private $encoding= null;
   private $params= null;
+  private $cookies= null;
   private $method, $uri, $input;
 
   /** @param web.io.Input $input */
@@ -187,6 +188,32 @@ class Request {
    */
   public function value($name, $default= null) {
     return isset($this->values[$name]) ? $this->values[$name] : $default;
+  }
+
+  /**
+   * Gets request cookies
+   *
+   * @return [:string]
+   */
+  public function cookies() {
+    if (null === $this->cookies) {
+      $this->cookies= [];
+      if ($header= $this->header('Cookie')) {
+        foreach (explode(';', $header) as $cookie) {
+          sscanf(ltrim($cookie), '%[^=]=%[^;]', $name, $value);
+          $this->cookies[urldecode($name)]= urldecode($value);
+        }
+      }
+    }
+    return $this->cookies;
+  }
+
+  public function cookie($name, $default= null) {
+    if (null === $this->cookies) {
+      $this->cookies();
+    }
+
+    return isset($this->cookies[$name]) ? $this->cookies[$name] : $default;
   }
 
   /**
