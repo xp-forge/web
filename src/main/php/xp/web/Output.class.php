@@ -18,4 +18,8 @@ class Output implements \web\io\Output {
   public function write($bytes) {
     $this->socket->write($bytes);
   }
+
+  public function finish() {
+    // NOOP
+  }
 }

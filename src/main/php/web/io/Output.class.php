@@ -6,4 +6,6 @@ interface Output {
 
   public function write($bytes);
 
+  public function finish();
+
 }

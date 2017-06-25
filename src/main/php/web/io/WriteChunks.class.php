@@ -5,7 +5,7 @@
  *
  * @see   https://tools.ietf.org/html/rfc2616#section-3.6.1
  */
-class WriteChunks {
+class WriteChunks implements Output {
   private $target;
 
   /** @param io.streams.OutputStream $target */
@@ -13,13 +13,31 @@ class WriteChunks {
     $this->target= $target;
   }
 
-  /** @param string $chunk */
+  /**
+   * Begins output
+   *
+   * @param  int $status
+   * @param  string $message
+   * @param  [:string] $headers
+   * @return void
+   */
+  public function begin($status, $message, $headers) {
+    $this->target->begin($status, $message, $headers);
+  }
+
+  /**
+   * Writes a chunk of data
+   *
+   * @param  string $chunk
+   * @return void
+   */
   public function write($chunk) {
     $this->target->write(dechex(strlen($chunk))."\r\n".$chunk."\r\n");
   }
 
   /** @return void */
-  public function close() {
+  public function finish() {
     $this->target->write("0\r\n\r\n");
+    $this->target->finish();
   }
 }

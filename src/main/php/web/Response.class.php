@@ -8,7 +8,7 @@ use web\io\WriteChunks;
  *
  * @test  xp://web.unittest.ResponseTest
  */
-class Response implements \io\streams\OutputStream {
+class Response {
   private $target;
   private $flushed= false;
   private $status= 200;
@@ -67,25 +67,6 @@ class Response implements \io\streams\OutputStream {
   }
 
   /**
-   * Writes to response, flushing it if necessary.
-   *
-   * @return void
-   */
-  public function write($bytes) {
-    $this->flushed || $this->flush();
-    $this->target->write($bytes);
-  }
-
-  /**
-   * Closes response
-   *
-   * @return void
-   */
-  public function close() {
-    $this->flushed || $this->flush();
-  }
-
-  /**
    * Transfers a stream
    *
    * @param  io.streams.InputStream $in
@@ -96,18 +77,19 @@ class Response implements \io\streams\OutputStream {
     $this->headers['Content-Type']= $mediaType;
     if (null === $size) {
       $this->headers['Transfer-Encoding']= 'chunked';
-      $out= new WriteChunks($this->target);
+      $target= new WriteChunks($this->target);
     } else {
       $this->headers['Content-Length']= $size;
-      $out= $this;
+      $target= $this->target;
     }
 
-    $this->flush();
+    $target->begin($this->status, $this->message, $this->headers);
+    $this->flushed= true;
     while ($in->available()) {
-      $out->write($in->read());
+      $target->write($in->read());
     }
 
-    $out->close();
+    $target->finish();
     $in->close();
   }
 
@@ -115,6 +97,8 @@ class Response implements \io\streams\OutputStream {
     $this->headers['Content-Type']= $mediaType;
     $this->headers['Content-Length']= strlen($content);
     $this->flush();
+
     $this->target->write($content);
+    $this->target->finish();
   }
 }

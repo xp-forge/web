@@ -14,4 +14,8 @@ class TestOutput implements \web\io\Output {
   public function write($bytes) {
     $this->bytes.= $bytes;
   }
+
+  public function finish() {
+    // NOOP
+  }
 }
