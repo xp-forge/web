@@ -1,8 +1,12 @@
 <?php namespace web\io;
 
+use lang\FormatException;
+use lang\IllegalArgumentException;
+
 /**
  * Range Requests
  *
+ * @test  xp://web.unittest.RangesTest
  * @see   https://tools.ietf.org/html/rfc7233
  */
 class Ranges {
@@ -14,8 +18,13 @@ class Ranges {
    * @param  string $unit
    * @param  web.io.Range[] $sets
    * @param  int $complete
+   * @throws lang.IllegalArgumentException
    */
   public function __construct($unit, $sets, $complete) {
+    if (empty($sets)) {
+      throw new IllegalArgumentException('Sets may not be empty');
+    }
+
     $this->unit= $unit;
     $this->sets= $sets;
     $this->complete= $complete;
@@ -27,11 +36,14 @@ class Ranges {
    * @param  string $input
    * @param  int $complete
    * @return self or NULL if input is NULL.
+   * @throws lang.FormatException
    */
   public static function in($input, $complete) {
     if (null === $input) return null;
 
-    sscanf($input, '%[^=]=%[0-9-,]', $unit, $set);
+    if (2 !== sscanf($input, '%[^=]=%[0-9-,]%s', $unit, $set, $_)) {
+      throw new FormatException('Invalid range "'.$input.'"');
+    }
 
     $sets= [];
     foreach (explode(',', $set) as $range) {
