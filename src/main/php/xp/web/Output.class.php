@@ -18,14 +18,4 @@ class Output implements \web\io\Output {
   public function write($bytes) {
     $this->socket->write($bytes);
   }
-
-  public function stream($in) {
-    try {
-      while ($in->available()) {
-        $this->socket->write($in->read());
-      }
-    } finally {
-      $in->close();
-    }
-  }
 }

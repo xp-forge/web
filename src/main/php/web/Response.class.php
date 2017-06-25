@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use lang\IllegalStateException;
+use web\io\WriteChunks;
 
 /**
  * Response
@@ -84,11 +85,30 @@ class Response implements \io\streams\OutputStream {
     $this->flushed || $this->flush();
   }
 
+  /**
+   * Transfers a stream
+   *
+   * @param  io.streams.InputStream $in
+   * @param  string $mediaType
+   * @param  int $size If omitted, uses chunked transfer encoding
+   */
   public function transfer($in, $mediaType= 'application/octet-stream', $size= -1) {
     $this->headers['Content-Type']= $mediaType;
-    $this->headers['Content-Length']= $size;    // FIXME: Transfer-Encoding chunked!
+    if (-1 === $size) {
+      $this->headers['Transfer-Encoding']= 'chunked';
+      $out= new WriteChunks($this->target);
+    } else {
+      $this->headers['Content-Length']= $size;
+      $out= $this;
+    }
+
     $this->flush();
-    $this->target->stream($in);
+    while ($in->available()) {
+      $out->write($in->read());
+    }
+
+    $out->close();
+    $in->close();
   }
 
   public function send($content, $mediaType= 'text/html') {

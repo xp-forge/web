@@ -109,7 +109,7 @@ class ResponseTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function transfer_stream() {
+  public function transfer_stream_with_length() {
     $out= new TestOutput();
 
     $res= new Response($out);
@@ -118,6 +118,20 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
+      $out->bytes
+    );
+  }
+
+  #[@test]
+  public function transfer_stream_chunked() {
+    $out= new TestOutput();
+
+    $res= new Response($out);
+    $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html');
+
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
+      "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
       $out->bytes
     );
   }

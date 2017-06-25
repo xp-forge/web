@@ -1,7 +1,5 @@
 <?php namespace web\unittest;
 
-use io\streams\Streams;
-
 class TestOutput implements \web\io\Output {
   public $bytes;
 
@@ -15,13 +13,5 @@ class TestOutput implements \web\io\Output {
 
   public function write($bytes) {
     $this->bytes.= $bytes;
-  }
-
-  public function stream($in) {
-    try {
-      $this->bytes.= Streams::readAll($in);
-    } finally {
-      $in->close();
-    }
   }
 }
