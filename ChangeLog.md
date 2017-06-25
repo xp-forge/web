@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.3.0 / 2017-06-25
+
 * Merged pull request #9: Ranges support - @thekid
 * Merged pull request #8: Refactor output - @thekid
 * Fixed issue #7: Dependencies missing - @thekid
