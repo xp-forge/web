@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #7: Dependencies missing - @thekid
 * Fixed issue #6: Chunked transfer encoding - @thekid
 
 ## 0.2.0 / 2017-06-04
