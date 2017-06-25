@@ -92,9 +92,9 @@ class Response implements \io\streams\OutputStream {
    * @param  string $mediaType
    * @param  int $size If omitted, uses chunked transfer encoding
    */
-  public function transfer($in, $mediaType= 'application/octet-stream', $size= -1) {
+  public function transfer($in, $mediaType= 'application/octet-stream', $size= null) {
     $this->headers['Content-Type']= $mediaType;
-    if (-1 === $size) {
+    if (null === $size) {
       $this->headers['Transfer-Encoding']= 'chunked';
       $out= new WriteChunks($this->target);
     } else {
