@@ -83,7 +83,8 @@ class Response {
       $target= $this->target;
     }
 
-    $this->flush();
+    $target->begin($this->status, $this->message, $this->headers);
+    $this->flushed= true;
     while ($in->available()) {
       $target->write($in->read());
     }
