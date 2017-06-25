@@ -41,10 +41,9 @@ class FilesFrom implements \web\Handler {
    * @param  int $length
    */
   private function copy($output, $file, $length) {
-    $written= 0;
-    while ($written < $length && ($chunk= $file->read(min(8192, $length - $written)))) {
+    while ($length && $chunk= $file->read(min(8192, $length))) {
       $output->write($chunk);
-      $written+= strlen($chunk);
+      $length-= strlen($chunk);
     }
   }
 

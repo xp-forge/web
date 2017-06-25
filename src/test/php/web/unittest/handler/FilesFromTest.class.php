@@ -190,12 +190,12 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
-  public function range_last_four_bytes() {
+  #[@test, @values([0, 8192, 10000])]
+  public function range_last_four_bytes($offset) {
     $in= new TestInput('GET', '/', ['Range' => 'bytes=-4']);
     $out= new TestOutput(); 
 
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files= (new FilesFrom($this->pathWith(['index.html' => str_repeat('*', $offset).'Homepage'])));
     $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
@@ -203,7 +203,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
       "Content-Type: text/html\r\n".
-      "Content-Range: bytes 4-7/8\r\n".
+      "Content-Range: bytes ".($offset + 4)."-".($offset + 7)."/".($offset + 8)."\r\n".
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
