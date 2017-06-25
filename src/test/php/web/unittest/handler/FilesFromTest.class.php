@@ -142,9 +142,15 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
-  public function range_with_start_and_end() {
-    $in= new TestInput('GET', '/', ['Range' => 'bytes=0-3']);
+  #[@test, @values([
+  #  ['0-3', 'Home'],
+  #  ['4-7', 'page'],
+  #  ['0-0', 'H'],
+  #  ['4-4', 'p'],
+  #  ['7-7', 'e']
+  #])]
+  public function range_with_start_and_end($range, $result) {
+    $in= new TestInput('GET', '/', ['Range' => 'bytes='.$range]);
     $out= new TestOutput(); 
 
     $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
@@ -155,10 +161,10 @@ class FilesFromTest extends \unittest\TestCase {
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
       "Content-Type: text/html\r\n".
-      "Content-Range: bytes 0-3/8\r\n".
-      "Content-Length: 4\r\n".
+      "Content-Range: bytes ".$range."/8\r\n".
+      "Content-Length: ".strlen($result)."\r\n".
       "\r\n".
-      "Home",
+      $result,
       $out->bytes
     );
   }
@@ -211,7 +217,8 @@ class FilesFromTest extends \unittest\TestCase {
   #  'bytes=2000-',
   #  'bytes=2000-2001',
   #  'bytes=2000-0',
-  #  'bytes=4-0'
+  #  'bytes=4-0',
+  #  'characters=0-'
   #])]
   public function range_unsatisfiable($range) {
     $in= new TestInput('GET', '/', ['Range' => $range]);
@@ -226,6 +233,34 @@ class FilesFromTest extends \unittest\TestCase {
       "Last-Modified: <Date>\r\n".
       "Content-Range: bytes */8\r\n".
       "\r\n",
+      $out->bytes
+    );
+  }
+
+  #[@test]
+  public function multi_range() {
+    $in= new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7']);
+    $out= new TestOutput(); 
+
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 206 Partial Content\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Type: multipart/byteranges; boundary=594fa07300f865fe\r\n".
+      "Content-Length: 186\r\n".
+      "\r\n".
+      "\r\n--594fa07300f865fe\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Range: bytes 0-3/8\r\n\r\n".
+      "Home".
+      "\r\n--594fa07300f865fe\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Range: bytes 4-7/8\r\n\r\n".
+      "page".
+      "\r\n--594fa07300f865fe--\r\n",
       $out->bytes
     );
   }

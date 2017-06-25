@@ -3,8 +3,11 @@
 use io\Path;
 use io\File;
 use util\MimeType;
+use web\io\Ranges;
 
 class FilesFrom implements \web\Handler {
+  const BOUNDARY = '594fa07300f865fe';
+
   private $path;
 
   /** @param io.Path|io.Folder|string $path */
@@ -28,6 +31,21 @@ class FilesFrom implements \web\Handler {
     }
 
     $this->serve($request, $response, $file);
+  }
+
+  /**
+   * Copies a given amount of bytes from the specified file to the output
+   *
+   * @param  web.io.Output $output
+   * @param  io.File $file
+   * @param  int $length
+   */
+  private function copy($output, $file, $length) {
+    $written= 0;
+    while ($written < $length && ($chunk= $file->read(min(8192, $length - $written)))) {
+      $output->write($chunk);
+      $written+= strlen($chunk);
+    }
   }
 
   /**
@@ -59,45 +77,61 @@ class FilesFrom implements \web\Handler {
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
 
     $mimeType= MimeType::getByFileName($file->filename);
-    if ($range= $request->header('Range')) {
-      $size= $file->size();
-      $end= $size - 1;
-      sscanf($range, 'bytes=%d-%d', $start, $end);
-
-      // Handle "bytes=-4", requesting last four bytes
-      if ($start < 0) $start+= $size;
-
-      if ($start >= $size || $end >= $size || $end < $start) {
+    if ($ranges= Ranges::in($request->header('Range'), $file->size())) {
+      if (!$ranges->satisfiable() || 'bytes' !== $ranges->unit()) {
         $response->answer(416, 'Range Not Satisfiable');
-        $response->header('Content-Range', 'bytes */'.$size);
+        $response->header('Content-Range', 'bytes */'.$ranges->complete());
         $response->flush();
         return;
       }
+
+      $file->open(File::READ);
+      $output= $response->output();
 
       $response->answer(206, 'Partial Content');
-      $response->header('Content-Type', $mimeType);
-      $response->header('Content-Range', 'bytes '.$start.'-'.$end.'/'.$size);
+      if ($range= $ranges->single()) {
+        $response->header('Content-Type', $mimeType);
+        $response->header('Content-Range', $ranges->format($range));
+        $response->header('Content-Length', $range->length());
 
-      if ($start === $end) {
-        $response->header('Content-Length', 0);
+        $file->seek($range->start());
         $response->flush();
-        return;
-      }
-
-      $response->header('Content-Length', $end - $start + 1);
-      $file->open(File::READ);
-      $file->seek($start);
-
-      $output= $response->output();
-      $response->flush();
-      try {
-        while ($start < $end && ($chunk= $file->read(min(8192, $end - $start + 1)))) {
-          $output->write($chunk);
-          $start+= strlen($chunk);
+        try {
+          $this->copy($output, $file, $range->length());
+        } finally {
+          $file->close();
+          $output->finish();
         }
-      } finally {
-        $file->close();
-        $output->finish();
+      } else {
+        $headers= [];
+        $trailer= "\r\n--".self::BOUNDARY."--\r\n";
+
+        $length= strlen($trailer);
+        foreach ($ranges->sets() as $i => $range) {
+          $header= sprintf(
+            "\r\n--%s\r\nContent-Type: %s\r\nContent-Range: %s\r\n\r\n",
+            self::BOUNDARY,
+            $mimeType,
+            $ranges->format($range)
+          );
+          $headers[$i]= $header;
+          $length+= strlen($header) + $range->length();
+        }
+
+        $response->header('Content-Type', 'multipart/byteranges; boundary='.self::BOUNDARY);
+        $response->header('Content-Length', $length);
+        $response->flush();
+        try {
+          foreach ($ranges->sets() as $i => $range) {
+            $output->write($headers[$i]);
+            $file->seek($range->start());
+            $this->copy($output, $file, $range->length());
+          }
+          $output->write($trailer);
+        } finally {
+          $file->close();
+          $output->finish();
+        }
       }
     } else {
       $response->answer(200, 'OK');
