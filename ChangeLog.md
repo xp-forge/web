@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged pull request #9: Ranges support - @thekid
 * Merged pull request #8: Refactor output - @thekid
 * Fixed issue #7: Dependencies missing - @thekid
 * Fixed issue #6: Chunked transfer encoding - @thekid
