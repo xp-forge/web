@@ -92,7 +92,7 @@ class Runner {
 
     for ($i= 0; $i < sizeof($args); $i++) {
        if ('-r' === $args[$i]) {
-        $docroot= $webroot->resolve($args[++$i]);
+        $docroot= $args[++$i];
       } else if ('-a' === $args[$i]) {
         $address= $args[++$i];
       } else if ('-p' === $args[$i]) {

@@ -9,14 +9,15 @@ use web\io\WriteChunks;
  * @test  xp://web.unittest.ResponseTest
  */
 class Response {
-  private $target;
+  private $output;
   private $flushed= false;
   private $status= 200;
   private $message= 'OK';
   private $headers= [];
 
-  public function __construct($target= null) {
-    $this->target= $target;
+  /** @param web.io.Output $output */
+  public function __construct($output= null) {
+    $this->output= $output;
   }
 
   /**
@@ -51,6 +52,12 @@ class Response {
   /** @return [:string] */
   public function headers() { return $this->headers; }
 
+  /** @return web.io.Output */
+  public function output() { return $this->output; }
+
+  /** @return bool */
+  public function flushed() { return $this->flushed; }
+
   /**
    * Sends headers
    *
@@ -62,7 +69,7 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $this->target->begin($this->status, $this->message, $this->headers);
+    $this->output->begin($this->status, $this->message, $this->headers);
     $this->flushed= true;
   }
 
@@ -77,19 +84,19 @@ class Response {
     $this->headers['Content-Type']= $mediaType;
     if (null === $size) {
       $this->headers['Transfer-Encoding']= 'chunked';
-      $target= new WriteChunks($this->target);
+      $output= new WriteChunks($this->output);
     } else {
       $this->headers['Content-Length']= $size;
-      $target= $this->target;
+      $output= $this->output;
     }
 
-    $target->begin($this->status, $this->message, $this->headers);
+    $output->begin($this->status, $this->message, $this->headers);
     $this->flushed= true;
     while ($in->available()) {
-      $target->write($in->read());
+      $output->write($in->read());
     }
 
-    $target->finish();
+    $output->finish();
     $in->close();
   }
 
@@ -98,7 +105,7 @@ class Response {
     $this->headers['Content-Length']= strlen($content);
     $this->flush();
 
-    $this->target->write($content);
-    $this->target->finish();
+    $this->output->write($content);
+    $this->output->finish();
   }
 }
