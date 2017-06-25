@@ -2,6 +2,11 @@
 
 use lang\IllegalStateException;
 
+/**
+ * Response
+ *
+ * @test  xp://web.unittest.ResponseTest
+ */
 class Response implements \io\streams\OutputStream {
   private $target;
   private $flushed= false;
@@ -13,17 +18,37 @@ class Response implements \io\streams\OutputStream {
     $this->target= $target;
   }
 
+  /**
+   * Sets status code and optionally a message
+   *
+   * @param  int $status
+   * @param  string $message
+   * @return void
+   */
   public function answer($status, $message= null) {
     $this->status= $status;
     $this->message= $message ?: Status::message($status);
   }
 
+  /**
+   * Sets a header
+   *
+   * @param  string $name
+   * @param  string $value
+   * @return void
+   */
   public function header($name, $value) {
     $this->headers[$name]= $value;
   }
 
   /** @return int */
   public function status() { return $this->status; }
+
+  /** @return string */
+  public function message() { return $this->message; }
+
+  /** @return [:string] */
+  public function headers() { return $this->headers; }
 
   /**
    * Sends headers
