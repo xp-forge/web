@@ -55,8 +55,46 @@ class FilesFrom implements \web\Handler {
       }
     }
 
-    $response->answer(200, 'OK');
+    $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
-    $response->transfer($file->in(), MimeType::getByFileName($file->filename), $file->size());
+
+    $mimeType= MimeType::getByFileName($file->filename);
+    if ($range= $request->header('Range')) {
+      $size= $file->size();
+      $end= $size - 1;
+      sscanf($range, 'bytes=%d-%d', $start, $end);
+
+      // Handle "bytes=-4", requesting last four bytes
+      if ($start < 0) $start+= $size;
+
+      $response->answer(206, 'Partial Content');
+      $response->header('Content-Type', $mimeType);
+      $response->header('Content-Range', 'bytes '.$start.'-'.$end.'/'.$size);
+
+      if ($start === $end) {
+        $response->header('Content-Length', 0);
+        $response->flush();
+        return;
+      }
+
+      $response->header('Content-Length', $end - $start + 1);
+      $file->open(File::READ);
+      $file->seek($start);
+
+      $output= $response->output();
+      $response->flush();
+      try {
+        while ($start < $end && ($chunk= $file->read(min(8192, $end - $start + 1)))) {
+          $output->write($chunk);
+          $start+= strlen($chunk);
+        }
+      } finally {
+        $file->close();
+        $output->finish();
+      }
+    } else {
+      $response->answer(200, 'OK');
+      $response->transfer($file->in(), $mimeType, $file->size());
+    }
   }
 }

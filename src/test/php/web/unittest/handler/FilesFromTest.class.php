@@ -61,6 +61,7 @@ class FilesFromTest extends \unittest\TestCase {
 
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
       "Content-Type: text/html\r\n".
       "Content-Length: 4\r\n".
@@ -95,6 +96,7 @@ class FilesFromTest extends \unittest\TestCase {
 
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
       "Content-Type: text/html\r\n".
       "Content-Length: 4\r\n".
@@ -136,6 +138,69 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 26\r\n".
       "\r\n".
       "The file '/' was not found",
+      $out->bytes
+    );
+  }
+
+  #[@test]
+  public function range_with_start_and_end() {
+    $in= new TestInput('GET', '/', ['Range' => 'bytes=0-3']);
+    $out= new TestOutput(); 
+
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 206 Partial Content\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Range: bytes 0-3/8\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Home",
+      $out->bytes
+    );
+  }
+
+  #[@test]
+  public function range_from_offset_until_end() {
+    $in= new TestInput('GET', '/', ['Range' => 'bytes=4-']);
+    $out= new TestOutput(); 
+
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 206 Partial Content\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Range: bytes 4-7/8\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "page",
+      $out->bytes
+    );
+  }
+
+  #[@test]
+  public function range_last_four_bytes() {
+    $in= new TestInput('GET', '/', ['Range' => 'bytes=-4']);
+    $out= new TestOutput(); 
+
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 206 Partial Content\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Range: bytes 4-7/8\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "page",
       $out->bytes
     );
   }
