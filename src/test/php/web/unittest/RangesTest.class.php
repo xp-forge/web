@@ -80,7 +80,7 @@ class RangesTest extends \unittest\TestCase {
   #[@test]
   public function single_set_in() {
     $this->assertEquals(
-      new Ranges('bytes', [new Range(0, 99)], self::COMPLETE),
+      new Ranges('bytes', [new Range(0, self::COMPLETE - 1)], self::COMPLETE),
       Ranges::in('bytes=0-99', self::COMPLETE)
     );
   }
@@ -91,6 +91,22 @@ class RangesTest extends \unittest\TestCase {
     $this->assertEquals(
       new Ranges('bytes', [new Range(0, 0), new Range($last, $last)], self::COMPLETE),
       Ranges::in('bytes=0-0,-1', self::COMPLETE)
+    );
+  }
+
+  #[@test, @values([1, 10])]
+  public function last_n($offset) {
+    $this->assertEquals(
+      new Ranges('bytes', [new Range(self::COMPLETE - $offset, self::COMPLETE - 1)], self::COMPLETE),
+      Ranges::in('bytes=-'.$offset, self::COMPLETE)
+    );
+  }
+
+  #[@test, @values([0, 1])]
+  public function starting_at_until_end($offset) {
+    $this->assertEquals(
+      new Ranges('bytes', [new Range($offset, self::COMPLETE - 1)], self::COMPLETE),
+      Ranges::in('bytes='.$offset.'-', self::COMPLETE)
     );
   }
 
