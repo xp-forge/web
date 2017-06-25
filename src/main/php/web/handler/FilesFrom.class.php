@@ -76,18 +76,24 @@ class FilesFrom implements \web\Handler {
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
 
     $mimeType= MimeType::getByFileName($file->filename);
-    if ($ranges= Ranges::in($request->header('Range'), $file->size())) {
-      if (!$ranges->satisfiable() || 'bytes' !== $ranges->unit()) {
-        $response->answer(416, 'Range Not Satisfiable');
-        $response->header('Content-Range', 'bytes */'.$ranges->complete());
-        $response->flush();
-        return;
-      }
+    if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
+      $response->answer(200, 'OK');
+      $response->transfer($file->in(), $mimeType, $file->size());
+      return;
+    }
 
-      $file->open(File::READ);
-      $output= $response->output();
+    if (!$ranges->satisfiable() || 'bytes' !== $ranges->unit()) {
+      $response->answer(416, 'Range Not Satisfiable');
+      $response->header('Content-Range', 'bytes */'.$ranges->complete());
+      $response->flush();
+      return;
+    }
 
-      $response->answer(206, 'Partial Content');
+    $file->open(File::READ);
+    $output= $response->output();
+    $response->answer(206, 'Partial Content');
+
+    try {
       if ($range= $ranges->single()) {
         $response->header('Content-Type', $mimeType);
         $response->header('Content-Range', $ranges->format($range));
@@ -95,12 +101,7 @@ class FilesFrom implements \web\Handler {
 
         $file->seek($range->start());
         $response->flush();
-        try {
-          $this->copy($output, $file, $range->length());
-        } finally {
-          $file->close();
-          $output->finish();
-        }
+        $this->copy($output, $file, $range->length());
       } else {
         $headers= [];
         $trailer= "\r\n--".self::BOUNDARY."--\r\n";
@@ -120,21 +121,16 @@ class FilesFrom implements \web\Handler {
         $response->header('Content-Type', 'multipart/byteranges; boundary='.self::BOUNDARY);
         $response->header('Content-Length', $length);
         $response->flush();
-        try {
-          foreach ($ranges->sets() as $i => $range) {
-            $output->write($headers[$i]);
-            $file->seek($range->start());
-            $this->copy($output, $file, $range->length());
-          }
-          $output->write($trailer);
-        } finally {
-          $file->close();
-          $output->finish();
+        foreach ($ranges->sets() as $i => $range) {
+          $output->write($headers[$i]);
+          $file->seek($range->start());
+          $this->copy($output, $file, $range->length());
         }
+        $output->write($trailer);
       }
-    } else {
-      $response->answer(200, 'OK');
-      $response->transfer($file->in(), $mimeType, $file->size());
+    } finally {
+      $file->close();
+      $output->finish();
     }
   }
 }
