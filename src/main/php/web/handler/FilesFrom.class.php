@@ -21,13 +21,25 @@ class FilesFrom implements \web\Handler {
    */
   public function handle($request, $response) {
     $target= new Path($this->path, $request->uri()->path());
-
     if ($target->isFolder()) {
       $file= new File($target, 'index.html');
     } else {
       $file= $target->asFile();
     }
 
+    $this->serve($request, $response, $file);
+  }
+
+  /**
+   * Handles a request
+   *
+   * @param   web.Request $request
+   * @param   web.Response $response
+   * @param   io.File|io.Path|string $target
+   * @return  void
+   */
+  public function serve($request, $response, $target) {
+    $file= $target instanceof File ? $target : new File($target);
     if (!$file->exists()) {
       $response->answer(404, 'Not Found');
       $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
