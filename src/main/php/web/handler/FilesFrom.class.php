@@ -31,7 +31,7 @@ class FilesFrom implements \web\Handler {
   }
 
   /**
-   * Handles a request
+   * Serves a single file
    *
    * @param   web.Request $request
    * @param   web.Response $response
@@ -66,6 +66,13 @@ class FilesFrom implements \web\Handler {
 
       // Handle "bytes=-4", requesting last four bytes
       if ($start < 0) $start+= $size;
+
+      if ($start >= $size || $end >= $size || $end < $start) {
+        $response->answer(416, 'Range Not Satisfiable');
+        $response->header('Content-Range', 'bytes */'.$size);
+        $response->flush();
+        return;
+      }
 
       $response->answer(206, 'Partial Content');
       $response->header('Content-Type', $mimeType);

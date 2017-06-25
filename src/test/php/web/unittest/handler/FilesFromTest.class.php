@@ -42,7 +42,7 @@ class FilesFromTest extends \unittest\TestCase {
   /** @return void */
   public function tearDown() {
     foreach ($this->cleanup as $folder) {
-      $folder->unlink();
+      $folder->exists() && $folder->unlink();
     }
   }
 
@@ -201,6 +201,31 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
+      $out->bytes
+    );
+  }
+
+  #[@test, @values([
+  #  'bytes=0-2000',
+  #  'bytes=4-2000',
+  #  'bytes=2000-',
+  #  'bytes=2000-2001',
+  #  'bytes=2000-0',
+  #  'bytes=4-0'
+  #])]
+  public function range_unsatisfiable($range) {
+    $in= new TestInput('GET', '/', ['Range' => $range]);
+    $out= new TestOutput();
+
+    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 416 Range Not Satisfiable\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Range: bytes */8\r\n".
+      "\r\n",
       $out->bytes
     );
   }
