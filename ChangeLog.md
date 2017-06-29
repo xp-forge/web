@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.4.0 / 2017-06-30
+
 * Fixed issue #15: curl: (52) Empty reply from server - @thekid
 * Implemented issue #12: Simplify streaming to the response
   - PR #14: Add stream() method
