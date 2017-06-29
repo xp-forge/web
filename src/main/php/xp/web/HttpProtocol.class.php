@@ -107,6 +107,8 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     } catch (\Exception $e) {   // PHP5
       $this->sendError($request, $response, new InternalServerError($e));
     } finally {
+      $response->flushed() || $response->flush();
+
       if ('Keep-Alive' === $request->header('Connection')) {
         $request->consume();
       } else {

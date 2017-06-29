@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #15: curl: (52) Empty reply from server - @thekid
+
 ## 0.3.0 / 2017-06-25
 
 * Merged pull request #9: Ranges support - @thekid
