@@ -5,7 +5,7 @@
  *
  * @see   https://tools.ietf.org/html/rfc2616#section-3.6.1
  */
-class WriteChunks implements Output {
+class WriteChunks extends Output {
   private $target;
 
   /** @param io.streams.OutputStream $target */

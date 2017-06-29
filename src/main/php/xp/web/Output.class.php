@@ -1,6 +1,6 @@
 <?php namespace xp\web;
 
-class Output implements \web\io\Output {
+class Output extends \web\io\Output {
   private $socket;
 
   public function __construct($socket) {
@@ -17,9 +17,5 @@ class Output implements \web\io\Output {
 
   public function write($bytes) {
     $this->socket->write($bytes);
-  }
-
-  public function finish() {
-    // NOOP
   }
 }

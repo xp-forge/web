@@ -1,6 +1,6 @@
 <?php namespace web\unittest;
 
-class TestOutput implements \web\io\Output {
+class TestOutput extends \web\io\Output {
   public $bytes;
 
   public function begin($status, $message, $headers) {
@@ -13,9 +13,5 @@ class TestOutput implements \web\io\Output {
 
   public function write($bytes) {
     $this->bytes.= $bytes;
-  }
-
-  public function finish() {
-    // NOOP
   }
 }
