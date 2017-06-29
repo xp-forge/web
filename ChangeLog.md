@@ -4,6 +4,10 @@ Web change log
 ## ?.?.? / ????-??-??
 
 * Fixed issue #15: curl: (52) Empty reply from server - @thekid
+* Implemented issue #12: Simplify streaming to the response
+  - PR #14: Add stream() method
+  - PR #13: Refactor Output to abstract base class implementing OutputStream
+  (@thekid)
 
 ## 0.3.0 / 2017-06-25
 
