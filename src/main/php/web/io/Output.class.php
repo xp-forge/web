@@ -1,11 +1,22 @@
 <?php namespace web\io;
 
-interface Output {
+abstract class Output implements \io\streams\OutputStream {
+  private $closed= false;
 
-  public function begin($status, $message, $headers);
+  public abstract function begin($status, $message, $headers);
 
-  public function write($bytes);
+  public abstract function write($bytes);
 
-  public function finish();
+  /** @return void */
+  public function finish() { }
 
+  /** @return void */
+  public function flush() { }
+
+  /** @return void */
+  public function close() {
+    if ($this->closed) return;
+    $this->finish();
+    $this->close= true;
+  }
 }
