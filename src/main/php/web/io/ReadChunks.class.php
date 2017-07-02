@@ -9,10 +9,7 @@ use lang\FormatException;
  * @see   https://tools.ietf.org/html/rfc7230#section-4.1
  */
 class ReadChunks implements \io\streams\InputStream {
-  private $input;
-  private $remaining;
-  private $length;
-  private $buffer= '';
+  private $input, $remaining, $length, $buffer;
 
   /**
    * Scans a chunk, populating length and buffer
@@ -20,15 +17,14 @@ class ReadChunks implements \io\streams\InputStream {
    * @return void
    */
   private function scan() {
-    $this->buffer.= $this->input->read(10);   // Assuming max chunk size of 0xfffffffff
-    if (false === ($p= strpos($this->buffer, "\n"))) {
+    $size= $this->input->readLine();
+    if (1 !== sscanf($size, "%x", $this->length)) {
       throw new FormatException('No chunk segment present');
     }
 
-    $this->length= hexdec(substr($this->buffer, 0, $p));
     $this->remaining= $this->length;
-    $this->buffer= substr($this->buffer, $p + 1);
-    $this->buffer.= $this->input->read($this->length - strlen($this->buffer));
+    $this->buffer= 0 === $this->length ? '' : $this->input->read($this->length);
+    $this->input->readLine();
   }
 
   /**

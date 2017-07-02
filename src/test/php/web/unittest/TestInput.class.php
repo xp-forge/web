@@ -30,6 +30,14 @@ class TestInput implements \web\io\Input {
   /** @return iterable */
   public function headers() { return $this->headers; }
 
+  /** @return string */
+  public function readLine() {
+    $p= strpos($this->body, "\n");
+    $return= substr($this->body, 0, $p);
+    $this->body= substr($this->body, $p + 1);
+    return $return;
+  }
+
   /**
    * Reads a given number of bytes
    *

@@ -4,6 +4,7 @@ use web\Request;
 use io\streams\Streams;
 
 class RequestTest extends \unittest\TestCase {
+  private static $CHUNKED = ['Transfer-Encoding' => 'chunked'];
 
   /** @return var[][] */
   private function parameters() {
@@ -65,7 +66,7 @@ class RequestTest extends \unittest\TestCase {
     $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Transfer-Encoding' => 'chunked'];
     $this->assertEquals(
       ['fixture' => $expected],
-      (new Request(new TestInput('POST', '/', $headers, sprintf("%x\r\n%s0\r\n\r\n", strlen($query), $query))))->params()
+      (new Request(new TestInput('POST', '/', $headers, sprintf("%x\r\n%s\r\n0\r\n\r\n", strlen($query), $query))))->params()
     );
   }
 
@@ -204,10 +205,10 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test, @values([0, 8180, 10000])]
   public function chunked_payload($length) {
-    $transfer= sprintf("5\r\nHello1\r\n %x\r\n%s0\r\n\r\n", $length, str_repeat('A', $length));
+    $transfer= sprintf("5\r\nHello\r\n1\r\n \r\n%x\r\n%s\r\n0\r\n\r\n", $length, str_repeat('A', $length));
     $this->assertEquals(
       'Hello '.str_repeat('A', $length),
-      Streams::readAll((new Request(new TestInput('GET', '/', ['Transfer-Encoding' => 'chunked'], $transfer)))->stream())
+      Streams::readAll((new Request(new TestInput('GET', '/', self::$CHUNKED, $transfer)))->stream())
     );
   }
 
@@ -232,13 +233,13 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function consume_chunked() {
-    $req= new Request(new TestInput('GET', '/', ['Transfer-Encoding' => 'chunked'], "64\r\n".str_repeat('A', 100)."0\r\n\r\n"));
+    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, "64\r\n".str_repeat('A', 100)."\r\n0\r\n\r\n"));
     $this->assertEquals(100, $req->consume());
   }
 
   #[@test]
   public function consume_chunked_after_partial_read() {
-    $req= new Request(new TestInput('GET', '/', ['Transfer-Encoding' => 'chunked'], "64\r\n".str_repeat('A', 100)."0\r\n\r\n"));
+    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, "64\r\n".str_repeat('A', 100)."\r\n0\r\n\r\n"));
     $partial= $req->stream()->read(50);
     $this->assertEquals(100 - strlen($partial), $req->consume());
   }

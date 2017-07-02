@@ -14,6 +14,9 @@ interface Input {
   /** @return iterable */
   public function headers();
 
+  /** @return string */
+  public function readLine();
+
   /**
    * Reads a given number of bytes
    *

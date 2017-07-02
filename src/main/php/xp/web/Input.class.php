@@ -63,13 +63,17 @@ class Input implements \web\io\Input {
    * @return string
    */
   public function read($length= -1) {
-    $data= $this->buffer;
     if (-1 === $length) {
+      $data= $this->buffer;
       while (!$this->socket->eof()) {
         $data.= $this->socket->readBinary();
       }
       $this->buffer= null;
+    } else if (strlen($this->buffer) >= $length) {
+      $data= substr($this->buffer, 0, $length);
+      $this->buffer= substr($this->buffer, $length);
     } else {
+      $data= $this->buffer;
       $eof= false;
       while (strlen($data) < $length) {
         $data.= $this->socket->readBinary($length - strlen($data));

@@ -18,7 +18,7 @@ class ReadChunksTest extends \unittest\TestCase {
 
   #[@test]
   public function available() {
-    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest0\r\n\r\n"));
+    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest\r\n0\r\n\r\n"));
     $this->assertEquals(4, $fixture->available());
   }
 
@@ -30,13 +30,13 @@ class ReadChunksTest extends \unittest\TestCase {
 
   #[@test]
   public function read() {
-    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest0\r\n\r\n"));
+    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest\r\n0\r\n\r\n"));
     $this->assertEquals('Test', $fixture->read());
   }
 
   #[@test]
   public function while_loop() {
-    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest0\r\n\r\n"));
+    $fixture= new ReadChunks(new TestInput('GET', '/', [], "4\r\nTest\r\n0\r\n\r\n"));
     $r= [];
     while ($fixture->available()) {
       $r[]= $fixture->read();
@@ -46,7 +46,7 @@ class ReadChunksTest extends \unittest\TestCase {
 
   #[@test]
   public function read_until_end() {
-    $input= new TestInput('GET', '/', [], "4\r\nTest0\r\n\r\n");
+    $input= new TestInput('GET', '/', [], "4\r\nTest\r\n0\r\n\r\n");
     $fixture= new ReadChunks($input);
     while ($fixture->available()) {
       $fixture->read();
