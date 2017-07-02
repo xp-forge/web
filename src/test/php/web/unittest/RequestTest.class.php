@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use web\Request;
+use io\streams\Streams;
 
 class RequestTest extends \unittest\TestCase {
 
@@ -60,17 +61,17 @@ class RequestTest extends \unittest\TestCase {
   }
 
   #[@test, @values('parameters')]
-  public function post_params_without_content_length($query, $expected) {
-    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'];
+  public function post_params_chunked($query, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Transfer-Encoding' => 'chunked'];
     $this->assertEquals(
       ['fixture' => $expected],
-      (new Request(new TestInput('POST', '/', $headers, $query)))->params()
+      (new Request(new TestInput('POST', '/', $headers, sprintf("%x\r\n%s0\r\n\r\n", strlen($query), $query))))->params()
     );
   }
 
   #[@test]
   public function special_charset_parameter_defined_in_spec() {
-    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'];
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 35];
     $this->assertEquals(
       ['fixture' => 'Ã¼'],
       (new Request(new TestInput('POST', '/', $headers, 'fixture=%C3%BC&_charset_=iso-8859-1')))->params()
@@ -79,7 +80,7 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function charset_in_mediatype_common_nonspec() {
-    $headers= ['Content-Type' => 'application/x-www-form-urlencoded; charset=iso-8859-1'];
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded; charset=iso-8859-1', 'Content-Length' => 14];
     $this->assertEquals(
       ['fixture' => 'Ã¼'],
       (new Request(new TestInput('POST', '/', $headers, 'fixture=%C3%BC')))->params()
@@ -179,6 +180,34 @@ class RequestTest extends \unittest\TestCase {
     $this->assertEquals(
       'Europe/Berlin',
       (new Request(new TestInput('GET', '/', ['Cookie' => 'user=thekid; tz=Europe%2FBerlin'])))->cookie('tz')
+    );
+  }
+
+  #[@test, @values([0, 8192, 10000])]
+  public function stream_with_content_length($length) {
+    $body= str_repeat('A', $length);
+    $this->assertEquals(
+      $body,
+      Streams::readAll((new Request(new TestInput('GET', '/', ['Content-Length' => $length], $body)))->stream())
+    );
+  }
+
+  #[@test, @values([0, 8190, 10000])]
+  public function form_encoded_payload($length) {
+    $body= 'a='.str_repeat('A', $length);
+    $headers= ['Content-Length' => $length + 2, 'Content-Type' => 'application/x-www-form-urlencoded'];
+    $this->assertEquals(
+      $body,
+      Streams::readAll((new Request(new TestInput('GET', '/', $headers, $body)))->stream())
+    );
+  }
+
+  #[@test, @values([0, 8180, 10000])]
+  public function chunked_payload($length) {
+    $transfer= sprintf("5\r\nHello1\r\n %x\r\n%s0\r\n\r\n", $length, str_repeat('A', $length));
+    $this->assertEquals(
+      'Hello '.str_repeat('A', $length),
+      Streams::readAll((new Request(new TestInput('GET', '/', ['Transfer-Encoding' => 'chunked'], $transfer)))->stream())
     );
   }
 }

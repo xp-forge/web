@@ -2,9 +2,13 @@
 
 use util\URI;
 use web\io\Input;
+use web\io\ReadLength;
+use web\io\ReadChunks;
+use io\streams\MemoryInputStream;
+use io\streams\Streams;
 
 class Request {
-  private $consumed= false;
+  private $consumed= null;
   private $lookup= [];
   private $headers= [];
   private $values= [];
@@ -81,6 +85,19 @@ class Request {
     return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : $default;
   }
 
+  /** @return io.streams.InputStream */
+  public function stream() {
+    if (null !== $this->consumed) {
+      return new MemoryInputStream($this->consumed);
+    } else if ('chunked' === $this->header('Transfer-Encoding')) {
+      return new ReadChunks($this->input);
+    } else if (null !== ($l= $this->header('Content-Length'))) {
+      return new ReadLength($this->input, $l);
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Parses payload into parameters and handles encoding (both cached)
    *
@@ -94,8 +111,8 @@ class Request {
     $query= $this->uri->query(false);
     $type= new ContentType($this->header('Content-Type'));
     if ($type->matches('application/x-www-form-urlencoded')) {
-      $query.= '&'.$this->input->read($this->header('Content-Length', -1));
-      $this->consumed= true;
+      $this->consumed= Streams::readAll($this->stream());
+      $query.= '&'.$this->consumed;
     }
     parse_str($query, $this->params);
 
@@ -229,12 +246,13 @@ class Request {
    * @return void
    */
   public function consume() {
-    if ($this->consumed) return;
-
-    if ($length= $this->header('Content-Length', 0)) {
+    if (null !== $this->consumed) {
+      return;
+    } else if ($length= $this->header('Content-Length', 0)) {
       $this->input->read($length);
     } else if ('chunked' === $this->header('Transfer-Encoding')) {
-      // TBI: Chunked request
+      $s= new ReadChunks($this->input);
+      while ($s->available()) { $s->read(); }
     }
   }
 }
