@@ -31,5 +31,4 @@ class ReadLength implements \io\streams\InputStream {
 
   /** @return void */
   public function close() { /* NOOP */  }
-
 }
