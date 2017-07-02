@@ -44,11 +44,12 @@ class ReadChunks implements \io\streams\InputStream {
    * @return string
    */
   public function read($limit= 8192) {
-    $this->remaining || $this->scan();
-
     $chunk= substr($this->buffer, 0, min($limit, $this->remaining));
-    $this->buffer= substr($this->buffer, strlen($chunk));
-    $this->remaining-= strlen($chunk);
+    $length= strlen($chunk);
+    $this->buffer= substr($this->buffer, $length);
+    if (0 === ($this->remaining-= $length)) {
+      $this->scan();
+    }
     return $chunk;
   }
 

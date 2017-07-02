@@ -41,7 +41,7 @@ class ReadChunksTest extends \unittest\TestCase {
     while ($fixture->available()) {
       $r[]= $fixture->read();
     }
-    $this->assertEquals(['Test', ''], $r);
+    $this->assertEquals(['Test'], $r);
   }
 
   #[@test]
