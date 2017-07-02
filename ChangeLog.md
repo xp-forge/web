@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.5.0 / 2017-07-03
+
 * Added `web.Request::stream()` method to read the raw data sent along with
   e.g. POST or PUT requests.
   (@thekid)
