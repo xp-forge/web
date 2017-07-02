@@ -42,7 +42,7 @@ class TestInput implements \web\io\Input {
       $this->body= '';
     } else {
       $return= substr($this->body, 0, $length);
-      $this->body= substr($this->body, $length + 1);
+      $this->body= substr($this->body, $length);
     }
     return $return;
   }

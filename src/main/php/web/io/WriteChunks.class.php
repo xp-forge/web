@@ -3,7 +3,7 @@
 /**
  * Writes Chunked transfer encoding
  *
- * @see   https://tools.ietf.org/html/rfc2616#section-3.6.1
+ * @see   https://tools.ietf.org/html/rfc7230#section-4.1
  */
 class WriteChunks extends Output {
   private $target;

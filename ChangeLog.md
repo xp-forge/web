@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Added `web.Request::stream()` method to read the raw data sent along with
+  e.g. POST or PUT requests.
+  (@thekid)
+
 ## 0.4.0 / 2017-06-30
 
 * Fixed issue #15: curl: (52) Empty reply from server - @thekid

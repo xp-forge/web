@@ -2,9 +2,13 @@
 
 use util\URI;
 use web\io\Input;
+use web\io\ReadLength;
+use web\io\ReadChunks;
+use io\streams\MemoryInputStream;
+use io\streams\Streams;
 
 class Request {
-  private $consumed= false;
+  private $stream= null;
   private $lookup= [];
   private $headers= [];
   private $values= [];
@@ -81,6 +85,19 @@ class Request {
     return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : $default;
   }
 
+  /** @return io.streams.InputStream */
+  public function stream() {
+    if (null !== $this->stream) {
+      return $this->stream;
+    } else if ('chunked' === $this->header('Transfer-Encoding')) {
+      return $this->stream= new ReadChunks($this->input);
+    } else if (null !== ($l= $this->header('Content-Length'))) {
+      return $this->stream= new ReadLength($this->input, $l);
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Parses payload into parameters and handles encoding (both cached)
    *
@@ -94,8 +111,9 @@ class Request {
     $query= $this->uri->query(false);
     $type= new ContentType($this->header('Content-Type'));
     if ($type->matches('application/x-www-form-urlencoded')) {
-      $query.= '&'.$this->input->read($this->header('Content-Length', -1));
-      $this->consumed= true;
+      $data= Streams::readAll($this->stream());
+      $this->stream= new MemoryInputStream($data);
+      $query.= '&'.$data;
     }
     parse_str($query, $this->params);
 
@@ -224,17 +242,20 @@ class Request {
   }
 
   /**
-   * Consumes rest of data
+   * Consumes rest of data and returns how many bytes were consumed
    *
-   * @return void
+   * @return int
    */
   public function consume() {
-    if ($this->consumed) return;
-
-    if ($length= $this->header('Content-Length', 0)) {
-      $this->input->read($length);
-    } else if ('chunked' === $this->header('Transfer-Encoding')) {
-      // TBI: Chunked request
+    $stream= $this->stream();
+    if (null === $this->stream) {
+      return -1;
+    } else {
+      $r= 0;
+      while ($stream->available()) {
+        $r+= strlen($stream->read());
+      }
+      return $r;
     }
   }
 }

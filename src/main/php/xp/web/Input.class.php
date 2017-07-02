@@ -70,10 +70,12 @@ class Input implements \web\io\Input {
       }
       $this->buffer= null;
     } else {
+      $eof= false;
       while (strlen($data) < $length) {
         $data.= $this->socket->readBinary($length - strlen($data));
+        if ($eof= $this->socket->eof()) break;
       }
-      $this->buffer= $this->socket->eof() ? null : '';
+      $this->buffer= $eof ? null : '';
     }
     return $data;
   }
