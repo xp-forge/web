@@ -40,6 +40,13 @@ class ResponseTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function no_error() {
+    $res= new Response(new TestOutput());
+    $res->error(null);
+    $this->assertNull($res->error);
+  }
+
+  #[@test]
   public function error_status() {
     $res= new Response(new TestOutput());
     $res->error(403);
