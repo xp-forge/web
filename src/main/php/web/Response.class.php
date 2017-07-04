@@ -39,8 +39,14 @@ class Response {
    *
    * @param  web.Error|lang.Throwable|string|int $cause
    * @param  string $message Only applicable if an integer is passed as cause
+   * @return void
    */
   public function error($cause, $message= null) {
+    if (null === $cause) {
+      $this->error= null;
+      return;
+    }
+
     if ($cause instanceof Error) {
       $this->error= $cause;
     } else if ($cause instanceof Throwable) {
