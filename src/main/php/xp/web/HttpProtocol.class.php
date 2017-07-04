@@ -26,33 +26,31 @@ class HttpProtocol implements \peer\server\ServerProtocol {
   }
 
   /**
-   * Sends an error
+   * Flushes the response
    *
-   * @param  web.Request $response
    * @param  web.Response $response
-   * @param  web.Error $error
-   * @return void
    */
-  private function sendError($request, $response, $error) {
-    $loader= ClassLoader::getDefault();
-    $message= Status::message($error->status());
+  private function flush($response) {
+    if ($response->flushed()) {
+      return;
+    } else if (null === $response->error) {
+      $response->flush();
+    } else {
+      $loader= ClassLoader::getDefault();
+      foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
+        if (!$loader->providesResource($variant)) continue;
 
-    $response->answer($error->status(), $message);
-    foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
-      if (!$loader->providesResource($variant)) continue;
-      $response->send(
-        sprintf(
+        $content= sprintf(
           $loader->getResource($variant),
-          $error->status(),
-          $message,
-          $error->getMessage(),
-          $error->toString()
-        ),
-        'text/html'
-      );
-      break;
+          $response->error->status(),
+          Status::message($response->error->status()),
+          $response->error->getMessage(),
+          $response->error->toString()
+        );
+        $response->send($content, 'text/html');
+        return;
+      }
     }
-    $this->logging->__invoke($request, $response, $error->compoundMessage());
   }
 
   /**
@@ -90,31 +88,32 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    */
   public function handleData($socket) {
     gc_enable();
-
-    $input= new Input($socket);
-    if (null === $input->method()) return;  // Ignore malformed requests
-
-    $request= new Request($input);
-    $response= new Response(new Output($socket));
-
     try {
+      $input= new Input($socket);
+
+      // Ignore malformed requests
+      if (null === $input->method()) {
+        $socket->close();
+        return;
+      }
+
+      // Process request
+      $request= new Request($input);
+      $response= new Response(new Output($socket));
+
       $this->application->service($request, $response);
-      $this->logging->__invoke($request, $response);
-    } catch (Error $e) {
-      $this->sendError($request, $response, $e);
-    } catch (\Throwable $e) {   // PHP7
-      $this->sendError($request, $response, new InternalServerError($e));
-    } catch (\Exception $e) {   // PHP5
-      $this->sendError($request, $response, new InternalServerError($e));
-    } finally {
-      $response->flushed() || $response->flush();
+      $this->flush($response);
+      $this->logging->__invoke($request, $response, $response->error ? $response->error->toString() : null);
 
       if ('Keep-Alive' === $request->header('Connection')) {
         $request->consume();
       } else {
         $socket->close();
       }
-
+    } catch (Throwable $t) {
+      $t->printStackTrace();
+      $socket->close();
+    } finally {
       gc_collect_cycles();
       gc_disable();
       clearstatcache();
