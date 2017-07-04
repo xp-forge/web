@@ -2,6 +2,7 @@
 
 use lang\IllegalStateException;
 use web\io\WriteChunks;
+use lang\Throwable;
 
 /**
  * Response
@@ -14,6 +15,7 @@ class Response {
   private $status= 200;
   private $message= 'OK';
   private $headers= [];
+  public $error= null;
 
   /** @param web.io.Output $output */
   public function __construct($output= null) {
@@ -30,6 +32,25 @@ class Response {
   public function answer($status, $message= null) {
     $this->status= $status;
     $this->message= $message ?: Status::message($status);
+  }
+
+  /**
+   * Sets error
+   *
+   * @param  web.Error|lang.Throwable|string|int $cause
+   * @param  string $message Only applicable if an integer is passed as cause
+   */
+  public function error($cause, $message= null) {
+    if ($cause instanceof Error) {
+      $this->error= $cause;
+    } else if ($cause instanceof Throwable) {
+      $this->error= new InternalServerError($cause);
+    } else if (is_int($cause)) {
+      $this->error= new Error((int)$cause, $message);
+    } else {
+      $this->error= new InternalServerError((string)$cause);
+    }
+    $this->answer($this->error->status(), $message);
   }
 
   /**

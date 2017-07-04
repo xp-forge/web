@@ -1,6 +1,8 @@
 <?php namespace web\unittest;
 
 use web\Response;
+use web\Error;
+use lang\IllegalStateException;
 use io\streams\MemoryInputStream;
 
 class ResponseTest extends \unittest\TestCase {
@@ -35,6 +37,41 @@ class ResponseTest extends \unittest\TestCase {
     $res= new Response(new TestOutput());
     $res->answer(201, 'Creation succeeded');
     $this->assertEquals('Creation succeeded', $res->message());
+  }
+
+  #[@test]
+  public function error_status() {
+    $res= new Response(new TestOutput());
+    $res->error(403);
+    $this->assertEquals('Error web.Error(#403: Forbidden)', $res->error->compoundMessage());
+  }
+
+  #[@test]
+  public function error_status_with_message() {
+    $res= new Response(new TestOutput());
+    $res->error(403, 'Go away!');
+    $this->assertEquals('Error web.Error(#403: Go away!)', $res->error->compoundMessage());
+  }
+
+  #[@test]
+  public function error_message() {
+    $res= new Response(new TestOutput());
+    $res->error('Crash');
+    $this->assertEquals('Error web.InternalServerError(#500: Crash)', $res->error->compoundMessage());
+  }
+
+  #[@test]
+  public function error_cause() {
+    $res= new Response(new TestOutput());
+    $res->error(new IllegalStateException('Crash'));
+    $this->assertEquals('Error web.InternalServerError(#500: Crash)', $res->error->compoundMessage());
+  }
+
+  #[@test]
+  public function error_instance() {
+    $res= new Response(new TestOutput());
+    $res->error(new Error(402));
+    $this->assertEquals('Error web.Error(#402: Payment Required)', $res->error->compoundMessage());
   }
 
   #[@test]
