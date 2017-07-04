@@ -97,10 +97,15 @@ class Delegate implements Action {
 
     try {
       $return= $this->method->invoke($this->instance, $args);
+      if ($return instanceof Response) {
+        $return->flush($response);
+        return $return->entity;
+      } else {
+        $response->answer(200, 'OK');
+        return $return;
+      }
     } catch (TargetInvocationException $e) {
       throw new Error(500, 'Errors invoking '.$this->method->getName(), $e->getCause());
     }
-
-    return $return;
   }
 }

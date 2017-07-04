@@ -112,4 +112,12 @@ class DelegatesTest extends \unittest\TestCase {
 
     $this->perform($req, $res);
   }
+
+  #[@test, @expect(Error::class)]
+  public function login_delegate() {
+    $req= new Request(new TestInput('GET', '/login'));
+    $res= new Response(new TestOutput());
+
+    $this->perform($req, $res);
+  }
 }

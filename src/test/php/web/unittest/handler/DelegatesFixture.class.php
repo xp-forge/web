@@ -3,6 +3,7 @@
 use io\streams\Streams;
 use io\streams\InputStream;
 use lang\IllegalAccessException;
+use web\handler\Response;
 
 class DelegatesFixture {
 
@@ -30,4 +31,7 @@ class DelegatesFixture {
 
   #[@get('/admin')]
   public function admin() { throw new IllegalAccessException('Cannot access /admin'); }
+
+  #[@get('/login')]
+  public function login() { return Response::error(501, 'Login not yet implemented'); }
 }
