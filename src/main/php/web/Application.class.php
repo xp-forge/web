@@ -1,5 +1,7 @@
 <?php namespace web;
 
+use lang\Throwable;
+
 /**
  * Application is at the heart at every web project.
  *
@@ -44,14 +46,23 @@ abstract class Application implements \lang\Value {
   protected abstract function routes();
 
   /**
-   * Service delegates to the routing, calling its `service()` method.
+   * Service delegates to the routing, calling its `service()` method. Takes care
+   * of handling exceptions raised from routing, setting response's error member.
    *
    * @param  web.Request $request
    * @param  web.Response $response
    * @return void
    */
   public function service($request, $response) {
-    $this->routing()->service($request, $response);
+    try {
+      $this->routing()->service($request, $response);
+    } catch (Throwable $t) {
+      $response->error($t);
+    } catch (\Throwable $e) {   // PHP7
+      $response->error(Throwable::wrap($e));
+    } catch (\Exception $e) {   // PHP5
+      $response->error(Throwable::wrap($e));
+    }
   }
 
   /** @return string */
