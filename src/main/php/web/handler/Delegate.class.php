@@ -1,10 +1,12 @@
 <?php namespace web\handler;
 
 use lang\reflect\Method;
+use lang\reflect\TargetInvocationException;
 use lang\IllegalArgumentException;
 use lang\XPClass;
 use io\streams\Streams;
 use io\streams\InputStream;
+use web\Error;
 
 class Delegate implements Action {
   private static $INPUTSTREAM;
@@ -92,6 +94,13 @@ class Delegate implements Action {
     foreach ($this->source as $name => $from) {
       $args[]= $from($request, $name);
     }
-    return $this->method->invoke($this->instance, $args);
+
+    try {
+      $return= $this->method->invoke($this->instance, $args);
+    } catch (TargetInvocationException $e) {
+      throw new Error(500, 'Errors invoking '.$this->method->getName(), $e->getCause());
+    }
+
+    return $return;
   }
 }

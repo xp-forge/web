@@ -2,6 +2,7 @@
 
 use io\streams\Streams;
 use io\streams\InputStream;
+use lang\IllegalAccessException;
 
 class DelegatesFixture {
 
@@ -26,4 +27,7 @@ class DelegatesFixture {
   public function uploadAvatar($user, $personId, $type, $bytes) {
     return 'person:'.$personId.',type:'.$type.'='.$bytes.' via '.$user;
   }
+
+  #[@get('/admin')]
+  public function admin() { throw new IllegalAccessException('Cannot access /admin'); }
 }

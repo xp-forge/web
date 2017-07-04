@@ -2,6 +2,7 @@
 
 use web\Request;
 use web\Response;
+use web\Error;
 use web\handler\Delegate;
 use web\handler\Delegates;
 use lang\XPClass;
@@ -102,5 +103,13 @@ class DelegatesTest extends \unittest\TestCase {
     $req->pass('user', 'test-user');
 
     $this->assertEquals('person:1,type:image/gif='.$image.' via test-user', $this->perform($req, $res));
+  }
+
+  #[@test, @expect(Error::class)]
+  public function admin_delegate() {
+    $req= new Request(new TestInput('GET', '/admin'));
+    $res= new Response(new TestOutput());
+
+    $this->perform($req, $res);
   }
 }
