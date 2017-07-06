@@ -183,6 +183,7 @@ class Response {
       throw new Error($this->status, $this->error);
     } else {
       $response->answer($this->status, $this->message);
+      $response->entity($this->entity);
     }
   }
 }

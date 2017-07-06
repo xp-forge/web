@@ -24,7 +24,7 @@ class DelegatesFixture {
     return 'person:'.$personId.',type:'.$type.'='.Streams::readAll($stream).' via '.$user;
   }
 
-  #[@put('/people/{personId}/avatar'), @$type: header('Content-Type'), @$bytes: body]
+  #[@put('/people/{personId}/avatar'), @$type: header('Content-Type'), @$bytes: entity]
   public function uploadAvatar($user, $personId, $type, $bytes) {
     return 'person:'.$personId.',type:'.$type.'='.$bytes.' via '.$user;
   }

@@ -45,7 +45,8 @@ class DelegatesTest extends \unittest\TestCase {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
-    $this->assertEquals('index', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('index', $res->body()->content());
   }
 
   #[@test]
@@ -53,7 +54,8 @@ class DelegatesTest extends \unittest\TestCase {
     $req= new Request(new TestInput('OPTIONS', '/'));
     $res= new Response(new TestOutput());
 
-    $this->assertEquals('options', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('options', $res->body()->content());
   }
 
   #[@test]
@@ -61,7 +63,8 @@ class DelegatesTest extends \unittest\TestCase {
     $req= new Request(new TestInput('GET', '/people'));
     $res= new Response(new TestOutput());
 
-    $this->assertEquals('people:max=10', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('people:max=10', $res->body()->content());
   }
 
   #[@test]
@@ -69,7 +72,8 @@ class DelegatesTest extends \unittest\TestCase {
     $req= new Request(new TestInput('GET', '/people?max=20'));
     $res= new Response(new TestOutput());
 
-    $this->assertEquals('people:max=20', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('people:max=20', $res->body()->content());
   }
 
   #[@test]
@@ -77,7 +81,8 @@ class DelegatesTest extends \unittest\TestCase {
     $req= new Request(new TestInput('GET', '/people/1'));
     $res= new Response(new TestOutput());
 
-    $this->assertEquals('person:1', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('person:1', $res->body()->content());
   }
 
   #[@test]
@@ -87,7 +92,8 @@ class DelegatesTest extends \unittest\TestCase {
     $res= new Response(new TestOutput());
     $req->pass('user', 'test-user');
 
-    $this->assertEquals('person:1,type:ssh='.$key.' via test-user', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('person:1,type:ssh='.$key.' via test-user', $res->body()->content());
   }
 
   #[@test]
@@ -102,7 +108,8 @@ class DelegatesTest extends \unittest\TestCase {
     $res= new Response(new TestOutput());
     $req->pass('user', 'test-user');
 
-    $this->assertEquals('person:1,type:image/gif='.$image.' via test-user', $this->perform($req, $res));
+    $this->perform($req, $res);
+    $this->assertEquals('person:1,type:image/gif='.$image.' via test-user', $res->body()->content());
   }
 
   #[@test, @expect(Error::class)]

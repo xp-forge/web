@@ -2,6 +2,7 @@
 
 use lang\IllegalStateException;
 use web\io\WriteChunks;
+use web\io\Body;
 
 /**
  * Response
@@ -14,10 +15,20 @@ class Response {
   private $status= 200;
   private $message= 'OK';
   private $headers= [];
+  private $body= null;
 
-  /** @param web.io.Output $output */
-  public function __construct($output= null) {
-    $this->output= $output;
+  /** @param web.io.Output|self $arg */
+  public function __construct($arg= null) {
+    if ($arg instanceof self) {
+      $this->output= $arg->output;
+      $this->flushed= $arg->flushed;
+      $this->status= $arg->status;
+      $this->message= $arg->message;
+      $this->headers= $arg->headers;
+      $this->body= $arg->body;
+    } else {
+      $this->output= $arg;
+    }
   }
 
   /**
@@ -43,6 +54,9 @@ class Response {
     $this->headers[$name]= $value;
   }
 
+  /** @param var $entity */
+  public function entity($entity) { $this->body= new Body($entity, 'text/html'); }
+
   /** @return int */
   public function status() { return $this->status; }
 
@@ -52,6 +66,9 @@ class Response {
   /** @return [:string] */
   public function headers() { return $this->headers; }
 
+  /** @return web.io.Body */
+  public function body() { return $this->body; }
+
   /** @return web.io.Output */
   public function output() { return $this->output; }
 
@@ -59,7 +76,7 @@ class Response {
   public function flushed() { return $this->flushed; }
 
   /**
-   * Sends headers
+   * Sends headers (and body, if any)
    *
    * @return void
    * @throws lang.IllegalStateException
@@ -71,6 +88,10 @@ class Response {
 
     $this->output->begin($this->status, $this->message, $this->headers);
     $this->flushed= true;
+
+    if (null !== $this->body) {
+      $this->send($this->body[0], $this->body[1]);
+    }
   }
 
   /**
@@ -112,7 +133,6 @@ class Response {
       $in->close();
     }
   }
-
 
   /**
    * Sends some content

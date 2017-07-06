@@ -30,7 +30,7 @@ class FrontendTest extends \unittest\TestCase {
           return newinstance(Action::class, [], [
             'name'    => function() use($name) { return $name; },
             'perform' => function($request, $response) {
-              return ['user' => $request->value('user')];
+              $response->entity(['user' => $request->value('user')]);
             }
           ]);
         }

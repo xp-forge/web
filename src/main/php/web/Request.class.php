@@ -17,16 +17,28 @@ class Request {
   private $cookies= null;
   private $method, $uri, $input;
 
-  /** @param web.io.Input $input */
-  public function __construct(Input $input) {
-    foreach ($input->headers() as $name => $value) {
-      $this->headers[$name]= $value;
-      $this->lookup[strtolower($name)]= $name;
+  /** @param web.io.Input|self $arg */
+  public function __construct($arg) {
+    if ($arg instanceof self) {
+      $this->stream= $arg->stream;
+      $this->lookup= $arg->lookup;
+      $this->headers= $arg->headers;
+      $this->values= $arg->values;
+      $this->encoding= $arg->encoding;
+      $this->params= $arg->params;
+      $this->cookies= $arg->cookies;
+      $this->method= $arg->method;
+      $this->uri= $arg->uri;
+      $this->input= $arg->input;
+    } else {
+      foreach ($arg->headers() as $name => $value) {
+        $this->headers[$name]= $value;
+        $this->lookup[strtolower($name)]= $name;
+      }
+      $this->method= $arg->method();
+      $this->uri= new URI($arg->scheme().'://'.$this->header('Host', 'localhost').$arg->uri());
+      $this->input= $arg;
     }
-
-    $this->method= $input->method();
-    $this->uri= new URI($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
-    $this->input= $input;
   }
 
   /**
@@ -84,6 +96,9 @@ class Request {
     $name= strtolower($name);
     return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : $default;
   }
+
+  /** @return var */
+  public function entity() { return Streams::readAll($this->stream()); }
 
   /** @return io.streams.InputStream */
   public function stream() {

@@ -22,10 +22,7 @@ class Delegate implements Action {
       'param'   => function($req, $name, $default= null) { return $req->param($name, $default); },
       'header'  => function($req, $name, $default= null) { return $req->header($name, $default); },
       'stream'  => function($req, $name, $default= null) { return $req->stream() ?: $default; },
-      'body'    => function($req, $name, $default= null) {
-        $s= $req->stream();
-        return $s ? Streams::readAll($s) : $default;
-      },
+      'entity'  => function($req, $name, $default= null) { return $req->entity() ?: $default; },
       'default' => function($req, $name, ...$default) {
         if (null !== ($v= $req->value($name))) {
           return $v;
@@ -79,6 +76,9 @@ class Delegate implements Action {
     }
   }
 
+  /** @return [:function(web.Request, string): var] */
+  public function arguments() { return $this->source; }
+
   /** @return string */
   public function name() { return $this->method->getName(); }
 
@@ -99,10 +99,9 @@ class Delegate implements Action {
       $return= $this->method->invoke($this->instance, $args);
       if ($return instanceof Response) {
         $return->flush($response);
-        return $return->entity;
       } else {
         $response->answer(200, 'OK');
-        return $return;
+        $response->entity($return);
       }
     } catch (TargetInvocationException $e) {
       throw new Error(500, 'Errors invoking '.$this->method->getName(), $e->getCause());
