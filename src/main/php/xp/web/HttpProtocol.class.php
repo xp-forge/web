@@ -90,9 +90,13 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    */
   public function handleData($socket) {
     gc_enable();
-
     $input= new Input($socket);
-    if (null === $input->method()) return;  // Ignore malformed requests
+
+    // Ignore malformed requests
+    if (null === $input->method()) {
+      $socket->close();
+      return;
+    }
 
     $request= new Request($input);
     $response= new Response(new Output($socket));

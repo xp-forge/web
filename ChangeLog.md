@@ -6,6 +6,7 @@ Web change log
 ## 0.6.0 / 2017-07-07
 
 * Changed logging to contain full stack trace of exceptions - @thekid
+* Close socket on malformed requests - @thekid
 
 ## 0.5.0 / 2017-07-03
 
