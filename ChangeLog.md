@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.6.0 / 2017-07-07
+
+* Changed logging to contain full stack trace of exceptions - @thekid
+
 ## 0.5.0 / 2017-07-03
 
 * Added `web.Request::stream()` method to read the raw data sent along with

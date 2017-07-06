@@ -52,7 +52,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       );
       break;
     }
-    $this->logging->__invoke($request, $response, $error->compoundMessage());
+    $this->logging->__invoke($request, $response, $error->toString());
   }
 
   /**
