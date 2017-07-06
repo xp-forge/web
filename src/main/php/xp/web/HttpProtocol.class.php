@@ -113,7 +113,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     } finally {
       $response->flushed() || $response->flush();
 
-      if ('Keep-Alive' === $request->header('Connection')) {
+      if ('Keep-Alive' === $request->header('Connection') && !getenv('NO_KEEPALIVE')) {
         $request->consume();
       } else {
         $socket->close();

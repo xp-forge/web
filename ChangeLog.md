@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.6.1 / 2017-07-07
+
+* Added `NO_KEEPALIVE` environment variable to switch off keep-alive
+  semantics. This might be causing problems with certain proxy setups
+  (@thekid)
+
 ## 0.6.0 / 2017-07-07
 
 * Changed logging to contain full stack trace of exceptions - @thekid
