@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.6.2 / 2017-07-07
+
+* Added support for prefork mode; use `-m prefork[,n]` on command line
+  (@thekid)
+
 ## 0.6.1 / 2017-07-07
 
 * Added `NO_KEEPALIVE` environment variable to switch off keep-alive
