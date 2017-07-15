@@ -17,6 +17,6 @@ abstract class Output implements \io\streams\OutputStream {
   public function close() {
     if ($this->closed) return;
     $this->finish();
-    $this->close= true;
+    $this->closed= true;
   }
 }
