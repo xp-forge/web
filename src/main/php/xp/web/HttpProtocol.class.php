@@ -40,16 +40,13 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     $response->answer($error->status(), $message);
     foreach (['web/error-'.$this->application->environment()->profile().'.html', 'web/error.html'] as $variant) {
       if (!$loader->providesResource($variant)) continue;
-      $response->send(
-        sprintf(
-          $loader->getResource($variant),
-          $error->status(),
-          $message,
-          $error->getMessage(),
-          $error->toString()
-        ),
-        'text/html'
-      );
+      $response->send(sprintf(
+        $loader->getResource($variant),
+        $error->status(),
+        $message,
+        $error->getMessage(),
+        $error->toString()
+      ));
       break;
     }
     $this->logging->__invoke($request, $response, $error->toString());
