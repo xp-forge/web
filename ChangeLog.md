@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.6.3 / 2017-08-16
+
+* Prevented possible security problems by escaping error messages
+  (@thekid)
+
 ## 0.6.2 / 2017-07-07
 
 * Added support for prefork mode; use `-m prefork[,n]` on command line

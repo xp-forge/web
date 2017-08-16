@@ -43,9 +43,9 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       $response->send(sprintf(
         $loader->getResource($variant),
         $error->status(),
-        $message,
-        $error->getMessage(),
-        $error->toString()
+        htmlspecialchars($message),
+        htmlspecialchars($error->getMessage()),
+        htmlspecialchars($error->toString())
       ));
       break;
     }
