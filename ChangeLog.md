@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Changed response always to include a `Date` header as per RFC 2616,
+  section 14.18. See issue #19
+  (@thekid)
+
 ## 0.6.2 / 2017-07-07
 
 * Added support for prefork mode; use `-m prefork[,n]` on command line

@@ -108,6 +108,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     } catch (\Exception $e) {   // PHP5
       $this->sendError($request, $response, new InternalServerError($e));
     } finally {
+      $response->header('Date', gmdate('D, d M Y H:i:s T'));
       $response->flushed() || $response->flush();
 
       if ('Keep-Alive' === $request->header('Connection') && !getenv('NO_KEEPALIVE')) {
