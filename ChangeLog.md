@@ -5,6 +5,10 @@ Web change log
 
 * Changed response always to include a `Date` header as per RFC 2616,
   section 14.18. See issue #19
+
+## 0.6.3 / 2017-08-16
+
+* Prevented possible security problems by escaping error messages
   (@thekid)
 
 ## 0.6.2 / 2017-07-07
