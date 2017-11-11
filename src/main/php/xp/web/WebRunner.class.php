@@ -71,6 +71,8 @@ class WebRunner {
     $sapi= new SAPI();
     $request= new Request($sapi);
     $response= new Response($sapi);
+    $response->header('Date', gmdate('D, d M Y H:i:s T'));
+    $response->header('Host', $request->header('Host'));
 
     try {
       $application->service($request, $response);
@@ -82,7 +84,6 @@ class WebRunner {
     } catch (\Exception $e) {   // PHP5
       self::error($request, $response, new InternalServerError($e), $args[2]);
     } finally {
-      $response->header('Date', gmdate('D, d M Y H:i:s T'));
       $response->flushed() || $response->flush();
     }
   }
