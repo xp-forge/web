@@ -61,6 +61,14 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
+  #[@test]
+  public function remove_header() {
+    $res= new Response(new TestOutput());
+    $res->header('Content-Type', 'text/plain');
+    $res->header('Content-Type', null);
+    $this->assertEquals([], $res->headers());
+  }
+
   #[@test, @values([
   #  [200, 'OK', 'HTTP/1.1 200 OK'],
   #  [404, 'Not Found', 'HTTP/1.1 404 Not Found'],
