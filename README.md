@@ -32,4 +32,12 @@ $ xp -supervise web Service
 # ...
 ```
 
+Supports a development webserver which is slower but allows an easy edit/save/reload development process. It uses the [PHP development server](http://php.net/features.commandline.webserver) in the background; PHP code is recompiled and application setup performed from scratch on every request.
+
+```bash
+$ xp -supervise web -m develop Service
+@xp.web.Develop(HTTP @ `php -S localhost:8080 -t /home/example/devel/shorturl`)
+# ...
+```
+
 Now open the website at http://localhost:8080/hello
