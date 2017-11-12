@@ -81,7 +81,7 @@ class Develop {
     if ($port= getenv('XP_SIGNAL')) {
       $s= new Socket('127.0.0.1', $port);
       $s->connect();
-      $s->canRead(null);
+      $s->canRead(null) && $s->read();
       $s->close();
     } else {
       fgetc(STDIN);
