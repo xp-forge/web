@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Defaulted server to keep-alive connections - @thekid
+
 ## 0.7.0 / 2017-11-12
 
 * Merged PR #20: Support development webserver (`xp web -m develop`)
