@@ -84,8 +84,8 @@ class Develop {
       $s->canRead(null) && $s->read();
       $s->close();
     } else {
-      fgetc(STDIN);
-      Console::write('==> Shut down ');
+      Console::read();
+      Console::write('> Shut down ');
     }
 
     // Wait for shutdown
