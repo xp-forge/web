@@ -13,6 +13,7 @@ use web\Status;
  */
 class HttpProtocol implements \peer\server\ServerProtocol {
   public $server= null;
+  private $close= false;
 
   /**
    * Creates a new protocol instance
@@ -58,6 +59,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    * @return bool
    */
   public function initialize() {
+    $this->close= (bool)getenv('NO_KEEPALIVE');
     return true;
   }
 
@@ -100,6 +102,14 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     $response->header('Date', gmdate('D, d M Y H:i:s T'));
     $response->header('Host', $request->header('Host'));
 
+    // Honour a "Connection: close" by the client
+    if ($this->close || 0 === strncasecmp('close', $request->header('Connection'), 5)) {
+      $response->header('Connection', 'close');
+      $close= true;
+    } else {
+      $close= false;
+    }
+
     try {
       $this->application->service($request, $response);
       $this->logging->__invoke($request, $response);
@@ -111,12 +121,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       $this->sendError($request, $response, new InternalServerError($e));
     } finally {
       $response->flushed() || $response->flush();
-
-      if ('Keep-Alive' === $request->header('Connection') && !getenv('NO_KEEPALIVE')) {
-        $request->consume();
-      } else {
-        $socket->close();
-      }
+      $close ? $socket->close() : $request->consume();
 
       gc_collect_cycles();
       gc_disable();
