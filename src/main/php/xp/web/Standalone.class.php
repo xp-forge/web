@@ -39,7 +39,7 @@ abstract class Standalone {
     $this->server->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $this->server->socket->toString(), ")\e[0m");
-    Console::writeLine("\e[1mServing application ", $application);
+    Console::writeLine("\e[1mServing ", $source, $config, "\e[0m");
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 

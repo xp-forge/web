@@ -36,11 +36,15 @@ class Response {
    * Sets a header
    *
    * @param  string $name
-   * @param  string $value
+   * @param  string $value Pass NULL to remove the header
    * @return void
    */
   public function header($name, $value) {
-    $this->headers[$name]= $value;
+    if (null === $value) {
+      unset($this->headers[$name]);
+    } else {
+      $this->headers[$name]= $value;
+    }
   }
 
   /** @return int */

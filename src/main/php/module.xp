@@ -1,0 +1,9 @@
+<?php namespace xp\web;
+
+module xp-forge/web {
+
+  /** Provide entry point for web-main.php */
+  public function initialize() {
+    class_alias(WebRunner::class, 'xp\scriptlet\Runner');
+  }
+}
