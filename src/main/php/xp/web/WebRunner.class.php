@@ -78,7 +78,7 @@ class WebRunner {
       $application->service($request, $response);
       self::log($request, $response);
     } catch (Error $e) {
-      self::error($request, $response, $e);
+      self::error($request, $response, $e, $args[2]);
     } catch (\Throwable $e) {   // PHP7
       self::error($request, $response, new InternalServerError($e), $args[2]);
     } catch (\Exception $e) {   // PHP5
