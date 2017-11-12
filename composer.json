@@ -6,7 +6,7 @@
   "description" : "Web applications for the XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^9.0 | ^8.0 | ^7.6",
+    "xp-framework/core": "^9.0 | ^8.0 | ^7.0",
     "xp-framework/networking": "^9.0 | ^8.0 | ^7.0",
     "xp-forge/uri": "^1.0",
     "php": ">=5.6.0"
