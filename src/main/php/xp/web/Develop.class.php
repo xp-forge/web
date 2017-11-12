@@ -3,6 +3,12 @@
 use util\cmd\Console;
 use lang\Runtime;
 use lang\RuntimeOptions;
+use lang\CommandLine;
+use lang\ClassLoader;
+use lang\FileSystemClassLoader;
+use lang\archive\ArchiveClassLoader;
+use peer\Socket;
+use io\IOException;
 
 class Develop {
   private $host, $port;
@@ -28,23 +34,28 @@ class Develop {
    * @param  string[] $config
    */
   public function serve($source, $profile, $webroot, $docroot, $config) {
-    $runtime= Runtime::getInstance();
-    $startup= $runtime->startupOptions();
-    $backing= typeof($startup)->getField('backing')->setAccessible(true)->get($startup);
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
       $docroot= getcwd();
     }
 
-    // Start `php -S`, the development webserver
-    $arguments= ['-S', $this->host.':'.$this->port, '-t', $docroot];
-    $options= newinstance(RuntimeOptions::class, [$backing], [
-      'asArguments' => function() use($arguments) {
-        return array_merge($arguments, parent::asArguments());
+    // Inherit all currently loaded paths acceptable to bootstrapping
+    $include= '.'.PATH_SEPARATOR.PATH_SEPARATOR.'.';
+    foreach (ClassLoader::getLoaders() as $delegate) {
+      if ($delegate instanceof FileSystemClassLoader || $delegate instanceof ArchiveClassLoader) {
+        $include.= PATH_SEPARATOR.$delegate->path;
       }
-    ]);
-    $options->withSetting('user_dir', $docroot);
+    }
+
+    // Start `php -S`, the development webserver
+    $runtime= Runtime::getInstance();
+    $arguments= ['-S', $this->host.':'.$this->port, '-t', $docroot];
+    $cmd= CommandLine::forName(PHP_OS)->compose($runtime->getExecutable()->getFileName(), array_merge(
+      $arguments,
+      $runtime->startupOptions()->withSetting('user_dir', $docroot)->withSetting('include_path', $include)->asArguments(),
+      [$runtime->bootStrapScript('web')]
+    ));
 
     // Export environment
     putenv('DOCUMENT_ROOT='.$docroot);
@@ -58,15 +69,34 @@ class Develop {
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 
-    with ($runtime->newInstance($options, 'web'), function($proc) {
-      $proc->in->close();
-      Console::writeLine("\e[33;1m>\e[0m Server started: \e[35;4mhttp://$this->host:$this->port\e[0m (", date('r'), ')');
-      Console::writeLine('  PID ', $proc->getProcessId(), '; press Ctrl+C to exit');
-      Console::writeLine();
+    if (!($proc= proc_open($cmd, [STDIN, STDOUT, STDERR], $pipes, null, null, ['bypass_shell' => true]))) {
+      throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
+    }
 
-      while (is_string($line= $proc->err->readLine())) {
-        Console::writeLine($line);
-      }
-    });
+    Console::writeLine("\e[33;1m>\e[0m Server started: \e[35;4mhttp://$this->host:$this->port\e[0m (", date('r'), ')');
+    Console::writeLine('  PID ', getmypid(), ' : ', proc_get_status($proc)['pid'], '; press Enter to exit');
+    Console::writeLine();
+
+    // Inside `xp -supervise`, connect to signalling socket
+    if ($port= getenv('XP_SIGNAL')) {
+      $s= new Socket('127.0.0.1', $port);
+      $s->connect();
+      $s->canRead(null);
+      $s->close();
+    } else {
+      fgetc(STDIN);
+      Console::write('==> Shut down ');
+    }
+
+    // Wait for shutdown
+    proc_terminate($proc, 2);
+    do {
+      Console::write('.');
+      $status= proc_get_status($proc);
+    } while ($status['running']);
+
+    proc_close($proc);
+    Console::writeLine();
+    Console::writeLine("\e[33;1m>\e[0m Server stopped. (", date('r'), ')');
   }
 }
