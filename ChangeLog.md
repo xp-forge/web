@@ -3,8 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.7.0 / 2017-11-12
+
+* Merged PR #20: Support development webserver (`xp web -m develop`)
+  (@thekid)
 * Changed response always to include a `Date` header as per RFC 2616,
   section 14.18. See issue #19
+  (@thekid)
 
 ## 0.6.3 / 2017-08-16
 
