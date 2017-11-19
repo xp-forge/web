@@ -50,6 +50,7 @@ class Input implements \web\io\Input {
 
   /** @return iterable */
   public function headers() {
+    yield 'Remote-Addr' => $this->socket->remoteEndpoint()->getHost();
     while ($line= $this->readLine()) {
       sscanf($line, "%[^:]: %[^\r]", $name, $value);
       yield $name => $value;

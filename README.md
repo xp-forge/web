@@ -15,7 +15,7 @@ Example
 class Service extends \web\Application {
 
   /** @return [:var] */
-  protected function routes() {
+  public function routes() {
     return ['/hello' => function($req, $res)  {
       $res->answer(200, 'OK');
       $res->send('Hello '.$req->param('name', 'Guest'), 'text/plain');

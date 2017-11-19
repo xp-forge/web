@@ -20,13 +20,30 @@ class Request {
   /** @param web.io.Input $input */
   public function __construct(Input $input) {
     foreach ($input->headers() as $name => $value) {
-      $this->headers[$name]= $value;
-      $this->lookup[strtolower($name)]= $name;
+      $lookup= strtolower($name);
+      if (isset($this->lookup[$lookup])) {
+        $this->headers[$this->lookup[$lookup]][]= $value;
+      } else {
+        $this->headers[$name]= (array)$value;
+        $this->lookup[$lookup]= $name;
+      }
     }
 
     $this->method= $input->method();
     $this->uri= new URI($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri());
     $this->input= $input;
+  }
+
+  /**
+   * Pass a named value along with this request
+   *
+   * @param  string $name
+   * @param  var $value
+   * @return self
+   */
+  public function pass($name, $value) {
+    $this->values[$name]= $value;
+    return $this;
   }
 
   /**
@@ -54,24 +71,14 @@ class Request {
   /** @return util.URI */
   public function uri() { return $this->uri; }
 
-  /**
-   * Pass a named value along with this request
-   *
-   * @param  string $name
-   * @param  var $value
-   * @return self
-   */
-  public function pass($name, $value) {
-    $this->values[$name]= $value;
-    return $this;
+  /** @return [:string|string[]] */
+  public function headers() {
+    $r= [];
+    foreach ($this->headers as $name => $header) {
+      $r[$name]= 1 === sizeof($header) ? $header[0] : $header;
+    }
+    return $r;
   }
-
-  /**
-   * Gets request headers
-   *
-   * @return [:string]
-   */
-  public function headers() { return $this->headers; }
 
   /**
    * Gets a header by name
@@ -81,8 +88,11 @@ class Request {
    * @return var
    */
   public function header($name, $default= null) {
-    $name= strtolower($name);
-    return isset($this->lookup[$name]) ? $this->headers[$this->lookup[$name]] : $default;
+    $lookup= strtolower($name);
+    return isset($this->lookup[$lookup])
+      ? implode(', ', $this->headers[$this->lookup[$lookup]])
+      : $default
+    ;
   }
 
   /** @return io.streams.InputStream */
