@@ -87,18 +87,22 @@ class ResponseTest extends \unittest\TestCase {
 
   #[@test]
   public function cookie() {
+    $attr= '; SameSite=Lax; HttpOnly';
+
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
-    $this->assertEquals(['Set-Cookie' => 'theme=light; HttpOnly'], $res->headers());
+    $this->assertEquals(['Set-Cookie' => 'theme=light'.$attr], $res->headers());
   }
 
   #[@test]
   public function cookies() {
+    $attr= '; SameSite=Lax; HttpOnly';
+
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'Test'));
     $res->cookie((new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT'));
     $this->assertEquals(
-      ['Set-Cookie' => ['theme=Test; HttpOnly', 'sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT; HttpOnly']],
+      ['Set-Cookie' => ['theme=Test'.$attr, 'sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT'.$attr]],
       $res->headers()
     );
   }

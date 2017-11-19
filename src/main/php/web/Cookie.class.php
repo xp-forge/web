@@ -18,7 +18,7 @@ class Cookie {
   private $domain= null;
   private $secure= false;
   private $httpOnly= true;
-  private $sameSite= null;
+  private $sameSite= 'Lax';
 
   /**
    * Creates a new cookie
@@ -29,7 +29,7 @@ class Cookie {
   public function __construct($name, $value) {
     $this->name= $name;
     if (null === $value) {
-      $this->value= '';
+      $this->value= '""';
       $this->expires= new Date(time() - 86400 * 365);
       $this->maxAge= -1;
     } else {
@@ -112,7 +112,7 @@ class Cookie {
   /**
    * Switch whether to only transmit only to same site; preventing CSRF
    *
-   * @param  string $sameSite one of `Strict` or `Lax`.
+   * @param  string $sameSite one of "Strict", "Lax" or null (use the latter to remove)
    * @return self
    */
   public function sameSite($sameSite) {
