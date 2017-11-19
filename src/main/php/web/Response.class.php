@@ -45,8 +45,13 @@ class Response {
       unset($this->headers[$name]);
     } else if ($append) {
       $this->headers[$name][]= $value;
+    } else if (is_array($value)) {
+      $this->headers[$name]= [];
+      foreach ($value as $v) {
+        $this->headers[$name][]= (string)$v;
+      }
     } else {
-      $this->headers[$name]= (array)$value;
+      $this->headers[$name]= [(string)$value];
     }
   }
 

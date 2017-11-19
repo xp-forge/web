@@ -3,6 +3,7 @@
 use web\Cookie;
 use web\Response;
 use io\streams\MemoryInputStream;
+use util\URI;
 
 class ResponseTest extends \unittest\TestCase {
 
@@ -83,6 +84,13 @@ class ResponseTest extends \unittest\TestCase {
     $res->header('Set-Cookie', 'theme=light', true);
     $res->header('Set-Cookie', 'sessionToken=abc123', true);
     $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+  }
+
+  #[@test]
+  public function uri_header() {
+    $res= new Response(new TestOutput());
+    $res->header('Location', new URI('http://example.com/'));
+    $this->assertEquals(['Location' => 'http://example.com/'], $res->headers());
   }
 
   #[@test]
