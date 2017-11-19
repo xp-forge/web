@@ -31,10 +31,34 @@ class CookieTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function removing_http_only() {
+    $this->assertEquals(
+      'name=value; SameSite=Lax',
+      (new Cookie('name', 'value'))->httpOnly(false)->header()
+    );
+  }
+
+  #[@test]
+  public function removing_same_site() {
+    $this->assertEquals(
+      'name=value; HttpOnly',
+      (new Cookie('name', 'value'))->sameSite(null)->header()
+    );
+  }
+
+  #[@test]
   public function adding_path() {
     $this->assertEquals(
       'name=value; Path=/test; SameSite=Lax; HttpOnly',
       (new Cookie('name', 'value'))->path('/test')->header()
+    );
+  }
+
+  #[@test]
+  public function adding_domain() {
+    $this->assertEquals(
+      'name=value; Domain=.example.com; SameSite=Lax; HttpOnly',
+      (new Cookie('name', 'value'))->domain('.example.com')->header()
     );
   }
 
@@ -74,6 +98,14 @@ class CookieTest extends \unittest\TestCase {
     $this->assertEquals(
       'name=; Expires='.gmdate('D, d M Y H:i:s \G\M\T', time() - 86400 * 365).'; Max-Age=0; SameSite=Lax; HttpOnly',
       (new Cookie('name', null))->header()
+    );
+  }
+
+  #[@test]
+  public function setting_secure() {
+    $this->assertEquals(
+      'name=value; SameSite=Lax; Secure; HttpOnly',
+      (new Cookie('name', 'value'))->secure()->header()
     );
   }
 }
