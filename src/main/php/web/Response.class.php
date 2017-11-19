@@ -37,13 +37,16 @@ class Response {
    *
    * @param  string $name
    * @param  string $value Pass NULL to remove the header
+   * @param  bool $append Append header if already existant
    * @return void
    */
-  public function header($name, $value) {
+  public function header($name, $value, $append= false) {
     if (null === $value) {
       unset($this->headers[$name]);
+    } else if ($append) {
+      $this->headers[$name][]= $value;
     } else {
-      $this->headers[$name]= $value;
+      $this->headers[$name]= (array)$value;
     }
   }
 
@@ -53,14 +56,20 @@ class Response {
   /** @return string */
   public function message() { return $this->message; }
 
-  /** @return [:string] */
-  public function headers() { return $this->headers; }
-
   /** @return web.io.Output */
   public function output() { return $this->output; }
 
   /** @return bool */
   public function flushed() { return $this->flushed; }
+
+  /** @return [:string|string[]] */
+  public function headers() {
+    $r= [];
+    foreach ($this->headers as $name => $header) {
+      $r[$name]= 1 === sizeof($header) ? $header[0] : $header;
+    }
+    return $r;
+  }
 
   /**
    * Sends headers
@@ -85,10 +94,10 @@ class Response {
    */
   public function stream($size= null) {
     if (null === $size) {
-      $this->headers['Transfer-Encoding']= 'chunked';
+      $this->headers['Transfer-Encoding']= ['chunked'];
       $output= new WriteChunks($this->output);
     } else {
-      $this->headers['Content-Length']= $size;
+      $this->headers['Content-Length']= [$size];
       $output= $this->output;
     }
 
@@ -104,7 +113,7 @@ class Response {
    * @param  int $size If omitted, uses chunked transfer encoding
    */
   public function transfer($in, $mediaType= 'application/octet-stream', $size= null) {
-    $this->headers['Content-Type']= $mediaType;
+    $this->headers['Content-Type']= [$mediaType];
 
     $out= $this->stream($size);
     try {
@@ -125,7 +134,7 @@ class Response {
    * @param  string $mediaType
    */
   public function send($content, $mediaType= 'text/html') {
-    $this->headers['Content-Type']= $mediaType;
+    $this->headers['Content-Type']= [$mediaType];
 
     $out= $this->stream(strlen($content));
     try {

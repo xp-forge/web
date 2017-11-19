@@ -69,6 +69,21 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals([], $res->headers());
   }
 
+  #[@test]
+  public function multiple_header() {
+    $res= new Response(new TestOutput());
+    $res->header('Set-Cookie', ['theme=light', 'sessionToken=abc123']);
+    $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+  }
+
+  #[@test]
+  public function append_header() {
+    $res= new Response(new TestOutput());
+    $res->header('Set-Cookie', 'theme=light', true);
+    $res->header('Set-Cookie', 'sessionToken=abc123', true);
+    $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+  }
+
   #[@test, @values([
   #  [200, 'OK', 'HTTP/1.1 200 OK'],
   #  [404, 'Not Found', 'HTTP/1.1 404 Not Found'],

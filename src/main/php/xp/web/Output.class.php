@@ -9,8 +9,10 @@ class Output extends \web\io\Output {
 
   public function begin($status, $message, $headers) {
     $this->socket->write(sprintf("HTTP/1.1 %d %s\r\n", $status, $message));
-    foreach ($headers as $name => $value) {
-      $this->socket->write($name.': '.$value."\r\n");
+    foreach ($headers as $name => $header) {
+      foreach ($header as $value) {
+        $this->socket->write($name.': '.$value."\r\n");
+      }
     }
     $this->socket->write("\r\n");
   }
