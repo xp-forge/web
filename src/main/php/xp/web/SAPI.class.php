@@ -68,8 +68,11 @@ class SAPI extends \web\io\Output implements \web\io\Input {
       header('HTTP/1.1 '.$status.' '.$message);
     }
 
-    foreach ($headers as $name => $value) {
-      header($name.': '.$value);
+    foreach ($headers as $name => $header) {
+      header($name.': '.array_shift($header));
+      foreach ($header as $value) {
+        header($name.': '.$value, false);
+      }
     }
     $this->out= '';
   }
