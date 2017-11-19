@@ -56,14 +56,20 @@ class Response {
   /** @return string */
   public function message() { return $this->message; }
 
-  /** @return [:string] */
-  public function headers() { return $this->headers; }
-
   /** @return web.io.Output */
   public function output() { return $this->output; }
 
   /** @return bool */
   public function flushed() { return $this->flushed; }
+
+  /** @return [:string|string[]] */
+  public function headers() {
+    $r= [];
+    foreach ($this->headers as $name => $header) {
+      $r[$name]= 1 === sizeof($header) ? $header[0] : $header;
+    }
+    return $r;
+  }
 
   /**
    * Sends headers

@@ -47,7 +47,7 @@ class ResponseTest extends \unittest\TestCase {
   public function header() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
-    $this->assertEquals(['Content-Type' => ['text/plain']], $res->headers());
+    $this->assertEquals(['Content-Type' => 'text/plain'], $res->headers());
   }
 
   #[@test]
@@ -56,7 +56,7 @@ class ResponseTest extends \unittest\TestCase {
     $res->header('Content-Type', 'text/plain');
     $res->header('Content-Length', '0');
     $this->assertEquals(
-      ['Content-Type' => ['text/plain'], 'Content-Length' => ['0']],
+      ['Content-Type' => 'text/plain', 'Content-Length' => '0'],
       $res->headers()
     );
   }
