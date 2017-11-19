@@ -46,7 +46,7 @@ class Response {
     } else if ($append) {
       $this->headers[$name][]= $value;
     } else {
-      $this->headers[$name]= [$value];
+      $this->headers[$name]= (array)$value;
     }
   }
 

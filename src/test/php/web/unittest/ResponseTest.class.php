@@ -70,6 +70,13 @@ class ResponseTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function multiple_header() {
+    $res= new Response(new TestOutput());
+    $res->header('Set-Cookie', ['theme=light', 'sessionToken=abc123']);
+    $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+  }
+
+  #[@test]
   public function append_header() {
     $res= new Response(new TestOutput());
     $res->header('Set-Cookie', 'theme=light', true);
