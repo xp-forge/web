@@ -24,11 +24,17 @@ class Cookie {
    * Creates a new cookie
    *
    * @param  string $name
-   * @param  string $value
+   * @param  string $value Pass `null` to remove the cookie
    */
   public function __construct($name, $value) {
     $this->name= $name;
-    $this->value= $value;
+    if (null === $value) {
+      $this->value= '';
+      $this->expires= new Date(time() - 86400 * 365);
+      $this->maxAge= -1;
+    } else {
+      $this->value= $value;
+    }
   }
 
   /**
