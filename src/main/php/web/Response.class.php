@@ -50,6 +50,16 @@ class Response {
     }
   }
 
+  /**
+   * Sets a cookie
+   *
+   * @param  web.Response $cookie
+   * @return void
+   */
+  public function cookie(Cookie $cookie) {
+    $this->headers['Set-Cookie'][]= $cookie->header();
+  }
+
   /** @return int */
   public function status() { return $this->status; }
 

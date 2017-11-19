@@ -1,5 +1,6 @@
 <?php namespace web\unittest;
 
+use web\Cookie;
 use web\Response;
 use io\streams\MemoryInputStream;
 
@@ -82,6 +83,28 @@ class ResponseTest extends \unittest\TestCase {
     $res->header('Set-Cookie', 'theme=light', true);
     $res->header('Set-Cookie', 'sessionToken=abc123', true);
     $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+  }
+
+  #[@test]
+  public function cookie() {
+    $attr= '; SameSite=Lax; HttpOnly';
+
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'light'));
+    $this->assertEquals(['Set-Cookie' => 'theme=light'.$attr], $res->headers());
+  }
+
+  #[@test]
+  public function cookies() {
+    $attr= '; SameSite=Lax; HttpOnly';
+
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'Test'));
+    $res->cookie((new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT'));
+    $this->assertEquals(
+      ['Set-Cookie' => ['theme=Test'.$attr, 'sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT'.$attr]],
+      $res->headers()
+    );
   }
 
   #[@test, @values([
