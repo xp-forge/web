@@ -24,7 +24,7 @@ class Request {
       if (isset($this->lookup[$lookup])) {
         $this->headers[$this->lookup[$lookup]][]= $value;
       } else {
-        $this->headers[$name]= [$value];
+        $this->headers[$name]= (array)$value;
         $this->lookup[$lookup]= $name;
       }
     }
@@ -88,12 +88,11 @@ class Request {
    * @return var
    */
   public function header($name, $default= null) {
-    $name= strtolower($name);
-    if (isset($this->lookup[$name])) {
-      $header= $this->headers[$this->lookup[$name]];
-      return 1 === sizeof($header) ? $header[0] : $header;
-    }
-    return $default;
+    $lookup= strtolower($name);
+    return isset($this->lookup[$lookup])
+      ? implode(', ', $this->headers[$this->lookup[$lookup]])
+      : $default
+    ;
   }
 
   /** @return io.streams.InputStream */

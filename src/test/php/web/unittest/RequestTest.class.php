@@ -118,7 +118,7 @@ class RequestTest extends \unittest\TestCase {
   #])]
   public function multiple_headers($input) {
     $this->assertEquals(
-      ['application/vnd.api+json', 'image/png'],
+      'application/vnd.api+json, image/png',
       (new Request(new TestInput('GET', '/', $input)))->header('Accept')
     );
   }
