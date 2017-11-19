@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.8.0 / 2017-11-19
+
+* Merged PR #22: Cookie handling - @thekid
 * Merged PR #21: Multiple headers - @thekid
 * Defaulted server to keep-alive connections - @thekid
 
