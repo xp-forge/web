@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #21: Multiple headers - @thekid
 * Defaulted server to keep-alive connections - @thekid
 
 ## 0.7.0 / 2017-11-12
