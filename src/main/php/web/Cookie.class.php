@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use util\Date;
+use lang\IllegalArgumentException;
 
 /**
  * A HTTP/1.1 Cookie
@@ -26,6 +27,7 @@ class Cookie {
    *
    * @param  string $name
    * @param  string $value Pass `null` to remove the cookie
+   * @throws lang.IllegalArgumentException if value contains control characters or a semicolon
    */
   public function __construct($name, $value) {
     $this->name= $name;
@@ -33,6 +35,8 @@ class Cookie {
       $this->value= '';
       $this->expires= new Date(time() - 86400 * 365);
       $this->maxAge= 0;
+    } else if (preg_match('/[\x00-\x1F;]/', $value)) {
+      throw new IllegalArgumentException('Cookie values cannot contain control characters or semicolons');
     } else {
       $this->value= $value;
     }

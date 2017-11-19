@@ -1,12 +1,23 @@
 <?php namespace web\unittest;
 
 use web\Cookie;
+use lang\IllegalArgumentException;
 
 class CookieTest extends \unittest\TestCase {
 
   #[@test]
   public function can_create() {
     new Cookie('name', 'value');
+  }
+
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function cannot_create_with_control_character() {
+    new Cookie('name', "\x00");
+  }
+
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function cannot_create_with_semicolon() {
+    new Cookie('name', ';');
   }
 
   #[@test]
