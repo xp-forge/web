@@ -2,6 +2,8 @@
 
 use web\Cookie;
 use lang\IllegalArgumentException;
+use util\Date;
+use util\TimeSpan;
 
 class CookieTest extends \unittest\TestCase {
 
@@ -37,10 +39,33 @@ class CookieTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function setting_expiry() {
+  public function setting_max_age_to_zero() {
+    $this->assertEquals(
+      'name=value; Max-Age=0; SameSite=Lax; HttpOnly',
+      (new Cookie('name', 'value'))->maxAge(0)->header()
+    );
+  }
+
+  #[@test, @values([
+  #  3600,
+  #  new TimeSpan(3600)
+  #])]
+  public function setting_max_age($value) {
+    $this->assertEquals(
+      'name=value; Max-Age=3600; SameSite=Lax; HttpOnly',
+      (new Cookie('name', 'value'))->maxAge($value)->header()
+    );
+  }
+
+  #[@test, @values([
+  #  'Sat, 19 Nov 2016 16:29:22 GMT',
+  #  new Date('Sat, 19 Nov 2016 16:29:22 GMT'),
+  #  1479572962
+  #])]
+  public function setting_expiry($value) {
     $this->assertEquals(
       'name=value; Expires=Sat, 19 Nov 2016 16:29:22 GMT; SameSite=Lax; HttpOnly',
-      (new Cookie('name', 'value'))->expires('Sat, 19 Nov 2016 16:29:22 GMT')->header()
+      (new Cookie('name', 'value'))->expires($value)->header()
     );
   }
 

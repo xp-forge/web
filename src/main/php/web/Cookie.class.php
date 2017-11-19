@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use util\Date;
+use util\TimeSpan;
 use lang\IllegalArgumentException;
 
 /**
@@ -33,7 +34,7 @@ class Cookie {
     $this->name= $name;
     if (null === $value) {
       $this->value= '';
-      $this->expires= new Date(time() - 86400 * 365);
+      $this->expires= time() - 86400 * 365;
       $this->maxAge= 0;
     } else if (preg_match('/[\x00-\x1F;]/', $value)) {
       throw new IllegalArgumentException('Cookie values cannot contain control characters or semicolons');
@@ -49,24 +50,28 @@ class Cookie {
    * @return self
    */
   public function expires($expires) {
-    if (null === $expires) {
-      $this->expires= null;
-    } else if ($expires instanceof Date) {
-      $this->expires= $expires;
+    if ($expires instanceof Date) {
+      $this->expires= $expires->getTime();
+    } else if (is_string($expires)) {
+      $this->expires= strtotime($expires);
     } else {
-      $this->expires= new Date($expires);
+      $this->expires= $expires;
     }
     return $this;
   }
 
   /**
-   * Set maximum age in seconds. Use negative values to expire immediately.
+   * Set maximum age in seconds.
    *
-   * @param  int $maxAge
+   * @param  int|util.TimeSpan $maxAge
    * @return self
    */
   public function maxAge($maxAge) {
-    $this->maxAge= $maxAge;
+    if ($maxAge instanceof TimeSpan) {
+      $this->maxAge= $maxAge->getSeconds();
+    } else {
+      $this->maxAge= $maxAge;
+    }
     return $this;
   }
 
@@ -129,7 +134,7 @@ class Cookie {
   public function header() {
     return (
       $this->name.'='.$this->value.
-      (null === $this->expires ? '' : '; Expires='.gmdate('D, d M Y H:i:s \G\M\T', $this->expires->getTime())).
+      (null === $this->expires ? '' : '; Expires='.gmdate('D, d M Y H:i:s \G\M\T', $this->expires)).
       (null === $this->maxAge ? '' : '; Max-Age='.$this->maxAge).
       (null === $this->path ? '' : '; Path='.$this->path).
       (null === $this->domain ? '' : '; Domain='.$this->domain).
