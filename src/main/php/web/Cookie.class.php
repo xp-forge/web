@@ -29,9 +29,9 @@ class Cookie {
   public function __construct($name, $value) {
     $this->name= $name;
     if (null === $value) {
-      $this->value= '""';
+      $this->value= '';
       $this->expires= new Date(time() - 86400 * 365);
-      $this->maxAge= -1;
+      $this->maxAge= 0;
     } else {
       $this->value= $value;
     }
