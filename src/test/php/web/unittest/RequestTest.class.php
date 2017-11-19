@@ -112,6 +112,17 @@ class RequestTest extends \unittest\TestCase {
     $this->assertEquals($input, (new Request(new TestInput('GET', '/', $input)))->headers());
   }
 
+  #[@test, @values([
+  #  [['Accept' => ['application/vnd.api+json', 'image/png']]],
+  #  [['Accept' => 'application/vnd.api+json', 'accept' => 'image/png']]
+  #])]
+  public function multiple_headers($input) {
+    $this->assertEquals(
+      ['application/vnd.api+json', 'image/png'],
+      (new Request(new TestInput('GET', '/', $input)))->header('Accept')
+    );
+  }
+
   #[@test, @values(['x-test', 'X-Test', 'X-TEST'])]
   public function header_lookup_is_case_insensitive($lookup) {
     $input= ['X-Test' => 'test'];
