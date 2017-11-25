@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Suppressed PHP CLI server log messages (which are written to STDERR)
+  in `-m develop` since we're writing our own logfile.
+  (@thekid)
+
 ## 0.8.0 / 2017-11-19
 
 * Merged PR #22: Cookie handling - @thekid

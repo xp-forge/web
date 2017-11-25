@@ -50,8 +50,9 @@ class Develop {
 
     // Start `php -S`, the development webserver
     $runtime= Runtime::getInstance();
+    $os= CommandLine::forName(PHP_OS);
     $arguments= ['-S', $this->host.':'.$this->port, '-t', $docroot];
-    $cmd= CommandLine::forName(PHP_OS)->compose($runtime->getExecutable()->getFileName(), array_merge(
+    $cmd= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
       $arguments,
       $runtime->startupOptions()->withSetting('user_dir', $docroot)->withSetting('include_path', $include)->asArguments(),
       [$runtime->bootStrapScript('web')]
@@ -69,7 +70,8 @@ class Develop {
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 
-    if (!($proc= proc_open($cmd, [STDIN, STDOUT, STDERR], $pipes, null, null, ['bypass_shell' => true]))) {
+    $nul= ['file', 'WINDOWS' === $os->name() ? 'NUL' : '/dev/null', 'w'];
+    if (!($proc= proc_open($cmd, [STDIN, STDOUT, $nul], $pipes, null, null, ['bypass_shell' => true]))) {
       throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
     }
 

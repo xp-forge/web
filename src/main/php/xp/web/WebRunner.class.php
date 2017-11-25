@@ -23,7 +23,7 @@ class WebRunner {
    */
   private static function log($request, $response, $message= null) {
     $query= $request->uri()->query();
-    fprintf(STDERR,
+    fprintf(STDOUT,
       "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s\n",
       date('Y-m-d H:i:s'),
       getmypid(),
