@@ -7,6 +7,10 @@ Web change log
   in `-m develop` since we're writing our own logfile.
   (@thekid)
 
+## 0.8.1 / 2017-11-19
+
+* Fixed issue #23: Multiple location headers - @thekid
+
 ## 0.8.0 / 2017-11-19
 
 * Merged PR #22: Cookie handling - @thekid
