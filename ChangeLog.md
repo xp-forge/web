@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.8.2 / 2017-11-25
+
 * Suppressed PHP CLI server log messages (which are written to STDERR)
   in `-m develop` since we're writing our own logfile.
   (@thekid)
