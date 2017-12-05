@@ -1,7 +1,6 @@
 <?php namespace web\unittest\handler;
 
 use lang\Environment;
-use lang\Object;
 use io\Path;
 use io\Folder;
 use io\File;

@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.8.3 / 2017-12-05
+
+* Fixed PHP 7.2 compatibility - @thekid
+
 ## 0.8.2 / 2017-11-25
 
 * Suppressed PHP CLI server log messages (which are written to STDERR)

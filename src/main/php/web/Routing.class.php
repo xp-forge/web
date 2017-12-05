@@ -5,7 +5,6 @@ use web\routing\Path;
 use web\routing\Matches;
 use web\handler\Call;
 use web\routing\CannotRoute;
-use lang\Object;
 
 /**
  * Routing takes care of directing the request to the correct target
