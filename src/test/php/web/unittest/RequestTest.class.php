@@ -2,6 +2,7 @@
 
 use web\Request;
 use io\streams\Streams;
+use util\URI;
 
 class RequestTest extends \unittest\TestCase {
   private static $CHUNKED = ['Transfer-Encoding' => 'chunked'];
@@ -33,7 +34,17 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function uri() {
-    $this->assertEquals('http://localhost/', (string)(new Request(new TestInput('GET', '/')))->uri());
+    $this->assertEquals(new URI('http://localhost/'), (new Request(new TestInput('GET', '/')))->uri());
+  }
+
+  #[@test, @values(['http://localhost/r', new URI('http://localhost/r')])]
+  public function rewrite_request($uri) {
+    $this->assertEquals(new URI('http://localhost/r'), (new Request(new TestInput('GET', '/')))->rewrite($uri)->uri());
+  }
+
+  #[@test, @values(['/r', new URI('/r')])]
+  public function rewrite_request_relative($uri) {
+    $this->assertEquals(new URI('http://localhost/r'), (new Request(new TestInput('GET', '/')))->rewrite($uri)->uri());
   }
 
   #[@test]
