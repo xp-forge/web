@@ -130,7 +130,7 @@ class FilesFrom implements \web\Handler {
       }
     } finally {
       $file->close();
-      $output->finish();
+      $output->close();
     }
   }
 }
