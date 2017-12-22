@@ -47,6 +47,17 @@ class Request {
   }
 
   /**
+   * Rewrite request URI
+   *
+   * @param  string|util.URI $uri
+   * @return self
+   */
+  public function rewrite($uri) {
+    $this->uri= $this->uri->resolve($uri instanceof URI ? $uri : new URI($uri));
+    return $this;
+  }
+
+  /**
    * Encode a parameter's value to XP encoding
    *
    * @param  var $param
