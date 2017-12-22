@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.9.0 / 2017-12-22
+
+* Merged PR #25: Rewrite - @thekid
+
 ## 0.8.3 / 2017-12-05
 
 * Fixed PHP 7.2 compatibility - @thekid
