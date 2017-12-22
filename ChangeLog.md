@@ -5,6 +5,7 @@ Web change log
 
 ## 0.9.0 / 2017-12-22
 
+* Fixed #28: Send "Content-Length: 0" for empty responses - @thekid
 * Merged PR #25: Rewrite - @thekid
 
 ## 0.8.3 / 2017-12-05

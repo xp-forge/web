@@ -120,7 +120,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
     } catch (\Exception $e) {   // PHP5
       $this->sendError($request, $response, new InternalServerError($e));
     } finally {
-      $response->flushed() || $response->flush();
+      $response->end();
       $close ? $socket->close() : $request->consume();
 
       gc_collect_cycles();

@@ -102,6 +102,26 @@ class Response {
   }
 
   /**
+   * Ends reponse, ensuring headers are sent and output is closed.
+   *
+   * Takes care of signalling zero length content if no transmission
+   * has occured.
+   *
+   * @return void
+   */
+  public function end() {
+    if (!$this->flushed) {
+      if (!isset($this->headers['Content-Length']) && !isset($this->headers['Transfer-Encoding'])) {
+        $this->headers['Content-Length']= [0];
+      }
+
+      $this->output->begin($this->status, $this->message, $this->headers);
+      $this->flushed= true;
+    }
+    $this->output->close();
+  }
+
+  /**
    * Returns a stream to write on
    *
    * @param  int $size If omitted, uses chunked transfer encoding
