@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.10.0 / 2018-01-20
+
+* Exposed "TestInput" and "TestOutput" classes in `web.io` package.
+  This way, people wishing to test their filters and handlers can easily
+  unittest them.
+  (@thekid)
+
 ## 0.9.0 / 2017-12-22
 
 * Fixed #28: Send "Content-Length: 0" for empty responses - @thekid
