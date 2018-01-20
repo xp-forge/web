@@ -6,8 +6,10 @@ use web\io\ReadLength;
 use web\io\ReadChunks;
 use io\streams\MemoryInputStream;
 use io\streams\Streams;
+use lang\Value;
+use util\Objects;
 
-class Request {
+class Request implements Value {
   private $stream= null;
   private $lookup= [];
   private $headers= [];
@@ -279,4 +281,20 @@ class Request {
       return $r;
     }
   }
+
+  /** @return string */
+  public function toString() {
+    return nameof($this).'('.$this->method.' '.$this->uri->toString().')@'.Objects::stringOf($this->headers);
+  }
+
+  /** @return string */
+  public function hashCode() { return uniqid(microtime(true)); }
+
+  /**
+   * Compares this request
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) { return $value === $this ? 0 : 1; }
 }

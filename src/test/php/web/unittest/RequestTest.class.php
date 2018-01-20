@@ -266,4 +266,15 @@ class RequestTest extends \unittest\TestCase {
     $partial= $req->stream()->read(50);
     $this->assertEquals(100 - strlen($partial), $req->consume());
   }
+
+  #[@test]
+  public function string_representation() {
+    $req= new Request(new TestInput('GET', '/', ['Host' => 'localhost']));
+    $this->assertEquals(
+      "web.Request(GET util.URI<http://localhost/>)@[\n".
+      "  Host => [\"localhost\"]\n".
+      "]",
+      $req->toString()
+    );
+  }
 }

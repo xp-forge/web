@@ -5,9 +5,12 @@ Web change log
 
 ## 0.10.0 / 2018-01-20
 
-* Exposed "TestInput" and "TestOutput" classes in `web.io` package.
-  This way, people wishing to test their filters and handlers can easily
-  unittest them.
+* Implemented #30: Request::toString(). The output includes method, URI
+  and the HTTP headers sent with the request.
+  (@thekid)
+* Implemented #29: Exposed "TestInput" and "TestOutput" classes in `web.io`
+  package. This way, people wishing to test their filters and handlers can
+  easily unittest them.
   (@thekid)
 
 ## 0.9.0 / 2017-12-22
