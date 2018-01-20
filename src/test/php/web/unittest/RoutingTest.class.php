@@ -7,6 +7,8 @@ use web\Route;
 use web\Handler;
 use web\routing\CannotRoute;
 use web\routing\Target;
+use web\io\TestInput;
+use web\io\TestOutput;
 
 class RoutingTest extends \unittest\TestCase {
   private $handlers;

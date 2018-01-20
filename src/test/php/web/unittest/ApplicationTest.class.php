@@ -6,6 +6,8 @@ use web\Handler;
 use web\Request;
 use web\Response;
 use web\Routing;
+use web\io\TestInput;
+use web\io\TestOutput;
 use lang\IllegalStateException;
 
 class ApplicationTest extends \unittest\TestCase {

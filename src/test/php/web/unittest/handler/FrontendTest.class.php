@@ -6,8 +6,8 @@ use web\handler\Actions;
 use web\handler\Action;
 use web\Request;
 use web\Response;
-use web\unittest\TestInput;
-use web\unittest\TestOutput;
+use web\io\TestInput;
+use web\io\TestOutput;
 use util\URI;
 
 class FrontendTest extends \unittest\TestCase {

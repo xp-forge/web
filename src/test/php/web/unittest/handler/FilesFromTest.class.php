@@ -8,8 +8,8 @@ use io\FileUtil;
 use web\handler\FilesFrom;
 use web\Request;
 use web\Response;
-use web\unittest\TestInput;
-use web\unittest\TestOutput;
+use web\io\TestInput;
+use web\io\TestOutput;
 
 class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];

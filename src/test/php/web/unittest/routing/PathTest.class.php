@@ -2,7 +2,7 @@
 
 use web\Request;
 use web\routing\Path;
-use web\unittest\TestInput;
+use web\io\TestInput;
 
 class PathTest extends \unittest\TestCase {
 

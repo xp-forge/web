@@ -1,7 +1,7 @@
 <?php namespace web\unittest\io;
 
 use web\io\ReadChunks;
-use web\unittest\TestInput;
+use web\io\TestInput;
 use lang\FormatException;
 
 class ReadChunksTest extends \unittest\TestCase {

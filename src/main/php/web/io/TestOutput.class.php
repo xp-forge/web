@@ -1,6 +1,6 @@
-<?php namespace web\unittest;
+<?php namespace web\io;
 
-class TestOutput extends \web\io\Output {
+class TestOutput extends Output {
   public $bytes;
 
   public function begin($status, $message, $headers) {

@@ -4,8 +4,8 @@ use lang\IllegalArgumentException;
 use web\handler\Call;
 use web\Request;
 use web\Response;
-use web\unittest\TestInput;
-use web\unittest\TestOutput;
+use web\io\TestInput;
+use web\io\TestOutput;
 
 class CallTest extends \unittest\TestCase {
 

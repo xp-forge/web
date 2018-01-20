@@ -3,6 +3,7 @@
 use web\Request;
 use io\streams\Streams;
 use util\URI;
+use web\io\TestInput;
 
 class RequestTest extends \unittest\TestCase {
   private static $CHUNKED = ['Transfer-Encoding' => 'chunked'];

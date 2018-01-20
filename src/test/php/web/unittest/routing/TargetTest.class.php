@@ -2,7 +2,7 @@
 
 use web\Request;
 use web\routing\Target;
-use web\unittest\TestInput;
+use web\io\TestInput;
 
 class TargetTest extends \unittest\TestCase {
 

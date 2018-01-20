@@ -1,6 +1,6 @@
-<?php namespace web\unittest;
+<?php namespace web\io;
 
-class TestInput implements \web\io\Input {
+class TestInput implements Input {
   private $method, $uri, $headers, $body;
 
   /**

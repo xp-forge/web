@@ -4,6 +4,7 @@ use web\Cookie;
 use web\Response;
 use io\streams\MemoryInputStream;
 use util\URI;
+use web\io\TestOutput;
 
 class ResponseTest extends \unittest\TestCase {
 
