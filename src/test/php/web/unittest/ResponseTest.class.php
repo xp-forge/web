@@ -131,7 +131,7 @@ class ResponseTest extends \unittest\TestCase {
     $res->answer($status, $message);
     $res->flush();
 
-    $this->assertEquals($line."\r\n\r\n", $out->bytes);
+    $this->assertEquals($line."\r\n\r\n", $out->bytes());
   }
 
   #[@test]
@@ -145,7 +145,7 @@ class ResponseTest extends \unittest\TestCase {
 
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -159,7 +159,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -173,7 +173,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -187,7 +187,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
       "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
-      $out->bytes
+      $out->bytes()
     );
   }
 }

@@ -66,7 +66,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "Test",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -81,7 +81,7 @@ class FilesFromTest extends \unittest\TestCase {
     $this->assertResponse(
       "HTTP/1.1 304 Not Modified\r\n".
       "\r\n",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -101,7 +101,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "Home",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -119,7 +119,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 35\r\n".
       "\r\n".
       "The file '/test.html' was not found",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -137,7 +137,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 26\r\n".
       "\r\n".
       "The file '/' was not found",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -164,7 +164,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: ".strlen($result)."\r\n".
       "\r\n".
       $result,
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -185,7 +185,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -206,7 +206,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -232,7 +232,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Last-Modified: <Date>\r\n".
       "Content-Range: bytes */8\r\n".
       "\r\n",
-      $out->bytes
+      $out->bytes()
     );
   }
 
@@ -260,7 +260,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Range: bytes 4-7/8\r\n\r\n".
       "page".
       "\r\n--594fa07300f865fe--\r\n",
-      $out->bytes
+      $out->bytes()
     );
   }
 }
