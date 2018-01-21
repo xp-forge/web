@@ -11,8 +11,13 @@ use lang\IllegalStateException;
 class InvocationTest extends \unittest\TestCase {
 
   #[@test]
-  public function can_create() {
+  public function can_create_with_routing_function() {
     new Invocation(function($req, $res) { }, []);
+  }
+
+  #[@test]
+  public function can_create_with_routing_map() {
+    new Invocation(['/' => function($req, $res) { }], []);
   }
 
   #[@test]
@@ -34,6 +39,28 @@ class InvocationTest extends \unittest\TestCase {
     ])]);
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
     $this->assertTrue($invoked);
+  }
+
+  #[@test]
+  public function filters_are_called_in_the_order_they_are_passed() {
+    $invoked= [];
+    $fixture= new Invocation(function($req, $res) { }, [
+      newinstance(Filter::class, [], [
+        'filter' => function($req, $res, $invocation) use(&$invoked) {
+          $invoked[]= 'First';
+          return $invocation->proceed($req, $res);
+        }
+      ]),
+      newinstance(Filter::class, [], [
+        'filter' => function($req, $res, $invocation) use(&$invoked) {
+          $invoked[]= 'Second';
+          return $invocation->proceed($req, $res);
+        }
+      ])
+    ]);
+
+    $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
+    $this->assertEquals(['First', 'Second'], $invoked);
   }
 
   #[@test]
