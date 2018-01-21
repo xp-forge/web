@@ -148,4 +148,16 @@ class RoutingTest extends \unittest\TestCase {
       ->route(new Request(new TestInput($verb, '/')))
     );
   }
+
+  #[@test, @values([
+  #  '/api',
+  #  '//api', '///api',
+  #  '/test/../api', '/./api',
+  #  '/../api', '/./../api',
+  #])]
+  public function request_canonicalized_before_matching($requested) {
+    $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
+      ->route(new Request(new TestInput('GET', $requested)))
+    );
+  }
 }
