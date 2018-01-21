@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Changed handler return type from `void` to `var` and ensured anything
+  returned from a handler will be returned from routing and filters.
+  Implements functionality suggested in #31
+  (@thekid)
 * Changed `web.filters.Invocation`'s constructor to be more liberal as
   to what it accepts for its routing argument
   (@thekid)

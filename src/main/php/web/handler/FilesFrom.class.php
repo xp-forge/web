@@ -20,7 +20,7 @@ class FilesFrom implements \web\Handler {
    *
    * @param   web.Request $request
    * @param   web.Response $response
-   * @return  void
+   * @return  var
    */
   public function handle($request, $response) {
     $target= new Path($this->path, $request->uri()->path());

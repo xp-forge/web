@@ -19,7 +19,7 @@ class HttpProtocol implements \peer\server\ServerProtocol {
    * Creates a new protocol instance
    *
    * @param  web.Application $application
-   * @param  function(web.Request, web.Response): void $logging
+   * @param  function(web.Request, web.Response, ?lang.Throwable): void $logging
    */
   public function __construct($application, $logging) {
     $this->application= $application;

@@ -10,7 +10,7 @@ class Route {
    * Creates a new route
    *
    * @param  web.routing.Match|function(web.Request): web.Handler $match
-   * @param  web.Handler|function(web.Request, web.Response): void $handler
+   * @param  web.Handler|function(web.Request, web.Response): var $handler
    */
   public function __construct($match, $handler) {
     if ($match instanceof Match) {
@@ -30,7 +30,7 @@ class Route {
    * Routes request and returns handler
    *
    * @param  web.Request $request
-   * @param  web.Handler
+   * @return web.Handler
    */
   public function route($request) {
     if ($this->match->matches($request)) {

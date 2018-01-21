@@ -67,6 +67,6 @@ abstract class Application implements \lang\Value {
    * @return int
    */
   public function compareTo($value) {
-    return $value instanceof self ? strcmp($this->hashCode(), $value->hashCode()) : 1;
+    return $value === $this ? 0 : 1;
   }
 }

@@ -28,13 +28,13 @@ class Invocation {
    *
    * @param  web.Request $request
    * @param  web.Response $response
-   * @return void
+   * @return var
    */
   public function proceed($request, $response) {
     if ($this->offset < $this->length) {
-      $this->filters[$this->offset++]->filter($request, $response, $this);
+      return $this->filters[$this->offset++]->filter($request, $response, $this);
     } else {
-      $this->routing->service($request, $response);
+      return $this->routing->service($request, $response);
     }
   }
 }

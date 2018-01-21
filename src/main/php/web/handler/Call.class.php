@@ -12,13 +12,13 @@ class Call implements \web\Handler {
   private $invokeable;
 
   static function __static() {
-    self::$TYPE= FunctionType::forName('function(web.Request, web.Response): void');
+    self::$TYPE= FunctionType::forName('function(web.Request, web.Response): var');
   }
 
   /**
    * Creates a new call
    *
-   * @param  function(web.Request, web.Response): void $invokeable
+   * @param  function(web.Request, web.Response): var $invokeable
    * @throws lang.IllegalArgumentException
    */
   public function __construct($invokeable) {
@@ -30,9 +30,9 @@ class Call implements \web\Handler {
    *
    * @param   web.Request $request
    * @param   web.Response $response
-   * @return  void
+   * @return  var
    */
   public function handle($request, $response) {
-    $this->invokeable->__invoke($request, $response);
+    return $this->invokeable->__invoke($request, $response);
   }
 }

@@ -7,7 +7,7 @@ interface Handler {
    *
    * @param  web.Request $request
    * @param  web.Response $response
-   * @return void
+   * @return var
    */
   public function handle($request, $response);
 }

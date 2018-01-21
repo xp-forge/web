@@ -128,7 +128,14 @@ class Routing {
     }
   }
 
+  /**
+   * Service a request
+   *
+   * @param  web.Request $request
+   * @param  web.Response $response
+   * @return var
+   */
   public function service($request, $response) {
-    $this->route($request)->handle($request, $response);
+    return $this->route($request)->handle($request, $response);
   }
 }
