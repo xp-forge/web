@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Changed `web.filters.Invocation`'s constructor to be more liberal as
+  to what it accepts for its routing argument
+  (@thekid)
+
 ## 0.10.0 / 2018-01-20
 
 * Implemented #30: Request::toString(). The output includes method, URI

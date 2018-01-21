@@ -1,16 +1,23 @@
 <?php namespace web\filters;
 
+use web\Routing;
+
+/**
+ * Filter chain invocation
+ *
+ * @test  xp://web.unittest.filters.InvocationTest
+ */
 class Invocation {
   private $routing, $filters, $offset, $length;
 
   /**
    * Create a new Invocation
    *
-   * @param  web.Routing $routing
+   * @param  web.Routing|[:var]|web.Handler|function(web.Request, web.Response): var $routes
    * @param  web.Filter[] $filters
    */
   public function __construct($routing, $filters= []) {
-    $this->routing= $routing;
+    $this->routing= Routing::cast($routing);
     $this->filters= $filters;
     $this->offset= 0;
     $this->length= sizeof($filters);

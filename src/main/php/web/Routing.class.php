@@ -23,7 +23,7 @@ class Routing {
    * - A map of definitions => handlers, which are passed to `mapping()`
    * - A handler, which becomes the argument to `fallback()`.
    *
-   * @param  var $routes
+   * @param  self|[:var]|web.Handler|function(web.Request, web.Response): var $routes
    * @return self
    */
   public static function cast($routes) {
@@ -65,7 +65,7 @@ class Routing {
    * - `/test` matches any request inside /test
    *
    * @param  string $definition
-   * @param  web.Handler|function(web.Request, web.Response): void $target
+   * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
   public function matching($definition, $target) {
@@ -84,7 +84,7 @@ class Routing {
    * or else other mappings will not be honored.
    *
    * @param  web.routing.Match|function(web.Request): bool $matcher
-   * @param  web.Handler|function(web.Request, web.Response): void $target
+   * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
   public function mapping($matcher, $target) {
@@ -95,7 +95,7 @@ class Routing {
   /**
    * Maps all requests not otherwise mapped to a given target.
    *
-   * @param  web.Handler|function(web.Request, web.Response): void $target
+   * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
   public function fallbacks($handler) {
