@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.11.0 / 2018-01-21
+
 * Changed handler return type from `void` to `var` and ensured anything
   returned from a handler will be returned from routing and filters.
   Implements functionality suggested in #31
