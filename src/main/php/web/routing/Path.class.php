@@ -3,12 +3,12 @@
 /**
  * Matches a path suffix
  *
- * @test  xp://web.unittest.routing.TargetTest
+ * @test  xp://web.unittest.routing.PathTest
  */
 class Path implements Match {
   private $suffix;
 
-  /** @param  string $suffix */
+  /** @param string $suffix */
   public function __construct($suffix) {
     $this->suffix= rtrim($suffix, '/').'/';
   }
