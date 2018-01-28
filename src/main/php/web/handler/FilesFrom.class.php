@@ -8,11 +8,11 @@ use web\io\Ranges;
 class FilesFrom implements \web\Handler {
   const BOUNDARY = '594fa07300f865fe';
 
-  private $path;
+  private $paths;
 
-  /** @param io.Path|io.Folder|string $path */
-  public function __construct($path) {
-    $this->path= $path instanceof Path ? $path : new Path($path);
+  /** @param io.Path|io.Folder|string|web.handler.Paths $arg */
+  public function __construct($arg) {
+    $this->paths= $arg instanceof Paths ? $arg : new Paths($arg);
   }
 
   /**
@@ -23,28 +23,13 @@ class FilesFrom implements \web\Handler {
    * @return  var
    */
   public function handle($request, $response) {
-    $target= new Path($this->path, $request->uri()->path());
-    if ($target->isFolder()) {
-      $file= new File($target, 'index.html');
-    } else {
-      $file= $target->asFile();
+    if (null === ($file= $this->paths->resolve($request->uri()->path()))) {
+      $response->answer(404, 'Not Found');
+      $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
+      return;
     }
 
-    $this->serve($request, $response, $file);
-  }
-
-  /**
-   * Copies a given amount of bytes from the specified file to the output
-   *
-   * @param  web.io.Output $output
-   * @param  io.File $file
-   * @param  int $length
-   */
-  private function copy($output, $file, $length) {
-    while ($length && $chunk= $file->read(min(8192, $length))) {
-      $output->write($chunk);
-      $length-= strlen($chunk);
-    }
+    $this->send($request, $response, $file);
   }
 
   /**
@@ -63,6 +48,32 @@ class FilesFrom implements \web\Handler {
       return;
     }
 
+    $this->send($request, $response, $file);
+  }
+
+  /**
+   * Copies a given amount of bytes from the specified file to the output
+   *
+   * @param  web.io.Output $output
+   * @param  io.File $file
+   * @param  int $length
+   */
+  private function copy($output, $file, $length) {
+    while ($length && $chunk= $file->read(min(8192, $length))) {
+      $output->write($chunk);
+      $length-= strlen($chunk);
+    }
+  }
+
+  /**
+   * Sends file
+   *
+   * @param   web.Request $request
+   * @param   web.Response $response
+   * @param   io.File $file must've been checked for existance before!
+   * @return  void
+   */
+  private function send($request, $response, $file) {
     $lastModified= $file->lastModified();
     if ($conditional= $request->header('If-Modified-Since')) {
       if ($lastModified <= strtotime($conditional)) {

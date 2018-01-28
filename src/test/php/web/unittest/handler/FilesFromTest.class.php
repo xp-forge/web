@@ -1,11 +1,13 @@
 <?php namespace web\unittest\handler;
 
 use lang\Environment;
+use lang\IllegalStateException;
 use io\Path;
 use io\Folder;
 use io\File;
 use io\FileUtil;
 use web\handler\FilesFrom;
+use web\handler\Paths;
 use web\Request;
 use web\Response;
 use web\io\TestInput;
@@ -51,11 +53,36 @@ class FilesFromTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function can_create_with_paths() {
+    new FilesFrom(new Paths());
+  }
+
+  #[@test]
   public function existing_file() {
     $in= new TestInput('GET', '/test.html');
     $out= new TestOutput();
 
     $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $out->bytes()
+    );
+  }
+
+  #[@test]
+  public function resolve_file_with_paths() {
+    $in= new TestInput('GET', '/test.html');
+    $out= new TestOutput();
+
+    $files= (new FilesFrom(new Paths($this->pathWith(['test.html' => 'Test']))));
     $files->handle(new Request($in), new Response($out));
 
     $this->assertResponse(
@@ -239,7 +266,7 @@ class FilesFromTest extends \unittest\TestCase {
   #[@test]
   public function multi_range() {
     $in= new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7']);
-    $out= new TestOutput(); 
+    $out= new TestOutput();
 
     $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
     $files->handle(new Request($in), new Response($out));
