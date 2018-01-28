@@ -108,16 +108,16 @@ class PathsTest extends \unittest\TestCase {
   }
 
   #[@test, @values(['/static', '/static/'])]
-  public function stripping($prefix) {
+  public function strip($prefix) {
     $path= $this->pathWith(['a.html' => 'Test']);
     $this->assertEquals(new File($path, 'a.html'), (new Paths($path))
-      ->stripping($prefix)
+      ->strip($prefix)
       ->resolve('/static/a.html')
     );
   }
 
   #[@test, @expect(IllegalStateException::class)]
   public function error_raised_when_prefix_not_in_request() {
-    (new Paths())->stripping('/static')->resolve('/index.html');
+    (new Paths())->strip('/static')->resolve('/index.html');
   }
 }

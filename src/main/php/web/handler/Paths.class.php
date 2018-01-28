@@ -48,7 +48,7 @@ class Paths {
    * @param  string $prefix
    * @return self
    */
-  public function stripping($prefix) {
+  public function strip($prefix) {
     $this->strip= rtrim($prefix, '/').'/';
     return $this;
   }
