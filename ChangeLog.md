@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #33: Remove frontend handler. This library will cover the
+  HTTP basics, while other more advanced usecases should reside in their
+  own respective library
+  (@thekid)
+
 ## 0.11.0 / 2018-01-21
 
 * Fixed issue #32: Canonicalize URL before matching - @thekid
