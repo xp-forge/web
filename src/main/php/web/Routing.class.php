@@ -70,11 +70,13 @@ class Routing {
    */
   public function matching($definition, $target) {
     if ('/' === $definition{0}) {
-      return $this->with(new Route(new Path($definition), $target));
+      $matcher= new Path($definition);
     } else {
       sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
-      return $this->with(new Route(new Target(explode('|', $method), $path ?: '*'), $target));
+      $matcher= new Target(explode('|', $method), $path ?: '*');
     }
+    $this->routes[]= new Route($matcher, $target);
+    return $this;
   }
 
   /**
