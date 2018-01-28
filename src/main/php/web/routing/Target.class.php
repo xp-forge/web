@@ -12,7 +12,7 @@ class Target implements Match {
    * Creates a new target
    *
    * @param  string|string[] $methods HTTP methods, e.g. "GET" or "POST"
-   * @param  string|web.routing.Handler $target
+   * @param  string|web.routing.Match $target
    */
   public function __construct($methods, $target= '*') {
     $this->methods= array_flip((array)$methods);
