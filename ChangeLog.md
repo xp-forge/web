@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.12.0 / 2018-01-31
+
 * Fixed "undefined function getallheaders()" when using FPM. According
   to [the documentation](http://php.net/getallheaders), it should exist,
   but reality shows it doesn't. See https://bugs.php.net/bug.php?id=62596
