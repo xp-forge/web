@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed "undefined function getallheaders()" when using FPM. According
+  to [the documentation](http://php.net/getallheaders), it should exist,
+  but reality shows it doesn't. See https://bugs.php.net/bug.php?id=62596
+  (@thekid)
 * Merged PR #33: Remove frontend handler. This library will cover the
   HTTP basics, while other more advanced usecases should reside in their
   own respective library

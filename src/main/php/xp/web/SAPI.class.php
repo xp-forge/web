@@ -11,6 +11,20 @@ class SAPI extends \web\io\Output implements \web\io\Input {
   private $in= null;
   private $out;
 
+  static function __static() {
+    if (!function_exists('getallheaders')) {
+      function getallheaders() {
+        $headers= [];
+        foreach ($_SERVER as $name => $value) {
+          if (0 === strncmp($name, 'HTTP_', 5)) {
+            $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))]= $value;
+          }
+        }
+        return $headers;
+      }
+    }
+  }
+
   /** @return string */
   public function method() { return $_SERVER['REQUEST_METHOD']; }
 
