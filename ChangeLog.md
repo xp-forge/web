@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed uncaught exceptions when errors occur after starting streaming
+  (@thekid)
+
 ## 0.12.0 / 2018-01-31
 
 * Fixed "undefined function getallheaders()" when using FPM. According
