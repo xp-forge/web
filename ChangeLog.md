@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Changed chunked transfer encoding to buffer 4k bytes before sending
+  a chunk; preventing blowing up the response for repeated small writes.
+  See https://gist.github.com/magnetikonline/11312172
+  (@thekid)
 * Fixed uncaught exceptions when errors occur after starting streaming
   (@thekid)
 
