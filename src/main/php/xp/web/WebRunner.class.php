@@ -45,20 +45,24 @@ class WebRunner {
    * @return void
    */
   private static function error($request, $response, $error, $profile) {
-    $loader= ClassLoader::getDefault();
-    $message= Status::message($error->status());
+    if ($response->flushed()) {
+      $error->printStackTrace();
+    } else {
+      $loader= ClassLoader::getDefault();
+      $message= Status::message($error->status());
 
-    $response->answer($error->status(), $message);
-    foreach (['web/error-'.$profile.'.html', 'web/error.html'] as $variant) {
-      if (!$loader->providesResource($variant)) continue;
-      $response->send(sprintf(
-        $loader->getResource($variant),
-        $error->status(),
-        htmlspecialchars($message),
-        htmlspecialchars($error->getMessage()),
-        htmlspecialchars($error->toString())
-      ));
-      break;
+      $response->answer($error->status(), $message);
+      foreach (['web/error-'.$profile.'.html', 'web/error.html'] as $variant) {
+        if (!$loader->providesResource($variant)) continue;
+        $response->send(sprintf(
+          $loader->getResource($variant),
+          $error->status(),
+          htmlspecialchars($message),
+          htmlspecialchars($error->getMessage()),
+          htmlspecialchars($error->toString())
+        ));
+        break;
+      }
     }
     self::log($request, $response, $error->toString());
   }
