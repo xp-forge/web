@@ -46,7 +46,7 @@ class WebRunner {
    */
   private static function error($request, $response, $error, $profile) {
     if ($response->flushed()) {
-      $error->printStackTrace();
+      error_log($error->toString(), 4);  // 4 = SAPI error logger
     } else {
       $loader= ClassLoader::getDefault();
       $message= Status::message($error->status());
