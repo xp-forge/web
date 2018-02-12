@@ -70,8 +70,14 @@ class Develop {
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 
-    $nul= ['file', 'WINDOWS' === $os->name() ? 'NUL' : '/dev/null', 'w'];
-    if (!($proc= proc_open($cmd, [STDIN, STDOUT, $nul], $pipes, null, null, ['bypass_shell' => true]))) {
+    if ('WINDOWS' === $os->name()) {
+      $nul= 'NUL';
+    } else {
+      $nul= '/dev/null';
+      $cmd= 'exec '.$cmd;      // Replace launching shell with PHP
+    }
+
+    if (!($proc= proc_open($cmd, [STDIN, STDOUT, ['file', $nul, 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
       throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
     }
 
@@ -91,10 +97,11 @@ class Develop {
     }
 
     // Wait for shutdown
-    proc_terminate($proc, 10);
+    proc_terminate($proc, 2);
     do {
       Console::write('.');
       $status= proc_get_status($proc);
+      usleep(100 * 1000);
     } while ($status['running']);
 
     proc_close($proc);
