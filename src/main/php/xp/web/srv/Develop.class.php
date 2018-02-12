@@ -61,7 +61,7 @@ class Develop {
     // Export environment
     putenv('DOCUMENT_ROOT='.$docroot);
     putenv('SERVER_PROFILE='.$profile);
-    putenv('WEB_SOURCE='.$source);
+    putenv('WEB_SOURCE='.$source.'+xp.web.dev.Console');
     putenv('WEB_CONFIG='.implode('PATH_SEPARATOR', $config));
     putenv('WEB_ROOT='.$webroot);
 
