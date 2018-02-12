@@ -48,11 +48,9 @@ class Console implements Filter {
     $buffer= new Buffer();
 
     try {
-      fputs(STDOUT, "Console::ob_start()\n");
       ob_start();
       $result= $invocation->proceed($req, new Response($buffer));
     } finally {
-      fputs(STDOUT, "Console::ob_get_clean()\n");
       $debug= ob_get_clean();
       ob_end_clean();
     }

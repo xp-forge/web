@@ -17,7 +17,6 @@ class Buffer extends Output {
   }
 
   public function drain(Output $out) {
-    fputs(STDOUT, "BUFFER::drain($this->bytes) -> ".var_export($out, 1)."\n");
     $out->begin($this->status, $this->message, $this->headers);
     $out->write($this->bytes);
     $out->close();
