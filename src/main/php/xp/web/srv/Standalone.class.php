@@ -2,6 +2,7 @@
 
 use util\cmd\Console;
 use web\Environment;
+use xp\web\Source;
 
 abstract class Standalone {
   private $server, $url;
