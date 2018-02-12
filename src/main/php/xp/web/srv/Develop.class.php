@@ -10,7 +10,7 @@ use lang\archive\ArchiveClassLoader;
 use peer\Socket;
 use io\IOException;
 
-class Develop {
+class Develop implements Server {
   private $host, $port;
 
   /**

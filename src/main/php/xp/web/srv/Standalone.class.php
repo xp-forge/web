@@ -4,7 +4,7 @@ use util\cmd\Console;
 use web\Environment;
 use xp\web\Source;
 
-abstract class Standalone {
+abstract class Standalone implements Server {
   private $server, $url;
 
   public function __construct($server, $url) {

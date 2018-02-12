@@ -16,6 +16,13 @@ class Buffer extends Output {
     $this->bytes.= $bytes;
   }
 
+  /**
+   * Drain this buffered output to a given output instance, closing it
+   * once finished.
+   *
+   * @param  web.io.Output $out
+   * @return void
+   */
   public function drain(Output $out) {
     $out->begin($this->status, $this->message, $this->headers);
     $out->write($this->bytes);
