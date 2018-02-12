@@ -44,6 +44,16 @@ abstract class Application implements \lang\Value {
   protected abstract function routes();
 
   /**
+   * Installs global filters
+   *
+   * @param  web.Filter[] $filters
+   * @return void
+   */
+  public function install($filters) {
+    $this->routing= Routing::cast(new Filters($filters, $this->routing()));
+  }
+
+  /**
    * Service delegates to the routing, calling its `service()` method.
    *
    * @param  web.Request $request

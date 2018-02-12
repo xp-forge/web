@@ -35,7 +35,12 @@ class SAPI extends \web\io\Output implements \web\io\Input {
   public function uri() { return $_SERVER['REQUEST_URI']; }
 
   /** @return [:string] */
-  public function headers() { return getallheaders(); }
+  public function headers() {
+    yield 'Remote-Addr' => $_SERVER['REMOTE_ADDR'];
+    foreach (getallheaders() as $name => $value) {
+      yield $name => $value;
+    }
+  }
 
   /** @return string */
   public function readLine() {

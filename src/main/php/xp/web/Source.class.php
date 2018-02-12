@@ -8,14 +8,23 @@ class Source {
   /**
    * Creates a new application from a given name and environment
    *
-   * @param  string $name
+   * @param  string $name `application[+filter[,filter[,...]]]`
    * @param  web.Environment $environment
    */
   public function __construct($name, $environment) {
-    if ('-' === $name) {
+    sscanf($name, '%[^+]+%s', $application, $filters);
+
+    if ('-' === $application) {
       $this->application= new ServeDocumentRootStatically($environment);
     } else {
-      $this->application= XPClass::forName($name)->newInstance($environment);
+      $this->application= XPClass::forName($application)->newInstance($environment);
+    }
+
+    if ($filters) {
+      $this->application->install(array_map(
+        function($filter) { return XPClass::forName($filter)->newInstance(); },
+        explode(',', $filters)
+      ));
     }
   }
 
