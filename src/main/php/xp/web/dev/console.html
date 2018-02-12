@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Debug</title>
+    <style type="text/css">
+      body         { font-family: "Segoe UI",Arial,Helvetica; background-color: rgb(27, 43, 52); color: rgb(205, 211, 222); }
+      #content     { margin: 2em; }
+      h1 img       { float: left; margin-right: 0.5em; }
+      h1 #code     { padding: 0.1em 0.5em; background-color: rgb(102, 153, 204); color: white; border-radius: 0.1em; }
+      #debug       { border: 1px dotted rgb(205, 211, 222); overflow: hidden; padding: 0.5em; font-size: 13px; }
+      button.clip  { float: right; }
+      h2 #status   { color: rgb(102, 153, 204); }
+      table        { margin-bottom: 1.5em; }
+      td           { padding: 0.3em; }
+      td.name      { background-color: rgb(41, 56, 65); }
+      td.value     { color: rgb(249, 145, 87); font-family: monospace; font-size: 13px; }
+      button       { background-color: rgb(41, 56, 65); cursor: pointer; border-radius: 0.1em; border: none; }
+      button:hover { opacity: .65; transition: all 150ms linear; }
+    </style>
+  </head>
+  <body bgcolor="#ffffff" text="#000000">
+    <div id="content">
+      <h1>
+        <img width="59" height="48" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADsAAAAwCAYAAACv4gJwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAEeSURBVGhD7ZdNCsIwEEaj1/AILvUCHsStuPIwrsStB/EEnkmTkoESMklq85/vgQwFS+frm2npZrc/fsUgbHUdAoTtFYTtFW/Y0+3RVHXBvnrUye/7VR+1g6tvvGdDRqJmuP6HMmsNG7qvJSYgtC/b/6xj3OKDac6iB5TPLBl9XQ5Tzcn5+Zmqrz+YjWGW7nZKzGvBrIbrP+p7Vt19+tFxCbj+o5tVY0ajpmqJwFnMKkyzOfbZJItZsjo3W4JsZmsg287WAMxKYBZmGwJmJUOZxfcszFrgdiMloX3B7BqzIZB9136H7OESYFaSzCwZ/YcY14bZ1DtbAq5/a9hesY6xYs3OlcTVNxuWxoBObqW61g9j3CsI2ysI2ysDhRXiB5CuA+ASNuP/AAAAAElFTkSuQmCC" alt="Debug"/>
+
+        <span id="code">DEBUG</span>
+      </h1>
+      <div id="debug">
+        <button class="clip" onclick="clip(document.getElementById('output').innerText); flash(document.getElementById('debug'))">📋</button>
+        <pre id="output">%1$s</pre>
+      </div>
+
+      <!-- Original HTTP response -->
+      <h2>HTTP/1.1 <span id="status">%2$d %3$s</span></h2>
+      <table id="headers">
+        %4$s
+      </table>
+      <pre id="body">%5$s</pre>
+    </div>
+    <script type="text/javascript">
+      function clip(text) {
+        if (window.clipboardData) {
+          window.clipboardData.setData('Text', text);
+        } else {
+          var t = document.createElement('textarea');
+          t.value = text;
+          t.style.position = 'fixed';
+          t.style.top = 0;
+          t.style.left = 0;
+          t.style.width = '2em';
+          t.style.height = '2em';
+          t.style.background = 'transparent';
+          t.style.border = 'none';
+          document.body.appendChild(t);
+          t.select();
+          document.execCommand('copy');
+          document.body.removeChild(t);
+        }
+      }
+
+      function flash(div) {
+        div.style.transition = 'all 150ms linear';
+        div.style.backgroundColor = 'rgb(41, 56, 65)';
+        setTimeout(function() { div.style.backgroundColor = null; }, 100);
+      }
+    </script>
+  </body>
+</html>
