@@ -4,6 +4,9 @@ use io\Path;
 use lang\IllegalArgumentException;
 use lang\XPClass;
 use xp\runtime\Help;
+use xp\web\srv\Serve;
+use xp\web\srv\Prefork;
+use xp\web\srv\Develop;
 
 /**
  * Web server
@@ -19,15 +22,11 @@ use xp\runtime\Help;
  *   ```
  * - On Un*x systems, start multiprocess server with 50 children:
  *   ```sh
- *   $ xp web -m prefork,50
- *   ```
- * - Use [event-based I/O](http://pecl.php.net/package/event):
- *   ```sh
- *   $ xp web -m event
+ *   $ xp web -m prefork,50 ...
  *   ```
  * - Use [development webserver](http://php.net/features.commandline.webserver):
  *   ```sh
- *   $ xp web -m develop
+ *   $ xp web -m develop ...
  *   ```
  * The address the server listens to can be supplied via *-a {host}[:{port}]*.
  * The profile can be changed via *-p {profile}* (and can be anything!). One
@@ -37,8 +36,6 @@ class Runner {
   private static $modes= [
     'serve'   => Serve::class,
     'prefork' => Prefork::class,
-    'fork'    => Fork::class,
-    'event'   => Event::class,
     'develop' => Develop::class
   ];
 

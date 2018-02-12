@@ -1,4 +1,4 @@
-<?php namespace xp\web;
+<?php namespace xp\web\srv;
 
 use util\cmd\Console;
 use web\Environment;
