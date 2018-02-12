@@ -3,13 +3,16 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 0.13.0 / 2018-02-12
+## 0.14.0 / 2018-02-12
 
 * Merged PR #13: Development console. The console is enabled by default
  inside the development webserver and can be activated by prepending the
  `WEB_SOURCE` enviroment variabe with `+xp.web.dev.Console`.
   (@thekid)
 * Fixed development webserver shtudown on Un\*x systems - @thekid
+
+## 0.13.0 / 2018-02-05
+
 * Changed chunked transfer encoding to buffer 4k bytes before sending
   a chunk; preventing blowing up the response for repeated small writes.
   See https://gist.github.com/magnetikonline/11312172
