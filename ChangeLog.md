@@ -5,7 +5,7 @@ Web change log
 
 ## 0.14.0 / 2018-02-12
 
-* Merged PR #13: Development console. The console is enabled by default
+* Merged PR #35: Development console. The console is enabled by default
  inside the development webserver and can be activated by prepending the
  `WEB_SOURCE` enviroment variabe with `+xp.web.dev.Console`.
   (@thekid)
