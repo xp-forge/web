@@ -91,7 +91,7 @@ class Develop {
     }
 
     // Wait for shutdown
-    proc_terminate($proc, 2);
+    proc_terminate($proc, 10);
     do {
       Console::write('.');
       $status= proc_get_status($proc);

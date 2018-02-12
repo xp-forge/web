@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed development webserver shtudown on Un\*x systems - @thekid
 * Changed chunked transfer encoding to buffer 4k bytes before sending
   a chunk; preventing blowing up the response for repeated small writes.
   See https://gist.github.com/magnetikonline/11312172
