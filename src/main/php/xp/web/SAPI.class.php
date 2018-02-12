@@ -67,6 +67,13 @@ class SAPI extends \web\io\Output implements \web\io\Input {
     }
   }
 
+  /** Creates a new per-request SAPI I/O instance */
+  public function __construct() {
+    ob_start(function($buffer) {
+      fputs(STDOUT, $buffer);
+    });
+  }
+
   /**
    * Start response
    *
@@ -88,6 +95,7 @@ class SAPI extends \web\io\Output implements \web\io\Input {
         header($name.': '.$value, false);
       }
     }
+    ob_end_clean();
     $this->out= '';
   }
 
