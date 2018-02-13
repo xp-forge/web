@@ -28,8 +28,9 @@ class Buffer extends Output {
     foreach ($this->headers as $name => $value) {
       $res->header($name, $value);
     }
+    $res->flush();
 
-    $out= $res->stream(strlen($this->bytes));
+    $out= $res->output();
     try {
       $out->write($this->bytes);
     } finally {
