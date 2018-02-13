@@ -45,27 +45,28 @@ class Console implements Filter {
    * @return var
    */
   public function filter($req, $res, $invocation) {
-    $buffer= new Buffer();
+    $buffer= new Response(new Buffer());
 
     try {
       ob_start();
-      $result= $invocation->proceed($req, new Response($buffer));
+      $result= $invocation->proceed($req, $buffer);
     } finally {
+      $buffer->end();
       $debug= ob_get_clean();
-      ob_end_clean();
     }
 
+    $out= $buffer->output();
     if (empty($debug)) {
-      $buffer->drain($res->output());
+      $out->drain($res);
     } else {
       $res->status(200, 'Debug');
       $res->send(sprintf(
         typeof($this)->getClassLoader()->getResource($this->template),
         htmlspecialchars($debug),
-        $buffer->status,
-        htmlspecialchars($buffer->message),
-        $this->rows($buffer->headers),
-        htmlspecialchars($buffer->bytes)
+        $out->status,
+        htmlspecialchars($out->message),
+        $this->rows($out->headers),
+        htmlspecialchars($out->bytes)
       ));
     }
 

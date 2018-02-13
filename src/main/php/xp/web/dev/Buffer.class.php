@@ -20,12 +20,20 @@ class Buffer extends Output {
    * Drain this buffered output to a given output instance, closing it
    * once finished.
    *
-   * @param  web.io.Output $out
+   * @param  web.Response $res
    * @return void
    */
-  public function drain(Output $out) {
-    $out->begin($this->status, $this->message, $this->headers);
-    $out->write($this->bytes);
-    $out->close();
+  public function drain($res) {
+    $res->answer($this->status, $this->message);
+    foreach ($this->headers as $name => $value) {
+      $res->header($name, $value);
+    }
+
+    $out= $res->stream(strlen($this->bytes));
+    try {
+      $out->write($this->bytes);
+    } finally {
+      $out->close();
+    }
   }
 }

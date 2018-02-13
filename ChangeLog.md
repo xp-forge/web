@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 0.14.1 / 2018-02-13
+
+* Fixed development webserver not respecting HTTP status codes properly
+  (@thekid)
+
 ## 0.14.0 / 2018-02-12
 
 * Merged PR #35: Development console. The console is enabled by default
