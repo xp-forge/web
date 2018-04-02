@@ -1,14 +1,15 @@
 <?php namespace xp\web\srv;
 
 class Output extends \web\io\Output {
-  private $socket;
+  private $socket, $version;
 
-  public function __construct($socket) {
+  public function __construct($socket, $version= '1.1') {
     $this->socket= $socket;
+    $this->version= $version;
   }
 
   public function begin($status, $message, $headers) {
-    $this->socket->write(sprintf("HTTP/1.1 %d %s\r\n", $status, $message));
+    $this->socket->write(sprintf("HTTP/%s %d %s\r\n", $this->version, $status, $message));
     foreach ($headers as $name => $header) {
       foreach ($header as $value) {
         $this->socket->write($name.': '.$value."\r\n");

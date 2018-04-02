@@ -2,6 +2,7 @@
 
 use lang\ClassLoader;
 use lang\Throwable;
+use peer\server\ServerProtocol;
 use web\Error;
 use web\InternalServerError;
 use web\Request;
@@ -10,8 +11,10 @@ use web\Status;
 
 /**
  * HTTP protocol implementation
+ *
+ * @test  xp://web.unittest.HttpProtocolTest
  */
-class HttpProtocol implements \peer\server\ServerProtocol {
+class HttpProtocol implements ServerProtocol {
   public $server= null;
   private $close= false;
 
@@ -101,17 +104,23 @@ class HttpProtocol implements \peer\server\ServerProtocol {
       return;
     }
 
+    $version= $input->version();
     $request= new Request($input);
-    $response= new Response(new Output($socket));
+    $response= new Response(new Output($socket, $version));
     $response->header('Date', gmdate('D, d M Y H:i:s T'));
     $response->header('Host', $request->header('Host'));
 
-    // Honour a "Connection: close" by the client
-    if ($this->close || 0 === strncasecmp('close', $request->header('Connection'), 5)) {
-      $response->header('Connection', 'close');
+    // HTTP/1.1 defaults to keeping connection alive, HTTP/1.0 defaults to closing
+    $connection= $request->header('Connection');
+    if ($this->close) {
       $close= true;
+      $response->header('Connection', 'close');
+    } else if ($version < '1.1') {
+      $close= 0 !== strncasecmp('keep-alive', $connection, 10);
+      $close || $response->header('Connection', 'keep-alive');
     } else {
-      $close= false;
+      $close= 0 === strncasecmp('close', $connection, 5);
+      $close && $response->header('Connection', 'close');
     }
 
     try {

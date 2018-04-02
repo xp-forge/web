@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed handling of HTTP/1.0 requests:
+  - Answer with HTTP/1.0 response
+  - Close connection unless `Connection: keep-alive` is sent
+  (@thekid)
+
 ## 0.14.1 / 2018-02-13
 
 * Fixed development webserver not respecting HTTP status codes properly

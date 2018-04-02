@@ -4,7 +4,7 @@ use peer\CryptoSocket;
 
 class Input implements \web\io\Input {
   private $socket;
-  private $method, $uri;
+  private $method, $uri, $version;
   private $buffer= '';
 
   /**
@@ -17,7 +17,7 @@ class Input implements \web\io\Input {
     $this->buffer= '';
 
     if (null === ($message= $this->readLine())) return;
-    sscanf($message, '%s %s HTTP/%d.%d', $this->method, $this->uri, $major, $minor);
+    sscanf($message, '%s %s HTTP/%[0-9.]', $this->method, $this->uri, $this->version);
   }
 
   /** @return string */
@@ -41,6 +41,9 @@ class Input implements \web\io\Input {
 
   /** @return string */
   public function scheme() { return $this->socket instanceof CryptoSocket ? 'https' : 'http'; }
+
+  /** @return string */
+  public function version() { return $this->version; }
 
   /** @return string */
   public function method() { return $this->method; }
