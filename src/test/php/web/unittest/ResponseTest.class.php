@@ -5,6 +5,7 @@ use web\Response;
 use io\streams\MemoryInputStream;
 use util\URI;
 use web\io\TestOutput;
+use web\io\Buffered;
 
 class ResponseTest extends \unittest\TestCase {
 
@@ -187,6 +188,20 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
       "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
+      $out->bytes()
+    );
+  }
+
+  #[@test]
+  public function transfer_stream_buffered() {
+    $out= (new TestOutput())->using(Buffered::class);
+
+    $res= new Response($out);
+    $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html');
+
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
+      "<h1>Test</h1>",
       $out->bytes()
     );
   }
