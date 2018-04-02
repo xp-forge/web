@@ -19,6 +19,9 @@ class TestInput implements Input {
   }
 
   /** @return string */
+  public function version() { return '1.1'; }
+
+  /** @return string */
   public function scheme() { return 'http'; }
 
   /** @return string */

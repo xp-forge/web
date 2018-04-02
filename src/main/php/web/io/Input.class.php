@@ -3,6 +3,9 @@
 interface Input {
 
   /** @return string */
+  public function version();
+
+  /** @return string */
   public function method();
 
   /** @return string */
