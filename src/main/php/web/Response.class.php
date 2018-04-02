@@ -130,7 +130,7 @@ class Response {
    */
   public function stream($size= null) {
     if (null === $size) {
-      $output= $this->output->streaming();
+      $output= $this->output->stream();
     } else {
       $this->headers['Content-Length']= [$size];
       $output= $this->output;

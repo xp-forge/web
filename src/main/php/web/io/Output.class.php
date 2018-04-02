@@ -27,7 +27,7 @@ abstract class Output implements \io\streams\OutputStream {
    *
    * @return web.io.Output
    */
-  public function streaming() { }
+  public function stream() { }
 
   /** @return void */
   public function finish() { }

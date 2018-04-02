@@ -23,7 +23,7 @@ class Output extends \web\io\Output {
    * @return web.io.Output
    * @see    https://tools.ietf.org/html/rfc2068#section-19.7.1
    */
-  public function streaming() {
+  public function stream() {
     return $this->version < '1.1' ? new Buffered($this) : new WriteChunks($this);
   }
 

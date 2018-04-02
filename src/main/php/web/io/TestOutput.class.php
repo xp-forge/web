@@ -4,21 +4,21 @@ use lang\XPClass;
 
 class TestOutput extends Output {
   private $bytes;
-  private $streaming;
+  private $stream;
 
   /** Create a new Test Output */
   public function __construct() {
-    $this->streaming= new XPClass(WriteChunks::class);
+    $this->stream= new XPClass(WriteChunks::class);
   }
 
   /**
-   * Use streaming class, which defaults to `WriteChunks`
+   * Use stream class, which defaults to `WriteChunks`
    *
-   * @param  string|lang.XPClass $streaming
+   * @param  string|lang.XPClass $stream
    * @return self
    */
-  public function using($streaming) {
-    $this->streaming= $streaming instanceof XPClass ? $streaming : XPClass::forName($streaming);
+  public function using($stream) {
+    $this->stream= $stream instanceof XPClass ? $stream : XPClass::forName($stream);
     return $this;
   }
 
@@ -40,7 +40,7 @@ class TestOutput extends Output {
   }
 
   /** @return web.io.Output */
-  public function streaming() { return $this->streaming->newInstance($this); }
+  public function stream() { return $this->stream->newInstance($this); }
 
   /**
    * Writes the bytes (in this case, to the internal buffer which can be
