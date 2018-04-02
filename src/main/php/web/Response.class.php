@@ -92,12 +92,13 @@ class Response {
    * @return void
    * @throws lang.IllegalStateException
    */
-  public function flush() {
+  public function flush($output= null) {
     if ($this->flushed) {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $this->output->begin($this->status, $this->message, $this->headers);
+    $output || $output= $this->output;
+    $output->begin($this->status, $this->message, $this->headers);
     $this->flushed= true;
   }
 
@@ -129,14 +130,13 @@ class Response {
    */
   public function stream($size= null) {
     if (null === $size) {
-      $this->headers['Transfer-Encoding']= ['chunked'];
-      $output= new WriteChunks($this->output);
+      $output= $this->output->streaming();
     } else {
       $this->headers['Content-Length']= [$size];
       $output= $this->output;
     }
 
-    $this->flush();
+    $this->flush($output);
     return $output;
   }
 

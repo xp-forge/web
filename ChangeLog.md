@@ -4,8 +4,10 @@ Web change log
 ## ?.?.? / ????-??-??
 
 * Fixed handling of HTTP/1.0 requests:
-  - Answer with HTTP/1.0 response
+  - Answer with HTTP/1.0 in response status line
   - Close connection unless `Connection: keep-alive` is sent
+  - Do not answer with chunked with persistent connections, see
+    https://tools.ietf.org/html/rfc2068#section-19.7.1
   (@thekid)
 
 ## 0.14.1 / 2018-02-13

@@ -12,7 +12,7 @@ class WriteChunks extends Output {
   private $target;
   private $buffer= '';
 
-  /** @param io.streams.OutputStream $target */
+  /** @param web.io.Output $target */
   public function __construct($target) {
     $this->target= $target;
   }
@@ -26,6 +26,7 @@ class WriteChunks extends Output {
    * @return void
    */
   public function begin($status, $message, $headers) {
+    $headers['Transfer-Encoding']= ['chunked'];
     $this->target->begin($status, $message, $headers);
   }
 
