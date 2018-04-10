@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.0.0 / 2018-04-10
+
 * Fixed handling of HTTP/1.0 requests:
   - Answer with HTTP/1.0 in response status line
   - Close connection unless `Connection: keep-alive` is sent
