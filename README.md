@@ -12,7 +12,9 @@ Example
 -------
 
 ```php
-class Service extends \web\Application {
+use web\Application;
+
+class Service extends Application {
 
   /** @return [:var] */
   public function routes() {
