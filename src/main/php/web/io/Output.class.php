@@ -1,6 +1,16 @@
 <?php namespace web\io;
 
-abstract class Output implements \io\streams\OutputStream {
+use io\streams\OutputStream;
+
+/**
+ * Base class for all output implementations. Subclasses implement the
+ * `begin` and `write` methods, and may decide to implement `flush`,
+ * `finish` and `stream`.
+ *
+ * @see   xp://xp.web.SAPI
+ * @see   xp://xp.web.srv.Output
+ */
+abstract class Output implements OutputStream {
   private $closed= false;
 
   /**
@@ -25,9 +35,9 @@ abstract class Output implements \io\streams\OutputStream {
    * Returns an output used when the content-length is not known at the
    * time of staring the output.
    *
-   * @return web.io.Output
+   * @return self
    */
-  public function stream() { }
+  public function stream() { return $this; }
 
   /** @return void */
   public function finish() { }
