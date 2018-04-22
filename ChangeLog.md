@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.0.1 / 2018-04-22
+
+* Fixed SSL and HTTP version detection when running inside PHP SAPIs,
+  e.g. Apache; or the development webserver.
+  (@thekid)
+
 ## 1.0.0 / 2018-04-10
 
 * Fixed handling of HTTP/1.0 requests:

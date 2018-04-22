@@ -1,5 +1,8 @@
 <?php namespace xp\web;
 
+use web\io\Input;
+use web\io\Output;
+
 /**
  * Wrapper for PHP's Server API ("SAPI").
  *
@@ -7,7 +10,7 @@
  * @see  http://php.net/wrappers.php
  * @see  http://php.net/php-sapi-name
  */
-class SAPI extends \web\io\Output implements \web\io\Input {
+class SAPI extends Output implements Input {
   private $in= null;
   private $out;
 
@@ -29,7 +32,15 @@ class SAPI extends \web\io\Output implements \web\io\Input {
   public function method() { return $_SERVER['REQUEST_METHOD']; }
 
   /** @return string */
-  public function scheme() { return 'http'; }
+  public function scheme() {
+    return (isset($_SERVER['HTTPS']) && in_array(strtolower($_SERVER['HTTPS']), ['on', '1'])) ? 'https' : 'http';
+  }
+
+  /** @return version */
+  public function version() {
+    sscanf($_SERVER['SERVER_PROTOCOL'], 'HTTP/%[0-9.]', $version);
+    return $version;
+  }
 
   /** @return string */
   public function uri() { return $_SERVER['REQUEST_URI']; }
