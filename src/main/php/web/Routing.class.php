@@ -138,6 +138,13 @@ class Routing {
    * @return var
    */
   public function service($request, $response) {
-    return $this->route($request)->handle($request, $response);
+    do {
+      $result= $this->route($request)->handle($request, $response);
+      if ($result instanceof Dispatch) {
+        $request->rewrite($result->uri());
+        continue;
+      }
+      return $result;
+    } while (true);
   }
 }
