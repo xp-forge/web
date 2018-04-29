@@ -17,7 +17,7 @@ class Target implements Match {
   public function __construct($methods, $target= null) {
     $this->methods= array_flip((array)$methods);
     if (null === $target) {
-      $this->target= Matches::$ANY;
+      $this->target= null;
     } else if ($target instanceof Match) {
       $this->target= $target;
     } else {
@@ -33,7 +33,7 @@ class Target implements Match {
    */
   public function matches($request) {
     if (isset($this->methods[$request->method()])) {
-      return $this->target->matches($request);
+      return $this->target ? $this->target->matches($request) : true;
     }
     return null;
   }
