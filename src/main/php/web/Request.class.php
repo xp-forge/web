@@ -250,6 +250,14 @@ class Request implements Value {
   }
 
   /**
+   * Dispatches request
+   *
+   * @param  string|util.URI $uri
+   * @return web.Dispatch
+   */
+  public function dispatch($uri) { return new Dispatch($uri); }
+
+  /**
    * Gets a cookie by name
    *
    * @param  string $name
