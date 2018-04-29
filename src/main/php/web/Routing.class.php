@@ -2,6 +2,7 @@
 
 use web\routing\Target;
 use web\routing\Path;
+use web\routing\Segments;
 use web\routing\Matches;
 use web\handler\Call;
 use web\routing\CannotRoute;
@@ -55,6 +56,16 @@ class Routing {
   }
 
   /**
+   * Creates match for a given path
+   *
+   * @param  string $path
+   * @return web.routing.Match
+   */
+  private function match($path) {
+    return strpos($path, '{') ? new Segments($path) : new Path($path);
+  }
+
+  /**
    * Matches a given definition, routing it to the specified target.
    *
    * - `GET` matches GET requests
@@ -70,12 +81,12 @@ class Routing {
    */
   public function matching($definition, $target) {
     if ('/' === $definition{0}) {
-      $matcher= new Path($definition);
+      $match= $this->match($definition);
     } else {
       sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
-      $matcher= new Target(explode('|', $method), $path ?: '*');
+      $match= new Target(explode('|', $method), $path ? $this->match($path) : '*');
     }
-    $this->routes[]= new Route($matcher, $target);
+    $this->routes[]= new Route($match, $target);
     return $this;
   }
 
