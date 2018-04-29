@@ -14,10 +14,10 @@ class Target implements Match {
    * @param  string|string[] $methods HTTP methods, e.g. "GET" or "POST"
    * @param  string|web.routing.Match $target
    */
-  public function __construct($methods, $target= '*') {
+  public function __construct($methods, $target= null) {
     $this->methods= array_flip((array)$methods);
-    if ('*' === $target) {
-      $this->target= null;
+    if (null === $target) {
+      $this->target= Matches::$ANY;
     } else if ($target instanceof Match) {
       $this->target= $target;
     } else {
@@ -29,12 +29,12 @@ class Target implements Match {
    * Returns whether this target matches a given request
    *
    * @param  web.Request $request
-   * @return bool
+   * @return [:string]|bool
    */
   public function matches($request) {
-    return (
-      isset($this->methods[$request->method()]) &&
-      ($this->target ? $this->target->matches($request) : true)
-    );
+    if (isset($this->methods[$request->method()])) {
+      return $this->target->matches($request);
+    }
+    return null;
   }
 }

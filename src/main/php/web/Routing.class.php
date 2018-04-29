@@ -84,7 +84,7 @@ class Routing {
       $match= $this->match($definition);
     } else {
       sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
-      $match= new Target(explode('|', $method), $path ? $this->match($path) : '*');
+      $match= new Target(explode('|', $method), $path ? $this->match($path) : null);
     }
     $this->routes[]= new Route($match, $target);
     return $this;

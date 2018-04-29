@@ -9,7 +9,7 @@ class Route {
   /**
    * Creates a new route
    *
-   * @param  web.routing.Match|function(web.Request): web.Handler $match
+   * @param  web.routing.Match|function(web.Request): ([:string]|bool) $match
    * @param  web.Handler|function(web.Request, web.Response): var $handler
    */
   public function __construct($match, $handler) {
@@ -33,10 +33,18 @@ class Route {
    * @return web.Handler
    */
   public function route($request) {
-    if ($this->match->matches($request)) {
-      return $this->handler;
-    } else {
-      return null;
+    $matches= $this->match->matches($request);
+
+    // Matches is one of:
+    // - NULL or FALSE: Route doesn't match
+    // - TRUE: Route matches
+    // - A map: Route matches and provides pairs to pass to request
+    if (null === $matches || false === $matches) return null;
+    if (true === $matches) return $this->handler;
+
+    foreach ((array)$matches as $key => $value) {
+      $request->pass($key, $value);
     }
+    return $this->handler;
   }
 }

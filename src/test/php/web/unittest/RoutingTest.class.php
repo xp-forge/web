@@ -143,7 +143,7 @@ class RoutingTest extends \unittest\TestCase {
   #])]
   public function with($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
-      ->with(new Route(new Target(['GET', 'HEAD'], '*'), $this->handlers['specific']))
+      ->with(new Route(new Target(['GET', 'HEAD']), $this->handlers['specific']))
       ->fallbacks($this->handlers['default'])
       ->route(new Request(new TestInput($verb, '/')))
     );
