@@ -26,4 +26,13 @@ class SegmentsTest extends \unittest\TestCase {
   public function matches_with_pattern($path, $expected) {
     $this->assertEquals($expected, (new Segments('/users/{id:[0-9]+}'))->matches(new Request(new TestInput('GET', $path))));
   }
+
+  #[@test]
+  public function blog_article_usecase() {
+    $segments= new Segments('/blog/{cat}/{id:[0-9]+}(-{slug:.+})?');
+    $this->assertEquals(
+      ['cat' => 'development', 'id' => '1'],
+      $segments->matches(new Request(new TestInput('GET', '/blog/development/1')))
+    );
+  }
 }

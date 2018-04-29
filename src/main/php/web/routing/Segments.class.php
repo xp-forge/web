@@ -10,7 +10,7 @@ class Segments implements Match {
 
   /** @param string $pattern */
   public function __construct($pattern) {
-    $this->regex= '#^'.preg_replace(['/\{([^:]+):([^}]+)\}/', '/\{([^}]+)\}/'], ['(?<$1>$2)', '(?<$1>[^/]+)'], $pattern).'/$#';
+    $this->regex= '#^'.preg_replace(['/\{([^:}]+):([^}]+)\}/', '/\{([^}]+)\}/'], ['(?<$1>$2)', '(?<$1>[^/]+)'], $pattern).'/$#';
   }
 
   /**
