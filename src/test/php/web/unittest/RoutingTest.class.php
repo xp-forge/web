@@ -160,4 +160,14 @@ class RoutingTest extends \unittest\TestCase {
       ->route(new Request(new TestInput('GET', $requested)))
     );
   }
+
+  #[@test, @values([
+  #  '/users/1549',
+  #  '/users/friebe'
+  #])]
+  public function segments($requested) {
+    $this->assertEquals($this->handlers['specific'], Routing::cast(['/users/{user}' => $this->handlers['specific']])
+      ->route(new Request(new TestInput('GET', $requested)))
+    );
+  }
 }
