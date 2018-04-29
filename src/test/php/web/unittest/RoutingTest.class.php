@@ -143,7 +143,7 @@ class RoutingTest extends \unittest\TestCase {
   #])]
   public function with($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
-      ->with(new Route(new Target(['GET', 'HEAD'], '*'), $this->handlers['specific']))
+      ->with(new Route(new Target(['GET', 'HEAD']), $this->handlers['specific']))
       ->fallbacks($this->handlers['default'])
       ->route(new Request(new TestInput($verb, '/')))
     );
@@ -157,6 +157,16 @@ class RoutingTest extends \unittest\TestCase {
   #])]
   public function request_canonicalized_before_matching($requested) {
     $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
+      ->route(new Request(new TestInput('GET', $requested)))
+    );
+  }
+
+  #[@test, @values([
+  #  '/users/1549',
+  #  '/users/friebe'
+  #])]
+  public function segments($requested) {
+    $this->assertEquals($this->handlers['specific'], Routing::cast(['/users/{user}' => $this->handlers['specific']])
       ->route(new Request(new TestInput('GET', $requested)))
     );
   }
