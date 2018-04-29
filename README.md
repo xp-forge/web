@@ -16,12 +16,13 @@ use web\Application;
 
 class Service extends Application {
 
-  /** @return [:var] */
   public function routes() {
-    return ['/hello' => function($req, $res)  {
-      $res->answer(200, 'OK');
-      $res->send('Hello '.$req->param('name', 'Guest'), 'text/plain');
-    }
+    return [
+      '/hello' => function($req, $res) {
+        $res->answer(200, 'OK');
+        $res->send('Hello '.$req->param('name', 'Guest'), 'text/plain');
+      }
+    ];
   }
 }
 ```
