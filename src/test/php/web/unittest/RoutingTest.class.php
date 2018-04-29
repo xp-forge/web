@@ -121,6 +121,19 @@ class RoutingTest extends \unittest\TestCase {
   }
 
   #[@test, @values([
+  #  ['/test', 'specific'],
+  #  ['/test.html', 'specific'],
+  #  ['/', 'default']
+  #])]
+  public function matching_paths($url, $expected) {
+    $this->assertEquals($this->handlers[$expected], (new Routing())
+      ->matching(['/test', '/test.html'], $this->handlers['specific'])
+      ->fallbacks($this->handlers['default'])
+      ->route(new Request(new TestInput('GET', $url)))
+    );
+  }
+
+  #[@test, @values([
   #  ['GET', 'specific'],
   #  ['POST', 'default'],
   #  ['HEAD', 'specific']

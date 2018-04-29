@@ -70,18 +70,20 @@ class Routing {
    * - `/` matches any request to any path
    * - `/test` matches any request inside /test
    *
-   * @param  string $definition
+   * @param  string|string[] $definitions
    * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
-  public function matching($definition, $target) {
-    if ('/' === $definition{0}) {
-      $matcher= new Path($definition);
-    } else {
-      sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
-      $matcher= new Target(explode('|', $method), $path ?: '*');
+  public function matching($definitions, $target) {
+    foreach ((array)$definitions as $definition) {
+      if ('/' === $definition{0}) {
+        $matcher= new Path($definition);
+      } else {
+        sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
+        $matcher= new Target(explode('|', $method), $path ?: '*');
+      }
+      $this->routes[]= new Route($matcher, $target);
     }
-    $this->routes[]= new Route($matcher, $target);
     return $this;
   }
 
