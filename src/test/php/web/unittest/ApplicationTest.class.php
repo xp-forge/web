@@ -2,6 +2,7 @@
 
 use web\Application;
 use web\Environment;
+use web\Error;
 use web\Handler;
 use web\Request;
 use web\Response;
@@ -113,6 +114,34 @@ class ApplicationTest extends \unittest\TestCase {
         },
         '/' => function($request, $response) {
           return $request->dispatch('/home');
+        },
+      ];
+    });
+  }
+
+  #[@test, @expect(class= Error::class, withMessage= '/Internal redirect loop/')]
+  public function dispatch_request_to_self_causes_error() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/' => function($request, $response) {
+          return $request->dispatch('/');
+        },
+      ];
+    });
+  }
+
+  #[@test, @expect(class= Error::class, withMessage= '/Internal redirect loop/')]
+  public function dispatch_request_ping_pong_causes_error() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => function($request, $response) {
+          return $request->dispatch('/');
+        },
+        '/user' => function($request, $response) {
+          return $request->dispatch('/home');
+        },
+        '/' => function($request, $response) {
+          return $request->dispatch('/user');
         },
       ];
     });
