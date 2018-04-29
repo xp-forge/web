@@ -3,8 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 1.1.1 / 2018-04-29
+## 1.2.0 / 2018-04-29
 
+* Allowed supplying an array to `matching()`'s first argument, creating
+  routes for all of its elements
+  (@thekid)
 * Fixed `dispatch()` in conjunction with filters / nested routing
   (@thekid)
 
