@@ -103,4 +103,18 @@ class ApplicationTest extends \unittest\TestCase {
       ]);
     });
   }
+
+  #[@test]
+  public function dispatch_request() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => function($request, $response) use(&$handled) {
+          $handled[]= [$request, $response];
+        },
+        '/' => function($request, $response) {
+          return $request->dispatch('/home');
+        },
+      ];
+    });
+  }
 }
