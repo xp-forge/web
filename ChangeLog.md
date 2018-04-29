@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.1.1 / 2018-04-29
+
+* Fixed `dispatch()` in conjunction with filters / nested routing
+  (@thekid)
+
 ## 1.1.0 / 2018-04-29
 
 * Merged PR #38: Dispatching - high-performance internal redirects w/o

@@ -1,15 +1,16 @@
 <?php namespace web\unittest;
 
+use lang\IllegalStateException;
 use web\Application;
 use web\Environment;
 use web\Error;
+use web\Filters;
 use web\Handler;
+use web\io\TestInput;
+use web\io\TestOutput;
 use web\Request;
 use web\Response;
 use web\Routing;
-use web\io\TestInput;
-use web\io\TestOutput;
-use lang\IllegalStateException;
 
 class ApplicationTest extends \unittest\TestCase {
   private $environment;
@@ -143,6 +144,20 @@ class ApplicationTest extends \unittest\TestCase {
         '/' => function($request, $response) {
           return $request->dispatch('/user');
         },
+      ];
+    });
+  }
+
+  #[@test]
+  public function dispatch_request_bubbles_up_to_toplevel() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => function($request, $response) use(&$handled) {
+          $handled[]= [$request, $response];
+        },
+        '/' => new Filters([], function($request, $response) {
+          return $request->dispatch('/home');
+        }),
       ];
     });
   }

@@ -13,6 +13,7 @@ use web\routing\CannotRoute;
  * @test  xp://web.unittest.RoutingTest
  */
 class Routing {
+  private $top= false;
   private $fallback= null;
   private $routes= [];
 
@@ -24,19 +25,24 @@ class Routing {
    * - A handler, which becomes the argument to `fallback()`.
    *
    * @param  self|[:var]|web.Handler|function(web.Request, web.Response): var $routes
+   * @param  bool $top Whether this is the top-level routing
    * @return self
    */
-  public static function cast($routes) {
+  public static function cast($routes, $top= false) {
     if ($routes instanceof self) {
+      $routes->top= $top;
       return $routes;
     } else if (is_array($routes)) {
       $routing= new self();
+      $routing->top= $top;
       foreach ($routes as $definition => $target) {
         $routing->matching($definition, $target);
       }
       return $routing;
     } else {
-      return (new self())->fallbacks($routes);
+      $routing= (new self())->fallbacks($routes);
+      $routing->top= $top;
+      return $routing;
     }
   }
 
@@ -141,7 +147,7 @@ class Routing {
     $seen= [];
     do {
       $result= $this->route($request)->handle($request, $response);
-      if ($result instanceof Dispatch) {
+      if ($this->top && $result instanceof Dispatch) {
         $seen[$request->uri()->hashCode()]= true;
         $request->rewrite($result->uri());
         if (isset($seen[$request->uri()->hashCode()])) {

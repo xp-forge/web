@@ -28,7 +28,7 @@ abstract class Application implements \lang\Value {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $this->routing= Routing::cast($this->routes());
+      $this->routing= Routing::cast($this->routes(), true);
     }
     return $this->routing;    
   }
@@ -50,7 +50,7 @@ abstract class Application implements \lang\Value {
    * @return void
    */
   public function install($filters) {
-    $this->routing= Routing::cast(new Filters($filters, $this->routing()));
+    $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
   }
 
   /**
