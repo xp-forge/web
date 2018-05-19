@@ -5,20 +5,7 @@ use web\Filter;
 /**
  * Rewrites request URI if behind a reverse proxy
  *
- * A typical scenario might look like this:
- * ```
- * https://intranet.example.com/app (Apache) => {
- *   http://app.intranet-services01.lan:8080 (XP Web)
- *   http://app.intranet-services02.lan:8080 (XP Web)
- * }
- * ```
- * - Apache takes care of balancing and SSL
- * - We route /app to a subdomain
- *
- * In this case, we'll need to reconstruct the original, outward-facing request
- * URL by using proxy headers such as `X-Forwarded-Host` and by prefixing its
- * path with "/app".
- *
+ * @see  https://github.com/xp-forge/web/pull/40
  * @see  https://en.wikipedia.org/wiki/Reverse_proxy
  * @see  http://httpd.apache.org/docs/2.4/mod/mod_proxy.html#x-headers
  * @see  https://www.nginx.com/resources/wiki/start/topics/examples/forwarded/
