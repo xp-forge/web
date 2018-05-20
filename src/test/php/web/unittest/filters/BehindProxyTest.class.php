@@ -107,7 +107,7 @@ class BehindProxyTest extends TestCase {
 
   #[@test, @values(['/app', '/app/'])]
   public function stripping_base($base) {
-    ((new BehindProxy(self::PROXY_ADDRESS))->stripping($base))->filter(
+    (new BehindProxy(self::PROXY_ADDRESS))->stripping($base)->filter(
       $this->proxyRequest('/app/', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
@@ -118,7 +118,7 @@ class BehindProxyTest extends TestCase {
 
   #[@test, @values(['/app', '/app/'])]
   public function stripping_base_without_trailing_slash($base) {
-    ((new BehindProxy(self::PROXY_ADDRESS))->stripping($base))->filter(
+    (new BehindProxy(self::PROXY_ADDRESS))->stripping($base)->filter(
       $this->proxyRequest('/app', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
