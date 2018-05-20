@@ -93,6 +93,22 @@ class BehindProxy implements Filter {
   }
 
   /**
+   * Return last value in a potentially comma-separated header
+   *
+   * @param  string $header
+   * @return string
+   */
+  private function last($header) {
+    if (null === $header) {
+      return null;
+    } else if (false === ($p= strrpos($header, ','))) {
+      return $header;
+    } else {
+      return ltrim(substr($header, $p + 1), ' ');
+    }
+  }
+
+  /**
    * Applies filter
    *
    * @param  web.Request $request
@@ -101,13 +117,13 @@ class BehindProxy implements Filter {
    * @return var
    */
   public function filter($request, $response, $invocation) {
-    if (($forwarded= $request->header('X-Forwarded-Host')) && $this->trusts($request->header('Remote-Addr'))) {
+    if (($forwarded= $this->last($request->header('X-Forwarded-Host'))) && $this->trusts($request->header('Remote-Addr'))) {
       $uri= $request->uri();
       $rewrite= $this->path;
       $request->rewrite($uri->using()
         ->host($forwarded)
-        ->scheme($this->protocol ?: $request->header('X-Forwarded-Proto', 'https'))
-        ->port($request->header('X-Forwarded-Port', null))
+        ->scheme($this->protocol ?: $this->last($request->header('X-Forwarded-Proto', 'https')))
+        ->port($this->last($request->header('X-Forwarded-Port', null)))
         ->path($rewrite ? $rewrite($uri->path()) : $uri->path())
         ->create()
       );

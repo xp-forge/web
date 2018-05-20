@@ -126,4 +126,15 @@ class BehindProxyTest extends TestCase {
 
     $this->assertEquals('https://example.com/', (string)$request->uri());
   }
+
+  #[@test]
+  public function only_uses_last_host() {
+    (new BehindProxy(self::PROXY_ADDRESS))->filter(
+      $this->proxyRequest('/', ['X-Forwarded-Host' => 'evil.com, example.com']),
+      new Response(new TestOutput()),
+      new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
+    );
+
+    $this->assertEquals('https://example.com/', (string)$request->uri());
+  }
 }
