@@ -1,6 +1,8 @@
 <?php namespace web\filters;
 
 use web\Filter;
+use peer\net\InetAddressFactory;
+use peer\net\Network;
 
 /**
  * Rewrites request URI if behind a reverse proxy
@@ -15,6 +17,32 @@ use web\Filter;
 class BehindProxy implements Filter {
   private $path= null;
   private $protocol= null;
+  private $trusted= [];
+
+  /**
+   * Creates a new instance given a list of trusted proxy addresses or networks
+   *
+   * @param  string|string[] $trusted
+   */
+  public function __construct($trusted) {
+    $addresses= new InetAddressFactory();
+
+    $list= is_array($trusted) ? $trusted : explode(',', $trusted);
+    foreach ($list as $arg) {
+      if (2 === sscanf($arg, '%[^/]/%d$', $addr, $mask)) {
+        $network= new Network($addresses->parse($addr), $mask);
+        $f= function($addr) use($addresses, $network) {
+          return $network->contains($addresses->parse($addr));
+        };
+      } else {
+        $address= $addresses->parse($arg);
+        $f= function($addr) use($addresses, $address) {
+          return 0 === $address->compareTo($addresses->parse($addr));
+        };
+      }
+      $this->trusted[$arg]= $f;
+    }
+  }
 
   /**
    * Force the use of a given protocol
@@ -52,6 +80,19 @@ class BehindProxy implements Filter {
   }
 
   /**
+   * Returns whether the given remote address is trusted
+   *
+   * @param  string $remote
+   * @return bool
+   */
+  public function trusts($remote) {
+    foreach ($this->trusted as $trusted) {
+      if ($trusted($remote)) return true;
+    }
+    return false;
+  }
+
+  /**
    * Applies filter
    *
    * @param  web.Request $request
@@ -60,8 +101,8 @@ class BehindProxy implements Filter {
    * @return var
    */
   public function filter($request, $response, $invocation) {
-    $uri= $request->uri();
-    if ($forwarded= $request->header('X-Forwarded-Host')) {
+    if (($forwarded= $request->header('X-Forwarded-Host')) && $this->trusts($request->header('Remote-Addr'))) {
+      $uri= $request->uri();
       $rewrite= $this->path;
       $request->rewrite($uri->using()
         ->host($forwarded)

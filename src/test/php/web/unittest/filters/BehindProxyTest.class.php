@@ -10,16 +10,49 @@ use web\Request;
 use web\Response;
 
 class BehindProxyTest extends TestCase {
+  const PROXY_ADDRESS = '127.0.0.2';
+  const PROXY_NETWORK = '127.0.0.1/8';
+
+  /**
+   * Creates a request from the proxy
+   *
+   * @param  string $path
+   * @param  [:string] $headers
+   * @return web.Request
+   */
+  private function proxyRequest($path, $headers) {
+    return new Request(new TestInput('GET', $path, array_merge($headers, [
+      'Remote-Addr'     => self::PROXY_ADDRESS,
+      'X-Forwarded-For' => '127.0.0.1'
+    ])));
+  }
 
   #[@test]
   public function can_create() {
-    new BehindProxy();
+    new BehindProxy(self::PROXY_ADDRESS);
+  }
+
+  #[@test, @values([
+  #  ['172.17.31.213', false],
+  #  ['127.0.0.1', false],
+  #  [self::PROXY_ADDRESS, true],
+  #])]
+  public function trusts_addr($addr, $trusted) {
+    $this->assertEquals($trusted, (new BehindProxy(self::PROXY_ADDRESS))->trusts($addr));
+  }
+
+  #[@test, @values([
+  #  ['172.17.31.213', false],
+  #  ['127.0.0.1', true],
+  #  [self::PROXY_ADDRESS, true],
+  #])]
+  public function trusts_network($addr, $trusted) {
+    $this->assertEquals($trusted, (new BehindProxy(self::PROXY_NETWORK))->trusts($addr));
   }
 
   #[@test]
   public function no_rewriting_performed_by_default() {
-    $filter= new BehindProxy();
-    $filter->filter(
+    (new BehindProxy(self::PROXY_ADDRESS))->filter(
       new Request(new TestInput('GET', '/')),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
@@ -30,9 +63,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test]
   public function honours_forwarded_host_header_and_defaults_to_https() {
-    $filter= new BehindProxy();
-    $filter->filter(
-      new Request(new TestInput('GET', '/', ['X-Forwarded-Host' => 'example.com'])),
+    (new BehindProxy(self::PROXY_ADDRESS))->filter(
+      $this->proxyRequest('/', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
@@ -42,9 +74,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test]
   public function honours_forwarded_proto_header() {
-    $filter= new BehindProxy();
-    $filter->filter(
-      new Request(new TestInput('GET', '/', ['X-Forwarded-Host' => 'example.com', 'X-Forwarded-Proto' => 'http'])),
+    (new BehindProxy(self::PROXY_ADDRESS))->filter(
+      $this->proxyRequest('/', ['X-Forwarded-Host' => 'example.com', 'X-Forwarded-Proto' => 'http']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
@@ -54,9 +85,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test]
   public function can_force_https_via_using() {
-    $filter= (new BehindProxy())->using('https');
-    $filter->filter(
-      new Request(new TestInput('GET', '/', ['X-Forwarded-Host' => 'example.com', 'X-Forwarded-Proto' => 'http'])),
+    (new BehindProxy(self::PROXY_ADDRESS))->using('https')->filter(
+      $this->proxyRequest('/', ['X-Forwarded-Host' => 'example.com', 'X-Forwarded-Proto' => 'http']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
@@ -66,9 +96,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test, @values(['/app', '/app/'])]
   public function prefixed_base($base) {
-    $filter= (new BehindProxy())->prefixed($base);
-    $filter->filter(
-      new Request(new TestInput('GET', '/', ['X-Forwarded-Host' => 'example.com'])),
+    (new BehindProxy(self::PROXY_ADDRESS))->prefixed($base)->filter(
+      $this->proxyRequest('/', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
@@ -78,9 +107,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test, @values(['/app', '/app/'])]
   public function stripping_base($base) {
-    $filter= (new BehindProxy())->stripping($base);
-    $filter->filter(
-      new Request(new TestInput('GET', '/app/', ['X-Forwarded-Host' => 'example.com'])),
+    ((new BehindProxy(self::PROXY_ADDRESS))->stripping($base))->filter(
+      $this->proxyRequest('/app/', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
@@ -90,9 +118,8 @@ class BehindProxyTest extends TestCase {
 
   #[@test, @values(['/app', '/app/'])]
   public function stripping_base_without_trailing_slash($base) {
-    $filter= (new BehindProxy())->stripping($base);
-    $filter->filter(
-      new Request(new TestInput('GET', '/app', ['X-Forwarded-Host' => 'example.com'])),
+    ((new BehindProxy(self::PROXY_ADDRESS))->stripping($base))->filter(
+      $this->proxyRequest('/app', ['X-Forwarded-Host' => 'example.com']),
       new Response(new TestOutput()),
       new Invocation(function($req, $res) use(&$request) { $request= $req; }, [])
     );
