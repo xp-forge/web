@@ -97,24 +97,21 @@ class ResponseTest extends \unittest\TestCase {
 
   #[@test]
   public function cookie() {
-    $attr= '; SameSite=Lax; HttpOnly';
-
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
-    $this->assertEquals(['Set-Cookie' => 'theme=light'.$attr], $res->headers());
+    $this->assertEquals('light', $res->cookies()[0]->value());
   }
 
   #[@test]
   public function cookies() {
-    $attr= '; SameSite=Lax; HttpOnly';
+    $cookies= [new Cookie('theme', 'Test'), (new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT')];
 
     $res= new Response(new TestOutput());
-    $res->cookie(new Cookie('theme', 'Test'));
-    $res->cookie((new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT'));
-    $this->assertEquals(
-      ['Set-Cookie' => ['theme=Test'.$attr, 'sessionToken=abc123; Expires=Wed, 09 Jun 2021 10:18:14 GMT'.$attr]],
-      $res->headers()
-    );
+    foreach ($cookies as $cookie) {
+      $res->cookie($cookie);
+    }
+
+    $this->assertEquals($cookies, $res->cookies());
   }
 
   #[@test, @values([
@@ -203,6 +200,19 @@ class ResponseTest extends \unittest\TestCase {
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
       $out->bytes()
+    );
+  }
+
+  #[@test]
+  public function cookies_and_headers_are_merged() {
+    $res= new Response(new TestOutput());
+    $res->header('Content-Type', 'text/html');
+    $res->cookie(new Cookie('toggle', 'future'));
+    $res->flush();
+
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: toggle=future; SameSite=Lax; HttpOnly\r\n\r\n",
+      $res->output()->bytes()
     );
   }
 }

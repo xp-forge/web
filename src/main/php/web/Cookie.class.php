@@ -3,6 +3,7 @@
 use util\Date;
 use util\TimeSpan;
 use lang\IllegalArgumentException;
+use lang\Value;
 
 /**
  * A HTTP/1.1 Cookie
@@ -12,7 +13,7 @@ use lang\IllegalArgumentException;
  * @see   https://www.owasp.org/index.php/SameSite
  * @test  xp://web.unittest.CookieTest
  */
-class Cookie {
+class Cookie implements Value {
   private $name, $value;
 
   private $expires= null;
@@ -41,6 +42,25 @@ class Cookie {
     } else {
       $this->value= $value;
     }
+  }
+
+  /** @return string */
+  public function name() { return $this->name; }
+
+  /** @return string */
+  public function value() { return $this->value; }
+
+  /** @return [:var] */
+  public function attributes() {
+    return [
+      'expires'  => $this->expires,
+      'maxAge'   => $this->maxAge,
+      'path'     => $this->path,
+      'domain'   => $this->domain,
+      'secure'   => $this->secure,
+      'httpOnly' => $this->httpOnly,
+      'sameSite' => $this->sameSite,
+    ];
   }
 
   /**
@@ -142,5 +162,21 @@ class Cookie {
       ($this->secure ? '; Secure' : '').
       ($this->httpOnly ? '; HttpOnly' : '')
     );
+  }
+
+  /** @return string */
+  public function hashCode() { return crc32($this->header()); }
+
+  /** @return string */
+  public function toString() { return nameof($this).'<'.$this->header().'>'; }
+
+  /**
+   * Compare
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? strcmp($this->header(), $value->header()) : 1;
   }
 }

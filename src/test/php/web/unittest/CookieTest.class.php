@@ -23,6 +23,32 @@ class CookieTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function name() {
+    $this->assertEquals('name', (new Cookie('name', 'value'))->name());
+  }
+
+  #[@test]
+  public function value() {
+    $this->assertEquals('value', (new Cookie('name', 'value'))->value());
+  }
+
+  #[@test]
+  public function attributes() {
+    $this->assertEquals(
+      [
+        'expires'  => null,
+        'maxAge'   => null,
+        'path'     => null,
+        'domain'   => null,
+        'secure'   => false,
+        'httpOnly' => true,
+        'sameSite' => 'Lax',
+      ],
+      (new Cookie('name', 'value'))->attributes()
+    );
+  }
+
+  #[@test]
   public function http_only_and_same_site_per_default() {
     $this->assertEquals(
       'name=value; SameSite=Lax; HttpOnly',
