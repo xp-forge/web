@@ -13,6 +13,7 @@ class Response {
   private $flushed= false;
   private $status= 200;
   private $message= 'OK';
+  private $cookies= [];
   private $headers= [];
 
   /** @param web.io.Output $output */
@@ -30,6 +31,16 @@ class Response {
   public function answer($status, $message= null) {
     $this->status= $status;
     $this->message= $message ?: Status::message($status);
+  }
+
+  /**
+   * Sets a cookie
+   *
+   * @param  web.Response $cookie
+   * @return void
+   */
+  public function cookie(Cookie $cookie) {
+    $this->cookies[]= $cookie;
   }
 
   /**
@@ -55,16 +66,6 @@ class Response {
     }
   }
 
-  /**
-   * Sets a cookie
-   *
-   * @param  web.Response $cookie
-   * @return void
-   */
-  public function cookie(Cookie $cookie) {
-    $this->headers['Set-Cookie'][]= $cookie->header();
-  }
-
   /** @return int */
   public function status() { return $this->status; }
 
@@ -77,6 +78,9 @@ class Response {
   /** @return bool */
   public function flushed() { return $this->flushed; }
 
+  /** @return web.Cookie[] */
+  public function cookies() { return $this->cookies; }
+
   /** @return [:string|string[]] */
   public function headers() {
     $r= [];
@@ -84,6 +88,15 @@ class Response {
       $r[$name]= 1 === sizeof($header) ? $header[0] : $header;
     }
     return $r;
+  }
+
+  /** @param web.io.Output $output */
+  private function begin($output) {
+    $output->begin($this->status, $this->message, $this->cookies
+      ? array_merge($this->headers, ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)])
+      : $this->headers
+    );
+    $this->flushed= true;
   }
 
   /**
@@ -97,9 +110,7 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $output || $output= $this->output;
-    $output->begin($this->status, $this->message, $this->headers);
-    $this->flushed= true;
+    $this->begin($output ?: $this->output);
   }
 
   /**
@@ -116,8 +127,7 @@ class Response {
         $this->headers['Content-Length']= [0];
       }
 
-      $this->output->begin($this->status, $this->message, $this->headers);
-      $this->flushed= true;
+      $this->begin($this->output);
     }
     $this->output->close();
   }
