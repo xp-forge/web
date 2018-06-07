@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.3.0 / 2018-06-07
+
+* Merged PR #42: Response cookies - @mikey179, @thekid
+
 ## 1.2.0 / 2018-04-29
 
 * Allowed supplying an array to `matching()`'s first argument, creating
