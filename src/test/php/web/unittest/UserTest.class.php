@@ -38,4 +38,17 @@ class UserTest extends TestCase {
   public function hasRole($role, $expected) {
     $this->assertEquals($expected, (new User('admin', ['admins', 'users']))->hasRole($role));
   }
+
+  #[@test]
+  public function string_representation() {
+    $this->assertEquals('web.User(id: "admin", roles= [])', (new User('admin'))->toString());
+  }
+
+  #[@test]
+  public function string_representation_with_roles() {
+    $this->assertEquals(
+      'web.User(id: "admin", roles= [admins, users])',
+      (new User('admin', ['admins', 'users']))->toString()
+    );
+  }
 }
