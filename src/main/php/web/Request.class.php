@@ -1,13 +1,13 @@
 <?php namespace web;
 
-use util\URI;
-use web\io\Input;
-use web\io\ReadLength;
-use web\io\ReadChunks;
 use io\streams\MemoryInputStream;
 use io\streams\Streams;
 use lang\Value;
 use util\Objects;
+use util\URI;
+use web\io\Input;
+use web\io\ReadChunks;
+use web\io\ReadLength;
 
 class Request implements Value {
   private $stream= null;
@@ -17,6 +17,7 @@ class Request implements Value {
   private $encoding= null;
   private $params= null;
   private $cookies= null;
+  private $user= null;
   private $method, $uri, $input;
 
   /** @param web.io.Input $input */
@@ -45,6 +46,17 @@ class Request implements Value {
    */
   public function pass($name, $value) {
     $this->values[$name]= $value;
+    return $this;
+  }
+
+  /**
+   * Authenticate this request; setting a user
+   *
+   * @param  web.User $user
+   * @return self
+   */
+  public function authenticate(User $user) {
+    $this->user= $user;
     return $this;
   }
 
@@ -83,6 +95,9 @@ class Request implements Value {
 
   /** @return util.URI */
   public function uri() { return $this->uri; }
+
+  /** @return web.User */
+  public function user() { return $this->user; }
 
   /** @return [:string|string[]] */
   public function headers() {

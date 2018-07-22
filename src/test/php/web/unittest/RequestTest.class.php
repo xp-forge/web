@@ -1,11 +1,13 @@
 <?php namespace web\unittest;
 
-use web\Request;
 use io\streams\Streams;
+use unittest\TestCase;
 use util\URI;
+use web\Request;
+use web\User;
 use web\io\TestInput;
 
-class RequestTest extends \unittest\TestCase {
+class RequestTest extends TestCase {
   private static $CHUNKED = ['Transfer-Encoding' => 'chunked'];
 
   /** @return var[][] */
@@ -276,5 +278,16 @@ class RequestTest extends \unittest\TestCase {
       "]",
       $req->toString()
     );
+  }
+
+  #[@test]
+  public function not_authenticated_by_default() {
+    $this->assertNull((new Request(new TestInput('GET', '/')))->user());
+  }
+
+  #[@test]
+  public function authenticate() {
+    $user= new User('test');
+    $this->assertEquals($user, (new Request(new TestInput('GET', '/')))->authenticate($user)->user());
   }
 }
