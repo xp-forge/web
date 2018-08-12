@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.4.0 / 2018-08-12
+
+* Merged PR #45: Pass all additional command line arguments to app
+  environment
+  (@thekid)
+
 ## 1.3.0 / 2018-06-07
 
 * Merged PR #42: Response cookies - @mikey179, @thekid
