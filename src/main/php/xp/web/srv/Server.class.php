@@ -10,6 +10,7 @@ interface Server {
    * @param  io.Path $webroot
    * @param  io.Path $docroot
    * @param  string[] $config
+   * @param  string[] $args
    */
-  public function serve($source, $profile, $webroot, $docroot, $config);
+  public function serve($source, $profile, $webroot, $docroot, $config, $args);
 }
