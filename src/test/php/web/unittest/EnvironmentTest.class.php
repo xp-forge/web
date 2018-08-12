@@ -39,4 +39,9 @@ class EnvironmentTest extends \unittest\TestCase {
     $environment= new Environment('dev', '.', 'static', [new RegisteredPropertySource('inject', $prop)]);
     $this->assertEquals($prop, $environment->properties('inject'));
   }
+
+  #[@test, @values([[[]], [['test', 'value']]])]
+  public function arguments($arguments) {
+    $this->assertEquals($arguments, (new Environment('dev', '.', 'static', [], $arguments))->arguments());
+  }
 }
