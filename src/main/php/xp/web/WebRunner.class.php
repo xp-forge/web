@@ -70,7 +70,6 @@ class WebRunner {
   /** @param string[] $args */
   public static function main($args) {
     $env= new Environment($args[2], $args[0], $args[1], explode('PATH_SEPARATOR', getenv('WEB_CONFIG')), explode('|', getenv('WEB_ARGS')));
-    $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
 
     $sapi= new SAPI();
     $request= new Request($sapi);
@@ -79,6 +78,7 @@ class WebRunner {
     $response->header('Host', $request->header('Host'));
 
     try {
+      $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
       $application->service($request, $response);
       self::log($request, $response);
     } catch (Error $e) {

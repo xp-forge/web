@@ -5,6 +5,9 @@ Web change log
 
 ## 1.4.0 / 2018-08-12
 
+* Fixed issue #46: Uncaught exceptions from application setup in
+  development mode
+  (@thekid)
 * Merged PR #45: Pass all additional command line arguments to app
   environment
   (@thekid)
