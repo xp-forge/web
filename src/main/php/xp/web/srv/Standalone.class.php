@@ -1,5 +1,6 @@
 <?php namespace xp\web\srv;
 
+use lang\Throwable;
 use util\cmd\Console;
 use web\Environment;
 use xp\web\Source;
@@ -20,9 +21,10 @@ abstract class Standalone implements Server {
    * @param  io.Path $webroot
    * @param  io.Path $docroot
    * @param  string[] $config
+   * @param  string[] $args
    */
-  public function serve($source, $profile, $webroot, $docroot, $config) {
-    $application= (new Source($source, new Environment($profile, $webroot, $docroot, $config)))->application();
+  public function serve($source, $profile, $webroot, $docroot, $config, $args) {
+    $application= (new Source($source, new Environment($profile, $webroot, $docroot, $config, $args)))->application($args);
 
     $this->server->setProtocol(new HttpProtocol($application, function($request, $response, $message= null) {
       $query= $request->uri()->query();

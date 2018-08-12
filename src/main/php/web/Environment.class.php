@@ -15,7 +15,7 @@ use util\ResourcePropertySource;
  * @test  xp://web.unittest.EnvironmentTest
  */
 class Environment {
-  private $profile, $webroot, $docroot;
+  private $profile, $webroot, $docroot, $arguments;
   private $sources= [];
 
   /**
@@ -25,8 +25,9 @@ class Environment {
    * @param  string|io.Path $webroot
    * @param  string|io.Path $docroot
    * @param  (string|util.PropertySource)[] $config
+   * @param  string[] $arguments
    */
-  public function __construct($profile, $webroot, $docroot, $config) {
+  public function __construct($profile, $webroot, $docroot, $config, $arguments= []) {
     $this->profile= $profile;
     $this->webroot= $webroot instanceof Path ? $webroot : new Path($webroot);
     $this->docroot= $docroot instanceof Path ? $docroot : new Path($docroot);
@@ -39,6 +40,7 @@ class Environment {
         $this->sources[]= new ResourcePropertySource($source);
       }
     }
+    $this->arguments= $arguments;
   }
 
   /** @return string */
@@ -75,4 +77,7 @@ class Environment {
       default: return new CompositeProperties($found);
     }
   }
+
+  /** @return string[] */
+  public function arguments() { return $this->arguments; }
 }

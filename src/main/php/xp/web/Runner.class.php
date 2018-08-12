@@ -4,9 +4,9 @@ use io\Path;
 use lang\IllegalArgumentException;
 use lang\XPClass;
 use xp\runtime\Help;
-use xp\web\srv\Serve;
-use xp\web\srv\Prefork;
 use xp\web\srv\Develop;
+use xp\web\srv\Prefork;
+use xp\web\srv\Serve;
 
 /**
  * Web server
@@ -108,7 +108,7 @@ class Runner {
     }
 
     $server= self::server($mode, $address, $arguments);
-    $server->serve($source, $profile, $webroot, $webroot->resolve($docroot), $config);
+    $server->serve($source, $profile, $webroot, $webroot->resolve($docroot), $config, array_slice($args, $i + 1));
     return 0;
   }
 }

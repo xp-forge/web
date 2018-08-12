@@ -1,12 +1,12 @@
 <?php namespace xp\web;
 
+use lang\ClassLoader;
 use web\Environment;
+use web\Error;
+use web\InternalServerError;
 use web\Request;
 use web\Response;
-use web\Error;
 use web\Status;
-use web\InternalServerError;
-use lang\ClassLoader;
 
 /**
  * Entry point for web-main.php
@@ -69,7 +69,7 @@ class WebRunner {
 
   /** @param string[] $args */
   public static function main($args) {
-    $env= new Environment($args[2], $args[0], $args[1], explode('PATH_SEPARATOR', getenv('WEB_CONFIG')));
+    $env= new Environment($args[2], $args[0], $args[1], explode('PATH_SEPARATOR', getenv('WEB_CONFIG')), explode('|', getenv('WEB_ARGS')));
     $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
 
     $sapi= new SAPI();

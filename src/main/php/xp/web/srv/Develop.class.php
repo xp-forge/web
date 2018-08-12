@@ -1,14 +1,14 @@
 <?php namespace xp\web\srv;
 
-use util\cmd\Console;
+use io\IOException;
+use lang\ClassLoader;
+use lang\CommandLine;
+use lang\FileSystemClassLoader;
 use lang\Runtime;
 use lang\RuntimeOptions;
-use lang\CommandLine;
-use lang\ClassLoader;
-use lang\FileSystemClassLoader;
 use lang\archive\ArchiveClassLoader;
 use peer\Socket;
-use io\IOException;
+use util\cmd\Console;
 
 class Develop implements Server {
   private $host, $port;
@@ -32,8 +32,9 @@ class Develop implements Server {
    * @param  io.Path $webroot
    * @param  io.Path $docroot
    * @param  string[] $config
+   * @param  string[] $args
    */
-  public function serve($source, $profile, $webroot, $docroot, $config) {
+  public function serve($source, $profile, $webroot, $docroot, $config, $args) {
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
@@ -64,6 +65,7 @@ class Develop implements Server {
     putenv('WEB_SOURCE='.$source.'+xp.web.dev.Console');
     putenv('WEB_CONFIG='.implode('PATH_SEPARATOR', $config));
     putenv('WEB_ROOT='.$webroot);
+    putenv('WEB_ARGS='.implode('|', $args));
 
     Console::writeLine("\e[33m@", nameof($this), "(HTTP @ `php ", implode(' ', $arguments), "`)\e[0m");
     Console::writeLine("\e[1mServing ", $source, $config, "\e[0m");
