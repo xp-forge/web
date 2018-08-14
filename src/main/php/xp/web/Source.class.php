@@ -1,5 +1,6 @@
 <?php namespace xp\web;
 
+use lang\ClassLoader;
 use lang\XPClass;
 
 class Source {
@@ -16,8 +17,10 @@ class Source {
 
     if ('-' === $application) {
       $this->application= new ServeDocumentRootStatically($environment);
+    } else if (is_file($name)) {
+      $this->application= ClassLoader::getDefault()->loadUri($name)->newInstance($environment);
     } else {
-      $this->application= XPClass::forName($application)->newInstance($environment);
+      $this->application= ClassLoader::getDefault()->loadClass($name)->newInstance($environment);
     }
 
     if ($filters) {
