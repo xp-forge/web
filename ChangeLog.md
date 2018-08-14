@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.4.1 / 2018-08-14
+
+* Changed `xp web` commandline to allow using filenames as application
+  source. See feature request #47
+  (@thekid)
+
 ## 1.4.0 / 2018-08-12
 
 * Fixed issue #46: Uncaught exceptions from application setup in
