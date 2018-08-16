@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.4.2 / 2018-08-16
+
+* Fixed `Class "com.example.App+xp.web.dev.Console" could not be found`
+  errors when using development webserver.
+  (@thekid)
+
 ## 1.4.1 / 2018-08-14
 
 * Changed `xp web` commandline to allow using filenames as application

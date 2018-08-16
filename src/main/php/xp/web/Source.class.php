@@ -3,6 +3,11 @@
 use lang\ClassLoader;
 use lang\XPClass;
 
+/**
+ * An application source
+ *
+ * @test xp://web.unittest.SourceTest
+ */
 class Source {
   private $application;
 
@@ -17,10 +22,10 @@ class Source {
 
     if ('-' === $application) {
       $this->application= new ServeDocumentRootStatically($environment);
-    } else if (is_file($name)) {
-      $this->application= ClassLoader::getDefault()->loadUri($name)->newInstance($environment);
+    } else if (is_file($application)) {
+      $this->application= ClassLoader::getDefault()->loadUri($application)->newInstance($environment);
     } else {
-      $this->application= ClassLoader::getDefault()->loadClass($name)->newInstance($environment);
+      $this->application= ClassLoader::getDefault()->loadClass($application)->newInstance($environment);
     }
 
     if ($filters) {
