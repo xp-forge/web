@@ -20,7 +20,7 @@ abstract class Sink {
   /**
    * Factory method from various sources
    *
-   * @param  string|util.log.LogCategory|function(web.Request, web.Response, string): void $arg
+   * @param  var $arg
    * @return ?self
    */
   public static function of($arg) {
@@ -30,6 +30,8 @@ abstract class Sink {
       return null;
     } else if (is_callable($arg)) {
       return new ToFunction($arg);
+    } else if (is_array($arg)) {
+      return new ToAllOf(...$arg);
     } else if ($arg instanceof LogCategory) {
       return new ToCategory($arg);
     } else {

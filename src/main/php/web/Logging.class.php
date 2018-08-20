@@ -30,7 +30,7 @@ class Logging {
   /**
    * Replace sink
    *
-   * @param  string|util.log.LogCategory|function(web.Request, web.Response, string): void|?web.log.Sink $sink
+   * @param  var $sink
    */
   public function replace($sink) {
     if (null === $sink || $sink instanceof Sink) {
