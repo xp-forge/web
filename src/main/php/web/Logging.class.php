@@ -28,11 +28,11 @@ class Logging {
   }
 
   /**
-   * Replace sink
+   * Pipe to a given sink
    *
    * @param  var $sink
    */
-  public function replace($sink) {
+  public function pipe($sink) {
     if (null === $sink || $sink instanceof Sink) {
       $this->sink= $sink;
     } else {
