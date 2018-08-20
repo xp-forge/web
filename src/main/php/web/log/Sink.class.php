@@ -1,5 +1,7 @@
 <?php namespace web\log;
 
+use util\log\LogCategory;
+
 abstract class Sink {
 
   /**
@@ -16,9 +18,9 @@ abstract class Sink {
   public function target() { return nameof($this); }
 
   /**
-   * Factory method for command line arguments
+   * Factory method from various sources
    *
-   * @param  string $arg
+   * @param  string|util.log.LogCategory|function(web.Request, web.Response, string): void $arg
    * @return ?self
    */
   public static function of($arg) {
@@ -26,6 +28,10 @@ abstract class Sink {
       return new ToConsole();
     } else if ('@' === $arg) {
       return null;
+    } else if (is_callable($arg)) {
+      return new ToFunction($arg);
+    } else if ($arg instanceof LogCategory) {
+      return new ToCategory($arg);
     } else {
       return new ToFile($arg);
     }
