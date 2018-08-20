@@ -18,7 +18,7 @@ abstract class Sink {
   /**
    * Factory method for command line arguments
    *
-   * @param  var $arg
+   * @param  string $arg
    * @return ?self
    */
   public static function of($arg) {
@@ -26,8 +26,6 @@ abstract class Sink {
       return new ToConsole();
     } else if ('@' === $arg) {
       return null;
-    } else if (is_callable($arg)) {
-      return new ToFunction($arg);
     } else {
       return new ToFile($arg);
     }
