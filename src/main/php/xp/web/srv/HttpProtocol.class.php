@@ -15,6 +15,7 @@ use web\Status;
  * @test  xp://web.unittest.HttpProtocolTest
  */
 class HttpProtocol implements ServerProtocol {
+  private $application, $logging;
   public $server= null;
   private $close= false;
 
@@ -22,7 +23,7 @@ class HttpProtocol implements ServerProtocol {
    * Creates a new protocol instance
    *
    * @param  web.Application $application
-   * @param  function(web.Request, web.Response, ?lang.Throwable): void $logging
+   * @param  web.Logging $logging
    */
   public function __construct($application, $logging) {
     $this->application= $application;
@@ -57,7 +58,7 @@ class HttpProtocol implements ServerProtocol {
         break;
       }
     }
-    $this->logging->__invoke($request, $response, $error->toString());
+    $this->logging->log($request, $response, $error->toString());
   }
 
   /**
@@ -125,7 +126,7 @@ class HttpProtocol implements ServerProtocol {
 
     try {
       $this->application->service($request, $response);
-      $this->logging->__invoke($request, $response);
+      $this->logging->log($request, $response);
     } catch (Error $e) {
       $this->sendError($request, $response, $e);
     } catch (\Throwable $e) {   // PHP7
