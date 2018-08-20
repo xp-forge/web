@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use web\log\Sink;
+use web\log\ToAllOf;
 
 class Logging {
   private $sink;
@@ -31,6 +32,7 @@ class Logging {
    * Pipe to a given sink
    *
    * @param  var $sink
+   * @return self
    */
   public function pipe($sink) {
     if (null === $sink || $sink instanceof Sink) {
@@ -38,6 +40,22 @@ class Logging {
     } else {
       $this->sink= Sink::of($sink);
     }
+    return $this;
+  }
+
+  /**
+   * Tee to a given sink
+   *
+   * @param  var $sink
+   * @return self
+   */
+  public function tee($sink) {
+    if (null === $this->sink) {
+      $this->pipe($sink);
+    } else {
+      $this->sink= new ToAllOf($this->sink, $sink);
+    }
+    return $this;
   }
 
   /**

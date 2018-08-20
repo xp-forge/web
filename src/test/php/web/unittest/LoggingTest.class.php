@@ -5,6 +5,7 @@ use web\Request;
 use web\Response;
 use web\io\TestInput;
 use web\io\TestOutput;
+use web\log\ToAllOf;
 use web\log\ToFunction;
 
 class LoggingTest extends \unittest\TestCase {
@@ -45,5 +46,31 @@ class LoggingTest extends \unittest\TestCase {
     $log->log($req, $res, $message);
 
     $this->assertEquals([$expected], $logged);
+  }
+
+  #[@test]
+  public function pipe() {
+    $a= new ToFunction(function($req, $res, $message) { /* a */ });
+    $b= new ToFunction(function($req, $res, $message) { /* b */ });
+    $this->assertEquals($b, (new Logging($a))->pipe($b)->sink());
+  }
+
+  #[@test]
+  public function tee() {
+    $a= new ToFunction(function($req, $res, $message) { /* a */ });
+    $b= new ToFunction(function($req, $res, $message) { /* b */ });
+    $this->assertEquals(new ToAllOf($a, $b), (new Logging($a))->tee($b)->sink());
+  }
+
+  #[@test]
+  public function pipe_on_no_logging() {
+    $sink= new ToFunction(function($req, $res, $message) { });
+    $this->assertEquals($sink, (new Logging(null))->pipe($sink)->sink());
+  }
+
+  #[@test]
+  public function tee_on_no_logging() {
+    $sink= new ToFunction(function($req, $res, $message) { });
+    $this->assertEquals($sink, (new Logging(null))->tee($sink)->sink());
   }
 }
