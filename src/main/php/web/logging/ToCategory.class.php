@@ -23,7 +23,7 @@ class ToCategory extends Sink {
     $query= $request->uri()->query();
     $uri= $request->uri()->path().($query ? '?'.$query : '');
 
-    if ($message) {
+    if ($error) {
       $this->cat->warn($response->status(), $request->method(), $uri, $error);
     } else {
       $this->cat->info($response->status(), $request->method(), $uri);
