@@ -33,7 +33,7 @@ use xp\web\srv\Serve;
  * or more configuration sources may be passed via *-c {file.ini|dir}*.
  *
  * The webserver log is sent to standard output by default. It can be redirected
- * to a file via *-l logfile.log* and suppressed completely by using *-l @*.
+ * to a file via *-l /path/to/logfile.log*.
  */
 class Runner {
   private static $modes= [
