@@ -42,7 +42,7 @@ class ToFile extends Sink {
       $response->status(),
       $request->method(),
       $request->uri()->path().($query ? '?'.$query : ''),
-      $message
+      $error ? $error->toString() : ''
     );
     file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);
   }

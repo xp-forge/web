@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.5.1 / 2018-08-21
+
+* Fixed console and file loggers when logging errors - @thekid
+
 ## 1.5.0 / 2018-08-21
 
 * Merged PR #48: Logging - @thekid

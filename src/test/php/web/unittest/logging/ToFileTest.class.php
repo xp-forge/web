@@ -3,6 +3,11 @@
 use io\TempFile;
 use lang\IllegalArgumentException;
 use unittest\TestCase;
+use web\Error;
+use web\Request;
+use web\Response;
+use web\io\TestInput;
+use web\io\TestOutput;
 use web\logging\ToFile;
 
 class ToFileTest extends TestCase {
@@ -36,5 +41,25 @@ class ToFileTest extends TestCase {
   public function raises_error_if_file_cannot_be_written_to() {
     $this->temp->setPermissions(0000);
     new ToFile($this->temp);
+  }
+
+  #[@test]
+  public function log() {
+    $req= new Request(new TestInput('GET', '/'));
+    $res= new Response(new TestOutput());
+
+    (new ToFile($this->temp))->log($req, $res, null);
+
+    $this->assertNotEquals(0, $this->temp->size());
+  }
+
+  #[@test]
+  public function log_with_error() {
+    $req= new Request(new TestInput('GET', '/'));
+    $res= new Response(new TestOutput());
+
+    (new ToFile($this->temp))->log($req, $res, new Error(404, 'Test'));
+
+    $this->assertNotEquals(0, $this->temp->size());
   }
 }

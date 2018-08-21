@@ -22,7 +22,7 @@ class ToConsole extends Sink {
       $response->status(),
       $request->method(),
       $request->uri()->path().($query ? '?'.$query : ''),
-      $message
+      $error ? $error->toString() : ''
     );
   }
 }
