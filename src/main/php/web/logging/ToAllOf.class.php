@@ -26,7 +26,7 @@ class ToAllOf extends Sink {
     foreach ($this->sinks as $sink) {
       $s.= ' & '.$sink->target();
     }
-    return nameof($this).'('.substr($s, 3).')';
+    return '('.substr($s, 3).')';
   }
 
   /**
