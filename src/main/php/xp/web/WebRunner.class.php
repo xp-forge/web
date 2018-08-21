@@ -14,28 +14,6 @@ use web\Status;
 class WebRunner {
 
   /**
-   * Logs a request
-   *
-   * @param  web.Request $response
-   * @param  web.Response $response
-   * @param  string $message
-   * @return void
-   */
-  private static function log($request, $response, $message= null) {
-    $query= $request->uri()->query();
-    fprintf(STDOUT,
-      "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s\n",
-      date('Y-m-d H:i:s'),
-      getmypid(),
-      memory_get_usage() / 1024,
-      $response->status(),
-      $request->method(),
-      $request->uri()->path().($query ? '?'.$query : ''),
-      $message
-    );
-  }
-
-  /**
    * Sends an error
    *
    * @param  web.Request $response
@@ -64,7 +42,7 @@ class WebRunner {
         break;
       }
     }
-    $env->logging()->log($request, $response, $error->toString());
+    $env->logging()->log($request, $response, $error);
   }
 
   /** @param string[] $args */

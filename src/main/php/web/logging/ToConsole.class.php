@@ -9,10 +9,10 @@ class ToConsole extends Sink {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  string $message Additional message
+   * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $message) {
+  public function log($request, $response, $error) {
     $query= $request->uri()->query();
     Console::writeLinef(
       "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s",

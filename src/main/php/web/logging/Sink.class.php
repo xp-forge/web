@@ -9,10 +9,10 @@ abstract class Sink {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  string $message Additional message
+   * @param  ?web.Error $error Optional error
    * @return void
    */
-  public abstract function log($request, $response, $message);
+  public abstract function log($request, $response, $error);
 
   /** @return string */
   public function target() { return nameof($this); }

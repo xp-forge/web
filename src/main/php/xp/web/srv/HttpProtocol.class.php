@@ -58,7 +58,7 @@ class HttpProtocol implements ServerProtocol {
         break;
       }
     }
-    $this->logging->log($request, $response, $error->toString());
+    $this->logging->log($request, $response, $error);
   }
 
   /**

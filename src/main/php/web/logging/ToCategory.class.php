@@ -16,15 +16,15 @@ class ToCategory extends Sink {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  string $message Additional message
+   * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $message) {
+  public function log($request, $response, $error) {
     $query= $request->uri()->query();
     $uri= $request->uri()->path().($query ? '?'.$query : '');
 
     if ($message) {
-      $this->cat->warn($response->status(), $request->method(), $uri, $message);
+      $this->cat->warn($response->status(), $request->method(), $uri, $error);
     } else {
       $this->cat->info($response->status(), $request->method(), $uri);
     }

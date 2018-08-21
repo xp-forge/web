@@ -13,10 +13,10 @@ class ToFunction extends Sink {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  string $message Additional message
+   * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $message) {
-    $this->function->__invoke($request, $response, $message);
+  public function log($request, $response, $error) {
+    $this->function->__invoke($request, $response, $error);
   }
 }

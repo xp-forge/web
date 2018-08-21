@@ -23,12 +23,12 @@ class ToAllOf extends Sink {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  string $message Additional message
+   * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $message) {
+  public function log($request, $response, $error) {
     foreach ($this->sinks as $sink) {
-      $sink->log($request, $response, $message);
+      $sink->log($request, $response, $error);
     }
   }
 }
