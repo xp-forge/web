@@ -18,8 +18,8 @@ class WebRunner {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  web.Error $error
-   * @param  string $profile
+   * @param  web.Environment $env
+   * @param  ?web.Error $error
    * @return void
    */
   private static function error($request, $response, $env, $error) {

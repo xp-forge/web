@@ -26,7 +26,7 @@ class Environment {
    * @param  string|io.Path $docroot
    * @param  (string|util.PropertySource)[] $config
    * @param  string[] $arguments
-   * @param  string|web.Logging $logging Defaults to logging to console
+   * @param  string|string[]|web.Logging $logging Defaults to logging to console
    */
   public function __construct($profile, $webroot, $docroot, $config, $arguments= [], $logging= '-') {
     $this->profile= $profile;
