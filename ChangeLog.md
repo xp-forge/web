@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.5.0 / 2018-08-21
+
+* Merged PR #48: Logging - @thekid
+
 ## 1.4.2 / 2018-08-16
 
 * Fixed `Class "com.example.App+xp.web.dev.Console" could not be found`
