@@ -3,6 +3,11 @@
 use io\File;
 use lang\IllegalArgumentException;
 
+/**
+ * Logfile sink writing to a file
+ *
+ * @test  xp://web.unittest.logging.ToFileTest
+ */
 class ToFile extends Sink {
   private $file;
 
@@ -10,7 +15,7 @@ class ToFile extends Sink {
   public function __construct($file) {
     $this->file= $file instanceof File ? $file->getURI() : $file;
     if (false === file_put_contents($this->file, '', FILE_APPEND | LOCK_EX)) {
-      $e= new IllegalArgumentException('Cannot write to '.$file);
+      $e= new IllegalArgumentException('Cannot write to '.$this->file);
       \xp::gc(__FILE__);
       throw $e;
     }
