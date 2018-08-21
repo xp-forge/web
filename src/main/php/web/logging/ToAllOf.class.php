@@ -18,6 +18,15 @@ class ToAllOf extends Sink {
     }
   }
 
+  /** @return string */
+  public function target() {
+    $s= '';
+    foreach ($this->sinks as $sink) {
+      $s.= ' & '.$sink->target();
+    }
+    return nameof($this).'('.substr($s, 3).')';
+  }
+
   /**
    * Writes a log entry
    *

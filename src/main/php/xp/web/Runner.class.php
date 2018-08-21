@@ -89,7 +89,7 @@ class Runner {
     $arguments= [];
     $config= [];
     $source= '.';
-    $log= '-';
+    $log= [];
 
     for ($i= 0; $i < sizeof($args); $i++) {
        if ('-r' === $args[$i]) {
@@ -101,7 +101,7 @@ class Runner {
       } else if ('-c' === $args[$i]) {
         $config[]= $args[++$i];
       } else if ('-l' === $args[$i]) {
-        $log= $args[++$i];
+        $log[]= $args[++$i];
       } else if ('-m' === $args[$i]) {
         $arguments= explode(',', $args[++$i]);
         $mode= array_shift($arguments);
@@ -120,7 +120,7 @@ class Runner {
       $webroot->resolve($docroot),
       $config,
       array_slice($args, $i + 1),
-      $log
+      $log ?: '-'
     );
     return 0;
   }

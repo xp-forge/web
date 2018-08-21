@@ -22,7 +22,7 @@ abstract class Standalone implements Server {
    * @param  io.Path $docroot
    * @param  string[] $config
    * @param  string[] $args
-   * @param  string $logging
+   * @param  string[] $logging
    */
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
