@@ -5,7 +5,7 @@ class ToFunction extends Sink {
 
   /** @param callable $function */
   public function __construct($function) {
-    $this->function= cast($function, 'function(web.Request, web.Response, string): void');
+    $this->function= cast($function, 'function(web.Request, web.Response, ?web.Error): void');
   }
 
   /**

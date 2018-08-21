@@ -1,19 +1,19 @@
 <?php namespace web\logging;
 
+use io\File;
 use lang\IllegalArgumentException;
 
 class ToFile extends Sink {
   private $file;
 
-  /** @param string $file */
+  /** @param string|io.File $file */
   public function __construct($file) {
-    if (false === file_put_contents($file, '', FILE_APPEND | LOCK_EX)) {
+    $this->file= $file instanceof File ? $file->getURI() : $file;
+    if (false === file_put_contents($this->file, '', FILE_APPEND | LOCK_EX)) {
       $e= new IllegalArgumentException('Cannot write to '.$file);
       \xp::gc(__FILE__);
       throw $e;
     }
-
-    $this->file= $file;
   }
 
   /** @return string */

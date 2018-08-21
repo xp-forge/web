@@ -2,6 +2,11 @@
 
 use util\log\LogCategory;
 
+/**
+ * Base class for all log sinks
+ *
+ * @test  xp://web.unittest.logging.SinkTest
+ */
 abstract class Sink {
 
   /**
