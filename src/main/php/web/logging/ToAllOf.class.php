@@ -1,5 +1,10 @@
 <?php namespace web\logging;
 
+/**
+ * Log sink which logs to all given sinks
+ *
+ * @test  xp://web.unittest.logging.ToAllOfTest
+ */
 class ToAllOf extends Sink {
   private $sinks= [];
 
@@ -19,6 +24,9 @@ class ToAllOf extends Sink {
       }
     }
   }
+
+  /** @return web.log.Sink[] */
+  public function sinks() { return $this->sinks; }
 
   /** @return string */
   public function target() {
