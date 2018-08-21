@@ -22,27 +22,17 @@ abstract class Standalone implements Server {
    * @param  io.Path $docroot
    * @param  string[] $config
    * @param  string[] $args
+   * @param  string[] $logging
    */
-  public function serve($source, $profile, $webroot, $docroot, $config, $args) {
-    $application= (new Source($source, new Environment($profile, $webroot, $docroot, $config, $args)))->application($args);
+  public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
+    $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
+    $application= (new Source($source, $environment))->application($args);
 
-    $this->server->setProtocol(new HttpProtocol($application, function($request, $response, $message= null) {
-      $query= $request->uri()->query();
-      Console::writeLinef(
-        "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s",
-        date('Y-m-d H:i:s'),
-        getmypid(),
-        memory_get_usage() / 1024,
-        $response->status(),
-        $request->method(),
-        $request->uri()->path().($query ? '?'.$query : ''),
-        $message
-      );
-    }));
+    $this->server->setProtocol(new HttpProtocol($application, $environment->logging()));
     $this->server->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $this->server->socket->toString(), ")\e[0m");
-    Console::writeLine("\e[1mServing ", $application, $config, "\e[0m");
+    Console::writeLine("\e[1mServing ", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 

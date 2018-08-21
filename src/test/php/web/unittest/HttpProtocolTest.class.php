@@ -1,16 +1,17 @@
 <?php namespace web\unittest;
 
-use xp\web\srv\HttpProtocol;
+use unittest\TestCase;
 use web\Application;
 use web\Environment;
-use unittest\TestCase;
+use web\Logging;
+use xp\web\srv\HttpProtocol;
 
 class HttpProtocolTest extends TestCase {
   private $log;
 
   /** @return void */
   public function setUp() {
-    $this->log= function($req, $res, $error= null) { };
+    $this->log= new Logging(null);
   }
 
   private function application($handler) {

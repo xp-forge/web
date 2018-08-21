@@ -9,6 +9,7 @@ use lang\RuntimeOptions;
 use lang\archive\ArchiveClassLoader;
 use peer\Socket;
 use util\cmd\Console;
+use web\Logging;
 
 class Develop implements Server {
   private $host, $port;
@@ -33,8 +34,9 @@ class Develop implements Server {
    * @param  io.Path $docroot
    * @param  string[] $config
    * @param  string[] $args
+   * @param  string[] $logging
    */
-  public function serve($source, $profile, $webroot, $docroot, $config, $args) {
+  public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
@@ -66,9 +68,10 @@ class Develop implements Server {
     putenv('WEB_CONFIG='.implode('PATH_SEPARATOR', $config));
     putenv('WEB_ROOT='.$webroot);
     putenv('WEB_ARGS='.implode('|', $args));
+    putenv('WEB_LOG='.$logging);
 
     Console::writeLine("\e[33m@", nameof($this), "(HTTP @ `php ", implode(' ', $arguments), "`)\e[0m");
-    Console::writeLine("\e[1mServing ", $source, $config, "\e[0m");
+    Console::writeLine("\e[1mServing ", $source, $config, "\e[0m > ", Logging::of($logging)->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
     Console::writeLine();
 

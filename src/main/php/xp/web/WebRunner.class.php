@@ -14,37 +14,15 @@ use web\Status;
 class WebRunner {
 
   /**
-   * Logs a request
-   *
-   * @param  web.Request $response
-   * @param  web.Response $response
-   * @param  string $message
-   * @return void
-   */
-  private static function log($request, $response, $message= null) {
-    $query= $request->uri()->query();
-    fprintf(STDOUT,
-      "  \e[33m[%s %d %.3fkB]\e[0m %d %s %s %s\n",
-      date('Y-m-d H:i:s'),
-      getmypid(),
-      memory_get_usage() / 1024,
-      $response->status(),
-      $request->method(),
-      $request->uri()->path().($query ? '?'.$query : ''),
-      $message
-    );
-  }
-
-  /**
    * Sends an error
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  web.Error $error
-   * @param  string $profile
+   * @param  web.Environment $env
+   * @param  ?web.Error $error
    * @return void
    */
-  private static function error($request, $response, $error, $profile) {
+  private static function error($request, $response, $env, $error) {
     if ($response->flushed()) {
       error_log($error->toString(), 4);  // 4 = SAPI error logger
     } else {
@@ -52,7 +30,7 @@ class WebRunner {
       $message= Status::message($error->status());
 
       $response->answer($error->status(), $message);
-      foreach (['web/error-'.$profile.'.html', 'web/error.html'] as $variant) {
+      foreach (['web/error-'.$env->profile().'.html', 'web/error.html'] as $variant) {
         if (!$loader->providesResource($variant)) continue;
         $response->send(sprintf(
           $loader->getResource($variant),
@@ -64,12 +42,19 @@ class WebRunner {
         break;
       }
     }
-    self::log($request, $response, $error->toString());
+    $env->logging()->log($request, $response, $error);
   }
 
   /** @param string[] $args */
   public static function main($args) {
-    $env= new Environment($args[2], $args[0], $args[1], explode('PATH_SEPARATOR', getenv('WEB_CONFIG')), explode('|', getenv('WEB_ARGS')));
+    $env= new Environment(
+      $args[2],
+      $args[0],
+      $args[1],
+      explode('PATH_SEPARATOR', getenv('WEB_CONFIG')),
+      explode('|', getenv('WEB_ARGS')),
+      getenv('WEB_LOG')
+    );
 
     $sapi= new SAPI();
     $request= new Request($sapi);
@@ -80,13 +65,13 @@ class WebRunner {
     try {
       $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
       $application->service($request, $response);
-      self::log($request, $response);
+      $env->logging()->log($request, $response);
     } catch (Error $e) {
-      self::error($request, $response, $e, $args[2]);
+      self::error($request, $response, $env, $e);
     } catch (\Throwable $e) {   // PHP7
-      self::error($request, $response, new InternalServerError($e), $args[2]);
+      self::error($request, $response, $env, new InternalServerError($e));
     } catch (\Exception $e) {   // PHP5
-      self::error($request, $response, new InternalServerError($e), $args[2]);
+      self::error($request, $response, $env, new InternalServerError($e));
     } finally {
       $response->flushed() || $response->flush();
     }

@@ -31,6 +31,9 @@ use xp\web\srv\Serve;
  * The address the server listens to can be supplied via *-a {host}[:{port}]*.
  * The profile can be changed via *-p {profile}* (and can be anything!). One
  * or more configuration sources may be passed via *-c {file.ini|dir}*.
+ *
+ * The webserver log is sent to standard output by default. It can be redirected
+ * to a file via *-l /path/to/logfile.log*.
  */
 class Runner {
   private static $modes= [
@@ -86,6 +89,7 @@ class Runner {
     $arguments= [];
     $config= [];
     $source= '.';
+    $log= [];
 
     for ($i= 0; $i < sizeof($args); $i++) {
        if ('-r' === $args[$i]) {
@@ -96,6 +100,8 @@ class Runner {
         $profile= $args[++$i];
       } else if ('-c' === $args[$i]) {
         $config[]= $args[++$i];
+      } else if ('-l' === $args[$i]) {
+        $log[]= $args[++$i];
       } else if ('-m' === $args[$i]) {
         $arguments= explode(',', $args[++$i]);
         $mode= array_shift($arguments);
@@ -107,8 +113,15 @@ class Runner {
       }
     }
 
-    $server= self::server($mode, $address, $arguments);
-    $server->serve($source, $profile, $webroot, $webroot->resolve($docroot), $config, array_slice($args, $i + 1));
+    self::server($mode, $address, $arguments)->serve(
+      $source,
+      $profile,
+      $webroot,
+      $webroot->resolve($docroot),
+      $config,
+      array_slice($args, $i + 1),
+      $log ?: '-'
+    );
     return 0;
   }
 }

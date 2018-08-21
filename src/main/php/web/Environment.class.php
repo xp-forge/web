@@ -15,7 +15,7 @@ use util\ResourcePropertySource;
  * @test  xp://web.unittest.EnvironmentTest
  */
 class Environment {
-  private $profile, $webroot, $docroot, $arguments;
+  private $profile, $webroot, $docroot, $arguments, $logging;
   private $sources= [];
 
   /**
@@ -26,8 +26,9 @@ class Environment {
    * @param  string|io.Path $docroot
    * @param  (string|util.PropertySource)[] $config
    * @param  string[] $arguments
+   * @param  string|string[]|web.Logging $logging Defaults to logging to console
    */
-  public function __construct($profile, $webroot, $docroot, $config, $arguments= []) {
+  public function __construct($profile, $webroot, $docroot, $config, $arguments= [], $logging= '-') {
     $this->profile= $profile;
     $this->webroot= $webroot instanceof Path ? $webroot : new Path($webroot);
     $this->docroot= $docroot instanceof Path ? $docroot : new Path($docroot);
@@ -40,6 +41,7 @@ class Environment {
         $this->sources[]= new ResourcePropertySource($source);
       }
     }
+    $this->logging= $logging instanceof Logging ? $logging : Logging::of($logging);
     $this->arguments= $arguments;
   }
 
@@ -51,6 +53,9 @@ class Environment {
 
   /** @return io.Path */
   public function docroot() { return $this->docroot; }
+
+  /** @return web.Logging */
+  public function logging() { return $this->logging; }
 
   /**
    * Gets properties

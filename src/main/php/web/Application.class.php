@@ -6,7 +6,7 @@
  * @test  xp://web.unittest.ApplicationTest
  */
 abstract class Application implements \lang\Value {
-  private $routing;
+  private $routing= null;
   protected $environment;
 
   /**
