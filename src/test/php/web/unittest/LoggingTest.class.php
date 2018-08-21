@@ -64,6 +64,14 @@ class LoggingTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function tee_multiple() {
+    $a= new ToFunction(function($req, $res, $error) { /* a */ });
+    $b= new ToFunction(function($req, $res, $error) { /* b */ });
+    $c= new ToFunction(function($req, $res, $error) { /* c */ });
+    $this->assertEquals(new ToAllOf($a, $b, $c), (new Logging($a))->tee($b)->tee($c)->sink());
+  }
+
+  #[@test]
   public function pipe_on_no_logging() {
     $sink= new ToFunction(function($req, $res, $error) { });
     $this->assertEquals($sink, (new Logging(null))->pipe($sink)->sink());

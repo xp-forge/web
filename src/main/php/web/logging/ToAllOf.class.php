@@ -10,7 +10,9 @@ class ToAllOf extends Sink {
    */
   public function __construct(... $args) {
     foreach ($args as $arg) {
-      if ($arg instanceof parent) {
+      if ($arg instanceof self) {
+        $this->sinks= array_merge($this->sinks, $arg->sinks);
+      } else if ($arg instanceof parent) {
         $this->sinks[]= $arg;
       } else {
         $this->sinks[]= parent::of($arg);
