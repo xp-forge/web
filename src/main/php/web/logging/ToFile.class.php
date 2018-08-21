@@ -1,4 +1,4 @@
-<?php namespace web\log;
+<?php namespace web\logging;
 
 use lang\IllegalArgumentException;
 

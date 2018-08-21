@@ -5,8 +5,8 @@ use web\Request;
 use web\Response;
 use web\io\TestInput;
 use web\io\TestOutput;
-use web\log\ToAllOf;
-use web\log\ToFunction;
+use web\logging\ToAllOf;
+use web\logging\ToFunction;
 
 class LoggingTest extends \unittest\TestCase {
 

@@ -1,7 +1,7 @@
 <?php namespace web;
 
-use web\log\Sink;
-use web\log\ToAllOf;
+use web\logging\Sink;
+use web\logging\ToAllOf;
 
 class Logging {
   private $sink;

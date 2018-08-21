@@ -1,4 +1,4 @@
-<?php namespace web\log;
+<?php namespace web\logging;
 
 class ToAllOf extends Sink {
   private $sinks= [];
