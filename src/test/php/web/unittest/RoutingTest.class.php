@@ -1,14 +1,14 @@
 <?php namespace web\unittest;
 
+use web\Handler;
 use web\Request;
 use web\Response;
-use web\Routing;
 use web\Route;
-use web\Handler;
-use web\routing\CannotRoute;
-use web\routing\Target;
+use web\Routing;
 use web\io\TestInput;
 use web\io\TestOutput;
+use web\routing\CannotRoute;
+use web\routing\Target;
 
 class RoutingTest extends \unittest\TestCase {
   private $handlers;
@@ -71,6 +71,7 @@ class RoutingTest extends \unittest\TestCase {
 
   #[@test, @values([
   #  ['/test', 'specific'],
+  #  ['/test/', 'specific'],
   #  ['/test.html', 'default'],
   #  ['/', 'default']
   #])]
