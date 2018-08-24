@@ -3,9 +3,10 @@
 use io\File;
 use io\Path;
 use util\MimeType;
+use web\Handler;
 use web\io\Ranges;
 
-class FilesFrom implements \web\Handler {
+class FilesFrom implements Handler {
   const BOUNDARY = '594fa07300f865fe';
 
   private $path;
