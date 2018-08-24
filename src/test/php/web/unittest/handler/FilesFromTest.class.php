@@ -1,13 +1,13 @@
 <?php namespace web\unittest\handler;
 
-use lang\Environment;
-use io\Path;
-use io\Folder;
 use io\File;
 use io\FileUtil;
-use web\handler\FilesFrom;
+use io\Folder;
+use io\Path;
+use lang\Environment;
 use web\Request;
 use web\Response;
+use web\handler\FilesFrom;
 use web\io\TestInput;
 use web\io\TestOutput;
 
@@ -15,18 +15,33 @@ class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];
 
   /**
+   * Creates files and directories inside a given directory.
+   *
+   * @param  io.Folder $folder
+   * @param  [:var] $files
+   * @return io.Folder
+   */
+  private function create($folder, $files) {
+    $folder->create(0777);
+    foreach ($files as $name => $contents) {
+      if (is_array($contents)) {
+        $this->create(new Folder($folder, $name), $contents);
+      } else {
+        FileUtil::setContents(new File($folder, $name), $contents);
+      }
+    }
+    return $folder;
+  }
+
+  /**
    * Creates files inside a temporary directory and returns its path
    *
-   * @param  [:string] $files
+   * @param  [:var] $files
    * @return io.Path
    */
   private function pathWith($files) {
     $folder= new Folder(Environment::tempDir(), uniqid($this->name, true));
-    $folder->create(0777);
-    foreach ($files as $name => $contents) {
-      FileUtil::setContents(new File($folder, $name), $contents);
-    }
-    $this->cleanup[]= $folder;
+    $this->cleanup[]= $this->create($folder, $files);
     return new Path($folder);
   }
 
@@ -88,7 +103,7 @@ class FilesFromTest extends \unittest\TestCase {
   #[@test]
   public function index_html() {
     $in= new TestInput('GET', '/');
-    $out= new TestOutput(); 
+    $out= new TestOutput();
 
     $files= (new FilesFrom($this->pathWith(['index.html' => 'Home'])));
     $files->handle(new Request($in), new Response($out));
@@ -101,6 +116,22 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "Home",
+      $out->bytes()
+    );
+  }
+
+  #[@test]
+  public function redirect_if_trailing_slash_missing() {
+    $in= new TestInput('GET', '/preview');
+    $out= new TestOutput();
+
+    $files= (new FilesFrom($this->pathWith(['preview' => ['index.html' => 'Home']])));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 301 Moved Permanently\r\n".
+      "Location: preview/\r\n".
+      "\r\n",
       $out->bytes()
     );
   }

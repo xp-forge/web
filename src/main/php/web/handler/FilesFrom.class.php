@@ -1,7 +1,7 @@
 <?php namespace web\handler;
 
-use io\Path;
 use io\File;
+use io\Path;
 use util\MimeType;
 use web\io\Ranges;
 
@@ -23,8 +23,23 @@ class FilesFrom implements \web\Handler {
    * @return  var
    */
   public function handle($request, $response) {
-    $target= new Path($this->path, $request->uri()->path());
+    $path= $request->uri()->path();
+
+    $target= new Path($this->path, $path);
     if ($target->isFolder()) {
+
+      // Add trailing "/" to paths. Users might type directory names without
+      // it, leading to resources loaded relatively from within the index.html
+      // file to produce wrong absolute URIs. Use _relative_ redirects so this
+      // will work without configuration even when paths prefixes are stripped
+      // by a reverse proxy!
+      if ('/' !== substr($path, -1)) {
+        $response->answer(301, 'Moved Permanently');
+        $response->header('Location', basename($path).'/');
+        $response->flush();
+        return;
+      }
+
       $file= new File($target, 'index.html');
     } else {
       $file= $target->asFile();

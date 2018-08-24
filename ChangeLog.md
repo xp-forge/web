@@ -3,6 +3,16 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.6.0 / 2018-08-24
+
+* Changed `FilesFrom` handler to support directories without trailing
+  slashes; and to add it if necessary be redirecting the user agent.
+  Users might type directory names without "/", leading to resources
+  loaded relatively from within the index.html file to produce wrong
+  absolute URIs. This mirrors Apache's *DirectorySlash* directive, see
+  http://httpd.apache.org/docs/2.4/mod/mod_dir.html#directoryslash
+  (@thekid)
+
 ## 1.5.1 / 2018-08-21
 
 * Fixed console and file loggers when logging errors - @thekid
