@@ -96,51 +96,55 @@ class HttpProtocol implements ServerProtocol {
    * @return void
    */
   public function handleData($socket) {
-    gc_enable();
     $input= new Input($socket);
+    if ($version= $input->version()) {
+      gc_enable();
+      $request= new Request($input);
+      $response= new Response(new Output($socket, $version));
+      $response->header('Date', gmdate('D, d M Y H:i:s T'));
+      $response->header('Host', $request->header('Host'));
 
-    // Ignore malformed requests
-    if (null === $input->method()) {
+      // HTTP/1.1 defaults to keeping connection alive, HTTP/1.0 defaults to closing
+      $connection= $request->header('Connection');
+      if ($this->close) {
+        $close= true;
+        $response->header('Connection', 'close');
+      } else if ($version < '1.1') {
+        $close= 0 !== strncasecmp('keep-alive', $connection, 10);
+        $close || $response->header('Connection', 'keep-alive');
+      } else {
+        $close= 0 === strncasecmp('close', $connection, 5);
+        $close && $response->header('Connection', 'close');
+      }
+
+      try {
+        $this->application->service($request, $response);
+        $this->logging->log($request, $response);
+      } catch (Error $e) {
+        $this->sendError($request, $response, $e);
+      } catch (\Throwable $e) {   // PHP7
+        $this->sendError($request, $response, new InternalServerError($e));
+      } catch (\Exception $e) {   // PHP5
+        $this->sendError($request, $response, new InternalServerError($e));
+      } finally {
+        $response->end();
+        $close ? $socket->close() : $request->consume();
+
+        gc_collect_cycles();
+        gc_disable();
+        clearstatcache();
+        \xp::gc();
+      }
+    } else if (Input::CLOSE === $input->kind) {
       $socket->close();
-      return;
-    }
-
-    $version= $input->version();
-    $request= new Request($input);
-    $response= new Response(new Output($socket, $version));
-    $response->header('Date', gmdate('D, d M Y H:i:s T'));
-    $response->header('Host', $request->header('Host'));
-
-    // HTTP/1.1 defaults to keeping connection alive, HTTP/1.0 defaults to closing
-    $connection= $request->header('Connection');
-    if ($this->close) {
-      $close= true;
-      $response->header('Connection', 'close');
-    } else if ($version < '1.1') {
-      $close= 0 !== strncasecmp('keep-alive', $connection, 10);
-      $close || $response->header('Connection', 'keep-alive');
     } else {
-      $close= 0 === strncasecmp('close', $connection, 5);
-      $close && $response->header('Connection', 'close');
-    }
-
-    try {
-      $this->application->service($request, $response);
-      $this->logging->log($request, $response);
-    } catch (Error $e) {
-      $this->sendError($request, $response, $e);
-    } catch (\Throwable $e) {   // PHP7
-      $this->sendError($request, $response, new InternalServerError($e));
-    } catch (\Exception $e) {   // PHP5
-      $this->sendError($request, $response, new InternalServerError($e));
-    } finally {
-      $response->end();
-      $close ? $socket->close() : $request->consume();
-
-      gc_collect_cycles();
-      gc_disable();
-      clearstatcache();
-      \xp::gc();
+      $error= 'Incomplete HTTP request: "'.addcslashes($input->kind, "\0..\37!\177..\377").'"';
+      $socket->write(sprintf(
+        "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s",
+        strlen($error),
+        $error
+      ));
+      $socket->close();
     }
   }
 

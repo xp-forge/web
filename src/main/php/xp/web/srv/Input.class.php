@@ -1,23 +1,47 @@
 <?php namespace xp\web\srv;
 
 use peer\CryptoSocket;
+use web\io\Input as IOInput;
 
-class Input implements \web\io\Input {
+class Input implements IOInput {
+  const CLOSE   = 0;
+  const REQUEST = 1;
+
+  public $kind;
   private $socket;
   private $method, $uri, $version;
-  private $buffer= '';
+  private $buffer= null;
 
   /**
-   * Creates a new input instance which reads from a socket
+   * Creates a new input instance which reads from a socket.
    *
    * @param  peer.Socket $socket
    */
   public function __construct($socket) {
-    $this->socket= $socket;
-    $this->buffer= '';
 
-    if (null === ($message= $this->readLine())) return;
-    sscanf($message, '%s %s HTTP/%[0-9.]', $this->method, $this->uri, $this->version);
+    // If we instantly get an EOF while reading, it's either a preconnect
+    // or a kept-alive socket being closed.
+    if ('' === ($initial= $socket->readBinary())) {
+      $this->kind= self::CLOSE;
+      return;
+    }
+
+    // Read status line cautiously. If a client does not send complete line
+    // with the initial write (which it typically does), wait for another
+    // 100 milliseconds. If no more data is transmitted, give up.
+    if (false === ($p= strpos($initial, "\r\n"))) {
+      if ($socket->canRead(0.1)) {
+        $initial.= $socket->readBinary();
+      }
+    }
+
+    if (3 === sscanf($initial, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
+      $this->buffer= substr($initial, $p + 2);
+      $this->socket= $socket;
+      $this->kind= self::REQUEST;
+    } else {
+      $this->kind= $initial;
+    }
   }
 
   /** @return string */

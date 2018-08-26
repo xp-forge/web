@@ -3,6 +3,14 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.7.0 / 2018-08-27
+
+* Closed issue #26: Handle preconnect (*was already handled*) - @thekid
+* Changed protocol to send `400 Bad Request` when neither receiving a
+  complete HTTP status line within the initial socket read nor after an
+  additional 100 ms.
+  (@thekid)
+
 ## 1.6.0 / 2018-08-24
 
 * Changed `FilesFrom` handler to support directories without trailing

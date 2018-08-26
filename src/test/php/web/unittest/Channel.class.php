@@ -10,6 +10,8 @@ class Channel {
 
   public function remoteEndpoint() { return new SocketEndpoint('127.0.0.1', 6666); }
 
+  public function canRead($timeout= 0.0) { return !empty($this->in); }
+
   public function readBinary($maxLen= 4096) { return array_shift($this->in); }
 
   public function write($chunk) { $this->out[]= $chunk; }
