@@ -54,7 +54,7 @@ class Develop implements Server {
     // Start `php -S`, the development webserver
     $runtime= Runtime::getInstance();
     $os= CommandLine::forName(PHP_OS);
-    $arguments= ['-S', $this->host.':'.$this->port, '-t', $docroot];
+    $arguments= ['-S', ('localhost' === $this->host ? '127.0.0.1' : $this->host).':'.$this->port, '-t', $docroot];
     $cmd= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
       $arguments,
       $runtime->startupOptions()->withSetting('user_dir', $docroot)->withSetting('include_path', $include)->asArguments(),
