@@ -102,6 +102,7 @@ class Response {
   /**
    * Sends headers
    *
+   * @param  web.io.Output $output
    * @return void
    * @throws lang.IllegalStateException
    */
