@@ -73,7 +73,7 @@ class WebRunner {
     } catch (\Exception $e) {   // PHP5
       self::error($request, $response, $env, new InternalServerError($e));
     } finally {
-      $response->flushed() || $response->flush();
+      $response->end();
     }
   }
 }
