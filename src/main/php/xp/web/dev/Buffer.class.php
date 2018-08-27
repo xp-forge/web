@@ -29,11 +29,13 @@ class Buffer extends Output {
       $res->header($name, $value);
     }
 
-    $out= $res->stream(isset($this->headers['Content-Length']) ? $this->headers['Content-Length'][0] : null);
-    try {
-      $out->write($this->bytes);
-    } finally {
-      $out->close();
+    if ('' !== $this->bytes) {
+      $out= $res->stream(isset($this->headers['Content-Length']) ? $this->headers['Content-Length'][0] : null);
+      try {
+        $out->write($this->bytes);
+      } finally {
+        $out->close();
+      }
     }
   }
 }
