@@ -49,7 +49,13 @@ class SAPI extends Output implements Input {
   public function headers() {
     yield 'Remote-Addr' => $_SERVER['REMOTE_ADDR'];
     foreach (getallheaders() as $name => $value) {
-      yield $name => $value;
+
+      // PHP has post-processed this for us, no need to decode ourselves
+      if (0 === strncasecmp($name, 'Transfer-Encoding', 17)) {
+        yield 'Transfer-Encoding' => 'streamed';
+      } else {
+        yield $name => $value;
+      }
     }
   }
 

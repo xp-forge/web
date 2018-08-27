@@ -1,8 +1,8 @@
 <?php namespace web\unittest;
 
-use web\Request;
 use io\streams\Streams;
 use util\URI;
+use web\Request;
 use web\io\TestInput;
 
 class RequestTest extends \unittest\TestCase {
@@ -79,6 +79,15 @@ class RequestTest extends \unittest\TestCase {
     $this->assertEquals(
       ['fixture' => $expected],
       (new Request(new TestInput('POST', '/', $headers, sprintf("%x\r\n%s\r\n0\r\n\r\n", strlen($query), $query))))->params()
+    );
+  }
+
+  #[@test, @values('parameters')]
+  public function post_params_streamed($query, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Transfer-Encoding' => 'streamed'];
+    $this->assertEquals(
+      ['fixture' => $expected],
+      (new Request(new TestInput('POST', '/', $headers, $query)))->params()
     );
   }
 

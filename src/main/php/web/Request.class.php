@@ -1,13 +1,14 @@
 <?php namespace web;
 
-use util\URI;
-use web\io\Input;
-use web\io\ReadLength;
-use web\io\ReadChunks;
 use io\streams\MemoryInputStream;
 use io\streams\Streams;
 use lang\Value;
 use util\Objects;
+use util\URI;
+use web\io\Input;
+use web\io\ReadChunks;
+use web\io\ReadLength;
+use web\io\ReadStream;
 
 class Request implements Value {
   private $stream= null;
@@ -108,17 +109,25 @@ class Request implements Value {
     ;
   }
 
-  /** @return io.streams.InputStream */
+  /** @return ?io.streams.InputStream */
   public function stream() {
-    if (null !== $this->stream) {
-      return $this->stream;
-    } else if ('chunked' === $this->header('Transfer-Encoding')) {
-      return $this->stream= new ReadChunks($this->input);
-    } else if (null !== ($l= $this->header('Content-Length'))) {
-      return $this->stream= new ReadLength($this->input, $l);
-    } else {
-      return null;
+    if (null !== $this->stream) return $this->stream;
+
+    // Check Content-Length first, this is the typical case
+    if (null !== ($l= $this->header('Content-Length'))) {
+      return $this->stream= new ReadLength($this->input, (int)$l);
     }
+
+    // Check Transfer-Encoding. The special value "streamed" is used by PHP SAPIs.
+    $te= $this->header('Transfer-Encoding');
+    if ('chunked' === $te) {
+      return $this->stream= new ReadChunks($this->input);
+    } else if ('streamed' === $te) {
+      return $this->stream= new ReadStream($this->input);
+    }
+
+    // Neither Content-Length nor Transfer-Encoding; no body seems to have been passed
+    return null;
   }
 
   /**
