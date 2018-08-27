@@ -47,6 +47,6 @@ class WriteChunks extends Output {
   /** @return void */
   public function finish() {
     $this->target->write(dechex(strlen($this->buffer))."\r\n".$this->buffer."\r\n0\r\n\r\n");
-    $this->target->finish();
+    $this->target->close();
   }
 }

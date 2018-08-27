@@ -42,6 +42,6 @@ class Buffered extends Output {
     $this->headers['Content-Length']= [strlen($this->buffer)];
     $this->target->begin($this->status, $this->message, $this->headers);
     $this->target->write($this->buffer);
-    $this->target->finish();
+    $this->target->close();
   }
 }
