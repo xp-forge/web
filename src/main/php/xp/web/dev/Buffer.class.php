@@ -3,7 +3,7 @@
 use web\io\Output;
 
 class Buffer extends Output {
-  public $status, $message, $headers;
+  public $status, $message, $headers= [];
   public $bytes= '';
 
   public function begin($status, $message, $headers) {
@@ -28,9 +28,8 @@ class Buffer extends Output {
     foreach ($this->headers as $name => $value) {
       $res->header($name, $value);
     }
-    $res->flush();
 
-    $out= $res->output();
+    $out= $res->stream(isset($this->headers['Content-Length']) ? $this->headers['Content-Length'] : null);
     try {
       $out->write($this->bytes);
     } finally {

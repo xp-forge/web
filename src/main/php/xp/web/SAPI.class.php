@@ -1,7 +1,9 @@
 <?php namespace xp\web;
 
+use web\io\Buffered;
 use web\io\Input;
 use web\io\Output;
+use web\io\WriteChunks;
 
 /**
  * Wrapper for PHP's Server API ("SAPI").
@@ -94,6 +96,16 @@ class SAPI extends Output implements Input {
     ob_start(function($buffer) {
       fputs(STDOUT, $buffer);
     });
+  }
+
+  /**
+   * Uses chunked TE for HTTP/1.1, buffering for HTTP/1.0
+   *
+   * @return web.io.Output
+   * @see    https://tools.ietf.org/html/rfc2068#section-19.7.1
+   */
+  public function stream() {
+    return $this->version() < '1.1' ? new Buffered($this) : new WriteChunks($this);
   }
 
   /**
