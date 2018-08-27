@@ -3,7 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 1.7.0 / 2018-08-27
+## 1.6.1 / 2018-08-27
 
 * Fixed `Transfer-Encoding: chunked` for development webserver - @thekid
 * Closed issue #26: Handle preconnect (*was already handled*) - @thekid
