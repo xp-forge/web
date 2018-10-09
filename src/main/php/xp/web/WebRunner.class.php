@@ -10,6 +10,15 @@ use web\Status;
 
 /**
  * Entry point for web-main.php
+ *
+ * Set the following environment variables (e.g. via Apache SetEnv):
+ *
+ * - WEB_SOURCE - the source: an application file or class name
+ * - WEB_CONFIG - to the config file paths separated by the path separator char
+ * - WEB_ARGS - optional, to any arguments you want to pass to environment
+ * - WEB_LOG - where to write logfile to, defaults to no logfile
+ *
+ * The source may contain filters, e.g. `application[+filter[,filter[,...]]]`
  */
 class WebRunner {
 
@@ -53,7 +62,7 @@ class WebRunner {
       $args[1],
       explode('PATH_SEPARATOR', getenv('WEB_CONFIG')),
       explode('|', getenv('WEB_ARGS')),
-      getenv('WEB_LOG')
+      getenv('WEB_LOG') ?: null
     );
 
     $sapi= new SAPI();
