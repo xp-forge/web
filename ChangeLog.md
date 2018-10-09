@@ -3,6 +3,14 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.6.2 / 2018-10.098
+
+* Fixed `WEB_CONFIG` multiple config path parsing - @thekid
+* Fixed `WEB_LOG` to default to no logging in web-main entry point;
+  previously, this would try to create a file with an empty name.
+  (@thekid)
+* Documented environment variables in `xp.web.WebRunner` - @thekid
+
 ## 1.6.1 / 2018-08-27
 
 * Fixed `Transfer-Encoding: chunked` for development webserver - @thekid
