@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.6.3 / 2018-10-09
+
 * Fixed "CONTENT_LENGTH" and "CONTENT_TYPE" request meta-variables
   not being honored when behind a CGI interface
   (@thekid)
