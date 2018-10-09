@@ -3,7 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 1.6.2 / 2018-10.098
+* Fixed "CONTENT_LENGTH" and "CONTENT_TYPE" request meta-variables
+  not being honored when behind a CGI interface
+  (@thekid)
+
+## 1.6.2 / 2018-10-09
 
 * Fixed `WEB_CONFIG` multiple config path parsing - @thekid
 * Fixed `WEB_LOG` to default to no logging in web-main entry point;

@@ -8,6 +8,7 @@ use web\io\WriteChunks;
 /**
  * Wrapper for PHP's Server API ("SAPI").
  *
+ * @see  http://www.faqs.org/rfcs/rfc3875.html
  * @see  http://php.net/reserved.variables.server
  * @see  http://php.net/wrappers.php
  * @see  http://php.net/php-sapi-name
@@ -20,6 +21,11 @@ class SAPI extends Output implements Input {
     if (!function_exists('getallheaders')) {
       function getallheaders() {
         $headers= [];
+        foreach (['CONTENT_TYPE' => 'Content-Type', 'CONTENT_LENGTH' => 'Content-Length'] as $meta => $header) {
+          if (isset($_SERVER[$meta])) {
+            $headers[$header]= $_SERVER[$meta];
+          }
+        }
         foreach ($_SERVER as $name => $value) {
           if (0 === strncmp($name, 'HTTP_', 5)) {
             $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))]= $value;
