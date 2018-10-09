@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.6.4 / 2018-10-09
+
+* Added a workaround for Apache's FastCGI not being able to handle
+  chunked transfer encoding in combination with gzip, see
+  https://bz.apache.org/bugzilla/show_bug.cgi?id=53332
+  (@johannes85, @thekid)
+
 ## 1.6.3 / 2018-10-09
 
 * Fixed "CONTENT_LENGTH" and "CONTENT_TYPE" request meta-variables

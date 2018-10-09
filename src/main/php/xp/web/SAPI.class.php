@@ -105,13 +105,21 @@ class SAPI extends Output implements Input {
   }
 
   /**
-   * Uses chunked TE for HTTP/1.1, buffering for HTTP/1.0
+   * Uses chunked TE for HTTP/1.1, buffering for HTTP/1.0 or when using
+   * Apache and FastCGI, which is broken.
    *
    * @return web.io.Output
    * @see    https://tools.ietf.org/html/rfc2068#section-19.7.1
+   * @see    https://bz.apache.org/bugzilla/show_bug.cgi?id=53332
    */
   public function stream() {
-    return $this->version() < '1.1' ? new Buffered($this) : new WriteChunks($this);
+    $buffered= (
+      isset($_SERVER['GATEWAY_INTERFACE']) &&
+      stristr($_SERVER['GATEWAY_INTERFACE'], 'CGI') &&
+      stristr($_SERVER['SERVER_SOFTWARE'], 'Apache')
+    ) || $_SERVER['SERVER_PROTOCOL'] < 'HTTP/1.1';
+
+    return $buffered ? new Buffered($this) : new WriteChunks($this);
   }
 
   /**
