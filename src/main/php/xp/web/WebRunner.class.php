@@ -60,7 +60,7 @@ class WebRunner {
       $args[2],
       $args[0],
       $args[1],
-      explode('PATH_SEPARATOR', getenv('WEB_CONFIG')),
+      explode(PATH_SEPARATOR, getenv('WEB_CONFIG')),
       explode('|', getenv('WEB_ARGS')),
       getenv('WEB_LOG') ?: null
     );
