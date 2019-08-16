@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.7.0 / 2019-08-16
+
 * Made compatible with PHP 7.4 - don't use `{}` for string offset;
   see https://wiki.php.net/rfc/deprecate_curly_braces_array_access
   (@thekid)
