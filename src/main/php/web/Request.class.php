@@ -165,7 +165,7 @@ class Request implements Value {
 
     $offset= 0;
     while (false !== ($p= strpos($query, '%', $offset))) {
-      $chr= hexdec($query{$p + 1}.$query{$p + 2});
+      $chr= hexdec($query[$p + 1].$query[$p + 2]);
 
       if ($chr < 0x80) {                              // OK, same as ASCII
         $offset= $p + 3;

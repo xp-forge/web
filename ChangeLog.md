@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Made compatible with PHP 7.4 - don't use `{}` for string offset;
+  see https://wiki.php.net/rfc/deprecate_curly_braces_array_access
+  (@thekid)
+
 ## 1.6.4 / 2018-10-09
 
 * Added a workaround for Apache's FastCGI not being able to handle

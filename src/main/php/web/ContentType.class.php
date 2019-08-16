@@ -35,13 +35,13 @@ class ContentType {
       $offset++;
       while (false !== ($p= strpos($input, '=', $offset))) {
         $name= ltrim(substr($input, $offset, $p - $offset), '; ');
-        if ('"' === $input{$p + 1}) {
+        if ('"' === $input[$p + 1]) {
           $offset= $p + 2;
           do {
             if (false === ($offset= strpos($input, '"', $offset))) {
               throw new FormatException('Unclosed string in parameter "'.$name.'"');
             }
-          } while ('\\' === $input{$offset++ - 1});
+          } while ('\\' === $input[$offset++ - 1]);
           $value= strtr(substr($input, $p + 2, $offset - $p - 3), ['\"' => '"']);
         } else {
           $value= substr($input, $p + 1, strcspn($input, ';', $p) - 1);
