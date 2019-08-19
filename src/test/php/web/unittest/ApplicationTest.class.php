@@ -6,11 +6,11 @@ use web\Environment;
 use web\Error;
 use web\Filters;
 use web\Handler;
-use web\io\TestInput;
-use web\io\TestOutput;
 use web\Request;
 use web\Response;
 use web\Routing;
+use web\io\TestInput;
+use web\io\TestOutput;
 
 class ApplicationTest extends \unittest\TestCase {
   private $environment;
@@ -21,19 +21,30 @@ class ApplicationTest extends \unittest\TestCase {
   }
 
   /**
-   * Assertion helper
+   * Handle given routes
    *
-   * @param  var[] $handled
-   * @param  var $routes
-   * @throws unittest.AssertionFailedError
+   * @param  function(): var $routes
+   * @return var[] A tuple of request and response instances
    */
-  private function assertHandled(&$handled, $routes) {
+  private function handle($routes) {
     with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
       $request= new Request(new TestInput('GET', '/'));
       $response= new Response();
       $app->service($request, $response);
+      return [$request, $response];
     }
-    $this->assertEquals([[$request, $response]], $handled);
+  }
+
+  /**
+   * Assertion helper
+   *
+   * @param  var[] $handled
+   * @param  function(): var $routes
+   * @throws unittest.AssertionFailedError
+   */
+  private function assertHandled(&$handled, $routes) {
+    $result= $this->handle($routes);
+    $this->assertEquals([$result], $handled);
   }
 
   #[@test]
@@ -118,6 +129,38 @@ class ApplicationTest extends \unittest\TestCase {
         },
       ];
     });
+  }
+
+  #[@test]
+  public function dispatch_request_without_query() {
+    $passed= null;
+    $this->handle(function() use(&$passed) {
+      return [
+        '/login' => function($request, $response) use(&$passed) {
+          $passed= $request->params();
+        },
+        '/' => function($request, $response) {
+          return $request->dispatch('/login');
+        },
+      ];
+    });
+    $this->assertEquals([], $passed);
+  }
+
+  #[@test]
+  public function dispatch_request_with_query() {
+    $passed= null;
+    $this->handle(function() use(&$passed) {
+      return [
+        '/deref' => function($request, $response) use(&$passed) {
+          $passed= $request->params();
+        },
+        '/' => function($request, $response) {
+          return $request->dispatch('/deref', ['url' => 'http://example.com/']);
+        },
+      ];
+    });
+    $this->assertEquals(['url' => 'http://example.com/'], $passed);
   }
 
   #[@test, @expect(class= Error::class, withMessage= '/Internal redirect loop/')]

@@ -3,6 +3,15 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.8.0 / 2019-08-19
+
+* Heads up: Always treat first parameter to `Request::dispatch()` as
+  absolute path!
+  (@thekid)
+* Added optional parameter to `Request::dispatch()` to allow passing
+  request parameters.
+  (@thekid)
+
 ## 1.7.0 / 2019-08-16
 
 * Made compatible with PHP 7.4 - don't use `{}` for string offset;

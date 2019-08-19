@@ -261,10 +261,13 @@ class Request implements Value {
   /**
    * Dispatches request
    *
-   * @param  string|util.URI $uri
+   * @param  string $path
+   * @param  [:string] $params Optional request parameters to pass
    * @return web.Dispatch
    */
-  public function dispatch($uri) { return new Dispatch($uri); }
+  public function dispatch($path, $params= []) {
+    return new Dispatch($this->uri()->using()->path($path)->params($params)->create());
+  }
 
   /**
    * Gets a cookie by name
