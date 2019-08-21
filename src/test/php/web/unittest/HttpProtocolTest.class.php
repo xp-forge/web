@@ -23,6 +23,20 @@ class HttpProtocolTest extends TestCase {
     ]);
   }
 
+  /**
+   * Assertion helper
+   *
+   * @param  string $expected Regular expression without delimiters
+   * @param  string[] $out
+   * @throws unittest.AssertionFailedError
+   */
+  private function assertHttp($expected, $out) {
+    $actual= implode('', $out);
+    if (!preg_match('#^'.$expected.'$#', $actual)) {
+      $this->fail('=~', $actual, $expected);
+    }
+  }
+
   #[@test]
   public function can_create() {
     new HttpProtocol($this->application(function($req, $res) { }), $this->log);
@@ -35,12 +49,12 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.1\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -51,13 +65,13 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.1\r\nHost: ".$host."\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Host: ".$host."\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -68,13 +82,13 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.1\r\nConnection: close\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Connection: close\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -85,12 +99,12 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.0\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -105,13 +119,13 @@ class HttpProtocolTest extends TestCase {
     ]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Content-Type: text/plain\r\n".
       "Content-Length: 4\r\n".
       "\r\nTest",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -123,12 +137,12 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.0\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Content-Length: 4\r\n".
       "\r\nTest",
-      implode('', $c->out)
+      $c->out
     );
   }
 
@@ -140,12 +154,12 @@ class HttpProtocolTest extends TestCase {
     $c= new Channel(["GET / HTTP/1.1\r\n\r\n"]);
     $p->handleData($c);
 
-    $this->assertEquals(
+    $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
-      "Date: ".gmdate('D, d M Y H:i:s T')."\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
       "Transfer-Encoding: chunked\r\n".
       "\r\n4\r\nTest\r\n0\r\n\r\n",
-      implode('', $c->out)
+      $c->out
     );
   }
 }
