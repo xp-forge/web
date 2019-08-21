@@ -8,17 +8,37 @@ use lang\XPClass;
  * @test  xp://web.unittest.io.TestOutputTest
  */
 class TestOutput extends Output {
-  private $bytes;
-  private $stream;
+  private $bytes, $stream;
 
-  /** Create a new Test Output */
-  public function __construct() {
-    $this->stream= new XPClass(WriteChunks::class);
+  /** @param string|lang.XPClass $stream */
+  public function __construct($stream= null) {
+    if (null === $stream) {
+      $this->stream= new XPClass(WriteChunks::class);
+    } else if ($stream instanceof XPClass) {
+      $this->stream= $stream;
+    } else {
+      $this->stream= XPClass::forName($stream);
+    }
   }
+
+  /**
+   * Creates a new buffered test output
+   *
+   * @return self
+   */
+  public static function buffered() { return new self(Buffered::class); }
+
+  /**
+   * Creates a new chunked test output
+   *
+   * @return self
+   */
+  public static function chunked() { return new self(WriteChunks::class); }
 
   /**
    * Use stream class, which defaults to `WriteChunks`
    *
+   * @deprecated Use constructor instead
    * @param  string|lang.XPClass $stream
    * @return self
    */

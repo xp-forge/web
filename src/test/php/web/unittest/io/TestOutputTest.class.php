@@ -56,6 +56,49 @@ class TestOutputTest extends TestCase {
 
   #[@test]
   public function buffered_stream() {
+    $fixture= new TestOutput(Buffered::class);
+    with ($fixture->stream(), function($stream) {
+      $stream->begin(200, 'OK', []);
+      $stream->write('Hello');
+      $stream->write('Test');
+    });
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nContent-Length: 9\r\n\r\nHelloTest",
+      $fixture->bytes()
+    );
+  }
+
+  #[@test]
+  public function chunked_stream_via_constructor() {
+    $fixture= TestOutput::chunked();
+    with ($fixture->stream(), function($stream) {
+      $stream->begin(200, 'OK', []);
+      $stream->write('Hello');
+      $stream->write('Test');
+    });
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n9\r\nHelloTest\r\n0\r\n\r\n",
+      $fixture->bytes()
+    );
+  }
+
+  #[@test]
+  public function buffered_stream_via_constructor() {
+    $fixture= TestOutput::buffered();
+    with ($fixture->stream(), function($stream) {
+      $stream->begin(200, 'OK', []);
+      $stream->write('Hello');
+      $stream->write('Test');
+    });
+    $this->assertEquals(
+      "HTTP/1.1 200 OK\r\nContent-Length: 9\r\n\r\nHelloTest",
+      $fixture->bytes()
+    );
+  }
+
+  /** @deprecated */
+  #[@test]
+  public function buffered_stream_with_using() {
     $fixture= (new TestOutput())->using(Buffered::class);
     with ($fixture->stream(), function($stream) {
       $stream->begin(200, 'OK', []);
