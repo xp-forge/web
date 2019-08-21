@@ -78,4 +78,20 @@ class TestOutput extends Output {
 
   /** @return string */
   public function bytes() { return $this->bytes; }
+
+  /** @return string */
+  public function start() {
+    return substr($this->bytes, 0, strpos($this->bytes, "\r\n"));
+  }
+
+  /** @return string */
+  public function headers() {
+    $start= strpos($this->bytes, "\r\n") + 2;
+    return substr($this->bytes, $start, strpos($this->bytes, "\r\n\r\n") - $start);
+  }
+
+  /** @return string */
+  public function body() {
+    return substr($this->bytes, strpos($this->bytes, "\r\n\r\n") + 4);
+  }
 }

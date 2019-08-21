@@ -5,6 +5,8 @@ Web change log
 
 ## 1.9.0 / 2019-08-21
 
+* Added start(), header() and body() accessors to `web.io.TestOutput`
+  (@thekid)
 * **Heads up:** Deprecated `web.io.TestOutput::using()` in favor of its
   constructor, which now accepts the same arguments.
   (@thekid)

@@ -41,6 +41,36 @@ class TestOutputTest extends TestCase {
   }
 
   #[@test]
+  public function start() {
+    $fixture= new TestOutput();
+    $fixture->begin(200, 'OK', []);
+    $this->assertEquals('HTTP/1.1 200 OK', $fixture->start());
+
+  }
+
+  #[@test]
+  public function empty_headers() {
+    $fixture= new TestOutput();
+    $fixture->begin(200, 'OK', []);
+    $this->assertEquals('', $fixture->headers());
+  }
+
+  #[@test]
+  public function headers() {
+    $fixture= new TestOutput();
+    $fixture->begin(200, 'OK', ['Server' => ['Test'], 'Cache-control' => ['no-cache']]);
+    $this->assertEquals("Server: Test\r\nCache-control: no-cache", $fixture->headers());
+  }
+
+  #[@test]
+  public function body() {
+    $fixture= new TestOutput();
+    $fixture->begin(200, 'OK', ['Content-Length' => [4]]);
+    $fixture->write('Test');
+    $this->assertEquals('Test', $fixture->body());
+  }
+
+  #[@test]
   public function chunked_stream() {
     $fixture= new TestOutput();
     with ($fixture->stream(), function($stream) {
