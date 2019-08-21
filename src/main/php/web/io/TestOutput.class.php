@@ -2,6 +2,11 @@
 
 use lang\XPClass;
 
+/**
+ * Input for testing purposes
+ *
+ * @test  xp://web.unittest.io.TestOutputTest
+ */
 class TestOutput extends Output {
   private $bytes;
   private $stream;

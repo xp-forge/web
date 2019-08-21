@@ -1,5 +1,10 @@
 <?php namespace web\io;
 
+/**
+ * Input for testing purposes
+ *
+ * @test  xp://web.unittest.io.TestInputTest
+ */
 class TestInput implements Input {
   private $method, $uri, $headers, $body;
 
