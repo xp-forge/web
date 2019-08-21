@@ -5,8 +5,8 @@ Web change log
 
 ## 1.9.0 / 2019-08-21
 
-* Merged PR #55: Calculate content length of given body
-  (@thekid)
+* Merged PR #56: `web.io.TestOutput` constructors - @thekid
+* Merged PR #55: Calculate content length of given body - @thekid
 * Merged PR #54: Add ability to pass body as map to `web.io.TestInput`
   (@thekid)
 
