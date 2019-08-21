@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #54: Add ability to pass body as map to `web.io.TestInput`
+  (@thekid)
+
 ## 1.8.0 / 2019-08-19
 
 * Heads up: Always treat first parameter to `Request::dispatch()` as
