@@ -14,13 +14,19 @@ class TestInput implements Input {
    * @param  string $method
    * @param  string $uri
    * @param  [:string] $headers
-   * @param  string $body
+   * @param  string|[:string] $body
    */
   public function __construct($method, $uri, $headers= [], $body= '') {
     $this->method= $method;
     $this->uri= $uri;
     $this->headers= $headers;
-    $this->body= $body;
+
+    if (is_array($body)) {
+      $this->body= http_build_query($body);
+      $this->headers+= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => strlen($this->body)];
+    } else {
+      $this->body= $body;
+    }
   }
 
   /** @return string */

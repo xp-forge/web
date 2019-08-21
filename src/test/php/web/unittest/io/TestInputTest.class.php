@@ -63,4 +63,14 @@ class TestInputTest extends TestCase {
     $this->assertEquals('line 2', $fixture->readLine());
     $this->assertNull($fixture->readLine());
   }
+
+  #[@test]
+  public function body_can_be_passed_as_array() {
+    $fixture= new TestInput('GET', '/', [], ['key' => 'value']);
+    $this->assertEquals('key=value', $fixture->read());
+    $this->assertEquals(
+      ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9],
+      $fixture->headers()
+    );
+  }
 }
