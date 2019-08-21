@@ -42,13 +42,13 @@ class TestInput implements Input {
   public function readLine() {
     $p= strpos($this->body, "\n");
     if (false === $p) {
-      $return= $this->body;
       $this->body= '';
       return null;
+    } else {
+      $return= substr($this->body, 0, $p);
+      $this->body= (string)substr($this->body, $p + 1);
+      return $return;
     }
-    $return= substr($this->body, 0, $p);
-    $this->body= (string)substr($this->body, $p + 1);
-    return $return;
   }
 
   /**
