@@ -61,6 +61,6 @@ class TestInputTest extends TestCase {
     $fixture= new TestInput('GET', '/', [], "line 1\nline 2\n");
     $this->assertEquals('line 1', $fixture->readLine());
     $this->assertEquals('line 2', $fixture->readLine());
-    $this->assertEquals('', $fixture->readLine());
+    $this->assertNull($fixture->readLine());
   }
 }
