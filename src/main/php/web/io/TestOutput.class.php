@@ -38,6 +38,7 @@ class TestOutput extends Output {
   /**
    * Use stream class, which defaults to `WriteChunks`
    *
+   * @deprecated Use constructor instead
    * @param  string|lang.XPClass $stream
    * @return self
    */
