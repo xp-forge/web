@@ -23,9 +23,13 @@ class TestInput implements Input {
 
     if (is_array($body)) {
       $this->body= http_build_query($body);
-      $this->headers+= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => strlen($this->body)];
+      $this->headers+= ['Content-Type' => 'application/x-www-form-urlencoded'];
     } else {
       $this->body= $body;
+    }
+
+    if (strlen($this->body) > 0 && !isset($this->headers['Transfer-Encoding'])) {
+      $this->headers+= ['Content-Length' => strlen($this->body)];
     }
   }
 

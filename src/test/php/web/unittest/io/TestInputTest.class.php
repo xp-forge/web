@@ -65,11 +65,29 @@ class TestInputTest extends TestCase {
   }
 
   #[@test]
+  public function content_length_calculated() {
+    $fixture= new TestInput('GET', '/', ['Content-Type' => 'text/plain'], 'Test');
+    $this->assertEquals(
+      ['Content-Type' => 'text/plain', 'Content-Length' => 4],
+      $fixture->headers()
+    );
+  }
+
+  #[@test]
+  public function content_length_not_calculated_when_chunked() {
+    $fixture= new TestInput('GET', '/', ['Transfer-Encoding' => 'chunked'], "4\r\nTest\r\n0\r\n\r\n");
+    $this->assertEquals(
+      ['Transfer-Encoding' => 'chunked'],
+      $fixture->headers()
+    );
+  }
+
+  #[@test]
   public function body_can_be_passed_as_array() {
-    $fixture= new TestInput('GET', '/', [], ['key' => 'value']);
+    $fixture= new TestInput('GET', '/', ['Accept' => '*/*'], ['key' => 'value']);
     $this->assertEquals('key=value', $fixture->read());
     $this->assertEquals(
-      ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9],
+      ['Accept' => '*/*', 'Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9],
       $fixture->headers()
     );
   }
