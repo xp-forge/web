@@ -37,6 +37,9 @@ class Request implements Value {
     $this->input= $input;
   }
 
+  /** @return web.io.Input */
+  public function input() { return $this->input; }
+
   /**
    * Pass a named value along with this request
    *
