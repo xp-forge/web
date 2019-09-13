@@ -5,7 +5,7 @@ use unittest\TestCase;
 use web\Application;
 use web\Environment;
 use web\Logging;
-use xp\web\srv\HttpProtocol;
+use web\protocol\Http;
 
 class HttpProtocolTest extends TestCase {
   private $log;
@@ -39,12 +39,12 @@ class HttpProtocolTest extends TestCase {
 
   #[@test]
   public function can_create() {
-    new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    new Http($this->application(function($req, $res) { }), $this->log);
   }
 
   #[@test]
   public function default_headers() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= new Http($this->application(function($req, $res) { }), $this->log);
 
     $c= new Channel(["GET / HTTP/1.1\r\n\r\n"]);
     $p->handleData($c);
@@ -60,7 +60,7 @@ class HttpProtocolTest extends TestCase {
 
   #[@test, @values(['localhost', 'localhost:8080'])]
   public function host_header_is_echoed($host) {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= new Http($this->application(function($req, $res) { }), $this->log);
 
     $c= new Channel(["GET / HTTP/1.1\r\nHost: ".$host."\r\n\r\n"]);
     $p->handleData($c);
@@ -77,7 +77,7 @@ class HttpProtocolTest extends TestCase {
 
   #[@test]
   public function connection_close_is_honoured() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= new Http($this->application(function($req, $res) { }), $this->log);
 
     $c= new Channel(["GET / HTTP/1.1\r\nConnection: close\r\n\r\n"]);
     $p->handleData($c);
@@ -94,7 +94,7 @@ class HttpProtocolTest extends TestCase {
 
   #[@test]
   public function responds_with_http_10_for_http_10_requests() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= new Http($this->application(function($req, $res) { }), $this->log);
 
     $c= new Channel(["GET / HTTP/1.0\r\n\r\n"]);
     $p->handleData($c);
@@ -111,7 +111,7 @@ class HttpProtocolTest extends TestCase {
   #[@test]
   public function handles_chunked_transfer_input() {
     $echo= function($req, $res) { $res->send(Streams::readAll($req->stream()), 'text/plain'); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= new Http($this->application($echo), $this->log);
 
     $c= new Channel([
       "POST / HTTP/1.1\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n",
@@ -132,7 +132,7 @@ class HttpProtocolTest extends TestCase {
   #[@test]
   public function buffers_and_sets_content_length_for_http10() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= new Http($this->application($echo), $this->log);
 
     $c= new Channel(["GET / HTTP/1.0\r\n\r\n"]);
     $p->handleData($c);
@@ -149,7 +149,7 @@ class HttpProtocolTest extends TestCase {
   #[@test]
   public function produces_chunked_transfer_output_for_http11() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= new Http($this->application($echo), $this->log);
 
     $c= new Channel(["GET / HTTP/1.1\r\n\r\n"]);
     $p->handleData($c);
