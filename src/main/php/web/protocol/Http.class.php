@@ -107,11 +107,11 @@ class Http extends Protocol {
       $this->application->service($request, $response);
       $this->logging->log($request->method(), $request->uri(), $response->status());
     } catch (Error $e) {
-      $this->error($version, $request, $response, $e);
+      $this->error($request, $response, $e);
     } catch (\Throwable $e) {   // PHP7
-      $this->error($version, $request, $response, new InternalServerError($e));
+      $this->error($request, $response, new InternalServerError($e));
     } catch (\Exception $e) {   // PHP5
-      $this->error($version, $request, $response, new InternalServerError($e));
+      $this->error($request, $response, new InternalServerError($e));
     } finally {
       $response->end();
       $close || $request->consume();
