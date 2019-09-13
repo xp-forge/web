@@ -28,7 +28,7 @@ class Environment {
    * @param  string[] $arguments
    * @param  string|string[]|web.Logging $logging Defaults to logging to console
    */
-  public function __construct($profile, $webroot, $docroot, $config, $arguments= [], $logging= '-') {
+  public function __construct($profile, $webroot= '.', $docroot= '.', $config= [], $arguments= [], $logging= '-') {
     $this->profile= $profile;
     $this->webroot= $webroot instanceof Path ? $webroot : new Path($webroot);
     $this->docroot= $docroot instanceof Path ? $docroot : new Path($docroot);
