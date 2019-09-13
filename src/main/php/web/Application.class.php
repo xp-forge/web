@@ -1,25 +1,14 @@
 <?php namespace web;
 
+use web\protocol\Http;
+
 /**
  * Application is at the heart at every web project.
  *
  * @test  xp://web.unittest.ApplicationTest
  */
-abstract class Application implements \lang\Value {
+abstract class Application extends Service {
   private $routing= null;
-  protected $environment;
-
-  /**
-   * Creates a new web application inside a given environment
-   *
-   * @param  web.Environment $environment
-   */
-  public function __construct(Environment $environment) {
-    $this->environment= $environment;
-  }
-
-  /** @return web.Environment */
-  public function environment() { return $this->environment; }
 
   /**
    * Returns routing, lazily initialized
@@ -41,7 +30,7 @@ abstract class Application implements \lang\Value {
    *
    * @return web.Routing|[:var]
    */
-  protected abstract function routes();
+  public abstract function routes();
 
   /**
    * Installs global filters
@@ -53,6 +42,10 @@ abstract class Application implements \lang\Value {
     $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
   }
 
+  public function serve($server, $environment) {
+    return new Http($this, $environment->logging());
+  }
+
   /**
    * Service delegates to the routing, calling its `service()` method.
    *
@@ -62,21 +55,5 @@ abstract class Application implements \lang\Value {
    */
   public function service($request, $response) {
     $this->routing()->service($request, $response);
-  }
-
-  /** @return string */
-  public function toString() { return nameof($this).'('.$this->environment->docroot().')'; }
-
-  /** @return string */
-  public function hashCode() { return spl_object_hash($this); }
-
-  /**
-   * Comparison
-   *
-   * @param  var $value
-   * @return int
-   */
-  public function compareTo($value) {
-    return $value === $this ? 0 : 1;
   }
 }
