@@ -1,9 +1,10 @@
-<?php namespace xp\web\srv;
+<?php namespace web\protocol;
 
-use web\io\WriteChunks;
 use web\io\Buffered;
+use web\io\Output;
+use web\io\WriteChunks;
 
-class Output extends \web\io\Output {
+class SocketOutput extends Output {
   private $socket, $version;
 
   /**

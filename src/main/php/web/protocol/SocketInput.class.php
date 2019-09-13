@@ -1,14 +1,13 @@
-<?php namespace xp\web\srv;
+<?php namespace web\protocol;
 
 use peer\CryptoSocket;
-use web\io\Input as IOInput;
+use web\io\Input;
 
-class Input implements IOInput {
+class SocketInput implements Input {
   const CLOSE   = 0;
   const REQUEST = 1;
 
-  public $kind;
-  private $socket;
+  public $kind, $socket;
   private $method, $uri, $version;
   private $buffer= null;
 
