@@ -37,6 +37,7 @@ class WebRunner {
     } else {
       $loader= ClassLoader::getDefault();
       $message= Status::message($error->status());
+      $cause= $error->getCause();
 
       $response->answer($error->status(), $message);
       foreach (['web/error-'.$env->profile().'.html', 'web/error.html'] as $variant) {
@@ -46,7 +47,9 @@ class WebRunner {
           $error->status(),
           htmlspecialchars($message),
           htmlspecialchars($error->getMessage()),
-          htmlspecialchars($error->toString())
+          htmlspecialchars($cause
+            ? $cause->toString()
+            : $error->toString())
         ));
         break;
       }

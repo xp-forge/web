@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
+use lang\XPException;
 use unittest\TestCase;
 use web\Application;
 use web\Environment;
@@ -162,4 +163,16 @@ class HttpProtocolTest extends TestCase {
       $c->out
     );
   }
+
+  #[@test]
+  public function error_handling_stacktrace_from_cause() {
+    $p= new HttpProtocol($this->application(function($req, $res) {
+      throw new XPException('test');
+    }), $this->log);
+
+    $c= new Channel(["GET / HTTP/1.1\r\n\r\n"]);
+    $p->handleData($c);
+    $this->assertFalse(strpos(implode('', $c->out), 'Caused by Exception lang.XPException'));
+  }
+
 }
