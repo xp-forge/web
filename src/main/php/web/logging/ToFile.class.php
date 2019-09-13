@@ -27,21 +27,21 @@ class ToFile extends Sink {
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $kind
+   * @param  util.URI $uri
+   * @param  string $status
    * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $error) {
-    $query= $request->uri()->query();
+  public function log($kind, $uri, $status, $error= null) {
     $line= sprintf(
-      "[%s %d %.3fkB] %d %s %s %s\n",
+      "[%s %d %.3fkB] %s %s %s %s\n",
       date('Y-m-d H:i:s'),
       getmypid(),
       memory_get_usage() / 1024,
-      $response->status(),
-      $request->method(),
-      $request->uri()->path().($query ? '?'.$query : ''),
+      $status,
+      $kind,
+      $uri->path().(($query= $uri->query()) ? '?'.$query : ''),
       $error ? $error->toString() : ''
     );
     file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);

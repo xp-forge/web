@@ -48,7 +48,7 @@ class ToFileTest extends TestCase {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
-    (new ToFile($this->temp))->log($req, $res, null);
+    (new ToFile($this->temp))->log($req->method(), $req->uri(), $res->status());
 
     $this->assertNotEquals(0, $this->temp->size());
   }
@@ -58,7 +58,7 @@ class ToFileTest extends TestCase {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
-    (new ToFile($this->temp))->log($req, $res, new Error(404, 'Test'));
+    (new ToFile($this->temp))->log($req->method(), $req->uri(), $res->status(), new Error(404, 'Test'));
 
     $this->assertNotEquals(0, $this->temp->size());
   }

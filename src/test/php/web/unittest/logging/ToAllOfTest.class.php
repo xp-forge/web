@@ -19,7 +19,7 @@ class ToAllOfTest extends TestCase {
 
   #[@test]
   public function can_create_with_sink() {
-    new ToAllOf(new ToFunction(function($req, $res, $error) { }));
+    new ToAllOf(new ToFunction(function($kind, $uri, $status, $error= null) { }));
   }
 
   #[@test]
@@ -30,14 +30,14 @@ class ToAllOfTest extends TestCase {
   #[@test]
   public function sinks() {
     $a= new ToConsole();
-    $b= new ToFunction(function($req, $res, $error) {  });
+    $b= new ToFunction(function($kind, $uri, $status, $error= null) {  });
     $this->assertEquals([$a, $b], (new ToAllOf($a, $b))->sinks());
   }
 
   #[@test]
   public function sinks_are_merged_when_passed_ToAllOf_instance() {
     $a= new ToConsole();
-    $b= new ToFunction(function($req, $res, $error) {  });
+    $b= new ToFunction(function($kind, $uri, $status, $error= null) {  });
     $this->assertEquals([$a, $b], (new ToAllOf(new ToAllOf($a, $b)))->sinks());
   }
 
@@ -49,7 +49,7 @@ class ToAllOfTest extends TestCase {
   #[@test]
   public function targets() {
     $a= new ToConsole();
-    $b= new ToFunction(function($req, $res, $error) { });
+    $b= new ToFunction(function($kind, $uri, $status, $error= null) { });
     $this->assertEquals('(web.logging.ToConsole & web.logging.ToFunction)', (new ToAllOf($a, $b))->target());
   }
 
@@ -63,14 +63,14 @@ class ToAllOfTest extends TestCase {
 
     $logged= ['a' => [], 'b' => []];
     $sink= new ToAllOf(
-      new ToFunction(function($req, $res, $error) use(&$logged) {
-        $logged['a'][]= $req->method().' '.$req->uri()->path().($error ? ' '.$error->getMessage() : '');
+      new ToFunction(function($kind, $uri, $status, $error= null) use(&$logged) {
+        $logged['a'][]= $kind.' '.$uri->path().($error ? ' '.$error->getMessage() : '');
       }),
-      new ToFunction(function($req, $res, $error) use(&$logged) {
-        $logged['b'][]= $req->method().' '.$req->uri()->path().($error ? ' '.$error->getMessage() : '');
+      new ToFunction(function($kind, $uri, $status, $error= null) use(&$logged) {
+        $logged['b'][]= $kind.' '.$uri->path().($error ? ' '.$error->getMessage() : '');
       })
     );
-    $sink->log($req, $res, $error);
+    $sink->log($req->method(), $req->uri(), $res->status(), $error);
 
     $this->assertEquals($expected, $logged);
   }

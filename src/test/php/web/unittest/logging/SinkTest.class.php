@@ -22,7 +22,7 @@ class SinkTest extends TestCase {
 
   #[@test]
   public function logging_to_function() {
-    $this->assertInstanceOf(ToFunction::class, Sink::of(function($req, $res, $error) { }));
+    $this->assertInstanceOf(ToFunction::class, Sink::of(function($kind, $uri, $status, $error= null) { }));
   }
 
   #[@test]

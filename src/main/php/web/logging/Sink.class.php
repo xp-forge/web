@@ -12,12 +12,13 @@ abstract class Sink {
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $kind
+   * @param  util.URI $uri
+   * @param  string $status
    * @param  ?web.Error $error Optional error
    * @return void
    */
-  public abstract function log($request, $response, $error);
+  public abstract function log($kind, $uri, $status, $error= null);
 
   /** @return string */
   public function target() { return nameof($this); }

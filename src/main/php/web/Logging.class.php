@@ -61,13 +61,14 @@ class Logging {
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $kind
+   * @param  util.URI $uri
+   * @param  string $status
    * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $error= null) {
-    $this->sink && $this->sink->log($request, $response, $error);
+  public function log($kind, $uri, $status, $error= null) {
+    $this->sink && $this->sink->log($kind, $uri, $status, $error);
   }
 
   /**

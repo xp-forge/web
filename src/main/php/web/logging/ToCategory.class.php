@@ -14,19 +14,18 @@ class ToCategory extends Sink {
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $kind
+   * @param  util.URI $uri
+   * @param  string $status
    * @param  ?web.Error $error Optional error
    * @return void
    */
-  public function log($request, $response, $error) {
-    $query= $request->uri()->query();
-    $uri= $request->uri()->path().($query ? '?'.$query : '');
-
+  public function log($kind, $uri, $status, $error= null) {
+    $uri= $uri->path().(($query= $uri->query()) ? '?'.$query : '');
     if ($error) {
-      $this->cat->warn($response->status(), $request->method(), $uri, $error);
+      $this->cat->warn($status, $kind, $uri, $error);
     } else {
-      $this->cat->info($response->status(), $request->method(), $uri);
+      $this->cat->info($status, $kind, $uri);
     }
   }
 }
