@@ -17,4 +17,6 @@ class Channel {
   public function write($chunk) { $this->out[]= $chunk; }
 
   public function close() { $this->closed= true; }
+
+  public function eof() { return $this->closed || empty($this->in); }
 }
