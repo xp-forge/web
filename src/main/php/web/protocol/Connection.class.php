@@ -5,6 +5,7 @@ use util\Bytes;
 /**
  * Websocket connection
  *
+ * @see   https://tools.ietf.org/html/rfc6455
  * @test  xp://web.unittest.protocol.ConnectionTest
  */
 class Connection {
@@ -67,7 +68,10 @@ class Connection {
     $continue= [];
     do {
       $packet= $this->read(2);
-      if (strlen($packet) < 2) return $this->socket->close();
+      if (strlen($packet) < 2) {
+        $this->socket->close();
+        return;
+      }
 
       $final= $packet[0] & "\x80";
       $opcode= $packet[0] & "\x0f";
