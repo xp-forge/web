@@ -149,10 +149,6 @@ class WebSockets extends Protocol {
             }
             $socket->close();
             break;
-
-          default:             // Something is incorrect with the wire protocol
-            $socket->close();
-            throw new ProtocolException('Cannot handle opcode');
         }
       } catch (Throwable $t) {
         $this->logging->log(Opcodes::nameOf($opcode), $conn->uri(), 'ERR', $t);
