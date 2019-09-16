@@ -56,7 +56,7 @@ class WebSockets extends Protocol {
 
         // Register connection
         $socket= $request->input()->socket;
-        $socket->setTimeout(600);
+        $socket->setTimeout(600.0);
         $id= (int)$socket->getHandle();
         $this->connections[$id]= new Connection($socket, $id, $request->uri(), $request->headers());
         return true;
@@ -172,5 +172,6 @@ class WebSockets extends Protocol {
    */
   public function handleError($socket, $e) {
     unset($this->connections[(int)$socket->getHandle()]);
+    $socket->close();
   }
 }
