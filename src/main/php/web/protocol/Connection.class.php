@@ -2,6 +2,11 @@
 
 use util\Bytes;
 
+/**
+ * Websocket connection
+ *
+ * @test  xp://web.unittest.protocol.ConnectionTest
+ */
 class Connection {
   const MAXLENGTH = 0x8000000;
 
