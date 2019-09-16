@@ -21,7 +21,11 @@ abstract class Listeners extends Service {
     if (null === $this->dispatch) {
       $this->dispatch= [];
       foreach ($this->on() as $path => $handler) {
-        $this->dispatch['#^'.$path.'(/?|/.+)$#']= $handler;
+        if ('/' === $path) {
+          $this->dispatch['#.#']= $handler;
+        } else {
+          $this->dispatch['#^'.$path.'(/?|/.+)$#']= $handler;
+        }
       }
     }
 

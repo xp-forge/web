@@ -19,8 +19,8 @@ class ListenersTest extends TestCase {
   #  ['http://localhost/test', [['/test' => 'Message']]],
   #  ['http://localhost/test/', [['/test' => 'Message']]],
   #  ['http://localhost/test/chat', [['/test/chat' => 'Message']]],
-  #  ['http://localhost/testing', []],
-  #  ['http://localhost/prod', []],
+  #  ['http://localhost/testing', [['/**' => 'Message']]],
+  #  ['http://localhost/prod', [['/**' => 'Message']]],
   #])]
   public function dispatch_to_callable($uri, $expected) {
     $invoked= [];
@@ -29,7 +29,10 @@ class ListenersTest extends TestCase {
         return [
           '/test' => function($conn, $message) use(&$invoked) {
             $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
-          }
+          },
+          '/'     => function($conn, $message) use(&$invoked) {
+            $invoked[]= ['/**' => $message];
+          },
         ];
       }
     ]);
