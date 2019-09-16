@@ -1,20 +1,14 @@
 <?php namespace web;
 
-abstract class Listeners {
-  protected $environment;
+use web\protocol\WebSockets;
+
+/**
+ * At the heart of every WebSocket application stands this class.
+ *
+ * @test  xp://web.unittest.ListenersTest
+ */
+abstract class Listeners extends Service {
   private $dispatch= null;
-
-  /**
-   * Creates a new web application inside a given environment
-   *
-   * @param  web.Environment $environment
-   */
-  public function __construct(Environment $environment) {
-    $this->environment= $environment;
-  }
-
-  /** @return web.Environment */
-  public function environment() { return $this->environment; }
 
   /**
    * Dispatch a message
@@ -27,7 +21,7 @@ abstract class Listeners {
     if (null === $this->dispatch) {
       $this->dispatch= [];
       foreach ($this->on() as $path => $handler) {
-        $this->dispatch['#^'.$path.'#']= $handler;
+        $this->dispatch['#^'.$path.'(/?|/.+)$#']= $handler;
       }
     }
 
@@ -36,6 +30,10 @@ abstract class Listeners {
       if (preg_match($pattern, $path)) return $handler($connection, $message);
     }
     return null;
+  }
+
+  public function serve($server, $environment) {
+    return new WebSockets($this, $environment->logging());
   }
 
   /**
