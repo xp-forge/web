@@ -2,6 +2,7 @@
 
 use peer\SocketTimeoutException;
 use unittest\TestCase;
+use util\Bytes;
 use web\Environment;
 use web\Listeners;
 use web\Logging;
@@ -9,6 +10,8 @@ use web\protocol\WebSockets;
 use web\unittest\Channel;
 
 class WebSocketsTest extends TestCase {
+  const HANDSHAKE = "GET /ws HTTP/1.1\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: VW5pdHRlc\r\n\r\n";
+
   private $log;
 
   /** @return void */
@@ -25,7 +28,7 @@ class WebSocketsTest extends TestCase {
   private function fixture($listener) {
     $listeners= newinstance(Listeners::class, [new Environment('test')], [
       'on' => function() use($listener) {
-        return ['/' => $listener];
+        return ['/ws' => $listener];
       }
     ]);
 
@@ -80,15 +83,7 @@ class WebSocketsTest extends TestCase {
   #[@test]
   public function handle_connect_reads_handshake() {
     $p= $this->fixture(function($conn, $message) { });
-
-    $c= new Channel([
-      "GET /ws HTTP/1.1\r\n".
-      "Connection: Upgrade\r\n".
-      "Upgrade: websocket\r\n".
-      "Sec-WebSocket-Version: 13\r\n".
-      "Sec-WebSocket-Key: VW5pdHRlc\r\n".
-      "\r\n"
-    ]);
+    $c= new Channel([self::HANDSHAKE]);
     $p->handleConnect($c);
 
     $this->assertHttp(
@@ -107,14 +102,7 @@ class WebSocketsTest extends TestCase {
   public function handle_connect_sets_timeout() {
     $p= $this->fixture(function($conn, $message) { });
 
-    $c= new Channel([
-      "GET /ws HTTP/1.1\r\n".
-      "Connection: Upgrade\r\n".
-      "Upgrade: websocket\r\n".
-      "Sec-WebSocket-Version: 13\r\n".
-      "Sec-WebSocket-Key: VW5pdHRlc\r\n".
-      "\r\n"
-    ]);
+    $c= new Channel([self::HANDSHAKE]);
     $p->handleConnect($c);
 
     $this->assertEquals(600.0, $c->timeout);
@@ -143,5 +131,90 @@ class WebSocketsTest extends TestCase {
       "Unsupported websocket version 99",
       $c->out
     );
+  }
+
+  #[@test, @values([["\x81", 'Test'], ["\x82", new Bytes('Test')]])]
+  public function handle_message($type, $expected) {
+    $invoked= [];
+    $p= $this->fixture(function($conn, $message) use(&$invoked) {
+      $invoked[]= [$conn->uri()->path() => $message];
+    });
+
+    $c= new Channel([self::HANDSHAKE, $type."\x04", 'Test']);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals([['/ws' => $expected]], $invoked);
+  }
+
+  #[@test]
+  public function incoming_ping_answered_with_pong() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x89\x04", 'Test']);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x8a\x04Test"), new Bytes(array_pop($c->out)));
+  }
+
+  #[@test]
+  public function incoming_pong_ignored() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x8a\x04", 'Test']);
+    $p->handleConnect($c);
+    $out= $c->out;
+    $p->handleData($c);
+
+    $this->assertEquals($out, $c->out);
+  }
+
+  #[@test]
+  public function close_without_payload() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x88\x00"]);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x88\x02\x03\xe8"), new Bytes(array_pop($c->out)));
+    $this->assertTrue($c->closed);
+  }
+
+  #[@test]
+  public function close_with_code_and_message_echoed() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x88\x06", "\x0b\xb8Test"]);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x88\x06\x0b\xb8Test"), new Bytes(array_pop($c->out)));
+    $this->assertTrue($c->closed);
+  }
+
+  #[@test]
+  public function close_with_illegal_client_code() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x88\x06", "\x03\xecTest"]);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x88\x02\x03\xea"), new Bytes(array_pop($c->out)));
+    $this->assertTrue($c->closed);
+  }
+
+  #[@test]
+  public function close_with_malformed_utf8() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x88\x06", "\x03\xec\xfcber"]);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x88\x02\x03\xef"), new Bytes(array_pop($c->out)));
+    $this->assertTrue($c->closed);
   }
 }
