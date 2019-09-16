@@ -1,6 +1,8 @@
 <?php namespace web\unittest\protocol;
 
 use unittest\TestCase;
+use util\Bytes;
+use util\URI;
 use web\protocol\Connection;
 use web\protocol\Opcodes;
 use web\unittest\Channel;
@@ -15,7 +17,7 @@ class ConnectionTest extends TestCase {
    * @return []
    */
   private function receive($channel) {
-    $conn= new Connection($channel, self::ID, '/', []);
+    $conn= new Connection($channel, self::ID, new URI('/'), []);
     $r= [];
     foreach ($conn->receive() as $type => $message) {
       $r[]= [$type => $message];
@@ -87,5 +89,38 @@ class ConnectionTest extends TestCase {
     // 0x80 | 0x08 (CLOSE), 2 bytes, pack("n", 1002)
     $this->assertEquals(["\x88\x02\x03\xea"], $channel->out);
     $this->assertTrue($channel->closed, 'Channel closed');
+  }
+
+  #[@test]
+  public function send_string() {
+    $channel= new Channel([]);
+    (new Connection($channel, self::ID, new URI('/'), []))->send('Test');
+
+    $this->assertEquals(["\x81\x04Test"], $channel->out);
+  }
+
+  #[@test]
+  public function send_bytes() {
+    $channel= new Channel([]);
+    (new Connection($channel, self::ID, new URI('/'), []))->send(new Bytes('Test'));
+
+    $this->assertEquals(["\x82\x04Test"], $channel->out);
+  }
+
+  #[@test, @values([
+  #  [0, "\x81\x00"],
+  #  [1, "\x81\x01"],
+  #  [125, "\x81\x7d"],
+  #  [126, "\x81\x7e\x00\x7e"],
+  #  [65535, "\x81\x7e\xff\xff"],
+  #  [65536, "\x81\x7f\x00\x00\x00\x00\x00\x01\x00\x00"],
+  #])]
+  public function send($length, $header) {
+    $string= str_repeat('*', $length);
+    $channel= new Channel([]);
+    (new Connection($channel, self::ID, new URI('/'), []))->send($string);
+
+    $this->assertEquals(new Bytes($header), new Bytes(substr($channel->out[0], 0, strlen($header))));
+    $this->assertEquals(strlen($header) + $length, strlen($channel->out[0]));
   }
 }
