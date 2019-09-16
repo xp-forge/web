@@ -6,7 +6,7 @@ class Channel {
   public $in, $out;
   public $closed= false;
 
-  public function __construct($chunks) { $this->in= $chunks; }
+  public function __construct($chunks) { $this->in= $chunks; $this->out= []; }
 
   public function remoteEndpoint() { return new SocketEndpoint('127.0.0.1', 6666); }
 

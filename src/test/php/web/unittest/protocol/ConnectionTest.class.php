@@ -70,6 +70,15 @@ class ConnectionTest extends TestCase {
     );
   }
 
+  #[@test, @values(['', "\x81"])]
+  public function closes_connection_on_invalid_packet($bytes) {
+    $channel= new Channel([$bytes]);
+    $this->receive($channel);
+
+    $this->assertEquals([], $channel->out);
+    $this->assertTrue($channel->closed, 'Channel closed');
+  }
+
   #[@test]
   public function closes_connection_on_invalid_opcode() {
     $channel= new Channel(["\x8F\x00"]);
