@@ -4,8 +4,15 @@ use lang\Throwable;
 use peer\ProtocolException;
 use peer\server\ServerProtocol;
 use util\Bytes;
+use web\Request;
+use web\Response;
 
-/** @see https://tools.ietf.org/html/rfc6455 */
+/**
+ * WebSockets protocol
+ *
+ * @see   https://tools.ietf.org/html/rfc6455
+ * @test  xp://web.unittest.protocol.WebSocketsTest
+ */
 class WebSockets extends Protocol {
   const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
