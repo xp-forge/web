@@ -1,11 +1,13 @@
 <?php namespace web\unittest\protocol;
 
+use lang\IllegalStateException;
 use peer\SocketTimeoutException;
 use unittest\TestCase;
 use util\Bytes;
 use web\Environment;
 use web\Listeners;
 use web\Logging;
+use web\logging\Sink;
 use web\protocol\WebSockets;
 use web\unittest\Channel;
 
@@ -148,6 +150,18 @@ class WebSocketsTest extends TestCase {
   }
 
   #[@test]
+  public function text_message_with_malformed_utf8() {
+    $p= $this->fixture(function($conn, $message) { });
+
+    $c= new Channel([self::HANDSHAKE, "\x81\x04", "\xfcber"]);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals(new Bytes("\x88\x02\x03\xef"), new Bytes(array_pop($c->out)));
+    $this->assertTrue($c->closed);
+  }
+
+  #[@test]
   public function incoming_ping_answered_with_pong() {
     $p= $this->fixture(function($conn, $message) { });
 
@@ -216,5 +230,39 @@ class WebSocketsTest extends TestCase {
 
     $this->assertEquals(new Bytes("\x88\x02\x03\xef"), new Bytes(array_pop($c->out)));
     $this->assertTrue($c->closed);
+  }
+
+  #[@test]
+  public function exceptions_are_logged() {
+    $logged= [];
+    $this->log= new Logging(newinstance(Sink::class, [], [
+      'log' => function($kind, $uri, $status, $error= null) use(&$logged) {
+        $logged[]= [$kind, $uri->path(), $status, $error ? nameof($error).':'.$error->getMessage() : null];
+      }
+    ]));
+    $p= $this->fixture(function($conn, $message) { throw new IllegalStateException('Test'); });
+
+    $c= new Channel([self::HANDSHAKE, "\x81\x04", 'Test']);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals([['TEXT', '/ws', 'ERR', 'lang.IllegalStateException:Test']], $logged);
+  }
+
+  #[@test]
+  public function native_exceptions_are_wrapped() {
+    $logged= [];
+    $this->log= new Logging(newinstance(Sink::class, [], [
+      'log' => function($kind, $uri, $status, $error= null) use(&$logged) {
+        $logged[]= [$kind, $uri->path(), $status, $error ? nameof($error).':'.$error->getMessage() : null];
+      }
+    ]));
+    $p= $this->fixture(function($conn, $message) { throw new \Exception('Test'); });
+
+    $c= new Channel([self::HANDSHAKE, "\x81\x04", 'Test']);
+    $p->handleConnect($c);
+    $p->handleData($c);
+
+    $this->assertEquals([['TEXT', '/ws', 'ERR', 'lang.XPException:Test']], $logged);
   }
 }
