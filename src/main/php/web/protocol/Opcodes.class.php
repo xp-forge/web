@@ -4,7 +4,7 @@
  * WebSocket opcodes enumeration
  *
  * @see   https://tools.ietf.org/html/rfc6455
- * @test  xp://web.unittest.OpcodesTest
+ * @test  xp://web.unittest.protocol.OpcodesTest
  */
 class Opcodes {
   const TEXT    = "\x01";

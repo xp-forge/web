@@ -1,4 +1,4 @@
-<?php namespace web\unittest;
+<?php namespace web\unittest\protocol;
 
 use unittest\TestCase;
 use web\protocol\Opcodes;
