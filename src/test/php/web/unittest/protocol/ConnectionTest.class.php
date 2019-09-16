@@ -29,6 +29,21 @@ class ConnectionTest extends TestCase {
   }
 
   #[@test]
+  public function id() {
+    $this->assertEquals(self::ID, (new Connection(new Channel([]), self::ID, '/', []))->id());
+  }
+
+  #[@test, @values([['/'], ['/test']])]
+  public function uri($value) {
+    $this->assertEquals($value, (new Connection(new Channel([]), self::ID, $value, []))->uri());
+  }
+
+  #[@test, @values([[[]], [['User-Agent' => 'Test', 'Accept' => '*/*']]])]
+  public function headers($value) {
+    $this->assertEquals($value, (new Connection(new Channel([]), self::ID, '/test', $value))->headers());
+  }
+
+  #[@test]
   public function text() {
     $received= $this->receive(new Channel(["\x81\x04", "Test"]));
     $this->assertEquals(
