@@ -9,18 +9,18 @@ use util\Bytes;
 class WebSockets extends Protocol {
   const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
-  private $listener, $logging;
+  private $listeners, $logging;
   private $connections= [];
   public $server= null;
 
   /**
    * Creates a new protocol instance
    *
-   * @param  web.Listener $listener
+   * @param  web.Listeners $listeners
    * @param  web.Logging $logging
    */
-  public function __construct($listener, $logging) {
-    $this->listener= $listener;
+  public function __construct($listeners, $logging) {
+    $this->listeners= $listeners;
     $this->logging= $logging;
   }
 
@@ -106,12 +106,12 @@ class WebSockets extends Protocol {
               break;
             }
 
-            $r= $this->listener->dispatch($conn, $payload);
+            $r= $this->listeners->dispatch($conn, $payload);
             $this->logging->log('TEXT', $conn->uri(), $r ?: 'OK');
             break;
 
           case Opcodes::BINARY:
-            $r= $this->listener->dispatch($conn, new Bytes($payload));
+            $r= $this->listeners->dispatch($conn, new Bytes($payload));
             $this->logging->log('BINARY', $conn->uri(), $r ?: 'OK');
             break;
 
