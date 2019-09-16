@@ -1,4 +1,4 @@
-<?php namespace web\unittest;
+<?php namespace web\unittest\protocol;
 
 use io\streams\Streams;
 use lang\IllegalStateException;
@@ -9,8 +9,9 @@ use web\Environment;
 use web\Error;
 use web\Logging;
 use web\protocol\Http;
+use web\unittest\Channel;
 
-class HttpProtocolTest extends TestCase {
+class HttpTest extends TestCase {
   private $log;
 
   /** @return void */
