@@ -2,6 +2,11 @@
 
 use lang\Value;
 
+/**
+ * Base class for web applications and websockets listeners
+ *
+ * @test  xp://web.unittest.ServiceTest
+ */
 abstract class Service implements Value {
   protected $environment;
 
