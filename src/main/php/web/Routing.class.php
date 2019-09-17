@@ -46,6 +46,10 @@ class Routing {
     }
   }
 
+  /** @return ?web.routing.Route */
+  public function fallback() { return $this->fallback; }
+
+
   /** @return web.routing.Route[] */
   public function routes() { return $this->routes; }
 

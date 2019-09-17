@@ -72,8 +72,8 @@ class WebRunner {
     $response->header('Host', $request->header('Host'));
 
     try {
-      $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
-      $application->service($request, $response);
+      $svc= (new Source(getenv('WEB_SOURCE'), $env))->service();
+      $svc->service($request, $response);
       $env->logging()->log($request, $response);
     } catch (Error $e) {
       self::error($request, $response, $env, $e);

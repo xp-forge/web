@@ -1,5 +1,6 @@
 <?php namespace web;
 
+use lang\XPClass;
 use web\protocol\Http;
 
 /**
@@ -9,6 +10,20 @@ use web\protocol\Http;
  */
 abstract class Application extends Service {
   private $routing= null;
+  private $filters= [];
+
+  /**
+   * Creates a new web application inside a given environment
+   *
+   * @param  web.Environment $environment
+   * @param  string[] $filters Names of filter classes
+   */
+  public function __construct(Environment $environment, $filters= []) {
+    parent::__construct($environment);
+    foreach ($filters as $filter) {
+      $this->filters[]= XPClass::forName($filter)->newInstance();
+    }
+  }
 
   /**
    * Returns routing, lazily initialized
@@ -17,7 +32,11 @@ abstract class Application extends Service {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $this->routing= Routing::cast($this->routes(), true);
+      if ($this->filters) {
+        $this->routing= Routing::cast(new Filters($this->filters, $this->routes()), true);
+      } else {
+        $this->routing= Routing::cast($this->routes(), true);
+      }
     }
     return $this->routing;    
   }
@@ -31,16 +50,6 @@ abstract class Application extends Service {
    * @return web.Routing|[:var]
    */
   public abstract function routes();
-
-  /**
-   * Installs global filters
-   *
-   * @param  web.Filter[] $filters
-   * @return void
-   */
-  public function install($filters) {
-    $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
-  }
 
   /**
    * Applications can be accessed via HTTP protocol on a given server instance

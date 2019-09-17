@@ -1,41 +1,33 @@
 <?php namespace xp\web;
 
 use lang\ClassLoader;
-use lang\XPClass;
 
 /**
- * An application source
+ * An service source
  *
  * @test xp://web.unittest.SourceTest
  */
 class Source {
-  private $application;
+  private $service;
 
   /**
-   * Creates a new application from a given name and environment
+   * Creates a new service from a given name and environment
    *
-   * @param  string $name `application[+filter[,filter[,...]]]`
+   * @param  string $name `service[+arg[,arg[,...]]]`
    * @param  web.Environment $environment
    */
   public function __construct($name, $environment) {
-    sscanf($name, '%[^+]+%s', $application, $filters);
+    sscanf($name, '%[^+]+%s', $service, $args);
 
-    if ('-' === $application) {
-      $this->application= new ServeDocumentRootStatically($environment);
-    } else if (is_file($application)) {
-      $this->application= ClassLoader::getDefault()->loadUri($application)->newInstance($environment);
+    if ('-' === $service) {
+      $this->service= new ServeDocumentRootStatically($environment);
     } else {
-      $this->application= ClassLoader::getDefault()->loadClass($application)->newInstance($environment);
-    }
-
-    if ($filters) {
-      $this->application->install(array_map(
-        function($filter) { return XPClass::forName($filter)->newInstance(); },
-        explode(',', $filters)
-      ));
+      $cl= ClassLoader::getDefault();
+      $class= is_file($service) ? $cl->loadUri($service) : $cl->loadClass($service);
+      $this->service= $class->newInstance($environment, null === $args ? [] : explode(',', $args));
     }
   }
 
-  /** @return web.Application */
-  public function application() { return $this->application; }
+  /** @return web.Service */
+  public function service() { return $this->service; }
 }
