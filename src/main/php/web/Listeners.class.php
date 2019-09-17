@@ -36,6 +36,12 @@ abstract class Listeners extends Service {
     return null;
   }
 
+  /**
+   * Listeners can be accessed via WebSockets protocol on a given server instance
+   *
+   * @param  peer.server.Server $server
+   * @return web.protocol.Protocol
+   */
   public function serve($server) {
     return new WebSockets($this, $this->environment->logging());
   }

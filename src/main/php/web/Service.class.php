@@ -23,7 +23,7 @@ abstract class Service implements Value {
   public function environment() { return $this->environment; }
 
   /**
-   * Connect this service to a given server instance
+   * Make this service accessible by a certain protocol on a given server instance
    *
    * @param  peer.server.Server $server
    * @return web.protocol.Protocol

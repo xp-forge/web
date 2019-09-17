@@ -42,6 +42,12 @@ abstract class Application extends Service {
     $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
   }
 
+  /**
+   * Applications can be accessed via HTTP protocol on a given server instance
+   *
+   * @param  peer.server.Server $server
+   * @return web.protocol.Protocol
+   */
   public function serve($server) {
     return new Http($this, $this->environment->logging());
   }
