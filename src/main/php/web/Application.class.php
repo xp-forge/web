@@ -42,8 +42,8 @@ abstract class Application extends Service {
     $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
   }
 
-  public function serve($server, $environment) {
-    return new Http($this, $environment->logging());
+  public function serve($server) {
+    return new Http($this, $this->environment->logging());
   }
 
   /**

@@ -1,6 +1,8 @@
 <?php namespace web\unittest;
 
 use lang\IllegalStateException;
+use peer\server\Server;
+use unittest\TestCase;
 use web\Application;
 use web\Environment;
 use web\Error;
@@ -11,8 +13,9 @@ use web\Response;
 use web\Routing;
 use web\io\TestInput;
 use web\io\TestOutput;
+use web\protocol\Protocol;
 
-class ApplicationTest extends \unittest\TestCase {
+class ApplicationTest extends TestCase {
   private $environment;
 
   /** @return void */
@@ -52,6 +55,14 @@ class ApplicationTest extends \unittest\TestCase {
     newinstance(Application::class, [$this->environment], [
       'routes' => function() { /* Implementation irrelevant for this test */ }
     ]);
+  }
+
+  #[@test]
+  public function serve() {
+    $application= newinstance(Application::class, [$this->environment], [
+      'routes' => function() { /* Implementation irrelevant for this test */ }
+    ]);
+    $this->assertInstanceOf(Protocol::class, $application->serve(new Server()));
   }
 
   #[@test]

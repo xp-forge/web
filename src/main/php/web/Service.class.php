@@ -22,7 +22,13 @@ abstract class Service implements Value {
   /** @return web.Environment */
   public function environment() { return $this->environment; }
 
-  public abstract function serve($server, $environment);
+  /**
+   * Connect this service to a given server instance
+   *
+   * @param  peer.server.Server $server
+   * @return web.protocol.Protocol
+   */
+  public abstract function serve($server);
 
   /** @return string */
   public function toString() { return nameof($this).'('.$this->environment->docroot().')'; }

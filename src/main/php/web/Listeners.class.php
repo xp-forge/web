@@ -36,8 +36,8 @@ abstract class Listeners extends Service {
     return null;
   }
 
-  public function serve($server, $environment) {
-    return new WebSockets($this, $environment->logging());
+  public function serve($server) {
+    return new WebSockets($this, $this->environment->logging());
   }
 
   /**

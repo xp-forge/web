@@ -28,7 +28,7 @@ abstract class Standalone implements Server {
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
 
-    $this->server->setProtocol($application->serve($this->server, $environment));
+    $this->server->setProtocol($application->serve($this->server));
     $this->server->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $this->server->socket->toString(), ")\e[0m");
