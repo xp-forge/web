@@ -4,6 +4,7 @@ use peer\server\Server;
 use unittest\TestCase;
 use util\URI;
 use web\Environment;
+use web\Listener;
 use web\Listeners;
 use web\protocol\Connection;
 use web\protocol\Protocol;
@@ -31,16 +32,22 @@ class ListenersTest extends TestCase {
   #  ['http://localhost/test/chat', [['/test/chat' => 'Message']]],
   #  ['http://localhost/testing', [['/**' => 'Message']]],
   #  ['http://localhost/prod', [['/**' => 'Message']]],
+  #  ['http://localhost/listen', [['/listen' => 'Message']]],
   #])]
   public function dispatch_to_callable($uri, $expected) {
     $invoked= [];
     $listeners= newinstance(Listeners::class, [new Environment('test')], [
       'on' => function() use(&$invoked) {
         return [
-          '/test' => function($conn, $message) use(&$invoked) {
+          '/listen' => newinstance(Listener::class, [], [
+            'message' => function($conn, $message) use(&$invoked) {
+              $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
+            }
+          ]),
+          '/test'   => function($conn, $message) use(&$invoked) {
             $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
           },
-          '/'     => function($conn, $message) use(&$invoked) {
+          '/'       => function($conn, $message) use(&$invoked) {
             $invoked[]= ['/**' => $message];
           }
         ];

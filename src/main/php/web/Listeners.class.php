@@ -1,5 +1,6 @@
 <?php namespace web;
 
+use lang\IllegalArgumentException;
 use web\protocol\WebSockets;
 
 /**
@@ -9,6 +10,23 @@ use web\protocol\WebSockets;
  */
 abstract class Listeners extends Service {
   private $dispatch= null;
+
+  /**
+   * Cast listeners
+   *
+   * @param  web.Listener|function(web.protocol.Connection, string): var $arg
+   * @return callable
+   * @throws lang.IllegalArgumentException
+   */
+  public static function cast($arg) {
+    if ($arg instanceof Listener) {
+      return [$arg, 'message'];
+    } else if (is_callable($arg)) {
+      return $arg;
+    } else {
+      throw new IllegalArgumentException('Expected either a callable or a web.Listener instance, have '.typeof($arg));
+    }
+  }
 
   /**
    * Dispatch a message
@@ -22,9 +40,9 @@ abstract class Listeners extends Service {
       $this->dispatch= [];
       foreach ($this->on() as $path => $handler) {
         if ('/' === $path) {
-          $this->dispatch['#.#']= $handler;
+          $this->dispatch['#.#']= self::cast($handler);
         } else {
-          $this->dispatch['#^'.$path.'(/?|/.+)$#']= $handler;
+          $this->dispatch['#^'.$path.'(/?|/.+)$#']= self::cast($handler);
         }
       }
     }
