@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use io\Path;
+use lang\IllegalArgumentException;
 use lang\XPClass;
 use unittest\TestCase;
 use web\Environment;
@@ -45,5 +46,16 @@ class SourceTest extends TestCase {
     $this->assertInstanceOf(HelloWorld::class, $service);
     $this->assertInstanceOf(Filters::class, $filters);
     $this->assertInstanceOf(Console::class, $filters->all()[0]);
+  }
+
+  #[@test]
+  public function service_class() {
+    $src= new Source('web.unittest.TestService', $this->environment);
+    $this->assertInstanceOf(TestService::class, $src->service());
+  }
+
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function not_a_service_class() {
+    new Source('lang.Runnable', $this->environment);
   }
 }

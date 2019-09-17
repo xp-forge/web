@@ -1,6 +1,8 @@
 <?php namespace xp\web;
 
 use lang\ClassLoader;
+use lang\IllegalArgumentException;
+use web\Service;
 
 /**
  * An service source
@@ -24,6 +26,10 @@ class Source {
     } else {
       $cl= ClassLoader::getDefault();
       $class= is_file($service) ? $cl->loadUri($service) : $cl->loadClass($service);
+      if (!$class->isSubclassOf(Service::class)) {
+        throw new IllegalArgumentException($class.' is not a web.Service');
+      }
+
       $this->service= $class->newInstance($environment, null === $args ? [] : explode(',', $args));
     }
   }
