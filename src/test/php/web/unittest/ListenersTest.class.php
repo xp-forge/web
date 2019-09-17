@@ -1,5 +1,6 @@
 <?php namespace web\unittest;
 
+use lang\IllegalArgumentException;
 use peer\server\Server;
 use unittest\TestCase;
 use util\URI;
@@ -24,6 +25,25 @@ class ListenersTest extends TestCase {
       'on' => function() { /* Implementation irrelevant for this test */ }
     ]);
     $this->assertInstanceOf(Protocol::class, $listeners->serve(new Server()));
+  }
+
+  #[@test]
+  public function cast_function() {
+    $function= function($connection, $message) { };
+    $this->assertEquals($function, Listeners::cast($function));
+  }
+
+  #[@test]
+  public function cast_listener() {
+    $listener= newinstance(Listener::class, [], [
+      'message' => function($connection, $message) { }
+    ]);
+    $this->assertEquals([$listener, 'message'], Listeners::cast($listener));
+  }
+
+  #[@test, @expect(IllegalArgumentException::class)]
+  public function cast_illegal() {
+    Listeners::cast($this);
   }
 
   #[@test, @values([
