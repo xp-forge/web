@@ -55,6 +55,15 @@ class ConnectionTest extends TestCase {
   }
 
   #[@test]
+  public function masked_text() {
+    $received= $this->receive(new Channel(["\x81\x86", "\x01\x02\x03\x04", "Ugppdf"]));
+    $this->assertEquals(
+      [[Opcodes::TEXT => 'Tested']],
+      $received
+    );
+  }
+
+  #[@test]
   public function fragmented_text() {
     $received= $this->receive(new Channel(["\x01\x05", "Hello", "\x80\x06", " World"]));
     $this->assertEquals(
@@ -83,11 +92,21 @@ class ConnectionTest extends TestCase {
 
   #[@test]
   public function closes_connection_on_invalid_opcode() {
-    $channel= new Channel(["\x8F\x00"]);
+    $channel= new Channel(["\x8f\x00"]);
     $this->receive($channel);
 
     // 0x80 | 0x08 (CLOSE), 2 bytes, pack("n", 1002)
     $this->assertEquals(["\x88\x02\x03\xea"], $channel->out);
+    $this->assertTrue($channel->closed, 'Channel closed');
+  }
+
+  #[@test]
+  public function closes_connection_when_exceeding_max_length() {
+    $channel= new Channel(["\x81\x7f", pack('J', Connection::MAXLENGTH + 1)]);
+    $this->receive($channel);
+
+    // 0x80 | 0x08 (CLOSE), 2 bytes, pack("n", 1003)
+    $this->assertEquals(["\x88\x02\x03\xeb"], $channel->out);
     $this->assertTrue($channel->closed, 'Channel closed');
   }
 
@@ -122,5 +141,21 @@ class ConnectionTest extends TestCase {
 
     $this->assertEquals(new Bytes($header), new Bytes(substr($channel->out[0], 0, strlen($header))));
     $this->assertEquals(strlen($header) + $length, strlen($channel->out[0]));
+  }
+
+  #[@test, @values([
+  #  [0, ["\x81\x00"]],
+  #  [1, ["\x81\x01"]],
+  #  [125, ["\x81\x7d"]],
+  #  [126, ["\x81\x7e", "\x00\x7e"]],
+  #  [65535, ["\x81\x7e", "\xff\xff"]],
+  #  [65536, ["\x81\x7f", "\x00\x00\x00\x00\x00\x01\x00\x00"]],
+  #])]
+  public function read($length, $header) {
+    $string= str_repeat('*', $length);
+    $channel= new Channel(array_merge($header, [$string]));
+    $message= (new Connection($channel, self::ID, new URI('/'), []))->receive()->current();
+
+    $this->assertEquals($length, strlen($message));
   }
 }
