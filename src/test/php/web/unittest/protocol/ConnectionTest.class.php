@@ -27,7 +27,7 @@ class ConnectionTest extends TestCase {
 
   #[@test]
   public function can_create() {
-    new Connection(new Channel([]), self::ID, '/', []);
+    new Connection(new Channel([]), self::ID, new URI('/'), []);
   }
 
   #[@test]
@@ -35,14 +35,14 @@ class ConnectionTest extends TestCase {
     $this->assertEquals(self::ID, (new Connection(new Channel([]), self::ID, '/', []))->id());
   }
 
-  #[@test, @values([['/'], ['/test']])]
+  #[@test, @values([[new URI('/')], [new URI('/test')]])]
   public function uri($value) {
     $this->assertEquals($value, (new Connection(new Channel([]), self::ID, $value, []))->uri());
   }
 
   #[@test, @values([[[]], [['User-Agent' => 'Test', 'Accept' => '*/*']]])]
   public function headers($value) {
-    $this->assertEquals($value, (new Connection(new Channel([]), self::ID, '/test', $value))->headers());
+    $this->assertEquals($value, (new Connection(new Channel([]), self::ID, new URI('/test'), $value))->headers());
   }
 
   #[@test]
