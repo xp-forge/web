@@ -17,7 +17,6 @@ class WebSockets extends Protocol {
   const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
   private $listeners, $logging;
-  private $connections= [];
   public $server= null;
 
   /**
@@ -58,7 +57,7 @@ class WebSockets extends Protocol {
         $socket= $request->input()->socket;
         $socket->setTimeout(600.0);
         $id= (int)$socket->getHandle();
-        $this->connections[$id]= new Connection($socket, $id, $request->uri(), $request->headers());
+        $this->listeners->attach($id, new Connection($socket, $id, $request->uri(), $request->headers()));
         return true;
 
       default:
@@ -90,7 +89,7 @@ class WebSockets extends Protocol {
    * @param  peer.Socket $socket
    */
   public function handleDisconnect($socket) {
-    unset($this->connections[(int)$socket->getHandle()]);
+    $this->listeners->detach((int)$socket->getHandle());
     $socket->close();
   }
 
@@ -101,7 +100,7 @@ class WebSockets extends Protocol {
    * @return void
    */
   public function handleData($socket) {
-    $conn= $this->connections[(int)$socket->getHandle()];
+    $conn= $this->listeners->connection((int)$socket->getHandle());
     foreach ($conn->receive() as $opcode => $payload) {
       try {
         switch ($opcode) {
@@ -167,7 +166,7 @@ class WebSockets extends Protocol {
    * @param  lang.XPException $e
    */
   public function handleError($socket, $e) {
-    unset($this->connections[(int)$socket->getHandle()]);
+    $this->listeners->detach((int)$socket->getHandle());
     $socket->close();
   }
 }

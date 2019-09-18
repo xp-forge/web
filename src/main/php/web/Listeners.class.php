@@ -1,5 +1,6 @@
 <?php namespace web;
 
+use lang\ElementNotFoundException;
 use lang\IllegalArgumentException;
 use web\protocol\WebSockets;
 
@@ -10,6 +11,7 @@ use web\protocol\WebSockets;
  */
 abstract class Listeners extends Service {
   private $dispatch= null;
+  private $connections= [];
 
   /**
    * Cast listeners
@@ -26,6 +28,47 @@ abstract class Listeners extends Service {
     } else {
       throw new IllegalArgumentException('Expected either a callable or a web.Listener instance, have '.typeof($arg));
     }
+  }
+
+  /**
+   * Attach a connection
+   *
+   * @param  int $id
+   * @param  web.protocol.Connection $connection
+   * @return void
+   */
+  public function attach($id, $connection) {
+    $this->connections[$id]= $connection;
+  }
+
+  /**
+   * Get all previously attached connection
+   *
+   * @return [:web.protocol.Connection]
+   */
+  public function connections() { return $this->connections; }
+
+  /**
+   * Get a previously attached connection
+   *
+   * @param  int $id
+   * @return web.protocol.Connection
+   * @throws lang.ElementNotFoundException
+   */
+  public function connection($id) {
+    if (isset($this->connections[$id])) return $this->connections[$id];
+
+    throw new ElementNotFoundException('No such connection #'.$id);
+  }
+
+  /**
+   * Remove a connection
+   *
+   * @param  int $id
+   * @return void
+   */
+  public function detach($id) {
+    unset($this->connections[$id]);
   }
 
   /**

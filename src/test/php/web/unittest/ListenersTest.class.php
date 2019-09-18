@@ -1,5 +1,6 @@
 <?php namespace web\unittest;
 
+use lang\ElementNotFoundException;
 use lang\IllegalArgumentException;
 use peer\server\Server;
 use unittest\TestCase;
@@ -11,20 +12,65 @@ use web\protocol\Connection;
 use web\protocol\Protocol;
 
 class ListenersTest extends TestCase {
+  const ID = 42;
 
-  #[@test]
-  public function can_create() {
-    newinstance(Listeners::class, [new Environment('test')], [
-      'on' => function() { /* Implementation irrelevant for this test */ }
+  /**
+   * Returns a Listeners instance wth a given implementation of `on()`.
+   *
+   * @param  function(): [:var] $on
+   * @return web.Listeners
+   */
+  private function fixture($on= null) {
+    return newinstance(Listeners::class, [new Environment('test')], [
+      'on' => $on ?: function() { /* Implementation irrelevant for this test */ }
     ]);
   }
 
   #[@test]
+  public function can_create() {
+    $this->fixture();
+  }
+
+  #[@test]
   public function serve() {
-    $listeners= newinstance(Listeners::class, [new Environment('test')], [
-      'on' => function() { /* Implementation irrelevant for this test */ }
-    ]);
-    $this->assertInstanceOf(Protocol::class, $listeners->serve(new Server()));
+    $this->assertInstanceOf(Protocol::class, $this->fixture()->serve(new Server()));
+  }
+
+  #[@test]
+  public function connections_initially_empty() {
+    $this->assertEquals([], $this->fixture()->connections());
+  }
+
+  #[@test]
+  public function attach() {
+    $conn= new Connection(new Channel([]), self::ID, new URI('/ws'), []);
+    $listeners= $this->fixture();
+    $listeners->attach(self::ID, $conn);
+
+    $this->assertEquals([self::ID => $conn], $listeners->connections());
+  }
+
+  #[@test]
+  public function detach() {
+    $listeners= $this->fixture();
+    $listeners->attach(self::ID, new Connection(new Channel([]), self::ID, new URI('/ws'), []));
+    $listeners->detach(self::ID);
+
+    $this->assertEquals([], $listeners->connections());
+  }
+
+  #[@test]
+  public function connection() {
+    $conn= new Connection(new Channel([]), self::ID, new URI('/ws'), []);
+    $listeners= $this->fixture();
+    $listeners->attach(self::ID, $conn);
+
+    $this->assertEquals($conn, $listeners->connection(self::ID));
+  }
+
+  #[@test, @expect(ElementNotFoundException::class)]
+  public function non_existant_connection() {
+    $this->fixture()->connection(self::ID);
   }
 
   #[@test]
@@ -56,23 +102,21 @@ class ListenersTest extends TestCase {
   #])]
   public function dispatch_to_callable($uri, $expected) {
     $invoked= [];
-    $listeners= newinstance(Listeners::class, [new Environment('test')], [
-      'on' => function() use(&$invoked) {
-        return [
-          '/listen' => newinstance(Listener::class, [], [
-            'message' => function($conn, $message) use(&$invoked) {
-              $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
-            }
-          ]),
-          '/test'   => function($conn, $message) use(&$invoked) {
+    $listeners= $this->fixture(function() use(&$invoked) {
+      return [
+        '/listen' => newinstance(Listener::class, [], [
+          'message' => function($conn, $message) use(&$invoked) {
             $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
-          },
-          '/'       => function($conn, $message) use(&$invoked) {
-            $invoked[]= ['/**' => $message];
           }
-        ];
-      }
-    ]);
+        ]),
+        '/test'   => function($conn, $message) use(&$invoked) {
+          $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
+        },
+        '/'       => function($conn, $message) use(&$invoked) {
+          $invoked[]= ['/**' => $message];
+        }
+      ];
+    });
     $listeners->dispatch(new Connection(new Channel([]), 0, new URI($uri)), 'Message');
 
     $this->assertEquals($expected, $invoked);
@@ -84,15 +128,13 @@ class ListenersTest extends TestCase {
   #])]
   public function dispatch_without_catch_all($uri, $expected) {
     $invoked= [];
-    $listeners= newinstance(Listeners::class, [new Environment('test')], [
-      'on' => function() use(&$invoked) {
-        return [
-          '/test' => function($conn, $message) use(&$invoked) {
-            $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
-          }
-        ];
-      }
-    ]);
+    $listeners= $this->fixture(function() use(&$invoked) {
+      return [
+        '/test' => function($conn, $message) use(&$invoked) {
+          $invoked[]= [rtrim($conn->uri()->path(), '/') => $message];
+        }
+      ];
+    });
     $listeners->dispatch(new Connection(new Channel([]), 0, new URI($uri)), 'Message');
 
     $this->assertEquals($expected, $invoked);
