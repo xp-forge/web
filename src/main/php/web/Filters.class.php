@@ -2,6 +2,13 @@
 
 use web\filters\Invocation;
 
+/**
+ * Filters acts as a handler and invokes all filters before passing control
+ * on to the given handler.
+ *
+ * @see   xp://web.Filter
+ * @test  xp://web.unittest.FiltersTest
+ */
 class Filters implements Handler {
   private $filters= [];
 
