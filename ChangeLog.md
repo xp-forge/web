@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.10.0 / 2019-11-03
+
+* Merged PR #61: Also accept filter functions in constructor - @thekid
+
 ## 1.9.0 / 2019-08-21
 
 * Added start(), header() and body() accessors to `web.io.TestOutput`
