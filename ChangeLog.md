@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.10.1 / 2019-12-01
+
+* Made compatible with XP 10 - @thekid
+
 ## 1.10.0 / 2019-11-03
 
 * Merged PR #61: Also accept filter functions in constructor - @thekid
