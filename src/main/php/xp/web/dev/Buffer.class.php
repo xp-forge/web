@@ -30,7 +30,7 @@ class Buffer extends Output {
     }
 
     if ('' !== $this->bytes) {
-      $out= $res->stream(isset($this->headers['Content-Length']) ? $this->headers['Content-Length'][0] : null);
+      $out= $res->stream($this->headers['Content-Length'][0] ?? null);
       try {
         $out->write($this->bytes);
       } finally {

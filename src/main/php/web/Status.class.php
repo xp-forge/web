@@ -73,6 +73,6 @@ class Status {
    * @return string
    */
   public static function message($status, $default= 'Error') {
-    return isset(self::$messages[$status]) ? self::$messages[$status] : $default;
+    return self::$messages[$status] ?? $default;
   }
 }

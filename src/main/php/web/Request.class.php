@@ -235,7 +235,7 @@ class Request implements Value {
    * @return var
    */
   public function value($name, $default= null) {
-    return isset($this->values[$name]) ? $this->values[$name] : $default;
+    return $this->values[$name] ?? $default;
   }
 
   /**
@@ -279,7 +279,7 @@ class Request implements Value {
       $this->cookies();
     }
 
-    return isset($this->cookies[$name]) ? $this->cookies[$name] : $default;
+    return $this->cookies[$name] ?? $default;
   }
 
   /**
