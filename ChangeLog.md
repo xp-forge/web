@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 1.10.2 / 2020-04-10
+
+* Implemented xp-framework/rfc#335: Remove deprecated key/value pair
+  annotation syntax
+  (@thekid)
+
 ## 1.10.1 / 2019-12-01
 
 * Made compatible with XP 10 - @thekid

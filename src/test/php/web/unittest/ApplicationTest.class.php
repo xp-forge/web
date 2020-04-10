@@ -163,7 +163,7 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals(['url' => 'http://example.com/'], $passed);
   }
 
-  #[@test, @expect(class= Error::class, withMessage= '/Internal redirect loop/')]
+  #[@test, @expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
   public function dispatch_request_to_self_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -174,7 +174,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test, @expect(class= Error::class, withMessage= '/Internal redirect loop/')]
+  #[@test, @expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
   public function dispatch_request_ping_pong_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
