@@ -1,7 +1,6 @@
 <?php namespace web\handler;
 
-use io\File;
-use io\Path;
+use io\{File, Path};
 use util\MimeType;
 use web\Handler;
 use web\io\Ranges;

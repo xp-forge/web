@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
-use xp\web\SAPI;
 use unittest\TestCase;
+use xp\web\SAPI;
 
 class SAPITest extends TestCase {
 

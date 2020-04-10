@@ -1,7 +1,7 @@
 <?php namespace web;
 
-use web\routing\Match;
 use web\handler\Call;
+use web\routing\Match;
 
 class Route {
   private $match, $hander;

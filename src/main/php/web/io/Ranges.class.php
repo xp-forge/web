@@ -1,7 +1,6 @@
 <?php namespace web\io;
 
-use lang\FormatException;
-use lang\IllegalArgumentException;
+use lang\{FormatException, IllegalArgumentException};
 
 /**
  * Range Requests

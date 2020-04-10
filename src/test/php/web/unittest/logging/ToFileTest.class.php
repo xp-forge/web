@@ -3,11 +3,8 @@
 use io\TempFile;
 use lang\IllegalArgumentException;
 use unittest\TestCase;
-use web\Error;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
+use web\{Error, Request, Response};
+use web\io\{TestInput, TestOutput};
 use web\logging\ToFile;
 
 class ToFileTest extends TestCase {

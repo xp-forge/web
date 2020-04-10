@@ -1,12 +1,8 @@
 <?php namespace web\unittest;
 
 use unittest\TestCase;
-use web\Filter;
-use web\Filters;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
+use web\{Filter, Filters, Request, Response};
+use web\io\{TestInput, TestOutput};
 
 class FiltersTest extends TestCase {
 

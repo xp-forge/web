@@ -1,9 +1,7 @@
 <?php namespace web\unittest;
 
-use lang\FormatException;
-use lang\IllegalArgumentException;
-use web\io\Ranges;
-use web\io\Range;
+use lang\{FormatException, IllegalArgumentException};
+use web\io\{Range, Ranges};
 
 class RangesTest extends \unittest\TestCase {
   const UNIT = 'bytes';

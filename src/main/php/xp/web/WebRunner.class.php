@@ -1,12 +1,7 @@
 <?php namespace xp\web;
 
 use lang\ClassLoader;
-use web\Environment;
-use web\Error;
-use web\InternalServerError;
-use web\Request;
-use web\Response;
-use web\Status;
+use web\{Environment, Error, InternalServerError, Request, Response, Status};
 
 /**
  * Entry point for web-main.php

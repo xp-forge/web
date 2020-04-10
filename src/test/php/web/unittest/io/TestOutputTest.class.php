@@ -1,8 +1,7 @@
 <?php namespace web\unittest\io;
 
 use unittest\TestCase;
-use web\io\Buffered;
-use web\io\TestOutput;
+use web\io\{Buffered, TestOutput};
 
 class TestOutputTest extends TestCase {
 

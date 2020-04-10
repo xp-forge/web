@@ -1,13 +1,8 @@
 <?php namespace web\unittest;
 
-use web\Error;
-use web\Logging;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
-use web\logging\ToAllOf;
-use web\logging\ToFunction;
+use web\{Error, Logging, Request, Response};
+use web\io\{TestInput, TestOutput};
+use web\logging\{ToAllOf, ToFunction};
 
 class LoggingTest extends \unittest\TestCase {
 

@@ -1,12 +1,9 @@
 <?php namespace xp\web;
 
 use io\Path;
-use lang\IllegalArgumentException;
-use lang\XPClass;
+use lang\{IllegalArgumentException, XPClass};
 use xp\runtime\Help;
-use xp\web\srv\Develop;
-use xp\web\srv\Prefork;
-use xp\web\srv\Serve;
+use xp\web\srv\{Develop, Prefork, Serve};
 
 /**
  * Web server

@@ -2,8 +2,7 @@
 
 use io\Path;
 use lang\ElementNotFoundException;
-use util\Properties;
-use util\RegisteredPropertySource;
+use util\{Properties, RegisteredPropertySource};
 use web\Environment;
 
 class EnvironmentTest extends \unittest\TestCase {

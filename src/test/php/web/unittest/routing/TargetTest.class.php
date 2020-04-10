@@ -1,8 +1,8 @@
 <?php namespace web\unittest\routing;
 
 use web\Request;
-use web\routing\Target;
 use web\io\TestInput;
+use web\routing\Target;
 
 class TargetTest extends \unittest\TestCase {
 

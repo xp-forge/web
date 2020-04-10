@@ -4,8 +4,7 @@ use io\Path;
 use lang\XPClass;
 use unittest\TestCase;
 use web\Environment;
-use xp\web\ServeDocumentRootStatically;
-use xp\web\Source;
+use xp\web\{ServeDocumentRootStatically, Source};
 
 class SourceTest extends TestCase {
   private $environment;

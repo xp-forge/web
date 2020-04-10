@@ -1,7 +1,6 @@
 <?php namespace web\unittest\io;
 
-use web\io\WriteChunks;
-use web\io\TestOutput;
+use web\io\{TestOutput, WriteChunks};
 
 class WriteChunksTest extends \unittest\TestCase {
 

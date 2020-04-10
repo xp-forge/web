@@ -1,11 +1,7 @@
 <?php namespace xp\web\srv;
 
 use io\IOException;
-use lang\ClassLoader;
-use lang\CommandLine;
-use lang\FileSystemClassLoader;
-use lang\Runtime;
-use lang\RuntimeOptions;
+use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use lang\archive\ArchiveClassLoader;
 use peer\Socket;
 use util\cmd\Console;

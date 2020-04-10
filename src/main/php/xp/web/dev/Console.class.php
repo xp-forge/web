@@ -1,7 +1,6 @@
 <?php namespace xp\web\dev;
 
-use web\Filter;
-use web\Response;
+use web\{Filter, Response};
 
 /**
  * The development console captures content written via `var_dump()`,

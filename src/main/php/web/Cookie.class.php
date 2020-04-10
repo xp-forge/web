@@ -1,9 +1,7 @@
 <?php namespace web;
 
-use util\Date;
-use util\TimeSpan;
-use lang\IllegalArgumentException;
-use lang\Value;
+use lang\{IllegalArgumentException, Value};
+use util\{Date, TimeSpan};
 
 /**
  * A HTTP/1.1 Cookie

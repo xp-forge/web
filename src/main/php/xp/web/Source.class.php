@@ -1,7 +1,6 @@
 <?php namespace xp\web;
 
-use lang\ClassLoader;
-use lang\XPClass;
+use lang\{ClassLoader, XPClass};
 
 /**
  * An application source

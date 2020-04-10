@@ -2,11 +2,7 @@
 
 use io\Path;
 use lang\ElementNotFoundException;
-use util\CompositeProperties;
-use util\FilesystemPropertySource;
-use util\Objects;
-use util\PropertySource;
-use util\ResourcePropertySource;
+use util\{CompositeProperties, FilesystemPropertySource, Objects, PropertySource, ResourcePropertySource};
 
 /**
  * Environment wraps profile, web and document roots as well as configuration

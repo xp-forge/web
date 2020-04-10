@@ -1,9 +1,6 @@
 <?php namespace xp\web;
 
-use web\io\Buffered;
-use web\io\Input;
-use web\io\Output;
-use web\io\WriteChunks;
+use web\io\{Buffered, Input, Output, WriteChunks};
 
 /**
  * Wrapper for PHP's Server API ("SAPI").

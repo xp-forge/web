@@ -1,14 +1,9 @@
 <?php namespace web\unittest\logging;
 
 use unittest\TestCase;
-use web\Error;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
-use web\logging\ToAllOf;
-use web\logging\ToConsole;
-use web\logging\ToFunction;
+use web\{Error, Request, Response};
+use web\io\{TestInput, TestOutput};
+use web\logging\{ToAllOf, ToConsole, ToFunction};
 
 class ToAllOfTest extends TestCase {
 

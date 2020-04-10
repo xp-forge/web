@@ -1,14 +1,9 @@
 <?php namespace web;
 
-use io\streams\MemoryInputStream;
-use io\streams\Streams;
+use io\streams\{MemoryInputStream, Streams};
 use lang\Value;
-use util\Objects;
-use util\URI;
-use web\io\Input;
-use web\io\ReadChunks;
-use web\io\ReadLength;
-use web\io\ReadStream;
+use util\{Objects, URI};
+use web\io\{Input, ReadChunks, ReadLength, ReadStream};
 
 class Request implements Value {
   private $stream= null;

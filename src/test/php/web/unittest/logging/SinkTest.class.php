@@ -2,11 +2,7 @@
 
 use io\TempFile;
 use unittest\TestCase;
-use web\logging\Sink;
-use web\logging\ToAllOf;
-use web\logging\ToConsole;
-use web\logging\ToFile;
-use web\logging\ToFunction;
+use web\logging\{Sink, ToAllOf, ToConsole, ToFile, ToFunction};
 
 class SinkTest extends TestCase {
 

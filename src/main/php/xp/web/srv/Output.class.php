@@ -1,7 +1,6 @@
 <?php namespace xp\web\srv;
 
-use web\io\WriteChunks;
-use web\io\Buffered;
+use web\io\{Buffered, WriteChunks};
 
 class Output extends \web\io\Output {
   private $socket, $version;

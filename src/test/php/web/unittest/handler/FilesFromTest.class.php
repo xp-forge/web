@@ -1,15 +1,10 @@
 <?php namespace web\unittest\handler;
 
-use io\File;
-use io\FileUtil;
-use io\Folder;
-use io\Path;
+use io\{File, FileUtil, Folder, Path};
 use lang\Environment;
-use web\Request;
-use web\Response;
+use web\{Request, Response};
 use web\handler\FilesFrom;
-use web\io\TestInput;
-use web\io\TestOutput;
+use web\io\{TestInput, TestOutput};
 
 class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];

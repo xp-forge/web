@@ -1,12 +1,9 @@
 <?php namespace web\unittest\filters;
 
-use web\filters\Invocation;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
-use web\Filter;
 use lang\IllegalStateException;
+use web\{Filter, Request, Response};
+use web\filters\Invocation;
+use web\io\{TestInput, TestOutput};
 
 class InvocationTest extends \unittest\TestCase {
 

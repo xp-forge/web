@@ -1,14 +1,8 @@
 <?php namespace web\unittest;
 
-use web\Handler;
-use web\Request;
-use web\Response;
-use web\Route;
-use web\Routing;
-use web\io\TestInput;
-use web\io\TestOutput;
-use web\routing\CannotRoute;
-use web\routing\Target;
+use web\{Handler, Request, Response, Route, Routing};
+use web\io\{TestInput, TestOutput};
+use web\routing\{CannotRoute, Target};
 
 class RoutingTest extends \unittest\TestCase {
   private $handlers;

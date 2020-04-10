@@ -2,9 +2,7 @@
 
 use io\streams\Streams;
 use unittest\TestCase;
-use web\Application;
-use web\Environment;
-use web\Logging;
+use web\{Application, Environment, Logging};
 use xp\web\srv\HttpProtocol;
 
 class HttpProtocolTest extends TestCase {

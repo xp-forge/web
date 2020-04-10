@@ -1,8 +1,8 @@
 <?php namespace web\unittest\routing;
 
 use web\Request;
-use web\routing\Path;
 use web\io\TestInput;
+use web\routing\Path;
 
 class PathTest extends \unittest\TestCase {
 

@@ -1,16 +1,8 @@
 <?php namespace web\unittest;
 
 use lang\IllegalStateException;
-use web\Application;
-use web\Environment;
-use web\Error;
-use web\Filters;
-use web\Handler;
-use web\Request;
-use web\Response;
-use web\Routing;
-use web\io\TestInput;
-use web\io\TestOutput;
+use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
+use web\io\{TestInput, TestOutput};
 
 class ApplicationTest extends \unittest\TestCase {
   private $environment;

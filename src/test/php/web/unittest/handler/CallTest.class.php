@@ -1,11 +1,9 @@
 <?php namespace web\unittest\handler;
 
 use lang\IllegalArgumentException;
+use web\{Request, Response};
 use web\handler\Call;
-use web\Request;
-use web\Response;
-use web\io\TestInput;
-use web\io\TestOutput;
+use web\io\{TestInput, TestOutput};
 
 class CallTest extends \unittest\TestCase {
 

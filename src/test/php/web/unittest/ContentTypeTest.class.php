@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
-use web\ContentType;
 use lang\FormatException;
+use web\ContentType;
 
 class ContentTypeTest extends \unittest\TestCase {
 

@@ -1,13 +1,8 @@
 <?php namespace xp\web\srv;
 
-use lang\ClassLoader;
-use lang\Throwable;
+use lang\{ClassLoader, Throwable};
 use peer\server\ServerProtocol;
-use web\Error;
-use web\InternalServerError;
-use web\Request;
-use web\Response;
-use web\Status;
+use web\{Error, InternalServerError, Request, Response, Status};
 
 /**
  * HTTP protocol implementation

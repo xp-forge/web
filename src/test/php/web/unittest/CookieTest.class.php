@@ -1,9 +1,8 @@
 <?php namespace web\unittest;
 
-use web\Cookie;
 use lang\IllegalArgumentException;
-use util\Date;
-use util\TimeSpan;
+use util\{Date, TimeSpan};
+use web\Cookie;
 
 class CookieTest extends \unittest\TestCase {
 
