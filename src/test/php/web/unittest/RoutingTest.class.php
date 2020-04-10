@@ -1,18 +1,18 @@
 <?php namespace web\unittest;
 
-use web\{Handler, Request, Response, Route, Routing};
+use unittest\TestCase;
 use web\io\{TestInput, TestOutput};
 use web\routing\{CannotRoute, Target};
+use web\{Handler, Request, Response, Route, Routing};
 
-class RoutingTest extends \unittest\TestCase {
+class RoutingTest extends TestCase {
   private $handlers;
 
   /** @return void */
   public function setUp() {
-    $noop= function($request, $response) { };
     $this->handlers= [
-      'specific' => newinstance(Handler::class, [], ['name' => 'specific', 'handle' => $noop]),
-      'default'  => newinstance(Handler::class, [], ['name' => 'default', 'handle' => $noop])
+      'specific' => new class() implements Handler { public $name= 'specific'; public function handle($req, $res) { }},
+      'default'  => new class() implements Handler { public $name= 'default'; public function handle($req, $res) { }}
     ];
   }
 

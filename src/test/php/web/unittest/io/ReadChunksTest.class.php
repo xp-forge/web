@@ -60,19 +60,21 @@ class ReadChunksTest extends \unittest\TestCase {
 
   #[@test]
   public function read_invocations() {
-    $input= newinstance(TestInput::class, ['GET', '/', [], "4\r\nTest\r\n2\r\ned\r\n0\r\n\r\n"], [
-      'invocations' => [],
-      'read' => function($length= -1) {
+    $input= new class('GET', '/', [], "4\r\nTest\r\n2\r\ned\r\n0\r\n\r\n") extends TestInput {
+      public $invocations= [];
+
+      public function read($length= -1) {
         $result= parent::read($length);
         $this->invocations[]= 'read:'.$length.':"'.addcslashes($result, "\r\n").'"';
         return $result;
-      },
-      'readLine' => function() {
+      }
+
+      public function readLine() {
         $result= parent::readLine();
         $this->invocations[]= 'readLine:"'.addcslashes($result, "\r\n").'"';
         return $result;
       }
-    ]);
+    };
     $fixture= new ReadChunks($input);
     while ($fixture->available()) {
       $fixture->read();

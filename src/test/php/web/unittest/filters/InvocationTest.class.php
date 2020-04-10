@@ -1,9 +1,9 @@
 <?php namespace web\unittest\filters;
 
 use lang\IllegalStateException;
-use web\{Filter, Request, Response};
 use web\filters\Invocation;
 use web\io\{TestInput, TestOutput};
+use web\{Filter, Request, Response};
 
 class InvocationTest extends \unittest\TestCase {
 
@@ -28,12 +28,13 @@ class InvocationTest extends \unittest\TestCase {
   #[@test]
   public function filters_can_pass_values_into_request() {
     $invoked= false;
-    $fixture= new Invocation(function($req, $res) use(&$invoked) { $invoked= $req->value('invoked'); }, [newinstance(Filter::class, [], [
-      'filter' => function($req, $res, $invocation) {
+    $handler= function($req, $res) use(&$invoked) { $invoked= $req->value('invoked'); };
+    $fixture= new Invocation($handler, [new class() implements Filter {
+      public function filter($req, $res, $invocation) {
         $req->pass('invoked', true);
         return $invocation->proceed($req, $res);
       }
-    ])]);
+    }]);
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
     $this->assertTrue($invoked);
   }
@@ -62,11 +63,12 @@ class InvocationTest extends \unittest\TestCase {
 
   #[@test]
   public function filters_can_prevent_handler_invocation() {
-    $fixture= new Invocation(function($req, $res) { throw new IllegalStateException('Should not be called'); }, [newinstance(Filter::class, [], [
-      'filter' => function($req, $res, $invocation) {
+    $handler= function($req, $res) { throw new IllegalStateException('Should not be called'); };
+    $fixture= new Invocation($handler, [new class() implements Filter {
+      public function filter($req, $res, $invocation) {
         // Not calling proceed() here
       }
-    ])]);
+    }]);
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
   }
 
@@ -78,11 +80,11 @@ class InvocationTest extends \unittest\TestCase {
 
   #[@test]
   public function returns_whatever_handler_returns_if_filtered() {
-    $fixture= new Invocation(function($req, $res) { return 'It worked!'; }, [newinstance(Filter::class, [], [
-      'filter' => function($req, $res, $invocation) {
+    $fixture= new Invocation(function($req, $res) { return 'It worked!'; }, [new class() implements Filter {
+      public function filter($req, $res, $invocation) {
         return $invocation->proceed($req, $res);
       }
-    ])]);
+    }]);
     $this->assertEquals('It worked!', $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
   }
 }

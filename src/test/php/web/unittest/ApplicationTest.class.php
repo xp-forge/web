@@ -1,8 +1,8 @@
 <?php namespace web\unittest;
 
 use lang\IllegalStateException;
-use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
 use web\io\{TestInput, TestOutput};
+use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
 
 class ApplicationTest extends \unittest\TestCase {
   private $environment;
@@ -41,9 +41,9 @@ class ApplicationTest extends \unittest\TestCase {
 
   #[@test]
   public function can_create() {
-    newinstance(Application::class, [$this->environment], [
-      'routes' => function() { /* Implementation irrelevant for this test */ }
-    ]);
+    new class($this->environment) extends Application {
+      public function routes() { /* Implementation irrelevant for this test */ }
+    };
   }
 
   #[@test]

@@ -1,8 +1,8 @@
 <?php namespace web\unittest;
 
 use unittest\TestCase;
-use web\{Filter, Filters, Request, Response};
 use web\io\{TestInput, TestOutput};
+use web\{Filter, Filters, Request, Response};
 
 class FiltersTest extends TestCase {
 
@@ -31,12 +31,12 @@ class FiltersTest extends TestCase {
     $res= new Response(new TestOutput());
 
     $invoked= [];
-    $filter= newinstance(Filter::class, [], [
-      'filter' => function($req, $res, $invocation) {
+    $filter= new class() implements Filter {
+      public function filter($req, $res, $invocation) {
         $req->rewrite($req->uri()->using()->path('/rewritten')->create());
         return $invocation->proceed($req, $res);
       }
-    ]);
+    };
     $fixture= new Filters([$filter], function($req, $res) use(&$invoked) {
       $invoked[]= $req->method().' '.$req->uri()->path();
     });
