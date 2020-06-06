@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.1.0 / 2020-06-06
+
+* Included server startup time in `xp web` runner's output - @thekid
+
 ## 2.0.0 / 2020-04-10
 
 * Implemented xp-framework/rfc#334: Drop PHP 5.6:

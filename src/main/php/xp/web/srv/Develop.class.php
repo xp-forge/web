@@ -1,8 +1,8 @@
 <?php namespace xp\web\srv;
 
 use io\IOException;
-use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use lang\archive\ArchiveClassLoader;
+use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use peer\Socket;
 use util\cmd\Console;
 use web\Logging;
@@ -77,14 +77,20 @@ class Develop implements Server {
       $nul= '/dev/null';
       $cmd= 'exec '.$cmd;      // Replace launching shell with PHP
     }
-
     if (!($proc= proc_open($cmd, [STDIN, STDOUT, ['file', $nul, 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
       throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
     }
 
-    Console::writeLine("\e[33;1m>\e[0m Server started: \e[35;4mhttp://$this->host:$this->port\e[0m (", date('r'), ')');
-    Console::writeLine('  PID ', getmypid(), ' : ', proc_get_status($proc)['pid'], '; press Enter to exit');
-    Console::writeLine();
+    Console::writeLinef(
+      "\e[33;1m>\e[0m Server started: \e[35;4mhttp://%s:%d/\e[0m in %.3f seconds\n".
+      "  %s - PID %d & %d; press Enter to exit\n",
+      $this->host,
+      $this->port,
+      microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
+      date('r'),
+      getmypid(),
+      proc_get_status($proc)['pid']
+    );
 
     // Inside `xp -supervise`, connect to signalling socket
     if ($port= getenv('XP_SIGNAL')) {
