@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #62: Replace ContentType class with reusable header parser 
+  (@thekid)
+
 ## 2.1.0 / 2020-06-06
 
 * Included server startup time in `xp web` runner's output - @thekid
