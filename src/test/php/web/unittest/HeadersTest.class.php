@@ -30,6 +30,17 @@ class HeadersTest extends TestCase {
     );
   }
 
+  #[@test, @values([
+  #  '5;url=http://www.w3.org/pub/WWW/People.html',
+  #  '5; url=http://www.w3.org/pub/WWW/People.html',
+  #])]
+  public function refresh($header) {
+    $this->assertEquals(
+      new Parameterized('5', ['url' => 'http://www.w3.org/pub/WWW/People.html']),
+      Headers::parameterized()->parse($header)
+    );
+  }
+
   #[@test]
   public function accept() {
     $this->assertEquals(
