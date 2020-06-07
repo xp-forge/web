@@ -32,7 +32,7 @@ abstract class Headers {
 
   /**
    * Returns a new parser for parameterized headers, e.g.:
-   * 
+   *
    * `Accept-Language: en, de;q=0.8, fr;q=0.5`
    *
    * @param  self $parse
@@ -60,8 +60,31 @@ abstract class Headers {
   }
 
   /**
+   * Returns a new parser for parameterized headers, e.g.:
+   *
+   * `Content-Type: text/html;charset=utf-8`
+   * `Refresh: 5; url=http://www.w3.org/pub/WWW/People.html`
+   *
+   * @return self
+   */
+  public static function parameterized() {
+    return new class() extends Headers {
+      protected function next($input, &$offset) {
+        $s= strcspn($input, ',;', $offset);
+        $value= ltrim(substr($input, $offset, $s), ' ');
+        $offset+= $s + 1;
+
+        $c= $input[$offset - 1] ?? null;
+        $parameters= ';' === $c ? Headers::pairs()->next($input, $offset) : [];
+
+        return new Parameterized($value, $parameters);
+      }
+    };
+  }
+
+  /**
    * Returns a new parser for headers with key/value pairs
-   * 
+   *
    * `Forwarded: for=192.0.2.43;proto=http, for=198.51.100.17`
    *
    * @return self
@@ -93,28 +116,6 @@ abstract class Headers {
         } while ($offset < $l && ';' === $input[$offset - 1]);
 
         return $parameters;
-      }
-    };
-  }
-
-  /**
-   * Returns a new parser for parameterized headers, e.g.:
-   * 
-   * `Content-Type: text/html;charset=utf-8`
-   *
-   * @return self
-   */
-  public static function parameterized() {
-    return new class() extends Headers {
-      protected function next($input, &$offset) {
-        $s= strcspn($input, ',;', $offset);
-        $value= ltrim(substr($input, $offset, $s), ' ');
-        $offset+= $s + 1;
-
-        $c= $input[$offset - 1] ?? null;
-        $parameters= ';' === $c ? Headers::pairs()->next($input, $offset) : [];
-
-        return new Parameterized($value, $parameters);
       }
     };
   }
