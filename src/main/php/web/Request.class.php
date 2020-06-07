@@ -139,8 +139,8 @@ class Request implements Value {
 
     // Merge parameters from URL and urlencoded payload.
     $query= $this->uri->query(false);
-    $type= new ContentType($this->header('Content-Type'));
-    if ($type->matches('application/x-www-form-urlencoded')) {
+    $type= Headers::parameterized()->parse($this->header('Content-Type'));
+    if ('application/x-www-form-urlencoded' === $type->value()) {
       $data= Streams::readAll($this->stream());
       $this->stream= new MemoryInputStream($data);
       $query.= '&'.$data;
