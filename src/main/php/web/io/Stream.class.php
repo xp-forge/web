@@ -37,7 +37,13 @@ class Stream extends Part implements InputStream {
    * @return string
    */
   public function name($raw= false) {
-    return $raw ? $this->name : basename($this->name);
+    if ($raw) {
+      return $this->name;
+    } else if ('\\' === DIRECTORY_SEPARATOR) {
+      return basename(strtr($this->name, '/', '\\'));
+    } else {
+      return basename(strtr($this->name, '\\', '/'));
+    }
   }
 
   /**
