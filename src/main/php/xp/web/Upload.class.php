@@ -26,14 +26,14 @@ class Upload extends Part implements InputStream {
   public function kind() { return Part::FILE; }
 
   /**
-   * Returns file name. Applies `basename()` on value transmitted to prevent
-   * absolute and relative file names from causing problems.
+   * Returns file name
    *
-   * @param  bool $raw If set to true, returns name as transmitted
+   * @param  bool $raw Has no effect, PHP strips filename of path components for us.
    * @return string
+   * @see    https://github.com/php/php-src/blob/PHP-7.4.0/main/rfc1867.c#L1141
    */
   public function name($raw= false) {
-    return $raw ? $this->name : basename($this->name);
+    return $this->name;
   }
 
   /**
