@@ -31,7 +31,7 @@ class InvocationTest extends \unittest\TestCase {
     $handler= function($req, $res) use(&$invoked) { $invoked= $req->value('invoked'); };
     $fixture= new Invocation($handler, [new class() implements Filter {
       public function filter($req, $res, $invocation) {
-        $req->pass('invoked', true);
+        $req->inject('invoked', true);
         return $invocation->proceed($req, $res);
       }
     }]);

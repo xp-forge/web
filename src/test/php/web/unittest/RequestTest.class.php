@@ -172,8 +172,8 @@ class RequestTest extends TestCase {
   }
 
   #[@test]
-  public function pass_value() {
-    $this->assertEquals($this, (new Request(new TestInput('GET', '/')))->pass('test', $this)->value('test'));
+  public function inject_value() {
+    $this->assertEquals($this, (new Request(new TestInput('GET', '/')))->inject('test', $this)->value('test'));
   }
 
   #[@test]
@@ -182,8 +182,8 @@ class RequestTest extends TestCase {
   }
 
   #[@test]
-  public function pass_values() {
-    $this->assertEquals(['test' => $this], (new Request(new TestInput('GET', '/')))->pass('test', $this)->values());
+  public function inject_values() {
+    $this->assertEquals(['test' => $this], (new Request(new TestInput('GET', '/')))->inject('test', $this)->values());
   }
 
   #[@test]
@@ -286,5 +286,12 @@ class RequestTest extends TestCase {
       "]",
       $req->toString()
     );
+  }
+
+  /** @deprecated */
+  #[@test]
+  public function deprecated_pass_works_for_values() {
+    $this->assertEquals($this, (new Request(new TestInput('GET', '/')))->pass('test', $this)->value('test'));
+    \xp::gc();
   }
 }
