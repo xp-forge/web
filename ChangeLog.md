@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Added `web.Response::hint()` to send HTTP/1.1 1XX statuses - @thekid
 * Fixed PHP 8.0 compatibility by using `[]` for string offset access
   instead of the removed curly braces syntax.
   (@thekid)

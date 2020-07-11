@@ -25,7 +25,7 @@ class Response {
    * Sets status code and optionally a message
    *
    * @param  int $status
-   * @param  string $message
+   * @param  ?string $message
    * @return void
    */
   public function answer($status, $message= null) {
@@ -100,7 +100,7 @@ class Response {
   }
 
   /**
-   * Sends headers
+   * Flushes response
    *
    * @param  web.io.Output $output
    * @return void
@@ -152,6 +152,22 @@ class Response {
   }
 
   /**
+   * Sends intermediate status and headers
+   *
+   * @param  int $status
+   * @param  ?string $message
+   * @param  [:string|string[]] $headers
+   * @return void
+   */
+  public function hint($status, $message= null, $headers= []) {
+    $pass= [];
+    foreach ($headers as $name => $header) {
+      $pass[$name]= is_array($header) ? $header : [$header];
+    }
+    $this->output->begin($status, $message ?: Status::message($status), $pass);
+  }
+
+  /**
    * Transfers a stream
    *
    * @param  io.streams.InputStream $in
@@ -171,7 +187,6 @@ class Response {
       $in->close();
     }
   }
-
 
   /**
    * Sends some content

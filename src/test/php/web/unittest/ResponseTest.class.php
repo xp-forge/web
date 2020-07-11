@@ -2,8 +2,8 @@
 
 use io\streams\MemoryInputStream;
 use util\URI;
-use web\{Cookie, Response};
 use web\io\{Buffered, TestOutput};
+use web\{Cookie, Response};
 
 class ResponseTest extends \unittest\TestCase {
 
@@ -128,6 +128,18 @@ class ResponseTest extends \unittest\TestCase {
     $res->flush();
 
     $this->assertEquals($line."\r\n\r\n", $out->bytes());
+  }
+
+  #[@test]
+  public function hint() {
+    $out= new TestOutput();
+
+    $res= new Response($out);
+    $res->hint(100, 'Continue');
+    $res->answer(200, 'OK');
+    $res->flush();
+
+    $this->assertEquals("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n", $out->bytes());
   }
 
   #[@test]
