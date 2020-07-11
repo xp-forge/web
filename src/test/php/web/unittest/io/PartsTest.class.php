@@ -266,7 +266,7 @@ class PartsTest extends TestCase {
   public function missing_header_terminator() {
     iterator_to_array($this->parts(
       '--%1$s',
-      'Content-Disposition: form-data; name="submit"',
+      'Content-Disposition: form-data; name="submit"'
     ));
   }
 
@@ -275,7 +275,7 @@ class PartsTest extends TestCase {
     iterator_to_array($this->parts(
       '--%1$s',
       'Content-Disposition: form-data; name="submit"',
-      '',
+      ''
     ));
   }
 
