@@ -66,7 +66,7 @@ class Parts implements \IteratorAggregate {
       }
 
       // Delimiter found in buffer, end reading
-      if (0 === substr_compare($this->buffer, $delimiter, $p, $n)) {
+      if ($p < strlen($this->buffer) && 0 === substr_compare($this->buffer, $delimiter, $p, $n)) {
         $part= substr($this->buffer, 0, $p);
         $this->buffer= substr($this->buffer, $p + 2);
         yield $part;
