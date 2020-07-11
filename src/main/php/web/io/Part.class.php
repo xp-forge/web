@@ -10,9 +10,9 @@ use lang\Value;
  * @see   xp://web.io.Parts
  */
 abstract class Part implements Value {
-  const FILE = 0;
-  const PARAM = 1;
-  const INCOMPLETE = 2;
+  const INCOMPLETE = 1;
+  const PARAM = 2;
+  const FILE = 4;
 
   protected $name;
 
