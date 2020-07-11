@@ -70,8 +70,6 @@ class MultipartRequestTest extends TestCase {
     yield ['mac.txt', "Line 1\rLine 2"];
     yield ['windows.txt', "Line 1\r\nLine 2"];
     yield ['blank.gif', "GIF89a\1\0\1\0\200\0\0\0\0\0\377\377\377\!\371\4\1\0\0\0\0,\0\0\0\0\1\0\1\0@\2\1D\0;"];
-    yield ['/etc/passwd', 'hacked'];
-    yield ['C:\\autoexec.bat', 'hacked'];
   }
 
   #[@test, @values('files')]
@@ -85,7 +83,7 @@ class MultipartRequestTest extends TestCase {
     foreach ($req->multipart()->files() as $name => $file) {
       $files[$name]= addcslashes($file->bytes(), "\0..\37\177..\377");
     }
-    $this->assertEquals([basename($name) => addcslashes($bytes, "\0..\37\177..\377")], $files);
+    $this->assertEquals([$filename => addcslashes($bytes, "\0..\37\177..\377")], $files);
   }
 
   #[@test]
