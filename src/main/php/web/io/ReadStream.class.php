@@ -1,6 +1,8 @@
 <?php namespace web\io;
 
-class ReadStream implements \io\streams\InputStream {
+use io\streams\InputStream;
+
+class ReadStream implements InputStream {
   private $input, $available;
 
   /**
