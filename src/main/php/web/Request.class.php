@@ -38,14 +38,13 @@ class Request implements Value {
   /**
    * Pass a named value along with this request
    *
-   * @deprecated
    * @param  string $name
    * @param  var $value
    * @return self
    */
   public function pass($name, $value) {
-    trigger_error('Using pass() to inject values is deprecated', E_USER_DEPRECATED);
-    return $this->inject($name, $value);
+    $this->values[$name]= $value;
+    return $this;
   }
 
   /**
@@ -214,18 +213,6 @@ class Request implements Value {
     $this->parse();
 
     return isset($this->params[$name]) ? $this->encode($this->params[$name]) : $default;
-  }
-
-  /**
-   * Inject a named value into this request
-   *
-   * @param  string $name
-   * @param  string $value
-   * @return self
-   */
-  public function inject($name, $value) {
-    $this->values[$name]= $value;
-    return $this;
   }
 
   /**
