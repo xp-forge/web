@@ -1,12 +1,13 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
+use unittest\TestCase;
 use util\URI;
 use web\Request;
 use web\io\TestInput;
 
-class RequestTest extends \unittest\TestCase {
-  private static $CHUNKED = ['Transfer-Encoding' => 'chunked'];
+class RequestTest extends TestCase {
+  use Chunking;
 
   /** @return var[][] */
   private function parameters() {
@@ -75,10 +76,10 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test, @values('parameters')]
   public function post_params_chunked($query, $expected) {
-    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Transfer-Encoding' => 'chunked'];
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'] + self::$CHUNKED;
     $this->assertEquals(
       ['fixture' => $expected],
-      (new Request(new TestInput('POST', '/', $headers, sprintf("%x\r\n%s\r\n0\r\n\r\n", strlen($query), $query))))->params()
+      (new Request(new TestInput('POST', '/', $headers, $this->chunked($query, 0xff))))->params()
     );
   }
 
@@ -265,13 +266,13 @@ class RequestTest extends \unittest\TestCase {
 
   #[@test]
   public function consume_chunked() {
-    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, "64\r\n".str_repeat('A', 100)."\r\n0\r\n\r\n"));
+    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, $this->chunked(str_repeat('A', 100))));
     $this->assertEquals(100, $req->consume());
   }
 
   #[@test]
   public function consume_chunked_after_partial_read() {
-    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, "64\r\n".str_repeat('A', 100)."\r\n0\r\n\r\n"));
+    $req= new Request(new TestInput('GET', '/', self::$CHUNKED, $this->chunked(str_repeat('A', 100))));
     $partial= $req->stream()->read(50);
     $this->assertEquals(100 - strlen($partial), $req->consume());
   }
