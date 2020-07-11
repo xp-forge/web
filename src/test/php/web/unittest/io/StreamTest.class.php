@@ -1,8 +1,8 @@
 <?php namespace web\unittest\io;
 
 use io\streams\{Streams, MemoryOutputStream};
-use io\{Folder, File, Files, Path};
-use lang\Environment;
+use io\{Folder, File, Files, Path, IOException};
+use lang\{Environment, IllegalArgumentException};
 use unittest\TestCase;
 use web\io\{Part, Stream};
 
@@ -44,12 +44,13 @@ class StreamTest extends TestCase {
     $t->create();
 
     try {
-      $this->newFixture(self::NAME, 'Test')->store($target($t));
+      $written= $this->newFixture(self::NAME, 'Test')->store($target($t));
 
       $contents= [];
       foreach ($t->entries() as $name => $entry) {
         $contents[$name]= Files::read($entry->asFile());
       }
+      $this->assertEquals(4, $written);
       $this->assertEquals($expected, $contents);
     } finally {
       $t->unlink();
@@ -114,5 +115,45 @@ class StreamTest extends TestCase {
   #[@test, @values('chunks')]
   public function read_all($chunks, $expected) {
     $this->assertEquals($expected, Streams::readAll($this->newFixture(self::NAME, ...$chunks)));
+  }
+
+  #[@test, @values('chunks')]
+  public function store_to_outputstream($chunks, $expected) {
+    $out= new MemoryOutputStream();
+    $written= $this->newFixture(self::NAME, ...$chunks)->store($out);
+
+    $this->assertEquals(strlen($expected), $written);
+    $this->assertEquals($expected, $out->bytes());
+  }
+
+  #[@test, @expect(IOException::class)]
+  public function exceptions_raised_while_storing() {
+    $out= new class() extends MemoryOutputStream {
+      public function write($bytes) { throw new IOException('Disk full'); }
+    };
+    $this->newFixture(self::NAME, 'Test')->store($out);
+  }
+
+  #[@test, @values(['', null, "\0abc", "/etc/\0passwd"]), @expect(IllegalArgumentException::class)]
+  public function store_to_invalid_filename($name) {
+    $this->newFixture(self::NAME)->store($name);
+  }
+
+  #[@test, @values([
+  #  [fn($t) => $t],
+  #  [fn($t) => new Path($t)],
+  #  [fn($t) => $t->getURI()],
+  #])]
+  public function store_to_folder($target) {
+    $this->assertStored(['test.txt' => 'Test'], $target);
+  }
+
+  #[@test, @values([
+  #  [fn($t) => new File($t, 'target.txt')],
+  #  [fn($t) => new Path($t, 'target.txt')],
+  #  [fn($t) => $t->getURI().'target.txt'],
+  #])]
+  public function store_to_file($target) {
+    $this->assertStored(['target.txt' => 'Test'], $target);
   }
 }

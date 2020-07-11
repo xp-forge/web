@@ -1,6 +1,8 @@
 <?php namespace web\io;
 
-use io\streams\InputStream;
+use io\streams\{InputStream, OutputStream, FileOutputStream};
+use io\{File, Folder};
+use lang\IllegalArgumentException;
 
 /**
  * A file as part of a multipart request which can be accessed as a stream
@@ -59,6 +61,41 @@ class Stream extends Part implements InputStream {
       }
     }
     return $this->bytes;
+  }
+
+  /**
+   * Stores this stream to a given target.
+   *
+   * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
+   * @return int Number of bytes written
+   * @throws lang.IllegalArgumentException if filename is invalid
+   * @throws io.IOException
+   */
+  public function store($target) {
+    if ($target instanceof OutputStream) {
+      $out= $target;
+    } else if ($target instanceof File) {
+      $out= $target->out();
+    } else if ($target instanceof Folder) {
+      $out= new FileOutputStream(new File($target, $this->name()));
+    } else if (is_string($target) && (0 === strlen($target) || false !== strpos($target, "\0"))) {
+      throw new IllegalArgumentException('Invalid filename "'.addcslashes($target, "\0..\37!\177..\377").'"');
+    } else if (is_dir($target)) {
+      $out= new FileOutputStream(new File($target, $this->name()));
+    } else {
+      $out= new FileOutputStream($target);
+    }
+
+    try {
+      $written= 0;
+      foreach ($this->chunks as $chunk) {
+        $out->write($chunk);
+        $written+= strlen($chunk);
+      }
+      return $written;
+    } finally {
+      $out->close();
+    }
   }
 
   /** @return int */
