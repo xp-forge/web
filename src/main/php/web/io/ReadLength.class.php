@@ -1,7 +1,14 @@
 <?php namespace web\io;
 
-class ReadLength implements \io\streams\InputStream {
-  private $input, $available;
+use io\streams\InputStream;
+
+/**
+ * Reads from an input with a given legth
+ *
+ * @test  xp://web.unittest.io.ReadLengthTest
+ */
+class ReadLength implements InputStream {
+  private $input, $remaininig;
 
   /**
    * Creates a new reader for a given length
@@ -11,7 +18,7 @@ class ReadLength implements \io\streams\InputStream {
    */
   public function __construct(Input $input, $length) {
     $this->input= $input;
-    $this->available= $length;
+    $this->remaininig= $length;
   }
 
   /**
@@ -21,13 +28,13 @@ class ReadLength implements \io\streams\InputStream {
    * @return string
    */
   public function read($limit= 8192) {
-    $chunk= $this->input->read(min($limit, $this->available));
-    $this->available-= strlen($chunk);
+    $chunk= $this->input->read(min($limit, $this->remaininig));
+    $this->remaininig-= strlen($chunk);
     return $chunk;
   }
 
   /** @return int */
-  public function available() { return $this->available; }
+  public function available() { return $this->remaininig; }
 
   /** @return void */
   public function close() { /* NOOP */  }
