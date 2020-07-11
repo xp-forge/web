@@ -7,6 +7,7 @@
  */
 class TestInput implements Input {
   private $method, $uri, $headers, $body;
+  private $incoming= null;
 
   /**
    * Creates a new instance
@@ -28,8 +29,9 @@ class TestInput implements Input {
       $this->body= $body;
     }
 
-    if (strlen($this->body) > 0 && !isset($this->headers['Transfer-Encoding'])) {
-      $this->headers+= ['Content-Length' => strlen($this->body)];
+    $l= strlen($this->body);
+    if ($l > 0 && !isset($this->headers['Transfer-Encoding'])) {
+      $this->headers+= ['Content-Length' => $l];
     }
   }
 
@@ -48,17 +50,42 @@ class TestInput implements Input {
   /** @return iterable */
   public function headers() { return $this->headers; }
 
+  /** @return ?io.streams.InputStream */
+  public function incoming() {
+    if (null === $this->incoming) {
+
+      // Check Content-Length first, this is the typical case
+      if (isset($this->headers['Content-Length'])) {
+        return $this->incoming= new ReadLength($this, (int)$this->headers['Content-Length']);
+      }
+
+      // Check Transfer-Encoding. The special value "streamed" is used to test PHP
+      // SAPIs, which take care of parsing chunked transfer encoding themselves.
+      $te= $this->headers['Transfer-Encoding'] ?? null;
+      if ('chunked' === $te) {
+        return $this->incoming= new ReadChunks($this);
+      } else if ('streamed' === $te) {
+        return $this->incoming= new ReadStream($this);
+      }
+
+      // Neither Content-Length nor Transfer-Encoding; no body seems to have been passed
+    }
+    return $this->incoming;
+  }
+
   /** @return ?string */
   public function readLine() {
-    $p= strpos($this->body, "\n");
+    if ('' === $this->body) return null; // EOF
+
+    $p= strpos($this->body, "\r\n");
     if (false === $p) {
+      $return= $this->body;
       $this->body= '';
-      return null;
     } else {
       $return= substr($this->body, 0, $p);
-      $this->body= (string)substr($this->body, $p + 1);
-      return $return;
+      $this->body= (string)substr($this->body, $p + 2);
     }
+    return $return;
   }
 
   /**
@@ -76,5 +103,15 @@ class TestInput implements Input {
       $this->body= substr($this->body, $length);
     }
     return $return;
+  }
+
+  /**
+   * Returns parts from a multipart/form-data request
+   *
+   * @param  string $boundary
+   * @return iterable
+   */
+  public function parts($boundary) {
+    return new Parts($this->incoming(), $boundary);
   }
 }
