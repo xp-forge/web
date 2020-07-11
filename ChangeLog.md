@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed PHP 8.0 compatibility by using `[]` for string offset access
+  instead of the removed curly braces syntax.
+  (@thekid)
+* Changed `web.io.ReadChunks` to defer reading from input stream until
+  one of its I/O methods is called.
+  (@thekid)
 * Merged PR #62: Replace ContentType class with reusable header parser 
   (@thekid)
 
