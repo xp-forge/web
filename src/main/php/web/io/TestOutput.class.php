@@ -8,7 +8,8 @@ use lang\XPClass;
  * @test  xp://web.unittest.io.TestOutputTest
  */
 class TestOutput extends Output {
-  private $bytes, $stream;
+  private $stream;
+  private $bytes= '';
 
   /** @param string|lang.XPClass $stream */
   public function __construct($stream= null) {
@@ -55,7 +56,7 @@ class TestOutput extends Output {
    * @param  [:string] $headers
    */
   public function begin($status, $message, $headers) {
-    $this->bytes= sprintf("HTTP/1.1 %d %s\r\n", $status, $message);
+    $this->bytes.= sprintf("HTTP/1.1 %d %s\r\n", $status, $message);
     foreach ($headers as $name => $header) {
       foreach ($header as $value) {
         $this->bytes.= $name.': '.$value."\r\n";
