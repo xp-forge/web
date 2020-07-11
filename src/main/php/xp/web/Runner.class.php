@@ -57,7 +57,7 @@ class Runner {
       ));
     }
 
-    $p= strpos($address, ':', '[' === $address{0} ? strpos($address, ']') : 0);
+    $p= strpos($address, ':', '[' === $address[0] ? strpos($address, ']') : 0);
     if (false === $p) {
       $host= $address;
       $port= 8080;
