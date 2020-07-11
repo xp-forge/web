@@ -1,7 +1,9 @@
 <?php namespace xp\web\srv;
 
+use lang\FormatException;
 use peer\CryptoSocket;
-use web\io\Input as IOInput;
+use web\Headers;
+use web\io\{ReadChunks, ReadLength, Parts, Input as IOInput};
 
 class Input implements IOInput {
   const CLOSE   = 0;
@@ -11,6 +13,7 @@ class Input implements IOInput {
   private $socket;
   private $method, $uri, $version;
   private $buffer= null;
+  private $incoming= null;
 
   /**
    * Creates a new input instance which reads from a socket.
@@ -40,7 +43,7 @@ class Input implements IOInput {
       $this->socket= $socket;
       $this->kind= self::REQUEST;
     } else {
-      $this->kind= $initial;
+      $this->kind= rtrim($initial);
     }
   }
 
@@ -78,11 +81,24 @@ class Input implements IOInput {
   /** @return iterable */
   public function headers() {
     yield 'Remote-Addr' => $this->socket->remoteEndpoint()->getHost();
+
     while ($line= $this->readLine()) {
       sscanf($line, "%[^:]: %[^\r]", $name, $value);
+
+      if (null !== $this->incoming) {
+        // Already determined whether an incoming payload is available
+      } else if (0 === strncasecmp($name, 'Transfer-Encoding', 17) && 'chunked' === $value) {
+        $this->incoming= new ReadChunks($this);
+      } else if (0 === strncasecmp($name, 'Content-Length', 14)) {
+        $this->incoming= new ReadLength($this, (int)$value);
+      }
+
       yield $name => $value;
     }
   }
+
+  /** @return ?io.streams.InputStream */
+  public function incoming() { return $this->incoming; }
 
   /**
    * Reads a given number of bytes
@@ -110,5 +126,15 @@ class Input implements IOInput {
       $this->buffer= $eof ? null : '';
     }
     return $data;
+  }
+
+  /**
+   * Returns parts from a multipart/form-data request
+   *
+   * @param  string $boundary
+   * @return iterable
+   */
+  public function parts($boundary) {
+    return new Parts($this->incoming, $boundary);
   }
 }
