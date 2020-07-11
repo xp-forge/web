@@ -17,6 +17,14 @@ interface Input {
   /** @return iterable */
   public function headers();
 
+  /**
+   * Returns parts from a multipart/form-data request
+   *
+   * @param  string $boundary
+   * @return iterable
+   */
+  public function parts($boundary);
+
   /** @return string */
   public function readLine();
 
