@@ -41,6 +41,17 @@ class IntegrationTest extends TestCase {
   }
 
   #[@test, @values([
+  #  ['', '420 Enhance your calm'],
+  #  ['message=Custom+message', '420 Custom message'],
+  #])]
+  public function custom_status($query, $expected) {
+    $this->send('GET', '/status/420?'.$query);
+
+    $status= self::$connection->readLine();
+    $this->assertEquals("HTTP/1.0 $expected", $status);
+  }
+
+  #[@test, @values([
   #  [404, '404 Not Found'],
   #  [500, '500 Internal Server Error'],
   #])]
@@ -49,6 +60,14 @@ class IntegrationTest extends TestCase {
 
     $status= self::$connection->readLine();
     $this->assertEquals("HTTP/1.0 $expected", $status);
+  }
+
+  #[@test]
+  public function dispatching_request() {
+    $this->send('GET', '/dispatch');
+
+    $status= self::$connection->readLine();
+    $this->assertEquals("HTTP/1.0 420 Dispatched", $status);
   }
 
   #[@test]

@@ -9,7 +9,7 @@ class TestingApplication extends Application {
   public function routes() {
     return [
       '/status/420' => function($req, $res) {
-        $res->answer(420, 'Enhance your calm');
+        $res->answer(420, $req->param('message') ?? 'Enhance your calm');
         $res->send('Answered with status 420', 'text/plain');
       },
       '/status' => function($req, $res) {
@@ -23,7 +23,10 @@ class TestingApplication extends Application {
       '/raise/error' => function($req, $res) {
         $status= basename($req->uri()->path());
         throw new Error($status);
-      }
+      },
+      '/dispatch' => function($req, $res) {
+        return $req->dispatch('/status/420', ['message' => 'Dispatched']);
+      },
     ];
   }
 }
