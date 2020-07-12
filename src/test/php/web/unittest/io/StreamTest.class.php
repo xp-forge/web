@@ -39,12 +39,12 @@ class StreamTest extends TestCase {
    * @param  function(io.Folder): var
    * @throws unittest.AssertionFailedErrror
    */
-  private function assertStored($expected, $target) {
+  private function assertTransfer($expected, $target) {
     $t= new Folder(Environment::tempDir(), 'xp-web-streamtests');
     $t->create();
 
     try {
-      $written= $this->newFixture(self::NAME, 'Test')->store($target($t));
+      $written= $this->newFixture(self::NAME, 'Test')->transfer($target($t));
 
       $contents= [];
       foreach ($t->entries() as $name => $entry) {
@@ -118,9 +118,9 @@ class StreamTest extends TestCase {
   }
 
   #[@test, @values('chunks')]
-  public function store_to_outputstream($chunks, $expected) {
+  public function transfer_to_outputstream($chunks, $expected) {
     $out= new MemoryOutputStream();
-    $written= $this->newFixture(self::NAME, ...$chunks)->store($out);
+    $written= $this->newFixture(self::NAME, ...$chunks)->transfer($out);
 
     $this->assertEquals(strlen($expected), $written);
     $this->assertEquals($expected, $out->bytes());
@@ -131,12 +131,12 @@ class StreamTest extends TestCase {
     $out= new class() extends MemoryOutputStream {
       public function write($bytes) { throw new IOException('Disk full'); }
     };
-    $this->newFixture(self::NAME, 'Test')->store($out);
+    $this->newFixture(self::NAME, 'Test')->transfer($out);
   }
 
   #[@test, @values(['', null, "\0abc", "/etc/\0passwd"]), @expect(IllegalArgumentException::class)]
-  public function store_to_invalid_filename($name) {
-    $this->newFixture(self::NAME)->store($name);
+  public function transfer_to_invalid_filename($name) {
+    $this->newFixture(self::NAME)->transfer($name);
   }
 
   #[@test, @values([
@@ -144,8 +144,8 @@ class StreamTest extends TestCase {
   #  [fn($t) => new Path($t)],
   #  [fn($t) => $t->getURI()],
   #])]
-  public function store_to_folder($target) {
-    $this->assertStored(['test.txt' => 'Test'], $target);
+  public function transfer_to_folder($target) {
+    $this->assertTransfer(['test.txt' => 'Test'], $target);
   }
 
   #[@test, @values([
@@ -153,7 +153,7 @@ class StreamTest extends TestCase {
   #  [fn($t) => new Path($t, 'target.txt')],
   #  [fn($t) => $t->getURI().'target.txt'],
   #])]
-  public function store_to_file($target) {
-    $this->assertStored(['target.txt' => 'Test'], $target);
+  public function transfer_to_file($target) {
+    $this->assertTransfer(['target.txt' => 'Test'], $target);
   }
 }

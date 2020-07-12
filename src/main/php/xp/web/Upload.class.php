@@ -60,14 +60,14 @@ class Upload extends Part implements InputStream {
   }
 
   /**
-   * Stores this stream to a given target.
+   * Transfers this stream to a given target.
    *
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return int Number of bytes written
    * @throws lang.IllegalArgumentException if filename is invalid
    * @throws io.IOException
    */
-  public function store($target) {
+  public function transfer($target) {
 
     // If we are passed a stream, transfer the source file's contents
     if ($target instanceof OutputStream) {

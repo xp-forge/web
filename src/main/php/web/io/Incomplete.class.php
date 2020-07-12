@@ -50,14 +50,14 @@ class Incomplete extends Part implements InputStream {
   public function bytes() { throw $this->notSupported(); }
 
   /**
-   * Stores this stream to a given target.
+   * Transfers this stream to a given target.
    *
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return int Number of bytes written
    * @throws lang.IllegalArgumentException if filename is invalid
    * @throws io.IOException
    */
-  public function store($target) { throw $this->notSupported(); }
+  public function transfer($target) { throw $this->notSupported(); }
 
   /** @return int */
   public function available() { throw $this->notSupported(); }

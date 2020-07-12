@@ -28,7 +28,7 @@ class UploadTest extends TestCase {
    * @param  function(io.Folder): var
    * @throws unittest.AssertionFailedErrror
    */
-  private function assertStored($expected, $target) {
+  private function assertTransferred($expected, $target) {
     $t= new Folder(Environment::tempDir(), 'xp-web-uploadtests');
     $t->create();
 
@@ -36,7 +36,7 @@ class UploadTest extends TestCase {
     Files::write($s, 'Test');
 
     try {
-      $written= $this->newFixture(self::NAME, $s->getURI())->store($target($t));
+      $written= $this->newFixture(self::NAME, $s->getURI())->transfer($target($t));
 
       $contents= [];
       foreach ($t->entries() as $name => $entry) {
@@ -90,10 +90,10 @@ class UploadTest extends TestCase {
   }
 
   #[@test]
-  public function store_to_outputstream() {
+  public function transfer_to_outputstream() {
     $in= new MemoryInputStream('Test');
     $out= new MemoryOutputStream();
-    $written= $this->newFixture(self::NAME, Streams::readableUri($in))->store($out);
+    $written= $this->newFixture(self::NAME, Streams::readableUri($in))->transfer($out);
 
     $this->assertEquals(4, $written);
     $this->assertEquals('Test', $out->bytes());
@@ -105,12 +105,12 @@ class UploadTest extends TestCase {
     $out= new class() extends MemoryOutputStream {
       public function write($bytes) { throw new IOException('Disk full'); }
     };
-    $this->newFixture(self::NAME, Streams::readableUri($in))->store($out);
+    $this->newFixture(self::NAME, Streams::readableUri($in))->transfer($out);
   }
 
   #[@test, @values(['', null, "\0abc", "/etc/\0passwd"]), @expect(IllegalArgumentException::class)]
-  public function store_to_invalid_filename($name) {
-    $this->newFixture(self::NAME)->store($name);
+  public function transfer_to_invalid_filename($name) {
+    $this->newFixture(self::NAME)->transfer($name);
   }
 
   #[@test, @values([
@@ -118,8 +118,8 @@ class UploadTest extends TestCase {
   #  [fn($t) => new Path($t)],
   #  [fn($t) => $t->getURI()],
   #])]
-  public function store_to_folder($target) {
-    $this->assertStored(['test.txt' => 'Test'], $target);
+  public function transfer_to_folder($target) {
+    $this->assertTransferred(['test.txt' => 'Test'], $target);
   }
 
   #[@test, @values([
@@ -127,7 +127,7 @@ class UploadTest extends TestCase {
   #  [fn($t) => new Path($t, 'target.txt')],
   #  [fn($t) => $t->getURI().'target.txt'],
   #])]
-  public function store_to_file($target) {
-    $this->assertStored(['target.txt' => 'Test'], $target);
+  public function transfer_to_file($target) {
+    $this->assertTransferred(['target.txt' => 'Test'], $target);
   }
 }
