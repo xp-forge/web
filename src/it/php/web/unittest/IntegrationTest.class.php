@@ -29,12 +29,39 @@ class IntegrationTest extends TestCase {
     self::$connection->write("\r\n".$body);
   }
 
+  /**
+   * Receives a response
+   *
+   * @return [:var]
+   */
+  private function receive() {
+    $response= ['status' => self::$connection->readLine(), 'headers' => [], 'body' => ''];
+    while ('' !== ($line= self::$connection->readLine())) {
+      sscanf($line, "%[^:]: %[^\r]", $name, $value);
+      $response['headers'][$name]= $value;
+    }
+    while (!self::$connection->eof()) {
+      $response['body'].= self::$connection->read();
+    }
+    return $response;
+  }
+
   #[@test, @values(['1.0', '1.1'])]
   public function returns_http_version($version) {
     $this->send('GET', '/status/200', $version, ['Connection' => 'close']);
+    $this->assertEquals("HTTP/$version 200 OK", $this->receive()['status']);
+  }
 
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/$version 200 OK", $status);
+  #[@test]
+  public function date_header_always_present() {
+    $this->send('GET', '/status/200');
+    $this->assertTrue(isset($this->receive()['headers']['Date']));
+  }
+
+  #[@test]
+  public function host_header_present_if_sent() {
+    $this->send('GET', '/status/200', '1.1', ['Host' => 'example.org', 'Connection' => 'close']);
+    $this->assertEquals('example.org', $this->receive()['headers']['Host']);
   }
 
   #[@test, @values([
@@ -44,9 +71,7 @@ class IntegrationTest extends TestCase {
   #])]
   public function echo_status($code, $expected) {
     $this->send('GET', '/status/'.$code);
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 $expected", $status);
+    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
   #[@test, @values([
@@ -55,9 +80,7 @@ class IntegrationTest extends TestCase {
   #])]
   public function custom_status($query, $expected) {
     $this->send('GET', '/status/420?'.$query);
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 $expected", $status);
+    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
   #[@test, @values([
@@ -66,17 +89,13 @@ class IntegrationTest extends TestCase {
   #])]
   public function echo_error($code, $expected) {
     $this->send('GET', '/raise/error/'.$code);
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 $expected", $status);
+    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
   #[@test]
   public function dispatching_request() {
     $this->send('GET', '/dispatch');
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 420 Dispatched", $status);
+    $this->assertEquals("HTTP/1.0 420 Dispatched", $this->receive()['status']);
   }
 
   #[@test, @values([
@@ -85,24 +104,18 @@ class IntegrationTest extends TestCase {
   #])]
   public function raising_exception_yield_500($class) {
     $this->send('GET', '/raise/exception/'.$class);
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 500 Internal Server Error", $status);
+    $this->assertEquals("HTTP/1.0 500 Internal Server Error", $this->receive()['status']);
   }
 
   #[@test]
   public function unrouted_uris_yield_404() {
     $this->send('GET', '/not-routed');
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.0 404 Not Found", $status);
+    $this->assertEquals("HTTP/1.0 404 Not Found", $this->receive()['status']);
   }
 
   #[@test]
   public function malformed_protocol() {
     self::$connection->write("EHLO example.org\r\n");
-
-    $status= self::$connection->readLine();
-    $this->assertEquals("HTTP/1.1 400 Bad Request", $status);
+    $this->assertEquals("HTTP/1.1 400 Bad Request", self::$connection->readLine());
   }
 }
