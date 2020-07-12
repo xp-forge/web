@@ -31,10 +31,21 @@ class IntegrationTest extends TestCase {
   #[@test, @values([
   #  [200, '200 OK'],
   #  [404, '404 Not Found'],
-  #  [420, '420 Enhanced your calm'],
+  #  [420, '420 Enhance your calm'],
   #])]
   public function echo_status($code, $expected) {
     $this->send('GET', '/status/'.$code);
+
+    $status= self::$connection->readLine();
+    $this->assertEquals("HTTP/1.0 $expected", $status);
+  }
+
+  #[@test, @values([
+  #  [404, '404 Not Found'],
+  #  [500, '500 Internal Server Error'],
+  #])]
+  public function echo_error($code, $expected) {
+    $this->send('GET', '/raise/error/'.$code);
 
     $status= self::$connection->readLine();
     $this->assertEquals("HTTP/1.0 $expected", $status);
