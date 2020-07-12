@@ -117,7 +117,7 @@ class HttpProtocol implements ServerProtocol {
         $this->logging->log($request, $response);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
-      } catch (\Throwable $e) {   // PHP7
+      } catch (\Throwable $e) {
         $this->sendError($request, $response, new InternalServerError($e));
       } finally {
         $response->end();
