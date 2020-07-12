@@ -3,7 +3,7 @@
 use io\streams\{MemoryInputStream, Streams};
 use lang\Value;
 use util\{Objects, URI};
-use web\io\{Input, ReadChunks, ReadLength, ReadStream};
+use web\io\Input;
 
 class Request implements Value {
   private $stream= null;
@@ -109,23 +109,7 @@ class Request implements Value {
 
   /** @return ?io.streams.InputStream */
   public function stream() {
-    if (null !== $this->stream) return $this->stream;
-
-    // Check Content-Length first, this is the typical case
-    if (null !== ($l= $this->header('Content-Length'))) {
-      return $this->stream= new ReadLength($this->input, (int)$l);
-    }
-
-    // Check Transfer-Encoding. The special value "streamed" is used by PHP SAPIs.
-    $te= $this->header('Transfer-Encoding');
-    if ('chunked' === $te) {
-      return $this->stream= new ReadChunks($this->input);
-    } else if ('streamed' === $te) {
-      return $this->stream= new ReadStream($this->input);
-    }
-
-    // Neither Content-Length nor Transfer-Encoding; no body seems to have been passed
-    return null;
+    return $this->stream ?? $this->stream= $this->input->incoming();
   }
 
   /**
@@ -141,7 +125,7 @@ class Request implements Value {
     $query= $this->uri->query(false);
     $type= Headers::parameterized()->parse($this->header('Content-Type'));
     if ('application/x-www-form-urlencoded' === $type->value()) {
-      $data= Streams::readAll($this->stream());
+      $data= Streams::readAll($this->input->incoming());
       $this->stream= new MemoryInputStream($data);
       $query.= '&'.$data;
     }
@@ -190,6 +174,17 @@ class Request implements Value {
         }
       }
     }
+  }
+
+  /**
+   * Adds parameters
+   *
+   * @param  [:var] $params
+   */
+  public function add($params) {
+    $this->parse();
+
+    $this->params= array_merge_recursive($this->params, $params);
   }
 
   /**
@@ -280,6 +275,20 @@ class Request implements Value {
     }
 
     return $this->cookies[$name] ?? $default;
+  }
+
+  /**
+   * Returns a multipart instance if the request contains `multipart/form-data`,
+   * NULL otherwise
+   *
+   * @return ?web.io.Multipart
+   */
+  public function multipart() {
+    $type= Headers::parameterized()->parse($this->header('Content-Type'));
+    if (Multipart::MIME === $type->value()) {
+      return new Multipart($this, $type);
+    }
+    return null;
   }
 
   /**

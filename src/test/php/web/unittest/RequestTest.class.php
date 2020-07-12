@@ -172,7 +172,7 @@ class RequestTest extends TestCase {
   }
 
   #[@test]
-  public function pass_value() {
+  public function inject_value() {
     $this->assertEquals($this, (new Request(new TestInput('GET', '/')))->pass('test', $this)->value('test'));
   }
 
@@ -182,7 +182,7 @@ class RequestTest extends TestCase {
   }
 
   #[@test]
-  public function pass_values() {
+  public function inject_values() {
     $this->assertEquals(['test' => $this], (new Request(new TestInput('GET', '/')))->pass('test', $this)->values());
   }
 

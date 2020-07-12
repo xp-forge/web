@@ -1,6 +1,6 @@
 <?php namespace xp\web;
 
-use web\io\{Buffered, Input, Output, WriteChunks};
+use web\io\{Buffered, Input, Output, ReadStream, ReadLength, WriteChunks, Incomplete};
 
 /**
  * Wrapper for PHP's Server API ("SAPI").
@@ -12,6 +12,7 @@ use web\io\{Buffered, Input, Output, WriteChunks};
  */
 class SAPI extends Output implements Input {
   private $in= null;
+  private $incoming= null;
   private $out;
 
   static function __static() {
@@ -31,6 +32,13 @@ class SAPI extends Output implements Input {
         return $headers;
       }
     }
+  }
+
+  /** Creates a new per-request SAPI I/O instance */
+  public function __construct() {
+    ob_start(function($buffer) {
+      fputs(STDOUT, $buffer);
+    });
   }
 
   /** @return string */
@@ -55,11 +63,44 @@ class SAPI extends Output implements Input {
     yield 'Remote-Addr' => $_SERVER['REMOTE_ADDR'];
     foreach (getallheaders() as $name => $value) {
 
-      // PHP has post-processed this for us, no need to decode ourselves
-      if (0 === strncasecmp($name, 'Transfer-Encoding', 17)) {
-        yield 'Transfer-Encoding' => 'streamed';
+      if (null !== $this->incoming) {
+        // Already determined whether an incoming payload is available
+      } else if (0 === strncasecmp($name, 'Transfer-Encoding', 17) && 'chunked' === $value) {
+        $this->incoming= new ReadStream($this);
+      } else if (0 === strncasecmp($name, 'Content-Length', 14)) {
+        $this->incoming= new ReadLength($this, (int)$value);
+      }
+
+      yield $name => $value;
+    }
+  }
+
+  /** @return ?io.streams.InputStream */
+  public function incoming() { return $this->incoming; }
+
+  /**
+   * Returns parts from a multipart/form-data request
+   *
+   * @see    https://www.php.net/manual/en/reserved.variables.files.php
+   * @see    https://www.php.net/manual/en/ini.core.php#ini.sect.file-uploads
+   * @param  string $boundary
+   * @return iterable
+   */
+  public function parts($boundary) {
+    foreach ($_FILES as $name => $file) {
+      if (is_array($file['error'])) {
+        $name.= '[]';
+        foreach ($file['error'] as $i => $error) {
+          if (UPLOAD_ERR_OK === $error) {
+            yield $name => new Upload($file['name'][$i], $file['type'][$i], $file['tmp_name'][$i]);
+          } else {
+            yield $name => new Incomplete($file['name'][$i], $error);
+          }
+        }
+      } else if (UPLOAD_ERR_OK === $file['error']) {
+        yield $name => new Upload($file['name'], $file['type'], $file['tmp_name']);
       } else {
-        yield $name => $value;
+        yield $name => new Incomplete($file['name'], $file['error']);
       }
     }
   }
@@ -92,13 +133,6 @@ class SAPI extends Output implements Input {
     } else {
       return fread($this->in, $length);
     }
-  }
-
-  /** Creates a new per-request SAPI I/O instance */
-  public function __construct() {
-    ob_start(function($buffer) {
-      fputs(STDOUT, $buffer);
-    });
   }
 
   /**
