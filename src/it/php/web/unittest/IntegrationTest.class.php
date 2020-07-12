@@ -16,16 +16,25 @@ class IntegrationTest extends TestCase {
    *
    * @param  string $method
    * @param  string $uri
+   * @param  string $version
    * @param  [:string] $headers
    * @param  string $body
    * @return void
    */
-  private function send($method, $uri, $headers= [], $body= '') {
-    self::$connection->write($method.' '.$uri." HTTP/1.0\r\n");
+  private function send($method, $uri, $version= '1.0', $headers= [], $body= '') {
+    self::$connection->write($method.' '.$uri.' HTTP/'.$version."\r\n");
     foreach ($headers as $name => $value) {
       self::$connection->write($name.': '.$value."\r\n");
     }
     self::$connection->write("\r\n".$body);
+  }
+
+  #[@test, @values(['1.0', '1.1'])]
+  public function returns_http_version($version) {
+    $this->send('GET', '/status/200', $version, ['Connection' => 'close']);
+
+    $status= self::$connection->readLine();
+    $this->assertEquals("HTTP/$version 200 OK", $status);
   }
 
   #[@test, @values([
