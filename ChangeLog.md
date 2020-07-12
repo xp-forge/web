@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #63: File uploads. This adds a `multipart()` method to the
+  `Request` class from which files can be retrieved. Inside the XP web-
+  server, uploads are streamed; inside PHP SAPIs, uploads are stored
+  inside a temporary directory prior to processing via userland code.
+  (@thekid)
 * Added `web.Response::hint()` method to send HTTP/1.1 1XX statuses
   (@thekid)
 * Fixed PHP 8.0 compatibility by using `[]` for string offset access
