@@ -70,9 +70,12 @@ class IntegrationTest extends TestCase {
     $this->assertEquals("HTTP/1.0 420 Dispatched", $status);
   }
 
-  #[@test]
-  public function raising_exception_yield_500() {
-    $this->send('GET', '/raise/exception');
+  #[@test, @values([
+  #  'lang.IllegalAccessException',
+  #  'Exception',
+  #])]
+  public function raising_exception_yield_500($class) {
+    $this->send('GET', '/raise/exception/'.$class);
 
     $status= self::$connection->readLine();
     $this->assertEquals("HTTP/1.0 500 Internal Server Error", $status);

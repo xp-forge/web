@@ -1,6 +1,6 @@
 <?php namespace web\unittest;
 
-use lang\IllegalAccessException;
+use lang\XPClass;
 use web\{Application, Error};
 
 class TestingApplication extends Application {
@@ -18,7 +18,11 @@ class TestingApplication extends Application {
         $res->send('Answered with status '.$status, 'text/plain');
       },
       '/raise/exception' => function($req, $res) {
-        throw new IllegalAccessException('No access!');
+        $class= XPClass::forName(basename($req->uri()->path()));
+        if ($class->isSubclassOf(\Throwable::class)) throw $class->newInstance('Raised');
+
+        $res->answer(200, 'No error');
+        $res->send($class->toString().' is not throwable', 'text/plain');
       },
       '/raise/error' => function($req, $res) {
         $status= basename($req->uri()->path());
