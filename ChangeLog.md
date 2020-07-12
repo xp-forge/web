@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.2.0 / 2020-07-12
+
 * Merged PR #63: File uploads. This adds a `multipart()` method to the
   `Request` class from which files can be retrieved. Inside the XP web-
   server, uploads are streamed; inside PHP SAPIs, uploads are stored
