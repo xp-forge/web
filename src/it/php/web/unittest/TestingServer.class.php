@@ -25,7 +25,7 @@ class TestingServer {
 
     $s= new Server();
     try {
-      $s->listen(new ServerSocket('127.0.0.1', 0), new HttpProtocol($application, new Logging(null)));
+      $s->listen(new ServerSocket('127.0.0.1', $args[0] ?? 0), new HttpProtocol($application, new Logging(null)));
       $s->init();
       Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
       $s->service();
