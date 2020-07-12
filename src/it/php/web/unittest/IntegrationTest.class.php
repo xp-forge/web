@@ -118,4 +118,31 @@ class IntegrationTest extends TestCase {
     self::$connection->write("EHLO example.org\r\n");
     $this->assertEquals("HTTP/1.1 400 Bad Request", self::$connection->readLine());
   }
+
+  #[@test]
+  public function content_comes_with_length() {
+    $this->send('GET', '/content?data=Test');
+    $response= $this->receive();
+
+    $this->assertEquals('4', $response['headers']['Content-Length']);
+    $this->assertEquals('Test', $response['body']);
+  }
+
+  #[@test]
+  public function stream_comes_with_length_in_http10() {
+    $this->send('GET', '/stream?data=Test', '1.0', ['Connection' => 'close']);
+    $response= $this->receive();
+
+    $this->assertEquals('4', $response['headers']['Content-Length']);
+    $this->assertEquals('Test', $response['body']);
+  }
+
+  #[@test]
+  public function stream_comes_with_chunked_te_in_http11() {
+    $this->send('GET', '/stream?data=Test', '1.1', ['Connection' => 'close']);
+    $response= $this->receive();
+
+    $this->assertEquals('chunked', $response['headers']['Transfer-Encoding']);
+    $this->assertEquals("4\r\nTest\r\n0\r\n\r\n", $response['body']);
+  }
 }

@@ -21,6 +21,7 @@ class TestingApplication extends Application {
         $class= XPClass::forName(basename($req->uri()->path()));
         if ($class->isSubclassOf(\Throwable::class)) throw $class->newInstance('Raised');
 
+        // A non-exception class was passed!
         $res->answer(200, 'No error');
         $res->send($class->toString().' is not throwable', 'text/plain');
       },
@@ -30,6 +31,17 @@ class TestingApplication extends Application {
       },
       '/dispatch' => function($req, $res) {
         return $req->dispatch('/status/420', ['message' => 'Dispatched']);
+      },
+      '/content' => function($req, $res) {
+        $res->answer(200);
+        $res->send($req->param('data') ?? 'Content', 'text/plain');
+      },
+      '/stream' => function($req, $res) {
+        $res->answer(200);
+        $res->header('Content-Type', 'text/plain');
+        $stream= $res->stream();
+        $stream->write($req->param('data') ?? 'Streamed');
+        $stream->close();
       },
     ];
   }
