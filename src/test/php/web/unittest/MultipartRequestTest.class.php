@@ -78,12 +78,31 @@ class MultipartRequestTest extends TestCase {
       $this->file($filename, $bytes),
       $this->param('submit', 'Upload')
     ])));
-
     $files= [];
-    foreach ($req->multipart()->files() as $name => $file) {
+    foreach ($req->files() as $name => $file) {
       $files[$name]= addcslashes($file->bytes(), "\0..\37\177..\377");
     }
     $this->assertEquals([$filename => addcslashes($bytes, "\0..\37\177..\377")], $files);
+  }
+
+  #[@test, @values('files')]
+  public function tmp_files_lifecycle($filename, $bytes) {
+    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
+      $this->file($filename, $bytes),
+      $this->param('submit', 'Upload')
+    ])));
+
+    // Created
+    $filenames= [];
+    foreach ($req->files() as $name => $file) {
+      $this->assertTrue(file_exists($filenames[]= $file->source()));
+    }
+
+    // Delete after destruct
+    unset ($req);
+    foreach ($filenames as $filename) {
+      $this->assertFalse(file_exists($filename));
+    }
   }
 
   #[@test]
@@ -93,11 +112,7 @@ class MultipartRequestTest extends TestCase {
       $this->param('submit', 'Upload')
     ])));
 
-    $params= [];
-    foreach ($req->multipart()->parts() as $name => $part) {
-      $params[$name]= $part->value();
-    }
-    $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $params);
+    $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $req->params());
   }
 
   #[@test, @values([
@@ -105,13 +120,12 @@ class MultipartRequestTest extends TestCase {
   #  ['/?a=b', ['a' => 'b']],
   #  ['/?a=b&c=d', ['a' => 'b', 'c' => 'd']],
   #])]
-  public function params_merged_with_request_after_iteration($uri, $params) {
+  public function params_merged_with_request($uri, $params) {
     $req= new Request(new TestInput('POST', $uri, self::$MULTIPART, $this->multipart([
       $this->param('tc', 'Checked'),
       $this->param('submit', 'Upload')
     ])));
 
-    iterator_count($req->multipart()->parts());
     $this->assertEquals($params + ['tc' => 'Checked', 'submit' => 'Upload'], $req->params());
   }
 
@@ -123,7 +137,6 @@ class MultipartRequestTest extends TestCase {
       $this->param('submit', 'Upload')
     ])));
 
-    iterator_count($req->multipart()->parts());
     $this->assertEquals(['accepted' => ['tc', 'privacy'], 'submit' => 'Upload'], $req->params());
   }
 
@@ -135,31 +148,9 @@ class MultipartRequestTest extends TestCase {
       $this->param('submit', 'Upload')
     ])));
 
-    iterator_count($req->multipart()->parts());
     $this->assertEquals(['accepted' => ['tc' => 'true', 'privacy' => 'true'], 'submit' => 'Upload'], $req->params());
   }
 
-  #[@test]
-  public function discarded_if_not_consumed() {
-    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
-      $this->file('first.txt', 'First'),
-      $this->param('submit', 'Upload')
-    ])));
-
-    $req->multipart();
-    $this->assertEquals((int)$req->header('Content-Length'), $req->consume());
-  }
-
-  #[@test]
-  public function stream_consumed_after_iteration() {
-    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
-      $this->file('first.txt', 'First'),
-      $this->param('submit', 'Upload')
-    ])));
-
-    foreach ($req->multipart()->parts() as $part) { }
-    $this->assertEquals(0, $req->consume());
-  }
 
   #[@test, @values([0, 4, 0xff, 0x100, 0xffff])]
   public function can_process_chunked_multipart_formdata($length) {
@@ -168,7 +159,7 @@ class MultipartRequestTest extends TestCase {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART + self::$CHUNKED, $chunked));
 
     $files= [];
-    foreach ($req->multipart()->files() as $name => $file) {
+    foreach ($req->files() as $name => $file) {
       $files[$name]= strlen($file->bytes());
     }
     $this->assertEquals(['test.txt' => $length], $files);

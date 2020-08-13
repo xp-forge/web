@@ -1,9 +1,11 @@
 <?php namespace web;
 
-use io\streams\{MemoryInputStream, Streams};
+use io\streams\{FileOutputStream, MemoryInputStream, Streams};
+use io\TempFile;
 use lang\Value;
 use util\{Objects, URI};
-use web\io\Input;
+use web\io\{Part, Input, Stream, Incomplete};
+use xp\web\Upload;
 
 class Request implements Value {
   private $stream= null;
@@ -14,6 +16,7 @@ class Request implements Value {
   private $params= null;
   private $cookies= null;
   private $method, $uri, $input;
+  private $files= [];
 
   /** @param web.io.Input $input */
   public function __construct(Input $input) {
@@ -124,12 +127,35 @@ class Request implements Value {
     // Merge parameters from URL and urlencoded payload.
     $query= $this->uri->query(false);
     $type= Headers::parameterized()->parse($this->header('Content-Type'));
-    if ('application/x-www-form-urlencoded' === $type->value()) {
-      $data= Streams::readAll($this->input->incoming());
-      $this->stream= new MemoryInputStream($data);
-      $query.= '&'.$data;
+    switch ($type->value()) {
+      case 'application/x-www-form-urlencoded':
+        $data= Streams::readAll($this->stream());
+        $this->stream= new MemoryInputStream($data);
+        $query.= '&'.$data;
+        parse_str($query, $this->params);
+        break;
+      case 'multipart/form-data':
+        parse_str($query, $this->params);
+        foreach ($this->input()->parts($type->param('boundary')) as $name => $part) {
+          $kind= $part->kind();
+          if (Part::PARAM === $kind) {
+            parse_str($name.'='.$part->value(), $params);
+            $this->params= array_merge_recursive($this->params, $params);
+          } else if (Part::FILE === $kind) {
+            if ($part instanceof Stream) {
+              $tmpFile = (new TempFile())->persistent();
+              $part->transfer(new FileOutputStream($tmpFile));
+              $part = new Upload($part->name(), $part->type(), $tmpFile->getURI());
+            }
+            if ($part instanceof Upload) {
+              $this->files[$part->name()]= $part;
+            }
+          }
+        }
+        break;
+      default:
+        parse_str($query, $this->params);
     }
-    parse_str($query, $this->params);
 
     // Be liberal in what we accept and support "; charset=XXX" although the spec
     // states this media type does not have parameters! Then, handle the special
@@ -213,6 +239,28 @@ class Request implements Value {
     $this->parse();
 
     return isset($this->params[$name]) ? $this->encode($this->params[$name]) : $default;
+  }
+
+  /**
+   * Gets uploaded files
+   *
+   * @return array
+   */
+  public function files(): array {
+    $this->parse();
+
+    return $this->files;
+  }
+
+  /**
+   * Gets uploaded files
+   *
+   * @return Stream|Incomplete|null
+   */
+  public function file($name) {
+    $this->parse();
+
+    return $this->files[$name] ?? null;
   }
 
   /**
@@ -324,4 +372,14 @@ class Request implements Value {
    * @return int
    */
   public function compareTo($value) { return $value === $this ? 0 : 1; }
+
+
+  public function __destruct() {
+    foreach($this->files as $file) {
+      if ($file instanceof Upload) {
+        $file->close();
+        unlink($file->source());
+      }
+    }
+  }
 }

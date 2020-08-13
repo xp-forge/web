@@ -136,6 +136,11 @@ class Upload extends Part implements InputStream {
   }
 
   /** @return string */
+  public function source() {
+    return $this->source;
+  }
+
+  /** @return string */
   public function toString() {
     return nameof($this).'("'.$this->name.'", type= '.$this->type.', source= '.$this->source.')';
   }

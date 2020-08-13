@@ -103,6 +103,9 @@ class SAPI extends Output implements Input {
         yield $name => new Incomplete($file['name'], $file['error']);
       }
     }
+    foreach ($_POST as $name => $value) {
+      yield $name => new Param($name, [$value]);
+    }
   }
 
   /** @return string */
