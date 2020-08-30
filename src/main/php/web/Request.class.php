@@ -3,7 +3,7 @@
 use io\streams\{MemoryInputStream, Streams};
 use lang\Value;
 use util\{Objects, URI};
-use web\io\{Input, Part};
+use web\io\Input;
 
 class Request implements Value {
   private $stream= null;
