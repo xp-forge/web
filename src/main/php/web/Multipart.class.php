@@ -46,8 +46,7 @@ class Multipart {
       $part= $this->parts->current();
       if (Part::PARAM !== $part->kind()) break;
 
-      parse_str($this->parts->key().'='.$part->value(), $params);
-      $this->params= array_merge_recursive($this->params, $params);
+      $this->params= $part->append($this->params);
       $this->parts->next();
       $this->peeked[]= $part;
     }
@@ -69,8 +68,7 @@ class Multipart {
       $name= $this->parts->key();
       $part= $this->parts->current();
       if (Part::PARAM === $part->kind()) {
-        parse_str($name.'='.$part->value(), $params);
-        $this->params= array_merge_recursive($this->params, $params);
+        $this->params= $part->append($this->params);
       }
       yield $name => $part;
       $this->parts->next();
@@ -90,8 +88,7 @@ class Multipart {
       $part= $this->parts->current();
       $kind= $part->kind();
       if (Part::PARAM === $kind) {
-        parse_str($name.'='.$part->value(), $params);
-        $this->params= array_merge_recursive($this->params, $params);
+        $this->params= $part->append($this->params);
       } else if (Part::FILE === $kind) {
         yield $part->name() => $part;
       }
