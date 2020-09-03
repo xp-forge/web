@@ -205,4 +205,13 @@ class SAPITest extends TestCase {
     $parts= $this->parts($this->incomplete('test.txt', UPLOAD_ERR_PARTIAL));
     Streams::readAll($parts['file']);
   }
+
+  #[@test]
+  public function parameters_yielded_by_parts() {
+    $_REQUEST= ['submit' => 'Test'];
+    $this->assertEquals(['submit' => 'web.io.Param', 'file' => 'xp.web.Upload'], array_map(
+      function($part) { return nameof($part); },
+      $this->parts($this->upload('test.txt', 'text/plain'))
+    ));
+  }
 }

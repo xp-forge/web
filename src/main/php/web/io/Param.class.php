@@ -21,6 +21,17 @@ class Param extends Part {
     }
   }
 
+  /**
+   * Append this parameter to a given list of parameters and return the new list
+   *
+   * @param  [:var] $params
+   * @return [:var]
+   */
+  public function append($params) {
+    parse_str($this->name.'='.$this->value, $param);
+    return array_merge_recursive($params, $param);
+  }
+
   /** @return int */
   public function kind() { return Part::PARAM; }
 

@@ -7,6 +7,7 @@ use web\io\Input;
 
 class Request implements Value {
   private $stream= null;
+  private $multipart= null;
   private $lookup= [];
   private $headers= [];
   private $values= [];
@@ -116,9 +117,10 @@ class Request implements Value {
    * Parses payload into parameters and handles encoding (both cached)
    *
    * @see    http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
+   * @param  bool $peek Whether to peek multipart requests for parameters
    * @return void
    */
-  private function parse() {
+  private function parse($peek= true) {
     if (null !== $this->params) return;
 
     // Merge parameters from URL and urlencoded payload.
@@ -130,6 +132,12 @@ class Request implements Value {
       $query.= '&'.$data;
     }
     parse_str($query, $this->params);
+
+    // Read multipart bodies up until the first non-parameter part
+    if (Multipart::MIME === $type->value()) {
+      $this->multipart= new Multipart($this->input()->parts($type->param('boundary')), $this->params);
+      $peek && $this->multipart->peek();
+    }
 
     // Be liberal in what we accept and support "; charset=XXX" although the spec
     // states this media type does not have parameters! Then, handle the special
@@ -174,17 +182,6 @@ class Request implements Value {
         }
       }
     }
-  }
-
-  /**
-   * Adds parameters
-   *
-   * @param  [:var] $params
-   */
-  public function add($params) {
-    $this->parse();
-
-    $this->params= array_merge_recursive($this->params, $params);
   }
 
   /**
@@ -284,11 +281,8 @@ class Request implements Value {
    * @return ?web.io.Multipart
    */
   public function multipart() {
-    $type= Headers::parameterized()->parse($this->header('Content-Type'));
-    if (Multipart::MIME === $type->value()) {
-      return new Multipart($this, $type);
-    }
-    return null;
+    $this->parse(false);
+    return $this->multipart;
   }
 
   /**

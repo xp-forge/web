@@ -1,6 +1,6 @@
 <?php namespace xp\web;
 
-use web\io\{Buffered, Input, Output, ReadStream, ReadLength, WriteChunks, Incomplete};
+use web\io\{Buffered, Input, Output, Param, ReadStream, ReadLength, WriteChunks, Incomplete};
 
 /**
  * Wrapper for PHP's Server API ("SAPI").
@@ -79,7 +79,8 @@ class SAPI extends Output implements Input {
   public function incoming() { return $this->incoming; }
 
   /**
-   * Returns parts from a multipart/form-data request
+   * Returns parts from a multipart/form-data request. Includes all request parameters
+   * up-front as there is no way to know the order in which they were originally passed.
    *
    * @see    https://www.php.net/manual/en/reserved.variables.files.php
    * @see    https://www.php.net/manual/en/ini.core.php#ini.sect.file-uploads
@@ -87,6 +88,9 @@ class SAPI extends Output implements Input {
    * @return iterable
    */
   public function parts($boundary) {
+    foreach ($_REQUEST as $name => $value) {
+      yield $name => new Param($name, [urlencode($value)]);
+    }
     foreach ($_FILES as $name => $file) {
       if (is_array($file['error'])) {
         $name.= '[]';

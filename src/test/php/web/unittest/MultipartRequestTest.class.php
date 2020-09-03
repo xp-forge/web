@@ -100,6 +100,19 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $params);
   }
 
+  #[@test]
+  public function only_parameters_before_files_accessible_before_handling_files() {
+    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
+      $this->param('tc', 'Checked'),
+      $this->file('first.txt', 'First'),
+      $this->param('submit', 'Upload')
+    ])));
+
+    $this->assertEquals(['tc' => 'Checked'], $req->params(), 'Before iterating parts');
+    iterator_count($req->multipart()->parts());
+    $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $req->params(), 'When complete');
+  }
+
   #[@test, @values([
   #  ['/', []],
   #  ['/?a=b', ['a' => 'b']],
