@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.3.0 / 2020-09-03
+
+* Merged PR #66: Parse multipart payloads up until the first file
+  (@thekid, @johannes85)
+
 ## 2.2.0 / 2020-07-12
 
 * Merged PR #64: Add integration tests starting a web server and
