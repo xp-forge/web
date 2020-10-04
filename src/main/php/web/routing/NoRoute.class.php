@@ -1,5 +1,8 @@
 <?php namespace web\routing;
 
-class NoRoute extends \web\Error {
+use web\Error;
+
+/** Indicates routing failed */
+class NoRoute extends Error {
 
 }

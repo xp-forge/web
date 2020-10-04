@@ -5,7 +5,7 @@
  *
  * @test  xp://web.unittest.routing.TargetTest
  */
-class Target implements Match {
+class Target implements RouteMatch {
   private $methods, $target;
 
   /**
@@ -18,7 +18,7 @@ class Target implements Match {
     $this->methods= array_flip((array)$methods);
     if ('*' === $target) {
       $this->target= null;
-    } else if ($target instanceof Match) {
+    } else if ($target instanceof RouteMatch) {
       $this->target= $target;
     } else {
       $this->target= new Path($target);

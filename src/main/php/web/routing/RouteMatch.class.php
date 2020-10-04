@@ -1,6 +1,6 @@
 <?php namespace web\routing;
 
-interface Match {
+interface RouteMatch {
 
   /**
    * Returns whether this target matches a given request

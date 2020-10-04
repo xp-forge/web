@@ -5,7 +5,7 @@
  *
  * @test  xp://web.unittest.routing.PathTest
  */
-class Path implements Match {
+class Path implements RouteMatch {
   private $suffix;
 
   /** @param string $suffix */

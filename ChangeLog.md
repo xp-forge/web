@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.3.1 / 2020-10-04
+
+* Rename (internally used) class `web.routing.Match` to *RouteMatch* to
+  restore PHP 8 compatibility. PHP 8 defines `match` as a keywords, see
+  https://wiki.php.net/rfc/match_expression_v2
+  (@thekid)
+
 ## 2.3.0 / 2020-09-03
 
 * Merged PR #66: Parse multipart payloads up until the first file
