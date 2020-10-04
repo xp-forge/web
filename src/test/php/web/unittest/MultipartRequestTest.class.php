@@ -1,9 +1,9 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
-use unittest\TestCase;
+use unittest\{Test, TestCase, Values};
 use web\Request;
-use web\io\{TestInput, Multipart};
+use web\io\{Multipart, TestInput};
 
 class MultipartRequestTest extends TestCase {
   use Chunking;
@@ -72,7 +72,7 @@ class MultipartRequestTest extends TestCase {
     yield ['blank.gif', "GIF89a\1\0\1\0\200\0\0\0\0\0\377\377\377\!\371\4\1\0\0\0\0,\0\0\0\0\1\0\1\0@\2\1D\0;"];
   }
 
-  #[@test, @values('files')]
+  #[Test, Values('files')]
   public function files_in_file_upload($filename, $bytes) {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->file($filename, $bytes),
@@ -86,7 +86,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals([$filename => addcslashes($bytes, "\0..\37\177..\377")], $files);
   }
 
-  #[@test]
+  #[Test]
   public function multiple_params() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->param('tc', 'Checked'),
@@ -100,7 +100,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $params);
   }
 
-  #[@test]
+  #[Test]
   public function only_parameters_before_files_accessible_before_handling_files() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->param('tc', 'Checked'),
@@ -113,11 +113,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $req->params(), 'When complete');
   }
 
-  #[@test, @values([
-  #  ['/', []],
-  #  ['/?a=b', ['a' => 'b']],
-  #  ['/?a=b&c=d', ['a' => 'b', 'c' => 'd']],
-  #])]
+  #[Test, Values([['/', []], ['/?a=b', ['a' => 'b']], ['/?a=b&c=d', ['a' => 'b', 'c' => 'd']],])]
   public function params_merged_with_request_after_iteration($uri, $params) {
     $req= new Request(new TestInput('POST', $uri, self::$MULTIPART, $this->multipart([
       $this->param('tc', 'Checked'),
@@ -128,7 +124,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals($params + ['tc' => 'Checked', 'submit' => 'Upload'], $req->params());
   }
 
-  #[@test]
+  #[Test]
   public function array_parameters_merged() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->param('accepted[]', 'tc'),
@@ -140,7 +136,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['accepted' => ['tc', 'privacy'], 'submit' => 'Upload'], $req->params());
   }
 
-  #[@test]
+  #[Test]
   public function map_parameters__merged() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->param('accepted[tc]', 'true'),
@@ -152,7 +148,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['accepted' => ['tc' => 'true', 'privacy' => 'true'], 'submit' => 'Upload'], $req->params());
   }
 
-  #[@test]
+  #[Test]
   public function discarded_if_not_consumed() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->file('first.txt', 'First'),
@@ -163,7 +159,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals((int)$req->header('Content-Length'), $req->consume());
   }
 
-  #[@test]
+  #[Test]
   public function stream_consumed_after_iteration() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->file('first.txt', 'First'),
@@ -174,7 +170,7 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(0, $req->consume());
   }
 
-  #[@test, @values([0, 4, 0xff, 0x100, 0xffff])]
+  #[Test, Values([0, 4, 0xff, 0x100, 0xffff])]
   public function can_process_chunked_multipart_formdata($length) {
     $bytes= str_repeat('*', $length);
     $chunked= $this->chunked($this->multipart([$this->file('test.txt', $bytes)]), 0xff);

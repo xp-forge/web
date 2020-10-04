@@ -1,9 +1,9 @@
 <?php namespace web\unittest\io;
 
-use io\streams\{Streams, MemoryOutputStream};
-use io\{Folder, File, Files, Path, IOException};
+use io\streams\{MemoryOutputStream, Streams};
+use io\{File, Files, Folder, IOException, Path};
 use lang\{Environment, IllegalArgumentException};
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase, Values};
 use web\io\{Part, Stream};
 
 class StreamTest extends TestCase {
@@ -77,47 +77,47 @@ class StreamTest extends TestCase {
     yield ['./test.txt', 'test.txt'];
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     $this->newFixture(self::NAME);
   }
 
-  #[@test]
+  #[Test]
   public function kind() {
     $this->assertEquals(Part::FILE, $this->newFixture(self::NAME)->kind());
   }
 
-  #[@test, @values('names')]
+  #[Test, Values('names')]
   public function name($name, $base) {
     $this->assertEquals($base, $this->newFixture($name)->name());
   }
 
-  #[@test, @values('names')]
+  #[Test, Values('names')]
   public function raw_name($name, $base) {
     $this->assertEquals($name, $this->newFixture($name)->name(true));
   }
 
-  #[@test]
+  #[Test]
   public function type() {
     $this->assertEquals('text/plain', $this->newFixture(self::NAME)->type());
   }
 
-  #[@test]
+  #[Test]
   public function string_representation() {
     $this->assertEquals('web.io.Stream("test", type= text/plain)', $this->newFixture('test')->toString());
   }
 
-  #[@test, @values('chunks')]
+  #[Test, Values('chunks')]
   public function bytes($chunks, $expected) {
     $this->assertEquals($expected, $this->newFixture(self::NAME, ...$chunks)->bytes());
   }
 
-  #[@test, @values('chunks')]
+  #[Test, Values('chunks')]
   public function read_all($chunks, $expected) {
     $this->assertEquals($expected, Streams::readAll($this->newFixture(self::NAME, ...$chunks)));
   }
 
-  #[@test, @values('chunks')]
+  #[Test, Values('chunks')]
   public function transfer_to_outputstream($chunks, $expected) {
     $out= new MemoryOutputStream();
     $written= $this->newFixture(self::NAME, ...$chunks)->transfer($out);
@@ -126,7 +126,7 @@ class StreamTest extends TestCase {
     $this->assertEquals($expected, $out->bytes());
   }
 
-  #[@test, @expect(IOException::class)]
+  #[Test, Expect(IOException::class)]
   public function exceptions_raised_while_storing() {
     $out= new class() extends MemoryOutputStream {
       public function write($bytes) { throw new IOException('Disk full'); }
@@ -134,25 +134,17 @@ class StreamTest extends TestCase {
     $this->newFixture(self::NAME, 'Test')->transfer($out);
   }
 
-  #[@test, @values(['', null, "\0abc", "/etc/\0passwd"]), @expect(IllegalArgumentException::class)]
+  #[Test, Values(['', null, "\0abc", "/etc/\0passwd"]), Expect(IllegalArgumentException::class)]
   public function transfer_to_invalid_filename($name) {
     $this->newFixture(self::NAME)->transfer($name);
   }
 
-  #[@test, @values([
-  #  [fn($t) => $t],
-  #  [fn($t) => new Path($t)],
-  #  [fn($t) => $t->getURI()],
-  #])]
+  #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
   public function transfer_to_folder($target) {
     $this->assertTransfer(['test.txt' => 'Test'], $target);
   }
 
-  #[@test, @values([
-  #  [fn($t) => new File($t, 'target.txt')],
-  #  [fn($t) => new Path($t, 'target.txt')],
-  #  [fn($t) => $t->getURI().'target.txt'],
-  #])]
+  #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
   public function transfer_to_file($target) {
     $this->assertTransfer(['target.txt' => 'Test'], $target);
   }

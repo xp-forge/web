@@ -1,40 +1,36 @@
 <?php namespace web\unittest;
 
-use unittest\TestCase;
+use unittest\{Test, TestCase, Values};
 use web\Parameterized;
 
 class ParameterizedTest extends TestCase {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Parameterized('text/plain', []);
   }
 
-  #[@test]
+  #[Test]
   public function value() {
     $this->assertEquals('text/plain', (new Parameterized('text/plain', []))->value());
   }
 
-  #[@test, @values([
-  #  [[]],
-  #  [['charset' => 'utf-8']],
-  #  [['charset' => 'utf-8', 'level' => '1']],
-  #])]
+  #[Test, Values([[[]], [['charset' => 'utf-8']], [['charset' => 'utf-8', 'level' => '1']],])]
   public function params($params) {
     $this->assertEquals($params, (new Parameterized('text/plain', $params))->params());
   }
 
-  #[@test]
+  #[Test]
   public function param_by_name() {
     $this->assertEquals('utf-8', (new Parameterized('text/plain', ['charset' => 'utf-8']))->param('charset'));
   }
 
-  #[@test]
+  #[Test]
   public function non_existant_param() {
     $this->assertNull((new Parameterized('text/plain', ['charset' => 'utf-8']))->param('name'));
   }
 
-  #[@test, @values([null, 'utf-8'])]
+  #[Test, Values([null, 'utf-8'])]
   public function non_existant_param_with($default) {
     $this->assertEquals($default, (new Parameterized('text/plain', []))->param('charset', $default));
   }

@@ -1,15 +1,16 @@
 <?php namespace web\unittest\io;
 
+use unittest\Test;
 use web\io\{TestOutput, WriteChunks};
 
 class WriteChunksTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new WriteChunks(new TestOutput());
   }
 
-  #[@test]
+  #[Test]
   public function write_one_chunk() {
     $out= new TestOutput();
 
@@ -20,7 +21,7 @@ class WriteChunksTest extends \unittest\TestCase {
     $this->assertEquals("4\r\nTest\r\n0\r\n\r\n", $out->bytes());
   }
 
-  #[@test]
+  #[Test]
   public function write_two_small_chunks() {
     $out= new TestOutput();
 
@@ -32,7 +33,7 @@ class WriteChunksTest extends \unittest\TestCase {
     $this->assertEquals("8\r\nUnitTest\r\n0\r\n\r\n", $out->bytes());
   }
 
-  #[@test]
+  #[Test]
   public function write_chunk_exceeding_buffer_size() {
     $out= new TestOutput();
     $chunk= str_repeat('*', WriteChunks::BUFFER_SIZE + 1);

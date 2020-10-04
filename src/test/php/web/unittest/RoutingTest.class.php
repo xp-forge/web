@@ -1,6 +1,6 @@
 <?php namespace web\unittest;
 
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase, Values};
 use web\io\{TestInput, TestOutput};
 use web\routing\{CannotRoute, Target};
 use web\{Handler, Request, Response, Route, Routing};
@@ -16,46 +16,46 @@ class RoutingTest extends TestCase {
     ];
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Routing();
   }
 
-  #[@test, @expect(CannotRoute::class)]
+  #[Test, Expect(CannotRoute::class)]
   public function cannot_service_by_default() {
     (new Routing())->service(new Request(new TestInput('GET', '/')), new Response());
   }
 
-  #[@test]
+  #[Test]
   public function routes_initially_empty() {
     $this->assertEquals([], (new Routing())->routes());
   }
 
-  #[@test]
+  #[Test]
   public function routes_for_empty_map() {
     $this->assertEquals([], Routing::cast([])->routes());
   }
 
-  #[@test]
+  #[Test]
   public function routes_returns_previously_added_map() {
     $route= new Route(new Target('GET', '/'), $this->handlers['default']);
     $this->assertEquals([$route], (new Routing())->with($route)->routes());
   }
 
-  #[@test]
+  #[Test]
   public function for_self() {
     $routes= new Routing();
     $this->assertEquals($routes, Routing::cast($routes));
   }
 
-  #[@test]
+  #[Test]
   public function for_map() {
     $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
       ->route(new Request(new TestInput('GET', '/api')))
     );
   }
 
-  #[@test]
+  #[Test]
   public function fallbacks() {
     $this->assertEquals($this->handlers['default'], (new Routing())
       ->fallbacks($this->handlers['default'])
@@ -63,12 +63,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['/test', 'specific'],
-  #  ['/test/', 'specific'],
-  #  ['/test.html', 'default'],
-  #  ['/', 'default']
-  #])]
+  #[Test, Values([['/test', 'specific'], ['/test/', 'specific'], ['/test.html', 'default'], ['/', 'default']])]
   public function matching_path($url, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('/test', $this->handlers['specific'])
@@ -77,10 +72,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['CONNECT', 'specific'],
-  #  ['GET', 'default']
-  #])]
+  #[Test, Values([['CONNECT', 'specific'], ['GET', 'default']])]
   public function matching_method($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('CONNECT', $this->handlers['specific'])
@@ -89,11 +81,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['GET', 'specific'],
-  #  ['POST', 'specific'],
-  #  ['HEAD', 'default']
-  #])]
+  #[Test, Values([['GET', 'specific'], ['POST', 'specific'], ['HEAD', 'default']])]
   public function methods($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('GET|POST', $this->handlers['specific'])
@@ -102,11 +90,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['GET', 'specific'],
-  #  ['POST', 'default'],
-  #  ['HEAD', 'default']
-  #])]
+  #[Test, Values([['GET', 'specific'], ['POST', 'default'], ['HEAD', 'default']])]
   public function matching_target($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching('GET /', $this->handlers['specific'])
@@ -115,11 +99,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['/test', 'specific'],
-  #  ['/test.html', 'specific'],
-  #  ['/', 'default']
-  #])]
+  #[Test, Values([['/test', 'specific'], ['/test.html', 'specific'], ['/', 'default']])]
   public function matching_paths($url, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->matching(['/test', '/test.html'], $this->handlers['specific'])
@@ -128,11 +108,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['GET', 'specific'],
-  #  ['POST', 'default'],
-  #  ['HEAD', 'specific']
-  #])]
+  #[Test, Values([['GET', 'specific'], ['POST', 'default'], ['HEAD', 'specific']])]
   public function mapping($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->mapping(
@@ -144,11 +120,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['GET', 'specific'],
-  #  ['POST', 'default'],
-  #  ['HEAD', 'specific']
-  #])]
+  #[Test, Values([['GET', 'specific'], ['POST', 'default'], ['HEAD', 'specific']])]
   public function with($verb, $expected) {
     $this->assertEquals($this->handlers[$expected], (new Routing())
       ->with(new Route(new Target(['GET', 'HEAD'], '*'), $this->handlers['specific']))
@@ -157,12 +129,7 @@ class RoutingTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  '/api',
-  #  '//api', '///api',
-  #  '/test/../api', '/./api',
-  #  '/../api', '/./../api',
-  #])]
+  #[Test, Values(['/api', '//api', '///api', '/test/../api', '/./api', '/../api', '/./../api',])]
   public function request_canonicalized_before_matching($requested) {
     $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
       ->route(new Request(new TestInput('GET', $requested)))

@@ -2,9 +2,10 @@
 
 use io\{File, FileUtil, Folder, Path};
 use lang\Environment;
-use web\{Request, Response};
+use unittest\{Test, Values};
 use web\handler\FilesFrom;
 use web\io\{TestInput, TestOutput};
+use web\{Request, Response};
 
 class FilesFromTest extends \unittest\TestCase {
   private $cleanup= [];
@@ -55,12 +56,12 @@ class FilesFromTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new FilesFrom(new Path('.'));
   }
 
-  #[@test]
+  #[Test]
   public function existing_file() {
     $in= new TestInput('GET', '/test.html');
     $out= new TestOutput();
@@ -80,7 +81,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function existing_file_unmodified_since() {
     $in= new TestInput('GET', '/test.html', ['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]);
     $out= new TestOutput(); 
@@ -95,7 +96,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function index_html() {
     $in= new TestInput('GET', '/');
     $out= new TestOutput();
@@ -115,7 +116,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function redirect_if_trailing_slash_missing() {
     $in= new TestInput('GET', '/preview');
     $out= new TestOutput();
@@ -131,7 +132,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function non_existant_file() {
     $in= new TestInput('GET', '/test.html');
     $out= new TestOutput(); 
@@ -149,7 +150,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function non_existant_index_html() {
     $in= new TestInput('GET', '/');
     $out= new TestOutput(); 
@@ -167,13 +168,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['0-3', 'Home'],
-  #  ['4-7', 'page'],
-  #  ['0-0', 'H'],
-  #  ['4-4', 'p'],
-  #  ['7-7', 'e']
-  #])]
+  #[Test, Values([['0-3', 'Home'], ['4-7', 'page'], ['0-0', 'H'], ['4-4', 'p'], ['7-7', 'e']])]
   public function range_with_start_and_end($range, $result) {
     $in= new TestInput('GET', '/', ['Range' => 'bytes='.$range]);
     $out= new TestOutput(); 
@@ -194,7 +189,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function range_from_offset_until_end() {
     $in= new TestInput('GET', '/', ['Range' => 'bytes=4-']);
     $out= new TestOutput(); 
@@ -215,7 +210,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([0, 8192, 10000])]
+  #[Test, Values([0, 8192, 10000])]
   public function range_last_four_bytes($offset) {
     $in= new TestInput('GET', '/', ['Range' => 'bytes=-4']);
     $out= new TestOutput(); 
@@ -236,15 +231,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([
-  #  'bytes=0-2000',
-  #  'bytes=4-2000',
-  #  'bytes=2000-',
-  #  'bytes=2000-2001',
-  #  'bytes=2000-0',
-  #  'bytes=4-0',
-  #  'characters=0-'
-  #])]
+  #[Test, Values(['bytes=0-2000', 'bytes=4-2000', 'bytes=2000-', 'bytes=2000-2001', 'bytes=2000-0', 'bytes=4-0', 'characters=0-'])]
   public function range_unsatisfiable($range) {
     $in= new TestInput('GET', '/', ['Range' => $range]);
     $out= new TestOutput();
@@ -262,7 +249,7 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function multi_range() {
     $in= new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7']);
     $out= new TestOutput(); 

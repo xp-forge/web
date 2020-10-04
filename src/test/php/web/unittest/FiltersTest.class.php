@@ -1,17 +1,17 @@
 <?php namespace web\unittest;
 
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 use web\io\{TestInput, TestOutput};
 use web\{Filter, Filters, Request, Response};
 
 class FiltersTest extends TestCase {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Filters([], function($req, $res) { });
   }
 
-  #[@test]
+  #[Test]
   public function runs_handler() {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
@@ -25,7 +25,7 @@ class FiltersTest extends TestCase {
     $this->assertEquals(['GET /'], $invoked);
   }
 
-  #[@test]
+  #[Test]
   public function filter_instance() {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
@@ -45,7 +45,7 @@ class FiltersTest extends TestCase {
     $this->assertEquals(['GET /rewritten'], $invoked);
   }
 
-  #[@test]
+  #[Test]
   public function filter_function() {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());

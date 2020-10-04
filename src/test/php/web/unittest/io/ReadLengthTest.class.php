@@ -1,8 +1,7 @@
 <?php namespace web\unittest\io;
 
-use unittest\TestCase;
-use web\io\ReadLength;
-use web\io\TestInput;
+use unittest\{Test, TestCase};
+use web\io\{ReadLength, TestInput};
 
 class ReadLengthTest extends TestCase {
 
@@ -16,30 +15,30 @@ class ReadLengthTest extends TestCase {
     return new TestInput('POST', '/', [], $bytes);
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new ReadLength($this->input(''), 0);
   }
 
-  #[@test]
+  #[Test]
   public function available() {
     $fixture= new ReadLength($this->input('Test'), 4);
     $this->assertEquals(4, $fixture->available());
   }
 
-  #[@test]
+  #[Test]
   public function read() {
     $fixture= new ReadLength($this->input('Test'), 4);
     $this->assertEquals('Test', $fixture->read());
   }
 
-  #[@test]
+  #[Test]
   public function available_when_empty() {
     $fixture= new ReadLength($this->input(''), 0);
     $this->assertEquals(0, $fixture->available());
   }
 
-  #[@test]
+  #[Test]
   public function available_after_read() {
     $fixture= new ReadLength($this->input('Test'), 4);
     $fixture->read();

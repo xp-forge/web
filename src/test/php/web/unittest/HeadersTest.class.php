@@ -1,16 +1,12 @@
 <?php namespace web\unittest;
 
 use lang\FormatException;
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase, Values};
 use web\{Headers, Parameterized};
 
 class HeadersTest extends TestCase {
 
-  #[@test, @values([
-  #  'text/plain;charset=utf-8',
-  #  'text/plain; charset=utf-8',
-  #  'text/plain; charset="utf-8"'
-  #])]
+  #[Test, Values(['text/plain;charset=utf-8', 'text/plain; charset=utf-8', 'text/plain; charset="utf-8"'])]
   public function content_type($header) {
     $this->assertEquals(
       new Parameterized('text/plain', ['charset' => 'utf-8']),
@@ -18,11 +14,7 @@ class HeadersTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  'attachment;filename=fname.ext',
-  #  'attachment; filename=fname.ext',
-  #  'attachment; filename="fname.ext"',
-  #])]
+  #[Test, Values(['attachment;filename=fname.ext', 'attachment; filename=fname.ext', 'attachment; filename="fname.ext"',])]
   public function content_disposition($header) {
     $this->assertEquals(
       new Parameterized('attachment', ['filename' => 'fname.ext']),
@@ -30,10 +22,7 @@ class HeadersTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  '5;url=http://www.w3.org/pub/WWW/People.html',
-  #  '5; url=http://www.w3.org/pub/WWW/People.html',
-  #])]
+  #[Test, Values(['5;url=http://www.w3.org/pub/WWW/People.html', '5; url=http://www.w3.org/pub/WWW/People.html',])]
   public function refresh($header) {
     $this->assertEquals(
       new Parameterized('5', ['url' => 'http://www.w3.org/pub/WWW/People.html']),
@@ -41,7 +30,7 @@ class HeadersTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function accept() {
     $this->assertEquals(
       [
@@ -53,7 +42,7 @@ class HeadersTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function forwarded() {
     $this->assertEquals(
       [
@@ -64,28 +53,12 @@ class HeadersTest extends TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['name="\"\""', '""'],
-  #  ['name="\"T\""', '"T"'],
-  #  ['name="\"Test\""', '"Test"'],
-  #  ['name="\"Test=Works; really\""', '"Test=Works; really"'],
-  #  ['name="\"T\" in the beginning"', '"T" in the beginning'],
-  #  ['name="In the end, a \"T\""', 'In the end, a "T"'],
-  #  ['name="A \"T\" in the middle"', 'A "T" in the middle'],
-  #  ['name="A \"T\" and a \"Q\""', 'A "T" and a "Q"'],
-  #  ['name="A \"T!"', 'A "T!'],
-  #  ['name="A T\"!"', 'A T"!']
-  #])]
+  #[Test, Values([['name="\"\""', '""'], ['name="\"T\""', '"T"'], ['name="\"Test\""', '"Test"'], ['name="\"Test=Works; really\""', '"Test=Works; really"'], ['name="\"T\" in the beginning"', '"T" in the beginning'], ['name="In the end, a \"T\""', 'In the end, a "T"'], ['name="A \"T\" in the middle"', 'A "T" in the middle'], ['name="A \"T\" and a \"Q\""', 'A "T" and a "Q"'], ['name="A \"T!"', 'A "T!'], ['name="A T\"!"', 'A T"!']])]
   public function quoted_param($input, $expected) {
     $this->assertEquals(['name' => $expected], Headers::pairs()->parse($input));
   }
 
-  #[@test, @expect(FormatException::class), @values([
-  #  'name="',
-  #  'name=""; test="',
-  #  'name="\"',
-  #  'name="\"\"'
-  #])]
+  #[Test, Expect(FormatException::class), Values(['name="', 'name=""; test="', 'name="\"', 'name="\"\"'])]
   public function unclosed_quoted_string($input) {
     Headers::pairs()->parse($input);
   }

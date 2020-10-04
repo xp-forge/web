@@ -1,9 +1,9 @@
 <?php namespace web\unittest\server;
 
-use io\streams\{Streams, MemoryInputStream, MemoryOutputStream};
-use io\{File, Folder, Files, Path, TempFile, IOException};
+use io\streams\{MemoryInputStream, MemoryOutputStream, Streams};
+use io\{File, Files, Folder, IOException, Path, TempFile};
 use lang\{Environment, IllegalArgumentException};
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase, Values};
 use web\io\Part;
 use xp\web\Upload;
 
@@ -49,27 +49,27 @@ class UploadTest extends TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     $this->newFixture(self::NAME);
   }
 
-  #[@test]
+  #[Test]
   public function kind() {
     $this->assertEquals(Part::FILE, $this->newFixture(self::NAME)->kind());
   }
 
-  #[@test]
+  #[Test]
   public function name() {
     $this->assertEquals(self::NAME, $this->newFixture(self::NAME)->name());
   }
 
-  #[@test]
+  #[Test]
   public function type() {
     $this->assertEquals('text/plain', $this->newFixture(self::NAME)->type());
   }
 
-  #[@test]
+  #[Test]
   public function string_representation() {
     $this->assertEquals(
       'xp.web.Upload("test.txt", type= text/plain, source= /tmp/upload)',
@@ -77,19 +77,19 @@ class UploadTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function bytes() {
     $source= Streams::readableUri(new MemoryInputStream('Test'));
     $this->assertEquals('Test', $this->newFixture(self::NAME, $source)->bytes());
   }
 
-  #[@test]
+  #[Test]
   public function read_all() {
     $source= Streams::readableUri(new MemoryInputStream('Test'));
     $this->assertEquals('Test', Streams::readAll($this->newFixture(self::NAME, $source)));
   }
 
-  #[@test]
+  #[Test]
   public function transfer_to_outputstream() {
     $in= new MemoryInputStream('Test');
     $out= new MemoryOutputStream();
@@ -99,7 +99,7 @@ class UploadTest extends TestCase {
     $this->assertEquals('Test', $out->bytes());
   }
 
-  #[@test, @expect(IOException::class)]
+  #[Test, Expect(IOException::class)]
   public function exceptions_raised_while_storing() {
     $in= new MemoryInputStream('Test');
     $out= new class() extends MemoryOutputStream {
@@ -108,25 +108,17 @@ class UploadTest extends TestCase {
     $this->newFixture(self::NAME, Streams::readableUri($in))->transfer($out);
   }
 
-  #[@test, @values(['', null, "\0abc", "/etc/\0passwd"]), @expect(IllegalArgumentException::class)]
+  #[Test, Values(['', null, "\0abc", "/etc/\0passwd"]), Expect(IllegalArgumentException::class)]
   public function transfer_to_invalid_filename($name) {
     $this->newFixture(self::NAME)->transfer($name);
   }
 
-  #[@test, @values([
-  #  [fn($t) => $t],
-  #  [fn($t) => new Path($t)],
-  #  [fn($t) => $t->getURI()],
-  #])]
+  #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
   public function transfer_to_folder($target) {
     $this->assertTransferred(['test.txt' => 'Test'], $target);
   }
 
-  #[@test, @values([
-  #  [fn($t) => new File($t, 'target.txt')],
-  #  [fn($t) => new Path($t, 'target.txt')],
-  #  [fn($t) => $t->getURI().'target.txt'],
-  #])]
+  #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
   public function transfer_to_file($target) {
     $this->assertTransferred(['target.txt' => 'Test'], $target);
   }

@@ -2,7 +2,7 @@
 
 use io\streams\Streams;
 use peer\{Socket, SocketEndpoint};
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 use xp\web\srv\Input;
 
 class InputTest extends TestCase {
@@ -33,47 +33,47 @@ class InputTest extends TestCase {
     };
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
   }
 
-  #[@test]
+  #[Test]
   public function close_kind() {
     $this->assertEquals(Input::CLOSE, (new Input($this->socket('')))->kind);
   }
 
-  #[@test]
+  #[Test]
   public function request_kind() {
     $this->assertEquals(Input::REQUEST, (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->kind);
   }
 
-  #[@test]
+  #[Test]
   public function malformed_kind() {
     $this->assertEquals('EHLO example.org', (new Input($this->socket("EHLO example.org\r\n")))->kind);
   }
 
-  #[@test]
+  #[Test]
   public function http_scheme_default() {
     $this->assertEquals('http', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->scheme());
   }
 
-  #[@test]
+  #[Test]
   public function method() {
     $this->assertEquals('GET', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->method());
   }
 
-  #[@test]
+  #[Test]
   public function uri() {
     $this->assertEquals('/', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->uri());
   }
 
-  #[@test]
+  #[Test]
   public function version() {
     $this->assertEquals('1.1', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->version());
   }
 
-  #[@test]
+  #[Test]
   public function no_headers() {
     $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
     $this->assertEquals(
@@ -82,7 +82,7 @@ class InputTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function headers() {
     $input= new Input($this->socket("GET / HTTP/1.1\r\nHost: example\r\nDate: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"));
     $this->assertEquals(
@@ -91,7 +91,7 @@ class InputTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function without_payload() {
     $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
     iterator_count($input->headers());
@@ -99,7 +99,7 @@ class InputTest extends TestCase {
     $this->assertNull($input->incoming());
   }
 
-  #[@test]
+  #[Test]
   public function with_content_length() {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
@@ -107,7 +107,7 @@ class InputTest extends TestCase {
     $this->assertEquals('Test', Streams::readAll($input->incoming()));
   }
 
-  #[@test]
+  #[Test]
   public function with_chunked_te() {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n4\r\nTest\r\n0\r\n\r\n"));
     iterator_count($input->headers());
@@ -115,7 +115,7 @@ class InputTest extends TestCase {
     $this->assertEquals('Test', Streams::readAll($input->incoming()));
   }
 
-  #[@test]
+  #[Test]
   public function read_length() {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
@@ -123,7 +123,7 @@ class InputTest extends TestCase {
     $this->assertEquals('Test', $input->read(4));
   }
 
-  #[@test]
+  #[Test]
   public function read_all() {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());

@@ -1,58 +1,59 @@
 <?php namespace web\unittest;
 
 use io\streams\MemoryInputStream;
+use unittest\{Test, Values};
 use util\URI;
 use web\io\{Buffered, TestOutput};
 use web\{Cookie, Response};
 
 class ResponseTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Response(new TestOutput());
   }
 
-  #[@test]
+  #[Test]
   public function status_initially_200() {
     $res= new Response(new TestOutput());
     $this->assertEquals(200, $res->status());
   }
 
-  #[@test]
+  #[Test]
   public function status() {
     $res= new Response(new TestOutput());
     $res->answer(201);
     $this->assertEquals(201, $res->status());
   }
 
-  #[@test]
+  #[Test]
   public function message() {
     $res= new Response(new TestOutput());
     $res->answer(201, 'Created');
     $this->assertEquals('Created', $res->message());
   }
 
-  #[@test]
+  #[Test]
   public function custom_message() {
     $res= new Response(new TestOutput());
     $res->answer(201, 'Creation succeeded');
     $this->assertEquals('Creation succeeded', $res->message());
   }
 
-  #[@test]
+  #[Test]
   public function headers_initially_empty() {
     $res= new Response(new TestOutput());
     $this->assertEquals([], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function header() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
     $this->assertEquals(['Content-Type' => 'text/plain'], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function headers() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
@@ -63,7 +64,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function remove_header() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
@@ -71,14 +72,14 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals([], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function multiple_header() {
     $res= new Response(new TestOutput());
     $res->header('Set-Cookie', ['theme=light', 'sessionToken=abc123']);
     $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function append_header() {
     $res= new Response(new TestOutput());
     $res->header('Set-Cookie', 'theme=light', true);
@@ -86,21 +87,21 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function uri_header() {
     $res= new Response(new TestOutput());
     $res->header('Location', new URI('http://example.com/'));
     $this->assertEquals(['Location' => 'http://example.com/'], $res->headers());
   }
 
-  #[@test]
+  #[Test]
   public function cookie() {
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
     $this->assertEquals('light', $res->cookies()[0]->value());
   }
 
-  #[@test]
+  #[Test]
   public function cookies() {
     $cookies= [new Cookie('theme', 'Test'), (new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT')];
 
@@ -112,14 +113,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals($cookies, $res->cookies());
   }
 
-  #[@test, @values([
-  #  [200, 'OK', 'HTTP/1.1 200 OK'],
-  #  [404, 'Not Found', 'HTTP/1.1 404 Not Found'],
-  #  [200, null, 'HTTP/1.1 200 OK'],
-  #  [404, null, 'HTTP/1.1 404 Not Found'],
-  #  [200, 'Okay', 'HTTP/1.1 200 Okay'],
-  #  [404, 'Nope', 'HTTP/1.1 404 Nope']
-  #])]
+  #[Test, Values([[200, 'OK', 'HTTP/1.1 200 OK'], [404, 'Not Found', 'HTTP/1.1 404 Not Found'], [200, null, 'HTTP/1.1 200 OK'], [404, null, 'HTTP/1.1 404 Not Found'], [200, 'Okay', 'HTTP/1.1 200 Okay'], [404, 'Nope', 'HTTP/1.1 404 Nope']])]
   public function answer($status, $message, $line) {
     $out= new TestOutput();
 
@@ -130,7 +124,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals($line."\r\n\r\n", $out->bytes());
   }
 
-  #[@test]
+  #[Test]
   public function hint() {
     $out= new TestOutput();
 
@@ -142,7 +136,7 @@ class ResponseTest extends \unittest\TestCase {
     $this->assertEquals("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n", $out->bytes());
   }
 
-  #[@test]
+  #[Test]
   public function send_headers() {
     $out= new TestOutput();
 
@@ -157,7 +151,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function send_html() {
     $out= new TestOutput();
 
@@ -171,7 +165,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function transfer_stream_with_length() {
     $out= new TestOutput();
 
@@ -185,7 +179,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function transfer_stream_chunked() {
     $out= new TestOutput();
 
@@ -199,7 +193,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function transfer_stream_buffered() {
     $out= (new TestOutput())->using(Buffered::class);
 
@@ -213,7 +207,7 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function cookies_and_headers_are_merged() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/html');

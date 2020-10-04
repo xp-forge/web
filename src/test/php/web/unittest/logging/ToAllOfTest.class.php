@@ -1,57 +1,60 @@
 <?php namespace web\unittest\logging;
 
-use unittest\TestCase;
-use web\{Error, Request, Response};
+use unittest\{Test, TestCase, Values};
 use web\io\{TestInput, TestOutput};
 use web\logging\{ToAllOf, ToConsole, ToFunction};
+use web\{Error, Request, Response};
 
 class ToAllOfTest extends TestCase {
 
-  #[@test]
+  /** @return iterable */
+  private function arguments() {
+    yield [['a' => ['GET /'], 'b' => ['GET /']], null];
+    yield [['a' => ['GET / Test'], 'b' => ['GET / Test']], new Error(404, 'Test')];
+  }
+
+  #[Test]
   public function can_create_without_args() {
     new ToAllOf();
   }
 
-  #[@test]
+  #[Test]
   public function can_create_with_sink() {
     new ToAllOf(new ToFunction(function($req, $res, $error) { }));
   }
 
-  #[@test]
+  #[Test]
   public function can_create_with_string() {
     new ToAllOf('-');
   }
 
-  #[@test]
+  #[Test]
   public function sinks() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) {  });
     $this->assertEquals([$a, $b], (new ToAllOf($a, $b))->sinks());
   }
 
-  #[@test]
+  #[Test]
   public function sinks_are_merged_when_passed_ToAllOf_instance() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) {  });
     $this->assertEquals([$a, $b], (new ToAllOf(new ToAllOf($a, $b)))->sinks());
   }
 
-  #[@test]
+  #[Test]
   public function sinks_are_empty_when_created_without_arg() {
     $this->assertEquals([], (new ToAllOf())->sinks());
   }
 
-  #[@test]
+  #[Test]
   public function targets() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) { });
     $this->assertEquals('(web.logging.ToConsole & web.logging.ToFunction)', (new ToAllOf($a, $b))->target());
   }
 
-  #[@test, @values([
-  #  [['a' => ['GET /'], 'b' => ['GET /']], null],
-  #  [['a' => ['GET / Test'], 'b' => ['GET / Test']], new Error(404, 'Test')],
-  #])]
+  #[Test, Values('arguments')]
   public function logs_to_all($expected, $error) {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());

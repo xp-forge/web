@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use lang\IllegalStateException;
+use unittest\{Expect, Test};
 use web\io\{TestInput, TestOutput};
 use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
 
@@ -39,14 +40,14 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals([$result], $handled);
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new class($this->environment) extends Application {
       public function routes() { /* Implementation irrelevant for this test */ }
     };
   }
 
-  #[@test]
+  #[Test]
   public function routing() {
     $routing= new Routing();
     $app= newinstance(Application::class, [$this->environment], [
@@ -55,7 +56,7 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals($routing, $app->routing());
   }
 
-  #[@test]
+  #[Test]
   public function routes_only_called_once() {
     $routing= new Routing();
     $called= 0;
@@ -71,7 +72,7 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals($routing, $app->routing());
   }
 
-  #[@test]
+  #[Test]
   public function with_routing() {
     $this->assertHandled($handled, function() use(&$handled) {
       return (new Routing())->fallbacks(function($request, $response) use(&$handled) {
@@ -80,7 +81,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function with_route_map() {
     $this->assertHandled($handled, function() use(&$handled) {
       return ['/' => function($request, $response) use(&$handled) {
@@ -89,7 +90,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function with_handler_function() {
     $this->assertHandled($handled, function() use(&$handled) {
       return function($request, $response) use(&$handled) {
@@ -98,7 +99,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function with_handler_instance() {
     $this->assertHandled($handled, function() use(&$handled) {
       return newinstance(Handler::class, [], [
@@ -109,7 +110,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function dispatch_request() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -123,7 +124,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function dispatch_request_without_query() {
     $passed= null;
     $this->handle(function() use(&$passed) {
@@ -139,7 +140,7 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals([], $passed);
   }
 
-  #[@test]
+  #[Test]
   public function dispatch_request_with_query() {
     $passed= null;
     $this->handle(function() use(&$passed) {
@@ -155,7 +156,7 @@ class ApplicationTest extends \unittest\TestCase {
     $this->assertEquals(['url' => 'http://example.com/'], $passed);
   }
 
-  #[@test, @expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
+  #[Test, Expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
   public function dispatch_request_to_self_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -166,7 +167,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test, @expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
+  #[Test, Expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
   public function dispatch_request_ping_pong_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -183,7 +184,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[@test]
+  #[Test]
   public function dispatch_request_bubbles_up_to_toplevel() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
