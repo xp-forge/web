@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.4.0 / 2020-11-29
+
+* Allowed supplying `--` on the command line to separate subcommand
+  arguments from arguments passed to the application class.
+  (@thekid)
+
 ## 2.3.1 / 2020-10-04
 
 * Rename (internally used) class `web.routing.Match` to *RouteMatch* to

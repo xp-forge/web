@@ -104,6 +104,8 @@ class Runner {
         $mode= array_shift($arguments);
       } else if ('-s' === $args[$i]) {
         $source= $args[++$i];
+      } else if ('--' === $args[$i]) {
+        break;
       } else {
         $source= $args[$i];
         break;
