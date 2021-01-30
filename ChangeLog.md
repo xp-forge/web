@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.5.0 / 2021-01-30
+
+* Merged PR #67: Expand web environment attributes inside config files
+  (@thekid)
+
 ## 2.4.0 / 2020-11-29
 
 * Allowed supplying `--` on the command line to separate subcommand
