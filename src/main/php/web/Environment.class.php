@@ -56,6 +56,16 @@ class Environment {
   public function logging() { return $this->logging; }
 
   /**
+   * Returns a given environment variable
+   *
+   * @param  string $name
+   * @return ?string
+   */
+  public function variable($name) {
+    return false === ($env= getenv($name)) ? null : $env;
+  }
+
+  /**
    * Gets properties
    *
    * @param  string $name
@@ -63,10 +73,11 @@ class Environment {
    * @throws lang.ElementNotFoundException
    */
   public function properties($name) {
+    $expand= ['profile' => $this->profile, 'webroot' => $this->webroot, 'docroot' => $this->docroot];
     $found= [];
     foreach ($this->sources as $source) {
       if ($source->provides($name)) {
-        $found[]= $source->fetch($name);
+        $found[]= $source->fetch($name)->expanding('app', $expand);
       }
     }
 
