@@ -11,7 +11,8 @@ class EnvironmentTest extends TestCase {
   /** @return iterable */
   private function expansions() {
     putenv('XP_TEST=abc');
-    yield ['${env.XP_TEST}/sessions', function($env) { return $env->variable('XP_TEST').'/sessions'; }];
+    yield ['${env.XP_TEST}', function($env) { return $env->variable('XP_TEST'); }];
+    yield ['${app.tempDir}/sessions', function($env) { return $env->tempDir().'/sessions'; }];
     yield ['${app.webroot}/sessions', function($env) { return $env->webroot().'/sessions'; }];
     yield ['${app.docroot}/static', function($env) { return $env->docroot().'/static'; }];
     yield ['${app.profile}', function($env) { return $env->profile(); }];
@@ -41,6 +42,11 @@ class EnvironmentTest extends TestCase {
   public function variable() {
     putenv('XP_TEST=abc');
     $this->assertEquals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
+  }
+
+  #[Test]
+  public function tempDir() {
+    $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
   }
 
   #[Test]

@@ -55,6 +55,14 @@ class Environment {
   /** @return web.Logging */
   public function logging() { return $this->logging; }
 
+  /** @return io.Path */
+  public function tempDir() {
+    foreach (['TEMP', 'TMP', 'TMPDIR', 'TEMPDIR'] as $variant) {
+      if (isset($_ENV[$variant])) return new Path($_ENV[$variant]);
+    }
+    return new Path(sys_get_temp_dir());
+  }
+
   /**
    * Returns a given environment variable
    *
@@ -73,7 +81,7 @@ class Environment {
    * @throws lang.ElementNotFoundException
    */
   public function properties($name) {
-    $expand= ['profile' => $this->profile, 'webroot' => $this->webroot, 'docroot' => $this->docroot];
+    $expand= function($name) { return $this->{$name}(); };
     $found= [];
     foreach ($this->sources as $source) {
       if ($source->provides($name)) {
