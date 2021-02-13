@@ -84,7 +84,7 @@ class Stream extends Part implements InputStream {
       $out= $target->out();
     } else if ($target instanceof Folder) {
       $out= new FileOutputStream(new File($target, $this->name()));
-    } else if (is_string($target) && (0 === strlen($target) || false !== strpos($target, "\0"))) {
+    } else if (null === $target || is_string($target) && (0 === strlen($target) || false !== strpos($target, "\0"))) {
       throw new IllegalArgumentException('Invalid filename "'.addcslashes($target, "\0..\37!\177..\377").'"');
     } else if (is_dir($target)) {
       $out= new FileOutputStream(new File($target, $this->name()));
