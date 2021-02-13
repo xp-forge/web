@@ -50,6 +50,15 @@ class EnvironmentTest extends TestCase {
   }
 
   #[Test]
+  public function path() {
+    $environment= new Environment('dev', '.', 'static', []);
+    $this->assertEquals(
+      new Path($environment->webroot(), 'src/main/handlebars'),
+      $environment->path('src/main/handlebars')
+    );
+  }
+
+  #[Test]
   public function non_existant_variable() {
     putenv('XP_TEST');
     $this->assertNull((new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
