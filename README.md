@@ -44,3 +44,10 @@ $ xp -supervise web -m develop Service
 ```
 
 Now open the website at http://localhost:8080/hello
+
+See also
+--------
+This library provides for the very basic functionality. To create web frontends or REST APIs, have a look at the following libraries built ontop of this:
+
+* [Web frontents](https://github.com/xp-forge/frontend)
+* [REST APIs](https://github.com/xp-forge/rest-api)
