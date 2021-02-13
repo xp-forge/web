@@ -21,7 +21,7 @@ class ReadChunks implements InputStream {
    * @throws io.IOException for chunked format errors
    */
   private function scan() {
-    $size= $this->input->readLine();
+    $size= $this->input->readLine() ?? '';
 
     if (1 !== sscanf($size, '%x', $l)) {
       throw new IOException('No chunk segment present (`'.addcslashes($size, "\0..\37").'`)');
