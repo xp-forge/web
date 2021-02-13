@@ -240,7 +240,7 @@ class RequestTest extends TestCase {
 
   #[Test]
   public function consume_without_data() {
-    $req= new Request(new TestInput('GET', '/', [], null));
+    $req= new Request(new TestInput('GET', '/', []));
     $this->assertEquals(-1, $req->consume());
   }
 
