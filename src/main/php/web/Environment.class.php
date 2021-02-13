@@ -64,6 +64,16 @@ class Environment {
   }
 
   /**
+   * Returns a path composed of the web root and the given path
+   *
+   * @param  string|io.Path $path
+   * @return io.Path
+   */
+  public function path($path) {
+    return new Path($this->webroot, $path);
+  }
+
+  /**
    * Returns a given environment variable
    *
    * @param  string $name
