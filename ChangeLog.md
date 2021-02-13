@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.5.1 / 2021-02-13
+
+* Fixed issue #69: Warnings with PHP 8.1 - @thekid
+
 ## 2.5.0 / 2021-01-30
 
 * Merged PR #67: Expand web environment attributes inside config files
