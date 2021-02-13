@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.6.0 / 2021-02-13
+
+* Merged PR #68: Add `Environment::path()` utility method - @thekid
+
 ## 2.5.1 / 2021-02-13
 
 * Fixed issue #69: Warnings with PHP 8.1 - @thekid
