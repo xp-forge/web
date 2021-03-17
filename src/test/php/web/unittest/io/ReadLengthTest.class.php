@@ -1,6 +1,7 @@
 <?php namespace web\unittest\io;
 
-use unittest\{Test, TestCase};
+use io\IOException;
+use unittest\{Test, Values, TestCase};
 use web\io\{ReadLength, TestInput};
 
 class ReadLengthTest extends TestCase {
@@ -43,5 +44,16 @@ class ReadLengthTest extends TestCase {
     $fixture= new ReadLength($this->input('Test'), 4);
     $fixture->read();
     $this->assertEquals(0, $fixture->available());
+  }
+
+  #[Test, Values([4, 8192])]
+  public function reading_after_eof_raises_exception($length) {
+    $fixture= new ReadLength($this->input('Test'), 4);
+    $fixture->read($length);
+
+    try {
+      $fixture->read(1);
+      $this->fail('No exception raised', null, IOException::class);
+    } catch (IOException $expected) { }
   }
 }

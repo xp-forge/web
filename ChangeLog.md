@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.6.1 / 2021-03-17
+
+* Fixed server being unresponsive after a file upload was cancelled
+  during its transmission
+  (@thekid)
+
 ## 2.6.0 / 2021-02-13
 
 * Merged PR #68: Add `Environment::path()` utility method - @thekid

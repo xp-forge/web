@@ -1,5 +1,6 @@
 <?php namespace web\io;
 
+use io\IOException;
 use io\streams\InputStream;
 
 /**
@@ -22,13 +23,18 @@ class ReadLength implements InputStream {
   }
 
   /**
-   * Reads next chunk
+   * Reads next chunk. Raises an error if EOF is reached unexpectedly.
    *
    * @param  int $limit
    * @return string
    */
   public function read($limit= 8192) {
     $chunk= $this->input->read(min($limit, $this->remaininig));
+    if ('' === $chunk) {
+      $this->remaininig= 0;
+      throw new IOException('EOF');
+    }
+
     $this->remaininig-= strlen($chunk);
     return $chunk;
   }
