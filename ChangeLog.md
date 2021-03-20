@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.7.0 / 2021-03-20
+
+* Added `X-Content-Type-Options: nosniff` to headers to prevent UAs
+  from performing guesswork. See https://mimesniff.spec.whatwg.org/ and
+  https://webhint.io/docs/user-guide/hints/hint-x-content-type-options/
+  (@thekid)
+
 ## 2.6.1 / 2021-03-17
 
 * Fixed server being unresponsive after a file upload was cancelled

@@ -73,6 +73,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 200 OK\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: text/html\r\n".
       "Content-Length: 4\r\n".
       "\r\n".
@@ -108,6 +109,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 200 OK\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: text/html\r\n".
       "Content-Length: 4\r\n".
       "\r\n".
@@ -180,6 +182,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: text/html\r\n".
       "Content-Range: bytes ".$range."/8\r\n".
       "Content-Length: ".strlen($result)."\r\n".
@@ -201,6 +204,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: text/html\r\n".
       "Content-Range: bytes 4-7/8\r\n".
       "Content-Length: 4\r\n".
@@ -222,6 +226,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: text/html\r\n".
       "Content-Range: bytes ".($offset + 4)."-".($offset + 7)."/".($offset + 8)."\r\n".
       "Content-Length: 4\r\n".
@@ -243,6 +248,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 416 Range Not Satisfiable\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Range: bytes */8\r\n".
       "\r\n",
       $out->bytes()
@@ -261,6 +267,7 @@ class FilesFromTest extends \unittest\TestCase {
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
       "Content-Type: multipart/byteranges; boundary=594fa07300f865fe\r\n".
       "Content-Length: 186\r\n".
       "\r\n".

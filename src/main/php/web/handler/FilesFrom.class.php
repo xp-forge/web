@@ -89,6 +89,7 @@ class FilesFrom implements Handler {
 
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
+    $response->header('X-Content-Type-Options', 'nosniff');
 
     $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
