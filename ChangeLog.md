@@ -5,8 +5,13 @@ Web change log
 
 ## 2.7.0 / 2021-03-20
 
-* Added `X-Content-Type-Options: nosniff` to headers to prevent UAs
-  from performing guesswork. See https://mimesniff.spec.whatwg.org/ and
+* Set `Server` header to *XP* to be able to distinguish responses
+  (@thekid)
+* Removed `Host` header, it's a request-only header. See
+  https://webhint.io/docs/user-guide/hints/hint-no-disallowed-headers/
+  (@thekid)
+* Added `X-Content-Type-Options: nosniff` to headers when serving static
+  content via `web.handlers.FilesFrom` to prevent UAs from guessing. See
   https://webhint.io/docs/user-guide/hints/hint-x-content-type-options/
   (@thekid)
 

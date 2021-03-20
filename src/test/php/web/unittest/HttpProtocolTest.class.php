@@ -50,23 +50,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
-      "Content-Length: 0\r\n".
-      "\r\n",
-      $c->out
-    );
-  }
-
-  #[Test, Values(['localhost', 'localhost:8080'])]
-  public function host_header_is_echoed($host) {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
-
-    $c= new Channel(["GET / HTTP/1.1\r\nHost: ".$host."\r\n\r\n"]);
-    $p->handleData($c);
-
-    $this->assertHttp(
-      "HTTP/1.1 200 OK\r\n".
-      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
-      "Host: ".$host."\r\n".
+      "Server: XP\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
       $c->out
@@ -83,6 +67,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
       "Connection: close\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
@@ -100,6 +85,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
       "Content-Length: 0\r\n".
       "\r\n",
       $c->out
@@ -120,6 +106,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
       "Content-Type: text/plain\r\n".
       "Content-Length: 4\r\n".
       "\r\nTest",
@@ -138,6 +125,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
       "Content-Length: 4\r\n".
       "\r\nTest",
       $c->out
@@ -155,6 +143,7 @@ class HttpProtocolTest extends TestCase {
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
       "Transfer-Encoding: chunked\r\n".
       "\r\n4\r\nTest\r\n0\r\n\r\n",
       $c->out

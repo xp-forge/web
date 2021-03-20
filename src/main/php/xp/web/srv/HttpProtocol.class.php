@@ -97,7 +97,7 @@ class HttpProtocol implements ServerProtocol {
       $request= new Request($input);
       $response= new Response(new Output($socket, $version));
       $response->header('Date', gmdate('D, d M Y H:i:s T'));
-      $response->header('Host', $request->header('Host'));
+      $response->header('Server', 'XP');
 
       // HTTP/1.1 defaults to keeping connection alive, HTTP/1.0 defaults to closing
       $connection= $request->header('Connection');
