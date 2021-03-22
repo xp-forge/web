@@ -170,6 +170,25 @@ class FilesFromTest extends \unittest\TestCase {
     );
   }
 
+  #[Test, Values(['/../credentials', '/static/../../credentials'])]
+  public function cannot_access_below_path_root($uri) {
+    $in= new TestInput('GET', $uri);
+    $out= new TestOutput();
+
+    $path= $this->pathWith(['credentials' => 'secret']);
+    $files= new FilesFrom(new Folder($path, 'webroot'));
+    $files->handle(new Request($in), new Response($out));
+
+    $this->assertResponse(
+      "HTTP/1.1 404 Not Found\r\n".
+      "Content-Type: text/plain\r\n".
+      "Content-Length: 37\r\n".
+      "\r\n".
+      "The file '/credentials' was not found",
+      $out->bytes()
+    );
+  }
+
   #[Test, Values([['0-3', 'Home'], ['4-7', 'page'], ['0-0', 'H'], ['4-4', 'p'], ['7-7', 'e']])]
   public function range_with_start_and_end($range, $result) {
     $in= new TestInput('GET', '/', ['Range' => 'bytes='.$range]);
