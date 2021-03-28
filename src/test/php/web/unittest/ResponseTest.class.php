@@ -8,6 +8,17 @@ use web\{Cookie, Response};
 
 class ResponseTest extends \unittest\TestCase {
 
+  /**
+   * Assertion helper
+   *
+   * @param  string $expected
+   * @param  web.Response $response
+   * @throws unittest.AssertionFailedError
+   */
+  private function assertResponse($expected, $response) {
+    $this->assertEquals($expected, $response->output()->bytes());
+  }
+
   #[Test]
   public function can_create() {
     new Response(new TestOutput());
@@ -121,89 +132,74 @@ class ResponseTest extends \unittest\TestCase {
     $res->answer($status, $message);
     $res->flush();
 
-    $this->assertEquals($line."\r\n\r\n", $out->bytes());
+    $this->assertResponse($line."\r\n\r\n", $res);
   }
 
   #[Test]
   public function hint() {
-    $out= new TestOutput();
-
-    $res= new Response($out);
+    $res= new Response(new TestOutput());
     $res->hint(100, 'Continue');
     $res->answer(200, 'OK');
     $res->flush();
 
-    $this->assertEquals("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n", $out->bytes());
+    $this->assertResponse("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n", $res);
   }
 
   #[Test]
   public function send_headers() {
-    $out= new TestOutput();
-
-    $res= new Response($out);
+    $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
     $res->header('Content-Length', '0');
     $res->flush();
 
-    $this->assertEquals(
-      "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n",
-      $out->bytes()
-    );
+    $this->assertResponse("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n", $res);
   }
 
   #[Test]
   public function send_html() {
-    $out= new TestOutput();
-
-    $res= new Response($out);
+    $res= new Response(new TestOutput());
     $res->send('<h1>Test</h1>', 'text/html');
 
-    $this->assertEquals(
+    $this->assertResponse(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
-      $out->bytes()
+      $res
     );
   }
 
   #[Test]
   public function transfer_stream_with_length() {
-    $out= new TestOutput();
-
-    $res= new Response($out);
+    $res= new Response(new TestOutput());
     $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html', 13);
 
-    $this->assertEquals(
+    $this->assertResponse(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
-      $out->bytes()
+      $res
     );
   }
 
   #[Test]
   public function transfer_stream_chunked() {
-    $out= new TestOutput();
-
-    $res= new Response($out);
+    $res= new Response(new TestOutput());
     $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html');
 
-    $this->assertEquals(
+    $this->assertResponse(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
       "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
-      $out->bytes()
+      $res
     );
   }
 
   #[Test]
   public function transfer_stream_buffered() {
-    $out= (new TestOutput())->using(Buffered::class);
-
-    $res= new Response($out);
+    $res= new Response((new TestOutput())->using(Buffered::class));
     $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html');
 
-    $this->assertEquals(
+    $this->assertResponse(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
       "<h1>Test</h1>",
-      $out->bytes()
+      $res
     );
   }
 
@@ -214,9 +210,9 @@ class ResponseTest extends \unittest\TestCase {
     $res->cookie(new Cookie('toggle', 'future'));
     $res->flush();
 
-    $this->assertEquals(
+    $this->assertResponse(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: toggle=future; SameSite=Lax; HttpOnly\r\n\r\n",
-      $res->output()->bytes()
+      $res
     );
   }
 }
