@@ -45,7 +45,7 @@ class FilesFrom implements Handler {
       $file= $target->asFile();
     }
 
-    $this->serve($request, $response, $file);
+    return $this->serve($request, $response, $file);
   }
 
   /**
@@ -54,11 +54,13 @@ class FilesFrom implements Handler {
    * @param  web.io.Output $output
    * @param  io.File $file
    * @param  int $length
+   * @return iterable
    */
   private function copy($output, $file, $length) {
     while ($length && $chunk= $file->read(min(8192, $length))) {
       $output->write($chunk);
       $length-= strlen($chunk);
+      yield;
     }
   }
 
@@ -94,7 +96,14 @@ class FilesFrom implements Handler {
     $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
       $response->answer(200, 'OK');
-      $response->transfer($file->in(), $mimeType, $file->size());
+      $response->header('Content-Type', $mimeType);
+
+      $out= $response->stream($file->size());
+      $file->open(File::READ);
+      do {
+        $out->write($file->read());
+        yield;
+      } while (!$file->eof());
       return;
     }
 
@@ -117,7 +126,7 @@ class FilesFrom implements Handler {
 
         $file->seek($range->start());
         $response->flush();
-        $this->copy($output, $file, $range->length());
+        yield from $this->copy($output, $file, $range->length());
       } else {
         $headers= [];
         $trailer= "\r\n--".self::BOUNDARY."--\r\n";
@@ -140,7 +149,7 @@ class FilesFrom implements Handler {
         foreach ($ranges->sets() as $i => $range) {
           $output->write($headers[$i]);
           $file->seek($range->start());
-          $this->copy($output, $file, $range->length());
+          yield from $this->copy($output, $file, $range->length());
         }
         $output->write($trailer);
       }
