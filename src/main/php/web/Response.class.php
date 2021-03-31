@@ -1,6 +1,8 @@
 <?php namespace web;
 
-use lang\IllegalStateException;
+use io\Channel;
+use io\streams\InputStream;
+use lang\{IllegalStateException, IllegalArgumentException};
 use web\io\WriteChunks;
 
 /**
@@ -170,6 +172,7 @@ class Response {
   /**
    * Transfers a stream
    *
+   * @deprecated Use `yield from $this->transmit(...)` instead!
    * @param  io.streams.InputStream $in
    * @param  string $mediaType
    * @param  int $size If omitted, uses chunked transfer encoding
@@ -189,10 +192,42 @@ class Response {
   }
 
   /**
+   * Transmits a given source to the output asynchronously.
+   *
+   * @param  io.Channel|io.streams.InputStream $source
+   * @param  string $mediaType
+   * @param  int $size If omitted, uses chunked transfer encoding
+   * @return iterable
+   * @throws lang.IllegalArgumentException
+   */
+  public function transmit($source, $mediaType= 'application/octet-stream', $size= null) {
+    if ($source instanceof InputStream) {
+      $in= $source;
+    } else if ($source instanceof Channel) {
+      $in= $source->in();
+    } else {
+      throw new IllegalArgumentException('Expected either a channel or an input stream, have '.typeof($source));
+    }
+
+    $this->headers['Content-Type']= [$mediaType];
+    $out= $this->stream($size);
+    try {
+      while ($in->available()) {
+        $out->write($in->read());
+        yield;
+      }
+    } finally {
+      $out->close();
+      $in->close();
+    }
+  }
+
+  /**
    * Sends some content
    *
    * @param  string $content
    * @param  string $mediaType
+   * @return void
    */
   public function send($content, $mediaType= 'text/html') {
     $this->headers['Content-Type']= [$mediaType];
