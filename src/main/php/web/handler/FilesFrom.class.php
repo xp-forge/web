@@ -53,10 +53,13 @@ class FilesFrom implements Handler {
    *
    * @param  web.io.Output $output
    * @param  io.File $file
-   * @param  int $length
+   * @param  web.io.Range $range
    * @return iterable
    */
-  private function copy($output, $file, $length) {
+  private function copy($output, $file, $range) {
+    $file->seek($range->start());
+
+    $length= $range->length();
     while ($length && $chunk= $file->read(min(8192, $length))) {
       $output->write($chunk);
       $length-= strlen($chunk);
@@ -124,9 +127,8 @@ class FilesFrom implements Handler {
         $response->header('Content-Range', $ranges->format($range));
         $response->header('Content-Length', $range->length());
 
-        $file->seek($range->start());
         $response->flush();
-        yield from $this->copy($output, $file, $range->length());
+        yield from $this->copy($output, $file, $range);
       } else {
         $headers= [];
         $trailer= "\r\n--".self::BOUNDARY."--\r\n";
@@ -148,8 +150,7 @@ class FilesFrom implements Handler {
         $response->flush();
         foreach ($ranges->sets() as $i => $range) {
           $output->write($headers[$i]);
-          $file->seek($range->start());
-          yield from $this->copy($output, $file, $range->length());
+          yield from $this->copy($output, $file, $range);
         }
         $output->write($trailer);
       }
