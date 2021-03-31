@@ -56,6 +56,24 @@ class FilesFromTest extends \unittest\TestCase {
     ));
   }
 
+  /**
+   * Returns
+   *
+   * @param  web.handler.FilesFrom $files
+   * @param  web.Request $req
+   * @return web.Response
+   */
+  private function handle($files, $req) {
+    $res= new Response(new TestOutput());
+
+    try {
+      foreach ($files->handle($req, $res) ?? [] as $_) { }
+      return $res;
+    } finally {
+      $res->end();
+    }
+  }
+
   /** @return void */
   public function tearDown() {
     foreach ($this->cleanup as $folder) {
@@ -70,12 +88,7 @@ class FilesFromTest extends \unittest\TestCase {
 
   #[Test]
   public function existing_file() {
-    $req= new Request(new TestInput('GET', '/test.html'));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -85,33 +98,25 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "Test",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/test.html')))
     );
   }
 
   #[Test]
   public function existing_file_unmodified_since() {
-    $req= new Request(new TestInput('GET', '/test.html', ['If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)]));
-    $res= new Response(new TestOutput()); 
-
-    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
     $this->assertResponse(
       "HTTP/1.1 304 Not Modified\r\n".
       "\r\n",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/test.html', [
+        'If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)
+      ])))
     );
   }
 
   #[Test]
   public function index_html() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Home'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => 'Home']));
     $this->assertResponse(
       "HTTP/1.1 200 OK\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -121,89 +126,63 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "Home",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/')))
     );
   }
 
   #[Test]
   public function redirect_if_trailing_slash_missing() {
-    $req= new Request(new TestInput('GET', '/preview'));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['preview' => ['index.html' => 'Home']])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['preview' => ['index.html' => 'Home']]));
     $this->assertResponse(
       "HTTP/1.1 301 Moved Permanently\r\n".
       "Location: preview/\r\n".
       "\r\n",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/preview')))
     );
   }
 
   #[Test]
   public function non_existant_file() {
-    $req= new Request(new TestInput('GET', '/test.html'));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith([])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith([]));
     $this->assertResponse(
       "HTTP/1.1 404 Not Found\r\n".
       "Content-Type: text/plain\r\n".
       "Content-Length: 35\r\n".
       "\r\n".
       "The file '/test.html' was not found",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/test.html')))
     );
   }
 
   #[Test]
   public function non_existant_index_html() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith([])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith([]));
     $this->assertResponse(
       "HTTP/1.1 404 Not Found\r\n".
       "Content-Type: text/plain\r\n".
       "Content-Length: 26\r\n".
       "\r\n".
       "The file '/' was not found",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/')))
     );
   }
 
   #[Test, Values(['/../credentials', '/static/../../credentials'])]
   public function cannot_access_below_path_root($uri) {
-    $req= new Request(new TestInput('GET', $uri));
-    $res= new Response(new TestOutput());
-
-    $path= $this->pathWith(['credentials' => 'secret']);
-    $files= new FilesFrom(new Folder($path, 'webroot'));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom(new Folder($this->pathWith(['credentials' => 'secret']), 'webroot'));
     $this->assertResponse(
       "HTTP/1.1 404 Not Found\r\n".
       "Content-Type: text/plain\r\n".
       "Content-Length: 37\r\n".
       "\r\n".
       "The file '/credentials' was not found",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', $uri)))
     );
   }
 
   #[Test, Values([['0-3', 'Home'], ['4-7', 'page'], ['0-0', 'H'], ['4-4', 'p'], ['7-7', 'e']])]
   public function range_with_start_and_end($range, $result) {
-    $req= new Request(new TestInput('GET', '/', ['Range' => 'bytes='.$range]));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => 'Homepage']));
     $this->assertResponse(
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -214,18 +193,13 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: ".strlen($result)."\r\n".
       "\r\n".
       $result,
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => 'bytes='.$range])))
     );
   }
 
   #[Test]
   public function range_from_offset_until_end() {
-    $req= new Request(new TestInput('GET', '/', ['Range' => 'bytes=4-']));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => 'Homepage']));
     $this->assertResponse(
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -236,18 +210,13 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => 'bytes=4-'])))
     );
   }
 
   #[Test, Values([0, 8192, 10000])]
   public function range_last_four_bytes($offset) {
-    $req= new Request(new TestInput('GET', '/', ['Range' => 'bytes=-4']));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => str_repeat('*', $offset).'Homepage'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => str_repeat('*', $offset).'Homepage']));
     $this->assertResponse(
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -258,18 +227,13 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Length: 4\r\n".
       "\r\n".
       "page",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => 'bytes=-4'])))
     );
   }
 
   #[Test, Values(['bytes=0-2000', 'bytes=4-2000', 'bytes=2000-', 'bytes=2000-2001', 'bytes=2000-0', 'bytes=4-0', 'characters=0-'])]
   public function range_unsatisfiable($range) {
-    $req= new Request(new TestInput('GET', '/', ['Range' => $range]));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => 'Homepage']));
     $this->assertResponse(
       "HTTP/1.1 416 Range Not Satisfiable\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -277,18 +241,13 @@ class FilesFromTest extends \unittest\TestCase {
       "X-Content-Type-Options: nosniff\r\n".
       "Content-Range: bytes */8\r\n".
       "\r\n",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => $range])))
     );
   }
 
   #[Test]
   public function multi_range() {
-    $req= new Request(new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7']));
-    $res= new Response(new TestOutput());
-
-    $files= (new FilesFrom($this->pathWith(['index.html' => 'Homepage'])));
-    $files->handle($req, $res);
-
+    $files= new FilesFrom($this->pathWith(['index.html' => 'Homepage']));
     $this->assertResponse(
       "HTTP/1.1 206 Partial Content\r\n".
       "Accept-Ranges: bytes\r\n".
@@ -306,7 +265,7 @@ class FilesFromTest extends \unittest\TestCase {
       "Content-Range: bytes 4-7/8\r\n\r\n".
       "page".
       "\r\n--594fa07300f865fe--\r\n",
-      $res
+      $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7'])))
     );
   }
 }
