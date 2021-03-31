@@ -3,7 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-* Merged PR #72. Asynchronous file handling for `web.handler.FilesFrom`.
+* Merged PR #73: Add new async method `Response::transmit()` replacing
+  `Response::transfer()`
+  (@thekid)
+* Merged PR #72: Asynchronous file handling for `web.handler.FilesFrom`.
   (@thekid)
 * Added support for interruptible handlers. These handlers can hand back
   control to the server and allow for further requests to be handled by
