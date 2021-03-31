@@ -1,12 +1,13 @@
 <?php namespace web\unittest;
 
+use io\Channel;
 use io\streams\MemoryInputStream;
-use unittest\{Test, Values};
+use unittest\{Test, Values, TestCase};
 use util\URI;
 use web\io\{Buffered, TestOutput};
 use web\{Cookie, Response};
 
-class ResponseTest extends \unittest\TestCase {
+class ResponseTest extends TestCase {
 
   /**
    * Assertion helper
@@ -239,6 +240,21 @@ class ResponseTest extends \unittest\TestCase {
     );
   }
 
+  #[Test]
+  public function transmit_channel() {
+    $res= new Response(new TestOutput());
+    $channel= new class() implements Channel {
+      public function in() { return new MemoryInputStream('<h1>Test</h1>'); }
+      public function out() { /* Not implemented */ }
+    };
+    foreach ($res->transmit($channel, 'text/html', 13) as $_) { }
+
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
+      "<h1>Test</h1>",
+      $res
+    );
+  }
 
   #[Test]
   public function cookies_and_headers_are_merged() {

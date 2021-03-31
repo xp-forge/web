@@ -1,5 +1,7 @@
 <?php namespace web;
 
+use io\Channel;
+use io\streams\InputStream;
 use lang\IllegalStateException;
 use web\io\WriteChunks;
 
@@ -190,16 +192,24 @@ class Response {
   }
 
   /**
-   * Transmits a stream
+   * Transmits a given source to the output asynchronously.
    *
-   * @param  io.streams.InputStream $in
+   * @param  io.Channel|io.streams.InputStream $source
    * @param  string $mediaType
    * @param  int $size If omitted, uses chunked transfer encoding
    * @return iterable
+   * @throws lang.IllegalArgumentException
    */
-  public function transmit($in, $mediaType= 'application/octet-stream', $size= null) {
-    $this->headers['Content-Type']= [$mediaType];
+  public function transmit($source, $mediaType= 'application/octet-stream', $size= null) {
+    if ($source instanceof InputStream) {
+      $in= $source;
+    } else if ($source instanceof Channel) {
+      $in= $source->in();
+    } else {
+      throw new IllegalArgumentException('Expected either a channel or an input stream, have '.typeof($source));
+    }
 
+    $this->headers['Content-Type']= [$mediaType];
     $out= $this->stream($size);
     try {
       while ($in->available()) {
