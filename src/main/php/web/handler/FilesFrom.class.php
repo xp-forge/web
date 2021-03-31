@@ -6,7 +6,8 @@ use web\Handler;
 use web\io\Ranges;
 
 class FilesFrom implements Handler {
-  const BOUNDARY = '594fa07300f865fe';
+  const BOUNDARY  = '594fa07300f865fe';
+  const CHUNKSIZE = 8192;
 
   private $path;
 
@@ -60,7 +61,7 @@ class FilesFrom implements Handler {
     $file->seek($range->start());
 
     $length= $range->length();
-    while ($length && $chunk= $file->read(min(8192, $length))) {
+    while ($length && $chunk= $file->read(min(self::CHUNKSIZE, $length))) {
       $output->write($chunk);
       $length-= strlen($chunk);
       yield;
@@ -105,7 +106,7 @@ class FilesFrom implements Handler {
       $file->open(File::READ);
       try {
         do {
-          $out->write($file->read());
+          $out->write($file->read(self::CHUNKSIZE));
           yield;
         } while (!$file->eof());
       } finally {
