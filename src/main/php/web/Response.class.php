@@ -170,6 +170,7 @@ class Response {
   /**
    * Transfers a stream
    *
+   * @deprecated Use `yield from $this->transmit(...)` instead!
    * @param  io.streams.InputStream $in
    * @param  string $mediaType
    * @param  int $size If omitted, uses chunked transfer encoding
@@ -189,10 +190,34 @@ class Response {
   }
 
   /**
+   * Transmits a stream
+   *
+   * @param  io.streams.InputStream $in
+   * @param  string $mediaType
+   * @param  int $size If omitted, uses chunked transfer encoding
+   * @return iterable
+   */
+  public function transmit($in, $mediaType= 'application/octet-stream', $size= null) {
+    $this->headers['Content-Type']= [$mediaType];
+
+    $out= $this->stream($size);
+    try {
+      while ($in->available()) {
+        $out->write($in->read());
+        yield;
+      }
+    } finally {
+      $out->close();
+      $in->close();
+    }
+  }
+
+  /**
    * Sends some content
    *
    * @param  string $content
    * @param  string $mediaType
+   * @return void
    */
   public function send($content, $mediaType= 'text/html') {
     $this->headers['Content-Type']= [$mediaType];

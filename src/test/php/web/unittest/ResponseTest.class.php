@@ -204,6 +204,43 @@ class ResponseTest extends \unittest\TestCase {
   }
 
   #[Test]
+  public function transmit_stream_with_length() {
+    $res= new Response(new TestOutput());
+    foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html', 13) as $_) { }
+
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
+      "<h1>Test</h1>",
+      $res
+    );
+  }
+
+  #[Test]
+  public function transmit_stream_chunked() {
+    $res= new Response(new TestOutput());
+    foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html') as $_) { }
+
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
+      "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
+      $res
+    );
+  }
+
+  #[Test]
+  public function transmit_stream_buffered() {
+    $res= new Response((new TestOutput())->using(Buffered::class));
+    foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html') as $_) { }
+
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
+      "<h1>Test</h1>",
+      $res
+    );
+  }
+
+
+  #[Test]
   public function cookies_and_headers_are_merged() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/html');
