@@ -2,7 +2,8 @@
 
 use io\Channel;
 use io\streams\MemoryInputStream;
-use unittest\{Test, Values, TestCase};
+use lang\IllegalArgumentException;
+use unittest\{Test, Expect, Values, TestCase};
 use util\URI;
 use web\io\{Buffered, TestOutput};
 use web\{Cookie, Response};
@@ -254,6 +255,12 @@ class ResponseTest extends TestCase {
       "<h1>Test</h1>",
       $res
     );
+  }
+
+  #[Test, Expect(IllegalArgumentException::class)]
+  public function transmit_null() {
+    $res= new Response(new TestOutput());
+    foreach ($res->transmit(null) as $_) { }
   }
 
   #[Test]

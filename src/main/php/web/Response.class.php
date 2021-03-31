@@ -2,7 +2,7 @@
 
 use io\Channel;
 use io\streams\InputStream;
-use lang\IllegalStateException;
+use lang\{IllegalStateException, IllegalArgumentException};
 use web\io\WriteChunks;
 
 /**
