@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Added support for interruptible handlers. These handlers can hand back
+  control to the server and allow for further requests to be handled by
+  using `yield`. Typical usecases would be file uploads and downloads,
+  during which the server would normally be blocked. See issue #70.
+  (@thekid)
+
 ## 2.7.0 / 2021-03-20
 
 * Set `Server` header to *XP* to be able to distinguish responses
