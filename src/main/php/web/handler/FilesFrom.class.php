@@ -102,14 +102,15 @@ class FilesFrom implements Handler {
       $response->header('Content-Type', $mimeType);
 
       $out= $response->stream($file->size());
+      $file->open(File::READ);
       try {
-        $file->open(File::READ);
         do {
           $out->write($file->read());
           yield;
         } while (!$file->eof());
       } finally {
         $file->close();
+        $out->close();
       }
       return;
     }
@@ -122,45 +123,41 @@ class FilesFrom implements Handler {
     }
 
     $file->open(File::READ);
-    $output= $response->output();
     $response->answer(206, 'Partial Content');
 
     try {
       if ($range= $ranges->single()) {
         $response->header('Content-Type', $mimeType);
         $response->header('Content-Range', $ranges->format($range));
-        $response->header('Content-Length', $range->length());
 
-        $response->flush();
-        yield from $this->copy($output, $file, $range);
+        $out= $response->stream($range->length());
+        yield from $this->copy($out, $file, $range);
       } else {
         $headers= [];
         $trailer= "\r\n--".self::BOUNDARY."--\r\n";
-
         $length= strlen($trailer);
+
         foreach ($ranges->sets() as $i => $range) {
-          $header= sprintf(
+          $headers[$i]= $header= sprintf(
             "\r\n--%s\r\nContent-Type: %s\r\nContent-Range: %s\r\n\r\n",
             self::BOUNDARY,
             $mimeType,
             $ranges->format($range)
           );
-          $headers[$i]= $header;
           $length+= strlen($header) + $range->length();
         }
-
         $response->header('Content-Type', 'multipart/byteranges; boundary='.self::BOUNDARY);
-        $response->header('Content-Length', $length);
-        $response->flush();
+
+        $out= $response->stream($length);
         foreach ($ranges->sets() as $i => $range) {
-          $output->write($headers[$i]);
-          yield from $this->copy($output, $file, $range);
+          $out->write($headers[$i]);
+          yield from $this->copy($out, $file, $range);
         }
-        $output->write($trailer);
+        $out->write($trailer);
       }
     } finally {
       $file->close();
-      $output->close();
+      $out->close();
     }
   }
 }
