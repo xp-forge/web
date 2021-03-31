@@ -6,7 +6,8 @@ use web\Handler;
 use web\io\Ranges;
 
 class FilesFrom implements Handler {
-  const BOUNDARY = '594fa07300f865fe';
+  const BOUNDARY  = '594fa07300f865fe';
+  const CHUNKSIZE = 8192;
 
   private $path;
 
@@ -45,7 +46,7 @@ class FilesFrom implements Handler {
       $file= $target->asFile();
     }
 
-    $this->serve($request, $response, $file);
+    return $this->serve($request, $response, $file);
   }
 
   /**
@@ -53,12 +54,17 @@ class FilesFrom implements Handler {
    *
    * @param  web.io.Output $output
    * @param  io.File $file
-   * @param  int $length
+   * @param  web.io.Range $range
+   * @return iterable
    */
-  private function copy($output, $file, $length) {
-    while ($length && $chunk= $file->read(min(8192, $length))) {
+  private function copy($output, $file, $range) {
+    $file->seek($range->start());
+
+    $length= $range->length();
+    while ($length && $chunk= $file->read(min(self::CHUNKSIZE, $length))) {
       $output->write($chunk);
       $length-= strlen($chunk);
+      yield;
     }
   }
 
@@ -94,7 +100,19 @@ class FilesFrom implements Handler {
     $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
       $response->answer(200, 'OK');
-      $response->transfer($file->in(), $mimeType, $file->size());
+      $response->header('Content-Type', $mimeType);
+
+      $out= $response->stream($file->size());
+      $file->open(File::READ);
+      try {
+        do {
+          $out->write($file->read(self::CHUNKSIZE));
+          yield;
+        } while (!$file->eof());
+      } finally {
+        $file->close();
+        $out->close();
+      }
       return;
     }
 
@@ -106,47 +124,41 @@ class FilesFrom implements Handler {
     }
 
     $file->open(File::READ);
-    $output= $response->output();
     $response->answer(206, 'Partial Content');
 
     try {
       if ($range= $ranges->single()) {
         $response->header('Content-Type', $mimeType);
         $response->header('Content-Range', $ranges->format($range));
-        $response->header('Content-Length', $range->length());
 
-        $file->seek($range->start());
-        $response->flush();
-        $this->copy($output, $file, $range->length());
+        $out= $response->stream($range->length());
+        yield from $this->copy($out, $file, $range);
       } else {
         $headers= [];
         $trailer= "\r\n--".self::BOUNDARY."--\r\n";
-
         $length= strlen($trailer);
+
         foreach ($ranges->sets() as $i => $range) {
-          $header= sprintf(
+          $headers[$i]= $header= sprintf(
             "\r\n--%s\r\nContent-Type: %s\r\nContent-Range: %s\r\n\r\n",
             self::BOUNDARY,
             $mimeType,
             $ranges->format($range)
           );
-          $headers[$i]= $header;
           $length+= strlen($header) + $range->length();
         }
-
         $response->header('Content-Type', 'multipart/byteranges; boundary='.self::BOUNDARY);
-        $response->header('Content-Length', $length);
-        $response->flush();
+
+        $out= $response->stream($length);
         foreach ($ranges->sets() as $i => $range) {
-          $output->write($headers[$i]);
-          $file->seek($range->start());
-          $this->copy($output, $file, $range->length());
+          $out->write($headers[$i]);
+          yield from $this->copy($out, $file, $range);
         }
-        $output->write($trailer);
+        $out->write($trailer);
       }
     } finally {
       $file->close();
-      $output->close();
+      $out->close();
     }
   }
 }
