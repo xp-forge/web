@@ -102,11 +102,15 @@ class FilesFrom implements Handler {
       $response->header('Content-Type', $mimeType);
 
       $out= $response->stream($file->size());
-      $file->open(File::READ);
-      do {
-        $out->write($file->read());
-        yield;
-      } while (!$file->eof());
+      try {
+        $file->open(File::READ);
+        do {
+          $out->write($file->read());
+          yield;
+        } while (!$file->eof());
+      } finally {
+        $file->close();
+      }
       return;
     }
 
