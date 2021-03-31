@@ -18,6 +18,6 @@ class Prefork extends Standalone {
    * @param  int $children How many children to initially fork, defaults to 10
    */
   public function __construct($host, $port, $children= 10) {
-    parent::__construct(new PreforkingServer($host, $port, $children), 'http://'.$host.':'.$port.'/');
+    parent::__construct(new PreforkingServer(null, null, $children), $host, $port);
   }
 }

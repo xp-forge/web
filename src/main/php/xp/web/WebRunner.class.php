@@ -68,7 +68,7 @@ class WebRunner {
 
     try {
       $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
-      $application->service($request, $response);
+      foreach ($application->service($request, $response) ?? [] as $_) { }
       $env->logging()->log($request, $response);
     } catch (Error $e) {
       self::error($request, $response, $env, $e);

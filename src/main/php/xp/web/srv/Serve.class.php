@@ -16,6 +16,6 @@ class Serve extends Standalone {
    * @param  int $port
    */
   public function __construct($host, $port) {
-    parent::__construct(new Server($host, $port), 'http://'.$host.':'.$port.'/');
+    parent::__construct(new Server(), $host, $port);
   }
 }

@@ -113,7 +113,7 @@ class HttpProtocol implements ServerProtocol {
       }
 
       try {
-        $this->application->service($request, $response);
+        yield from $this->application->service($request, $response) ?? [];
         $this->logging->log($request, $response);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);

@@ -58,10 +58,10 @@ abstract class Application implements \lang\Value {
    *
    * @param  web.Request $request
    * @param  web.Response $response
-   * @return void
+   * @return var
    */
   public function service($request, $response) {
-    $this->routing()->service($request, $response);
+    return $this->routing()->service($request, $response);
   }
 
   /** @return string */

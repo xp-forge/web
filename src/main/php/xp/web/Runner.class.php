@@ -3,7 +3,7 @@
 use io\Path;
 use lang\{IllegalArgumentException, XPClass};
 use xp\runtime\Help;
-use xp\web\srv\{Develop, Prefork, Serve};
+use xp\web\srv\{Develop, Prefork, Serve, Async};
 
 /**
  * Web server
@@ -35,6 +35,7 @@ use xp\web\srv\{Develop, Prefork, Serve};
 class Runner {
   private static $modes= [
     'serve'   => Serve::class,
+    'async'   => Async::class,
     'prefork' => Prefork::class,
     'develop' => Develop::class
   ];
