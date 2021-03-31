@@ -4,7 +4,8 @@ Web change log
 ## ?.?.? / ????-??-??
 
 * Merged PR #73: Add new async method `Response::transmit()` replacing
-  `Response::transfer()`
+  `Response::transfer()`. While existing code will continue to work, it
+  should be rewritten as seen in the pull request!
   (@thekid)
 * Merged PR #72: Asynchronous file handling for `web.handler.FilesFrom`.
   (@thekid)
