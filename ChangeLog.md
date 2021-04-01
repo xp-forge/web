@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.8.0 / 2021-04-01
+
 * Merged PR #73: Add new async method `Response::transmit()` replacing
   `Response::transfer()`. While existing code will continue to work, it
   should be rewritten as seen in the pull request!
