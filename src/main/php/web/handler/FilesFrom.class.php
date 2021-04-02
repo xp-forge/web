@@ -108,7 +108,7 @@ class FilesFrom implements Handler {
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
-    $headers= $this->headers instanceof \Closure ? ($this->headers)($target) : $this->headers;
+    $headers= is_callable($this->headers) ? ($this->headers)($target) : $this->headers;
     foreach ($headers as $name => $value) {
       $response->header($name, $value);
     }
