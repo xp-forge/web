@@ -10,10 +10,22 @@ class FilesFrom implements Handler {
   const CHUNKSIZE = 8192;
 
   private $path;
+  private $headers= [];
 
   /** @param io.Path|io.Folder|string $path */
   public function __construct($path) {
     $this->path= $path instanceof Path ? $path : new Path($path);
+  }
+
+  /**
+   * Adds headers
+   *
+   * @param  [:string] $headers
+   * @return self
+   */
+  public function with($headers) {
+    $this->headers= $headers;
+    return $this;
   }
 
   /**
@@ -96,6 +108,9 @@ class FilesFrom implements Handler {
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
+    foreach ($this->headers as $name => $value) {
+      $response->header($name, $value);
+    }
 
     $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
