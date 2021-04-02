@@ -18,9 +18,9 @@ class FilesFrom implements Handler {
   }
 
   /**
-   * Adds headers
+   * Adds headers, either from an array or a function.
    *
-   * @param  [:string] $headers
+   * @param  [:string]|function(io.File): iterable $headers
    * @return self
    */
   public function with($headers) {
@@ -108,7 +108,8 @@ class FilesFrom implements Handler {
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
-    foreach ($this->headers as $name => $value) {
+    $headers= $this->headers instanceof \Closure ? ($this->headers)($target) : $this->headers;
+    foreach ($headers as $name => $value) {
       $response->header($name, $value);
     }
 

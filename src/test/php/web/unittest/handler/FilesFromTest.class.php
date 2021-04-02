@@ -120,6 +120,27 @@ class FilesFromTest extends TestCase {
   }
 
   #[Test]
+  public function existing_file_with_headers_function() {
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])))->with(function($file) {
+      if (strstr($file->filename, '.html')) {
+        yield 'Cache-Control' => 'no-cache';
+      }
+    });
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Cache-Control: no-cache\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $this->handle($files, new Request(new TestInput('GET', '/test.html')))
+    );
+  }
+
+  #[Test]
   public function existing_file_unmodified_since() {
     $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
     $this->assertResponse(
