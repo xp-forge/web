@@ -18,7 +18,7 @@ class FilesFrom implements Handler {
   }
 
   /**
-   * Adds headers, either from an array or a function.
+   * Adds headers to successful responses, either from an array or a function.
    *
    * @param  [:string]|function(util.URI, io.File, string): iterable $headers
    * @return self
