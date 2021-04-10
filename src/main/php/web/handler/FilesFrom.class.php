@@ -17,6 +17,9 @@ class FilesFrom implements Handler {
     $this->path= $path instanceof Path ? $path : new Path($path);
   }
 
+  /** @return io.Path */
+  public function path() { return $this->path; }
+
   /**
    * Adds headers to successful responses, either from an array or a function.
    *

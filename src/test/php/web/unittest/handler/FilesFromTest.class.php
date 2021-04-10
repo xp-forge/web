@@ -106,6 +106,11 @@ class FilesFromTest extends TestCase {
     new FilesFrom(new Path('.'));
   }
 
+  #[Test, Values(eval: '[["."], [new Path(".")]]')]
+  public function path($arg) {
+    $this->assertEquals(new Path('.'), (new FilesFrom($arg))->path());
+  }
+
   #[Test]
   public function existing_file() {
     $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
