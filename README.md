@@ -49,7 +49,7 @@ Performance
 -----------
 Because the code for the web application is only compiled once when using production servers, we achieve lightning-fast request/response roundtrip times:
 
-![Network console screenshot](https://user-images.githubusercontent.com/696742/114266967-99224b00-99f9-11eb-928b-e10efd5fd7bd.png)
+![Network console screenshot](https://user-images.githubusercontent.com/696742/114267149-78a6c080-99fa-11eb-9e6e-182f298ef9dc.png)
 
 See also
 --------
