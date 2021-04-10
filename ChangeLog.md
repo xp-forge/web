@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.9.0 / 2021-04-10
+
+* Merged PR #74: Add new FilesFrom::with($headers) to add custom headers
+  (@thekid)
+
 ## 2.8.0 / 2021-04-01
 
 * Merged PR #73: Add new async method `Response::transmit()` replacing
