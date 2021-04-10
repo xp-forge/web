@@ -2,12 +2,12 @@
 
 use io\{File, FileUtil, Folder, Path};
 use lang\Environment;
-use unittest\{Test, Values};
+use unittest\{Test, TestCase, Values};
 use web\handler\FilesFrom;
 use web\io\{TestInput, TestOutput};
 use web\{Request, Response};
 
-class FilesFromTest extends \unittest\TestCase {
+class FilesFromTest extends TestCase {
   private $cleanup= [];
 
   /**
@@ -57,7 +57,7 @@ class FilesFromTest extends \unittest\TestCase {
   }
 
   /**
-   * Returns
+   * Invokes handle()
    *
    * @param  web.handler.FilesFrom $files
    * @param  web.Request $req
@@ -68,6 +68,26 @@ class FilesFromTest extends \unittest\TestCase {
 
     try {
       foreach ($files->handle($req, $res) ?? [] as $_) { }
+      return $res;
+    } finally {
+      $res->end();
+    }
+  }
+
+  /**
+   * Invokes serve()
+   *
+   * @param  web.handler.FilesFrom $files
+   * @param  io.File $file
+   * @param  ?string $mime
+   * @return web.Response
+   */
+  private function serve($files, $file, $mime= null) {
+    $res= new Response(new TestOutput());
+    $req= new Request(new TestInput('GET', '/'));
+
+    try {
+      foreach ($files->serve($req, $res, $file, $mime) ?? [] as $_) { }
       return $res;
     } finally {
       $res->end();
@@ -86,6 +106,11 @@ class FilesFromTest extends \unittest\TestCase {
     new FilesFrom(new Path('.'));
   }
 
+  #[Test, Values(eval: '[["."], [new Path(".")]]')]
+  public function path($arg) {
+    $this->assertEquals(new Path('.'), (new FilesFrom($arg))->path());
+  }
+
   #[Test]
   public function existing_file() {
     $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
@@ -94,6 +119,44 @@ class FilesFromTest extends \unittest\TestCase {
       "Accept-Ranges: bytes\r\n".
       "Last-Modified: <Date>\r\n".
       "X-Content-Type-Options: nosniff\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $this->handle($files, new Request(new TestInput('GET', '/test.html')))
+    );
+  }
+
+  #[Test]
+  public function existing_file_with_headers() {
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])))->with(['Cache-Control' => 'no-cache']);
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Cache-Control: no-cache\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $this->handle($files, new Request(new TestInput('GET', '/test.html')))
+    );
+  }
+
+  #[Test]
+  public function existing_file_with_headers_function() {
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])))->with(function($uri, $file, $mime) {
+      if (strstr($file->filename, '.html')) {
+        yield 'Cache-Control' => 'no-cache';
+      }
+    });
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Cache-Control: no-cache\r\n".
       "Content-Type: text/html\r\n".
       "Content-Length: 4\r\n".
       "\r\n".
@@ -266,6 +329,67 @@ class FilesFromTest extends \unittest\TestCase {
       "page".
       "\r\n--594fa07300f865fe--\r\n",
       $this->handle($files, new Request(new TestInput('GET', '/', ['Range' => 'bytes=0-3,4-7'])))
+    );
+  }
+
+  #[Test]
+  public function call_serve_directly() {
+    $files= new FilesFrom('.');
+    $file= new File($this->pathWith(['test.html' => 'Test']), 'test.html');
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $this->serve($files, $file)
+    );
+  }
+
+  #[Test]
+  public function call_serve_with_non_existant_file() {
+    $files= new FilesFrom('.');
+    $file= new File($this->pathWith([]), 'test.html');
+    $this->assertResponse(
+      "HTTP/1.1 404 Not Found\r\n".
+      "Content-Type: text/plain\r\n".
+      "Content-Length: 26\r\n".
+      "\r\n".
+      "The file '/' was not found",
+      $this->serve($files, $file)
+    );
+  }
+
+  #[Test]
+  public function call_serve_without_file() {
+    $files= new FilesFrom('.');
+    $this->assertResponse(
+      "HTTP/1.1 404 Not Found\r\n".
+      "Content-Type: text/plain\r\n".
+      "Content-Length: 26\r\n".
+      "\r\n".
+      "The file '/' was not found",
+      $this->serve($files, null)
+    );
+  }
+
+  #[Test]
+  public function overrride_mime_type_when_invoking_serve() {
+    $files= new FilesFrom('.');
+    $file= new File($this->pathWith(['test.html' => 'Test']), 'test.html');
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Content-Type: text/html; charset=utf-8\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n".
+      "Test",
+      $this->serve($files, $file, 'text/html; charset=utf-8')
     );
   }
 }

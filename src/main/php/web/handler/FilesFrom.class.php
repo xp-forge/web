@@ -10,10 +10,25 @@ class FilesFrom implements Handler {
   const CHUNKSIZE = 8192;
 
   private $path;
+  private $headers= [];
 
   /** @param io.Path|io.Folder|string $path */
   public function __construct($path) {
     $this->path= $path instanceof Path ? $path : new Path($path);
+  }
+
+  /** @return io.Path */
+  public function path() { return $this->path; }
+
+  /**
+   * Adds headers to successful responses, either from an array or a function.
+   *
+   * @param  [:string]|function(util.URI, io.File, string): iterable $headers
+   * @return self
+   */
+  public function with($headers) {
+    $this->headers= $headers;
+    return $this;
   }
 
   /**
@@ -73,12 +88,12 @@ class FilesFrom implements Handler {
    *
    * @param   web.Request $request
    * @param   web.Response $response
-   * @param   io.File|io.Path|string $target
+   * @param   ?io.File|io.Path|string $target
+   * @param   ?string $mimeType
    * @return  void
    */
-  public function serve($request, $response, $target) {
-    $file= $target instanceof File ? $target : new File($target);
-    if (!$file->exists()) {
+  public function serve($request, $response, $target, $mimeType= null) {
+    if (null === $target || ($file= $target instanceof File ? $target : new File($target)) && !$file->exists()) {
       $response->answer(404, 'Not Found');
       $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
       return;
@@ -93,11 +108,15 @@ class FilesFrom implements Handler {
       }
     }
 
+    $mimeType ?? $mimeType= MimeType::getByFileName($file->filename);
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
+    $headers= is_callable($this->headers) ? ($this->headers)($request->uri(), $target, $mimeType) : $this->headers;
+    foreach ($headers as $name => $value) {
+      $response->header($name, $value);
+    }
 
-    $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
       $response->answer(200, 'OK');
       $response->header('Content-Type', $mimeType);
