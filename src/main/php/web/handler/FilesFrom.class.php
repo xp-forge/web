@@ -85,12 +85,12 @@ class FilesFrom implements Handler {
    *
    * @param   web.Request $request
    * @param   web.Response $response
-   * @param   io.File|io.Path|string $target
+   * @param   ?io.File|io.Path|string $target
+   * @param   ?string $mimeType
    * @return  void
    */
-  public function serve($request, $response, $target) {
-    $file= $target instanceof File ? $target : new File($target);
-    if (!$file->exists()) {
+  public function serve($request, $response, $target, $mimeType= null) {
+    if (null === $target || ($file= $target instanceof File ? $target : new File($target)) && !$file->exists()) {
       $response->answer(404, 'Not Found');
       $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
       return;
@@ -105,7 +105,7 @@ class FilesFrom implements Handler {
       }
     }
 
-    $mimeType= MimeType::getByFileName($file->filename);
+    $mimeType ?? $mimeType= MimeType::getByFileName($file->filename);
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
