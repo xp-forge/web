@@ -121,7 +121,7 @@ class FilesFromTest extends TestCase {
 
   #[Test]
   public function existing_file_with_headers_function() {
-    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])))->with(function($file) {
+    $files= (new FilesFrom($this->pathWith(['test.html' => 'Test'])))->with(function($uri, $file, $mime) {
       if (strstr($file->filename, '.html')) {
         yield 'Cache-Control' => 'no-cache';
       }

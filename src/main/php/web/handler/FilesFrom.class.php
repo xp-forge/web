@@ -20,7 +20,7 @@ class FilesFrom implements Handler {
   /**
    * Adds headers, either from an array or a function.
    *
-   * @param  [:string]|function(io.File): iterable $headers
+   * @param  [:string]|function(util.URI, io.File, string): iterable $headers
    * @return self
    */
   public function with($headers) {
@@ -105,15 +105,15 @@ class FilesFrom implements Handler {
       }
     }
 
+    $mimeType= MimeType::getByFileName($file->filename);
     $response->header('Accept-Ranges', 'bytes');
     $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
-    $headers= is_callable($this->headers) ? ($this->headers)($target) : $this->headers;
+    $headers= is_callable($this->headers) ? ($this->headers)($request->uri(), $target, $mimeType) : $this->headers;
     foreach ($headers as $name => $value) {
       $response->header($name, $value);
     }
 
-    $mimeType= MimeType::getByFileName($file->filename);
     if (null === ($ranges= Ranges::in($request->header('Range'), $file->size()))) {
       $response->answer(200, 'OK');
       $response->header('Content-Type', $mimeType);
