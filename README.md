@@ -45,6 +45,12 @@ $ xp -supervise web -m develop Service
 
 Now open the website at http://localhost:8080/hello
 
+Performance
+-----------
+Because the code for the web application is only compiled once when using production servers, we achieve lightning-fast request/response roundtrip times:
+
+![Network console screenshot](https://user-images.githubusercontent.com/696742/114266967-99224b00-99f9-11eb-928b-e10efd5fd7bd.png)
+
 See also
 --------
 This library provides for the very basic functionality. To create web frontends or REST APIs, have a look at the following libraries built ontop of this:
