@@ -48,7 +48,7 @@ class Console implements Filter {
 
     try {
       ob_start();
-      $result= $invocation->proceed($req, $buffer);
+      foreach ($invocation->proceed($req, $buffer) ?? [] as $_) { }
     } finally {
       $buffer->end();
       $debug= ob_get_clean();
@@ -68,7 +68,5 @@ class Console implements Filter {
         htmlspecialchars($out->bytes)
       ));
     }
-
-    return $result;
   }
 }
