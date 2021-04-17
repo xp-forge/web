@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.9.1 / 2021-04-17
+
+* Fixed issue #75: Development server: Response already flushed - @thekid
+
 ## 2.9.0 / 2021-04-10
 
 * Merged PR #74: Add new FilesFrom::with($headers) to add custom headers
