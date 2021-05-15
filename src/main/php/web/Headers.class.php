@@ -1,6 +1,7 @@
 <?php namespace web;
 
 use lang\FormatException;
+use util\Date;
 
 /**
  * Parses headers
@@ -10,6 +11,16 @@ use lang\FormatException;
  * @test  xp://web.unittest.HeadersTest
  */
 abstract class Headers {
+
+  /**
+   * Formats a date for use in headers
+   *
+   * @param  ?int|util.Date $arg
+   * @return string
+   */
+  public static function date($arg= null) {
+    return gmdate('D, d M Y H:i:s \G\M\T', $arg instanceof Date ? $arg->getTime() : $arg);
+  }
 
   /**
    * Parses a given input string and returns the parsed values

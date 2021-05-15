@@ -2,8 +2,8 @@
 
 use io\{File, Path};
 use util\MimeType;
-use web\Handler;
 use web\io\Ranges;
+use web\{Handler, Headers};
 
 class FilesFrom implements Handler {
   const BOUNDARY  = '594fa07300f865fe';
@@ -110,7 +110,7 @@ class FilesFrom implements Handler {
 
     $mimeType ?? $mimeType= MimeType::getByFileName($file->filename);
     $response->header('Accept-Ranges', 'bytes');
-    $response->header('Last-Modified', gmdate('D, d M Y H:i:s T', $lastModified));
+    $response->header('Last-Modified', Headers::date($lastModified));
     $response->header('X-Content-Type-Options', 'nosniff');
     $headers= is_callable($this->headers) ? ($this->headers)($request->uri(), $target, $mimeType) : $this->headers;
     foreach ($headers as $name => $value) {

@@ -3,7 +3,7 @@
 use lang\IllegalArgumentException;
 use unittest\{Expect, Test, TestCase, Values};
 use util\{Date, TimeSpan};
-use web\Cookie;
+use web\{Cookie, Headers};
 
 class CookieTest extends TestCase {
 
@@ -115,7 +115,7 @@ class CookieTest extends TestCase {
   #[Test]
   public function use_null_to_remove() {
     $this->assertEquals(
-      'name=; Expires='.gmdate('D, d M Y H:i:s \G\M\T', time() - 86400 * 365).'; Max-Age=0; SameSite=Lax; HttpOnly',
+      'name=; Expires='.Headers::date(time() - 86400 * 365).'; Max-Age=0; SameSite=Lax; HttpOnly',
       (new Cookie('name', null))->header()
     );
   }

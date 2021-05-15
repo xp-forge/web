@@ -152,7 +152,7 @@ class Cookie implements Value {
   public function header() {
     return (
       $this->name.'='.$this->value.
-      (null === $this->expires ? '' : '; Expires='.gmdate('D, d M Y H:i:s \G\M\T', $this->expires)).
+      (null === $this->expires ? '' : '; Expires='.Headers::date($this->expires)).
       (null === $this->maxAge ? '' : '; Max-Age='.$this->maxAge).
       (null === $this->path ? '' : '; Path='.$this->path).
       (null === $this->domain ? '' : '; Domain='.$this->domain).
