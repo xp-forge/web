@@ -1,7 +1,7 @@
 <?php namespace xp\web;
 
 use lang\ClassLoader;
-use web\{Environment, Error, InternalServerError, Request, Response, Status};
+use web\{Environment, Error, InternalServerError, Request, Response, Headers, Status};
 
 /**
  * Entry point for web-main.php
@@ -63,8 +63,7 @@ class WebRunner {
     $sapi= new SAPI();
     $request= new Request($sapi);
     $response= new Response($sapi);
-    $response->header('Date', gmdate('D, d M Y H:i:s T'));
-    $response->header('Host', $request->header('Host'));
+    $response->header('Date', Headers::date());
 
     try {
       $application= (new Source(getenv('WEB_SOURCE'), $env))->application();

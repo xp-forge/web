@@ -18,8 +18,8 @@ abstract class Headers {
    * @param  ?int|util.Date $arg
    * @return string
    */
-  public static function date($arg) {
-    return gmdate('D, d M Y H:i:s T', $arg instanceof Date ? $arg->getTime() : $arg);
+  public static function date($arg= null) {
+    return gmdate('D, d M Y H:i:s \G\M\T', $arg instanceof Date ? $arg->getTime() : $arg);
   }
 
   /**

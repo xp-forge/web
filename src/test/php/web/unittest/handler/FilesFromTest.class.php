@@ -5,7 +5,7 @@ use lang\Environment;
 use unittest\{Test, TestCase, Values};
 use web\handler\FilesFrom;
 use web\io\{TestInput, TestOutput};
-use web\{Request, Response};
+use web\{Request, Response, Headers};
 
 class FilesFromTest extends TestCase {
   private $cleanup= [];
@@ -172,7 +172,7 @@ class FilesFromTest extends TestCase {
       "HTTP/1.1 304 Not Modified\r\n".
       "\r\n",
       $this->handle($files, new Request(new TestInput('GET', '/test.html', [
-        'If-Modified-Since' => gmdate('D, d M Y H:i:s T', time() + 1)
+        'If-Modified-Since' => Headers::date(time() + 1)
       ])))
     );
   }
