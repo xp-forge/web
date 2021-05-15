@@ -2,9 +2,21 @@
 
 use lang\FormatException;
 use unittest\{Expect, Test, TestCase, Values};
+use util\Date;
 use web\{Headers, Parameterized};
 
 class HeadersTest extends TestCase {
+  const TIMESTAMP = 1621063890;
+
+  #[Test]
+  public function date_of_int() {
+    $this->assertEquals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(self::TIMESTAMP));
+  }
+
+  #[Test]
+  public function date_of_date_instance() {
+    $this->assertEquals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(new Date(self::TIMESTAMP)));
+  }
 
   #[Test, Values(['text/plain;charset=utf-8', 'text/plain; charset=utf-8', 'text/plain; charset="utf-8"'])]
   public function content_type($header) {
