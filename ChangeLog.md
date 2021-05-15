@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.10.0 / 2021-05-15
+
+* Merged PR #77: Add `Headers::date(int|util.Date)` to return dates in GMT
+  according to HTTP spec
+  (@thekid)
+
 ## 2.9.1 / 2021-04-17
 
 * Fixed issue #75: Development server: Response already flushed - @thekid
