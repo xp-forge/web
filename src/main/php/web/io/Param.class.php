@@ -28,7 +28,7 @@ class Param extends Part {
    * @return [:var]
    */
   public function append($params) {
-    parse_str($this->name.'='.$this->value, $param);
+    parse_str($this->name.'='.urlencode($this->value), $param);
     return array_merge_recursive($params, $param);
   }
 

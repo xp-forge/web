@@ -182,4 +182,15 @@ class MultipartRequestTest extends TestCase {
     }
     $this->assertEquals(['test.txt' => $length], $files);
   }
+
+  #[Test]
+  public function and_char_not_supported_regression() {
+    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
+      $this->param('test', 'illegal&char')
+    ])));
+
+    iterator_count($req->multipart()->parts());
+    $this->assertEquals(['test' => 'illegal&char'], $req->params());
+  }
+
 }
