@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.11.0 / 2021-06-03
+
+* Added support for HTTP status code 103 "Early Hints", see RFC 8297 and
+  https://evertpot.com/http/103-early-hints. Note that this does not work
+  in the development webserver, see php/php-src#7025.
+  (@thekid)
+
 ## 2.10.0 / 2021-05-15
 
 * Merged PR #77: Add `Headers::date(int|util.Date)` to return dates in GMT

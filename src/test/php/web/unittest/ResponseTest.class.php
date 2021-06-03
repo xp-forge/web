@@ -148,6 +148,44 @@ class ResponseTest extends TestCase {
   }
 
   #[Test]
+  public function hint_with_headers() {
+    $res= new Response(new TestOutput());
+    $res->hint(101, null, [
+      'Upgrade'    => 'websocket',
+      'Connection' => 'Upgrade'
+    ]);
+
+    $this->assertResponse(
+      "HTTP/1.1 101 Switching Protocols\r\n".
+      "Upgrade: websocket\r\n".
+      "Connection: Upgrade\r\n".
+      "\r\n",
+      $res
+    );
+  }
+
+  #[Test]
+  public function hint_uses_and_retains_previously_set_headers() {
+    $res= new Response(new TestOutput());
+    $res->header('Link', ['</main.css>; rel=preload; as=style', '</script.js>; rel=preload; as=script']);
+    $res->hint(103);
+    $res->answer(200, 'OK');
+    $res->flush();
+
+    $this->assertResponse(
+      "HTTP/1.1 103 Early Hints\r\n".
+      "Link: </main.css>; rel=preload; as=style\r\n".
+      "Link: </script.js>; rel=preload; as=script\r\n".
+      "\r\n".
+      "HTTP/1.1 200 OK\r\n".
+      "Link: </main.css>; rel=preload; as=style\r\n".
+      "Link: </script.js>; rel=preload; as=script\r\n".
+      "\r\n",
+      $res
+    );
+  }
+
+  #[Test]
   public function send_headers() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');

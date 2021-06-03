@@ -163,6 +163,9 @@ class Response {
    */
   public function hint($status, $message= null, $headers= []) {
     $pass= [];
+    foreach ($this->headers as $name => $header) {
+      $pass[$name]= is_array($header) ? $header : [$header];
+    }
     foreach ($headers as $name => $header) {
       $pass[$name]= is_array($header) ? $header : [$header];
     }
