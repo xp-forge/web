@@ -1,9 +1,9 @@
 <?php namespace web\unittest;
 
-use unittest\TestCase;
+use unittest\{Assert, Action, Test, Values};
 
-#[@action(new StartServer('web.unittest.TestingServer', 'connected'))]
-class IntegrationTest extends TestCase {
+#[Action(eval: 'new StartServer("web.unittest.TestingServer", "connected")')]
+class IntegrationTest {
   private static $connection;
 
   /** @param peer.Socket $client */
@@ -46,103 +46,90 @@ class IntegrationTest extends TestCase {
     return $response;
   }
 
-  #[@test, @values(['1.0', '1.1'])]
+  #[Test, Values(['1.0', '1.1'])]
   public function returns_http_version($version) {
     $this->send('GET', '/status/200', $version, ['Connection' => 'close']);
-    $this->assertEquals("HTTP/$version 200 OK", $this->receive()['status']);
+    Assert::equals("HTTP/$version 200 OK", $this->receive()['status']);
   }
 
-  #[@test]
+  #[Test]
   public function date_header_always_present() {
     $this->send('GET', '/status/200');
-    $this->assertTrue(isset($this->receive()['headers']['Date']));
+    Assert::true(isset($this->receive()['headers']['Date']));
   }
 
-  #[@test]
-  public function host_header_present_if_sent() {
-    $this->send('GET', '/status/200', '1.1', ['Host' => 'example.org', 'Connection' => 'close']);
-    $this->assertEquals('example.org', $this->receive()['headers']['Host']);
+  #[Test]
+  public function server_header_alwayss_present() {
+    $this->send('GET', '/status/200', '1.1', ['Connection' => 'close']);
+    Assert::equals('XP', $this->receive()['headers']['Server']);
   }
 
-  #[@test, @values([
-  #  [200, '200 OK'],
-  #  [404, '404 Not Found'],
-  #  [420, '420 Enhance your calm'],
-  #])]
+  #[Test, Values([[200, '200 OK'], [404, '404 Not Found'], [420, '420 Enhance your calm']])]
   public function echo_status($code, $expected) {
     $this->send('GET', '/status/'.$code);
-    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
-  #[@test, @values([
-  #  ['', '420 Enhance your calm'],
-  #  ['message=Custom+message', '420 Custom message'],
-  #])]
+  #[Test, Values([['', '420 Enhance your calm'], ['message=Custom+message', '420 Custom message']])]
   public function custom_status($query, $expected) {
     $this->send('GET', '/status/420?'.$query);
-    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
-  #[@test, @values([
-  #  [404, '404 Not Found'],
-  #  [500, '500 Internal Server Error'],
-  #])]
+  #[Test, Values([[404, '404 Not Found'], [500, '500 Internal Server Error']])]
   public function echo_error($code, $expected) {
     $this->send('GET', '/raise/error/'.$code);
-    $this->assertEquals("HTTP/1.0 $expected", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 $expected", $this->receive()['status']);
   }
 
-  #[@test]
+  #[Test]
   public function dispatching_request() {
     $this->send('GET', '/dispatch');
-    $this->assertEquals("HTTP/1.0 420 Dispatched", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 420 Dispatched", $this->receive()['status']);
   }
 
-  #[@test, @values([
-  #  'lang.IllegalAccessException',
-  #  'Exception',
-  #])]
+  #[Test, Values(['lang.IllegalAccessException', 'Exception'])]
   public function raising_exception_yield_500($class) {
     $this->send('GET', '/raise/exception/'.$class);
-    $this->assertEquals("HTTP/1.0 500 Internal Server Error", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 500 Internal Server Error", $this->receive()['status']);
   }
 
-  #[@test]
+  #[Test]
   public function unrouted_uris_yield_404() {
     $this->send('GET', '/not-routed');
-    $this->assertEquals("HTTP/1.0 404 Not Found", $this->receive()['status']);
+    Assert::equals("HTTP/1.0 404 Not Found", $this->receive()['status']);
   }
 
-  #[@test]
+  #[Test]
   public function malformed_protocol() {
     self::$connection->write("EHLO example.org\r\n");
-    $this->assertEquals("HTTP/1.1 400 Bad Request", self::$connection->readLine());
+    Assert::equals("HTTP/1.1 400 Bad Request", self::$connection->readLine());
   }
 
-  #[@test]
+  #[Test]
   public function content_comes_with_length() {
     $this->send('GET', '/content?data=Test');
     $response= $this->receive();
 
-    $this->assertEquals('4', $response['headers']['Content-Length']);
-    $this->assertEquals('Test', $response['body']);
+    Assert::equals('4', $response['headers']['Content-Length']);
+    Assert::equals('Test', $response['body']);
   }
 
-  #[@test]
+  #[Test]
   public function stream_comes_with_length_in_http10() {
     $this->send('GET', '/stream?data=Test', '1.0', ['Connection' => 'close']);
     $response= $this->receive();
 
-    $this->assertEquals('4', $response['headers']['Content-Length']);
-    $this->assertEquals('Test', $response['body']);
+    Assert::equals('4', $response['headers']['Content-Length']);
+    Assert::equals('Test', $response['body']);
   }
 
-  #[@test]
+  #[Test]
   public function stream_comes_with_chunked_te_in_http11() {
     $this->send('GET', '/stream?data=Test', '1.1', ['Connection' => 'close']);
     $response= $this->receive();
 
-    $this->assertEquals('chunked', $response['headers']['Transfer-Encoding']);
-    $this->assertEquals("4\r\nTest\r\n0\r\n\r\n", $response['body']);
+    Assert::equals('chunked', $response['headers']['Transfer-Encoding']);
+    Assert::equals("4\r\nTest\r\n0\r\n\r\n", $response['body']);
   }
 }
