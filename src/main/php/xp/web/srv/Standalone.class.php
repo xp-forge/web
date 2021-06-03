@@ -55,7 +55,7 @@ abstract class Standalone implements Server {
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
-    $this->server->listen($socket, new HttpProtocol($application, $environment->logging()));
+    $this->server->listen($socket, HttpProtocol::executing($application, $environment->logging()));
     $this->server->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");

@@ -1,7 +1,7 @@
 <?php namespace xp\web\srv;
 
 use lang\{ClassLoader, Throwable};
-use peer\server\ServerProtocol;
+use peer\server\{AsyncServer, ServerProtocol};
 use web\{Error, InternalServerError, Request, Response, Headers, Status};
 
 /**
@@ -20,9 +20,32 @@ class HttpProtocol implements ServerProtocol {
    * @param  web.Application $application
    * @param  web.Logging $logging
    */
-  public function __construct($application, $logging) {
+  private function __construct($application, $logging) {
     $this->application= $application;
     $this->logging= $logging;
+  }
+
+  /**
+   * Creates an instance of HTTP protocol executing the given application
+   *
+   * @param  web.Application $application
+   * @param  web.Logging $logging
+   * @return self
+   */
+  public static function executing($application, $logging) {
+
+    // Compatibility with older xp-framework/networking libraries, see issue #79
+    // Unwind generators returned from handleData() to guarantee their complete
+    // execution.
+    if (class_exists(AsyncServer::class, false)) {
+      return new self($application, $logging);
+    } else {
+      return new class($application, $logging) extends HttpProtocol {
+        public function handleData($socket) {
+          foreach (parent::handleData($socket) as $_) { }
+        }
+      };
+    }
   }
 
   /**

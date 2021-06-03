@@ -50,12 +50,12 @@ class HttpProtocolTest extends TestCase {
 
   #[Test]
   public function can_create() {
-    new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
   }
 
   #[Test]
   public function default_headers() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -68,7 +68,7 @@ class HttpProtocolTest extends TestCase {
 
   #[Test]
   public function connection_close_is_honoured() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -82,7 +82,7 @@ class HttpProtocolTest extends TestCase {
 
   #[Test]
   public function responds_with_http_10_for_http_10_requests() {
-    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
+    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -96,7 +96,7 @@ class HttpProtocolTest extends TestCase {
   #[Test]
   public function handles_chunked_transfer_input() {
     $echo= function($req, $res) { $res->send(Streams::readAll($req->stream()), 'text/plain'); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= HttpProtocol::executing($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -114,7 +114,7 @@ class HttpProtocolTest extends TestCase {
   #[Test]
   public function buffers_and_sets_content_length_for_http10() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= HttpProtocol::executing($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -128,7 +128,7 @@ class HttpProtocolTest extends TestCase {
   #[Test]
   public function produces_chunked_transfer_output_for_http11() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= new HttpProtocol($this->application($echo), $this->log);
+    $p= HttpProtocol::executing($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
