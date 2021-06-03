@@ -9,6 +9,29 @@ use xp\web\Source;
 abstract class Standalone implements Server {
   private $server, $host, $port;
 
+  static function __static() {
+    if (defined('SOMAXCONN')) return;
+
+    // Discover SOMAXCONN depending on platform, using 128 as fallback
+    // See https://stackoverflow.com/q/1198564
+    if (0 === strncasecmp(PHP_OS, 'Win', 3)) {
+      $value= 0x7fffffff;
+    } else if (file_exists('/proc/sys/net/core/somaxconn')) {
+      $value= (int)file_get_contents('/proc/sys/net/core/somaxconn');
+    } else if (file_exists('/etc/sysctl.conf')) {
+      $value= 128;
+      foreach (file('/etc/sysctl.conf') as $line) {
+        if (0 === strncmp($line, 'kern.ipc.somaxconn=', 19)) {
+          $value= (int)substr($line, 19);
+          break;
+        }
+      }
+    } else {
+      $value= 128;
+    }
+    define('SOMAXCONN', $value);
+  }
+
   public function __construct($server, $host, $port) {
     $this->server= $server;
     $this->host= $host;
