@@ -37,7 +37,7 @@ class HttpProtocol implements ServerProtocol {
     // Compatibility with older xp-framework/networking libraries, see issue #79
     // Unwind generators returned from handleData() to guarantee their complete
     // execution.
-    if (class_exists(AsyncServer::class, false)) {
+    if (class_exists(AsyncServer::class, true)) {
       return new self($application, $logging);
     } else {
       return new class($application, $logging) extends HttpProtocol {
