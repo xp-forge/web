@@ -5,6 +5,8 @@ Web change log
 
 ## 2.11.0 / 2021-06-03
 
+* Merged PR #80: Fixed usage of "&" chars in multipart parameters
+  (@johannes85)
 * Fixed compatibility with older versions of `xp-framework/networking`
   without asynchronous server support. This lead to the server being
   started but not answering any request, see issue #79.
