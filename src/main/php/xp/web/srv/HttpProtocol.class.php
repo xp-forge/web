@@ -38,6 +38,7 @@ class HttpProtocol implements ServerProtocol {
     // Unwind generators returned from handleData() to guarantee their complete
     // execution.
     if (class_exists(AsyncServer::class, true)) {
+      \xp::gc();
       return new self($application, $logging);
     } else {
       return new class($application, $logging) extends HttpProtocol {
