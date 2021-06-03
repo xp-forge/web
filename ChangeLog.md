@@ -5,6 +5,10 @@ Web change log
 
 ## 2.11.0 / 2021-06-03
 
+* Fixed compatibility with older versions of `xp-framework/networking`
+  without asynchronous server support. This lead to the server being
+  started but not answering any request, see issue #79.
+  (@thekid)
 * Added support for HTTP status code 103 "Early Hints", see RFC 8297 and
   https://evertpot.com/http/103-early-hints. Note that this does not work
   in the development webserver, see php/php-src#7025.
