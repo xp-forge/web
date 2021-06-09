@@ -50,6 +50,8 @@ Request and response
 The `web.Request` class provides the following basic functionality:
 
 ```php
+use web\Request;
+
 $request= ...
 
 $request->method();       // The HTTP method, e.g. "GET"
@@ -68,6 +70,8 @@ $request->param($name);   // The value of a single parameter
 The `web.Response` class provides the following basic functionality:
 
 ```php
+use web\{Response, Cookie};
+
 $response= ...
 
 // Set status code, header(s) and cookie(s)
@@ -88,6 +92,50 @@ yield from $response->transmit($in, $type, $size);
 
 Both *Request* and *Response* have a `stream()` method for accessing the underlying in- and output streams.
 
+Handlers
+--------
+A handler (*also referred to as middleware in some frameworks*) is a function which receives a request and response and uses the above functionality to handle communication.
+
+```php
+use web\Handler;
+
+$redirect= new class() implements Handler {
+
+  public function handle($req, $res) {
+    $req->status(302);
+    $req->header('Location', 'https://example.com/');
+  }
+};
+```
+
+This library comes with `web.handler.FilesFrom` - a handler for serving files. It takes care of conditional requests (*with If-Modified-Since*) as well requests for content ranges.
+
+Filters
+-------
+Filters wrap around handlers and can perform tasks before and after the handlers are invoked. You can use the requests `pass()` method to pass values - handlers can access these using `value($name)` / `values()`.
+
+```php
+use web\Filter;
+use util\profiling\Timer;
+use util\log\LogCategory;
+
+$timer= new class() implements Filter {
+  private $timer;
+
+  public function __construct(private LogCategory $cat) {
+    $this->timer= new Timer();
+  }
+
+  public function filter($request, $response, $invocation) {
+    $this->timer->start();
+    try {
+      yield from $invocation->proceed($request, $response);
+    } finally {
+      $this->cat->debugf('%s: %.3f seconds', $request->uri(), $this->timer->elapsedTime());
+    }
+  }
+}
+```
 
 Performance
 -----------
