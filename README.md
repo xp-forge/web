@@ -45,6 +45,50 @@ $ xp -supervise web -m develop Service
 
 Now open the website at http://localhost:8080/hello
 
+Request and response
+--------------------
+The `web.Request` class provides the following basic functionality:
+
+```php
+$request= ...
+
+$request->method();       // The HTTP method, e.g. "GET"
+$request->uri();          // The request URI, a util.URI instance
+
+$request->headers();      // All request headers as a map
+$request->header($name);  // The value of a single header
+
+$request->cookies();      // All cookies
+$request->cookie($name);  // The value of a single cookie
+
+$request->params();       // All request parameters as a map
+$request->param($name);   // The value of a single parameter
+```
+
+The `web.Response` class provides the following basic functionality:
+
+```php
+$response= ...
+
+// Set status code, header(s) and cookie(s)
+$response->answer($status);
+$response->header($name, $value);
+$response->cookie(new Cookie($name, $value));
+
+// Sends body using a given content type
+$response->send($body, $type);
+
+// Transfers an input stream using a given content type. Uses
+// chunked transfer-encoding.
+yield from $response->transmit($in, $type);
+
+// Same as above, but specifies content length before-hand
+yield from $response->transmit($in, $type, $size);
+```
+
+Both *Request* and *Response* have a `stream()` method for accessing the underlying in- and output streams.
+
+
 Performance
 -----------
 Because the code for the web application is only compiled once when using production servers, we achieve lightning-fast request/response roundtrip times:
