@@ -137,6 +137,39 @@ $timer= new class() implements Filter {
 }
 ```
 
+File uploads
+------------
+File uploads are handled by the request's `multipart()` method. In contrast to how PHP works, file uploads are streamed and your handler starts running with the first byte transmitted!
+
+```php
+use io\Folder;
+
+$uploads= new Folder('...');
+$handler= function($req, $res) use($uploads) {
+  if ($multipart= $req->multipart()) {
+
+    // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100
+    if ('100-continue' === $req->header('Expect')) {
+      $res->hint(100, 'Continue');
+    }
+
+    // Upload files, yielding control back to the server after each file
+    // so that other clients' requests are not blocked.
+    $files= [];
+    $bytes= 0;
+    foreach ($multipart->files() as $name => $file) {
+      $files[]= $name;
+      $bytes+= $file->transfer($uploads);
+      yield;
+    }
+
+    // Do something with files and bytes...
+  }
+};
+```
+
+*If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield more often.*
+
 Performance
 -----------
 Because the code for the web application is only compiled once when using production servers, we achieve lightning-fast request/response roundtrip times:
