@@ -28,13 +28,19 @@ class Invocation {
    *
    * @param  web.Request $request
    * @param  web.Response $response
-   * @return var
+   * @return iterable
    */
   public function proceed($request, $response) {
     if ($this->offset < $this->length) {
       return $this->filters[$this->offset++]->filter($request, $response, $this);
+    }
+
+    // Ensure the results of service invocation are iterable
+    $return= $this->routing->service($request, $response);
+    if ($return instanceof \Generator || $return instanceof \Traversable) {
+      return $return;
     } else {
-      return $this->routing->service($request, $response);
+      return (array)$return;
     }
   }
 }

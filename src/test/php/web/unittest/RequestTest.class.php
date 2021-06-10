@@ -272,10 +272,11 @@ class RequestTest extends TestCase {
 
   #[Test]
   public function string_representation() {
-    $req= new Request(new TestInput('GET', '/', ['Host' => 'localhost']));
+    $req= new Request(new TestInput('GET', '/', ['Host' => 'localhost', 'Connection' => 'close']));
     $this->assertEquals(
       "web.Request(GET util.URI<http://localhost/>)@[\n".
       "  Host => [\"localhost\"]\n".
+      "  Connection => [\"close\"]\n".
       "]",
       $req->toString()
     );
