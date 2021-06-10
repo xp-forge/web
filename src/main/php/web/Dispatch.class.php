@@ -16,7 +16,7 @@ use util\URI;
  *
  * @see   xp://web.Request#dispatch
  */
-class Dispatch {
+class Dispatch implements \IteratorAggregate {
   private $uri;
 
   /** @param util.URI|string $uri */
@@ -26,4 +26,7 @@ class Dispatch {
 
   /** @return util.URI */
   public function uri() { return $this->uri; }
+
+  /** @return iterable */
+  public function getIterator() { yield $this; }
 }

@@ -1,6 +1,6 @@
 <?php namespace web\filters;
 
-use web\Routing;
+use web\{Routing, Dispatch};
 
 /**
  * Filter chain invocation

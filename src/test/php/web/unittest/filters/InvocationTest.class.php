@@ -74,18 +74,18 @@ class InvocationTest extends \unittest\TestCase {
   }
 
   #[Test]
-  public function returns_whatever_handler_returns() {
-    $fixture= new Invocation(function($req, $res) { return 'It worked!'; }, []);
-    $this->assertEquals('It worked!', $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
+  public function returns_iterable() {
+    $fixture= new Invocation(function($req, $res) { }, []);
+    $this->assertEquals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
   }
 
   #[Test]
-  public function returns_whatever_handler_returns_if_filtered() {
-    $fixture= new Invocation(function($req, $res) { return 'It worked!'; }, [new class() implements Filter {
+  public function returns_iterable_if_filtered() {
+    $fixture= new Invocation(function($req, $res) { }, [new class() implements Filter {
       public function filter($req, $res, $invocation) {
         return $invocation->proceed($req, $res);
       }
     }]);
-    $this->assertEquals('It worked!', $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
+    $this->assertEquals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
   }
 }
