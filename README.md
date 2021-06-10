@@ -112,7 +112,7 @@ This library comes with `web.handler.FilesFrom` - a handler for serving files. I
 
 Filters
 -------
-Filters wrap around handlers and can perform tasks before and after the handlers are invoked. You can use the requests `pass()` method to pass values - handlers can access these using `value($name)` / `values()`.
+Filters wrap around handlers and can perform tasks before and after the handlers are invoked. You can use the request's `pass()` method to pass values - handlers can access these using `value($name)` / `values()`.
 
 ```php
 use web\Filter;
@@ -136,6 +136,8 @@ $timer= new class() implements Filter {
   }
 }
 ```
+
+*By using `yield from`, you guarantee an asynchronous handler will have completely executed on the next line.*
 
 File uploads
 ------------
