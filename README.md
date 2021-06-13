@@ -216,4 +216,6 @@ See also
 This library provides for the very basic functionality. To create web frontends or REST APIs, have a look at the following libraries built ontop of this:
 
 * [Web frontends](https://github.com/xp-forge/frontend)
+* [Sessions](https://github.com/xp-forge/sessions)
+* [Authentication](https://github.com/xp-forge/web-auth)
 * [REST APIs](https://github.com/xp-forge/rest-api)
