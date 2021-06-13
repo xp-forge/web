@@ -49,7 +49,7 @@ Server models
 -------------
 The four server models (*selectable via `-m <model>` on the command line*) are:
 
-* **serve** (*the default*): A single-threaded web server, blocks until one client's HTTP request handler has finished executing.
+* **serve** (*the default*): A single-threaded web server, blocks until one client's HTTP request handler has finished executing before serving the next request.
 * **async**: Same as above, but handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
 * **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension.
 * **develop**: As mentioned above, built ontop of the PHP development wenserver. Application code is recompiled and application setup performed from scratch on every request.
@@ -180,6 +180,27 @@ $handler= function($req, $res) use($uploads) {
 ```
 
 *If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield control more often.*
+
+Early hints
+-----------
+An experimental status code with which headers can be sent to a client early along for it to be able to make optimizations, e.g. preloading scripts and stylesheets.
+
+```php
+$handler= function($req, $res) {
+  $res->header('Link', [
+    '</main.css>; rel=preload; as=style',
+    '</script.js>; rel=preload; as=script'
+  ]);
+  $res->hint(103);
+
+  // ...do some processing here to render $html
+
+  $res->answer(200, 'OK');
+  $res->send($html, 'text/html; charset=utf-8');
+}
+```
+
+See https://evertpot.com/http/103-early-hints
 
 Performance
 -----------
