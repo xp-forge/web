@@ -3,6 +3,15 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.12.0 / 2021-06-13
+
+* Changed filters API so that any `web.Filter` implementation can use
+  `yield from $invocation->proceed(...)` without having to test whether
+  handlers return a generator first, e.g. via `is_iterable()`. Filters
+  using `return $invocation->proceed(...)` continue to work. Keep in mind
+  they return *before* asynchronous handlers have completely executed!
+  (@thekid)
+
 ## 2.11.0 / 2021-06-03
 
 * Merged PR #80: Fixed usage of "&" chars in multipart parameters
