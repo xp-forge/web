@@ -8,6 +8,8 @@ Web applications for the XP Framework
 [![Supports PHP 8.0+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-8_0plus.svg)](http://php.net/)
 [![Latest Stable Version](https://poser.pugx.org/xp-forge/web/version.png)](https://packagist.org/packages/xp-forge/web)
 
+Low-level functionality for serving HTTP requests, including the `xp web` runner.
+
 Example
 -------
 
@@ -193,7 +195,8 @@ $handler= function($req, $res) {
   ]);
   $res->hint(103);
 
-  // ...do some processing here to render $html
+  // Do some processing here to render $html
+  $html= ...
 
   $res->answer(200, 'OK');
   $res->send($html, 'text/html; charset=utf-8');
