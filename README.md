@@ -119,7 +119,7 @@ $redirect= new class() implements Handler {
 };
 ```
 
-This library comes with `web.handler.FilesFrom` - a handler for serving files. It takes care of conditional requests (*with If-Modified-Since*) as well requests for content ranges.
+This library comes with `web.handler.FilesFrom` - a handler for serving files. It takes care of conditional requests (*with If-Modified-Since*) as well requests for content ranges, and makes use of the asynchronous capabilities if available, see [here](https://github.com/xp-forge/web/pull/72).
 
 Filters
 -------
@@ -204,6 +204,16 @@ $handler= function($req, $res) {
 ```
 
 See https://evertpot.com/http/103-early-hints
+
+Logging
+-------
+By default, logging goes to standard output and will be visible in the console the `xp web` command was invoked from. It can be influenced via the command line as follows:
+
+* `-l server.log`: Writes to the file server.log, creating it if necessary
+* `-l -`: Writes to standard output
+* `-l - -l server.log`: Writes to both of the above
+
+More fine-grained control as well as integrating with [the logging library](https://github.com/xp-framework/logging) can be achieved from inside the application, see [here](https://github.com/xp-forge/web/pull/48).
 
 Performance
 -----------
