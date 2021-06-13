@@ -205,6 +205,29 @@ $handler= function($req, $res) {
 
 See https://evertpot.com/http/103-early-hints
 
+Internal redirects
+------------------
+On top of external redirects which are triggered by the 3XX status codes, requests can also be redirected internally using the `dispatch()` method. This has the benefit of not requiring clients to perfom an additional request.
+
+```php
+use web\Application;
+
+class Site extends Application {
+
+  public function routes() {
+    return [
+      '/home' => function($req, $res) {
+        // Home page
+      },
+      '/' => function($req, $res) {
+        // Routes are re-evaluated as if user had called /home
+        return $req->dispatch('/home');
+      },
+    ];
+  }
+}
+```
+
 Logging
 -------
 By default, logging goes to standard output and will be visible in the console the `xp web` command was invoked from. It can be influenced via the command line as follows:
