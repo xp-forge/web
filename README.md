@@ -35,7 +35,7 @@ $ xp -supervise web Service
 # ...
 ```
 
-Supports a development webserver which is slower but allows an easy edit/save/reload development process. It uses the [PHP development server](http://php.net/features.commandline.webserver) in the background; PHP code is recompiled and application setup performed from scratch on every request.
+Supports a development webserver which is slower but allows an easy edit/save/reload development process. It uses the [PHP development server](http://php.net/features.commandline.webserver) in the background.
 
 ```bash
 $ xp -supervise web -m develop Service
@@ -44,6 +44,15 @@ $ xp -supervise web -m develop Service
 ```
 
 Now open the website at http://localhost:8080/hello
+
+Server models
+-------------
+The four server models available are:
+
+* **serve** (the default): A single-threaded web server, blocks until one client's HTTP request handler has finished executing.
+* **async**: Same as above, but handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
+* **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension.
+* **develop**: As mentioned above, built ontop of the PHP development wenserver. Application code is recompiled and application setup performed from scratch on every request.
 
 Request and response
 --------------------
@@ -137,7 +146,7 @@ $timer= new class() implements Filter {
 }
 ```
 
-*By using `yield from`, you guarantee an asynchronous handler will have completely executed on the next line.*
+*By using `yield from`, you guarantee asynchronous handlers will have completely executed before the time measurement is run on in the `finally` block.*
 
 File uploads
 ------------
@@ -170,7 +179,7 @@ $handler= function($req, $res) use($uploads) {
 };
 ```
 
-*If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield more often.*
+*If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield control more often.*
 
 Performance
 -----------
