@@ -6,7 +6,8 @@ use web\io\Part;
  * Multipart requests consist of multiple parts, which may be either files
  * or parameters.
  *
- * @test   xp://web.unittest.MultipartRequestTest 
+ * @test   web.unittest.MultipartTest
+ * @test   web.unittest.MultipartRequestTest
  * @see    https://tools.ietf.org/html/rfc7578
  */
 class Multipart {
