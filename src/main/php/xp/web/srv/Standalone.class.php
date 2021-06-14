@@ -1,13 +1,12 @@
 <?php namespace xp\web\srv;
 
-use lang\Throwable;
 use peer\ServerSocket;
 use util\cmd\Console;
 use web\Environment;
 use xp\web\Source;
 
-abstract class Standalone implements Server {
-  private $server, $host, $port;
+class Standalone extends Server {
+  private $impl;
 
   static function __static() {
     if (defined('SOMAXCONN')) return;
@@ -32,10 +31,15 @@ abstract class Standalone implements Server {
     define('SOMAXCONN', $value);
   }
 
-  public function __construct($server, $host, $port) {
-    $this->server= $server;
-    $this->host= $host;
-    $this->port= $port;
+  /**
+   * Creates a new instance
+   *
+   * @param  string $address
+   * @param  peer.server.Server $impl
+   */
+  public function __construct($address, $impl) {
+    parent::__construct($address);
+    $this->impl= $impl;
   }
 
   /**
@@ -55,8 +59,8 @@ abstract class Standalone implements Server {
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
-    $this->server->listen($socket, HttpProtocol::executing($application, $environment->logging()));
-    $this->server->init();
+    $this->impl->listen($socket, HttpProtocol::executing($application, $environment->logging()));
+    $this->impl->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");
     Console::writeLine("\e[1mServing ", $application, $config, "\e[0m > ", $environment->logging()->target());
@@ -72,7 +76,7 @@ abstract class Standalone implements Server {
       getmypid(),
     );
 
-    $this->server->service();
-    $this->server->shutdown();
+    $this->impl->service();
+    $this->impl->shutdown();
   }
 }

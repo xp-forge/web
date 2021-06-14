@@ -33,42 +33,6 @@ use xp\web\srv\{Develop, Prefork, Serve, Async};
  * to a file via *-l /path/to/logfile.log*.
  */
 class Runner {
-  private static $modes= [
-    'serve'   => Serve::class,
-    'async'   => Async::class,
-    'prefork' => Prefork::class,
-    'develop' => Develop::class
-  ];
-
-  /**
-   * Creates a server instance
-   *
-   * @param  string $mode
-   * @param  string $address
-   * @param  string[] $arguments
-   * @return peer.server.Server
-   * @throws lang.IllegalArgumentException
-   */
-  private static function server($mode, $address, $arguments) {
-    if (!isset(self::$modes[$mode])) {
-      throw new IllegalArgumentException(sprintf(
-        'Unkown server mode "%s", supported: [%s]',
-        $mode,
-        implode(', ', array_keys(self::$modes))
-      ));
-    }
-
-    $p= strpos($address, ':', '[' === $address[0] ? strpos($address, ']') : 0);
-    if (false === $p) {
-      $host= $address;
-      $port= 8080;
-    } else {
-      $host= substr($address, 0, $p);
-      $port= (int)substr($address, $p + 1);
-    }
-
-    return (new XPClass(self::$modes[$mode]))->newInstance($host, $port, ...$arguments);
-  }
 
   /**
    * Entry point
@@ -83,7 +47,7 @@ class Runner {
     $docroot= new Path($webroot, 'static');
     $address= 'localhost:8080';
     $profile= getenv('SERVER_PROFILE') ?: 'dev';
-    $mode= 'serve';
+    $server= 'serve';
     $arguments= [];
     $config= [];
     $source= '.';
@@ -102,7 +66,7 @@ class Runner {
         $log[]= $args[++$i];
       } else if ('-m' === $args[$i]) {
         $arguments= explode(',', $args[++$i]);
-        $mode= array_shift($arguments);
+        $server= array_shift($arguments);
       } else if ('-s' === $args[$i]) {
         $source= $args[++$i];
       } else if ('--' === $args[$i]) {
@@ -113,7 +77,7 @@ class Runner {
       }
     }
 
-    self::server($mode, $address, $arguments)->serve(
+    Servers::named($server)->newInstance($address, $arguments)->serve(
       $source,
       $profile,
       $webroot,

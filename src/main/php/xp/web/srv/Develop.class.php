@@ -7,19 +7,7 @@ use peer\Socket;
 use util\cmd\Console;
 use web\Logging;
 
-class Develop implements Server {
-  private $host, $port;
-
-  /**
-   * Creates a new instance
-   *
-   * @param  string $host
-   * @param  int $port
-   */
-  public function __construct($host, $port) {
-    $this->host= $host;
-    $this->port= $port;
-  }
+class Develop extends Server {
 
   /**
    * Serve requests
