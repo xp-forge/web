@@ -2,7 +2,7 @@
 
 use unittest\{Test, TestCase, Values};
 use web\io\{TestInput, TestOutput};
-use web\logging\{ToAllOf, ToFunction};
+use web\logging\{ToAllOf, ToFunction, ToConsole};
 use web\{Error, Logging, Request, Response};
 
 class LoggingTest extends TestCase {
@@ -53,6 +53,11 @@ class LoggingTest extends TestCase {
     $a= new ToFunction(function($req, $res, $error) { /* a */ });
     $b= new ToFunction(function($req, $res, $error) { /* b */ });
     $this->assertEquals($b, (new Logging($a))->pipe($b)->sink());
+  }
+
+  #[Test]
+  public function pipe_with_string_arg() {
+    $this->assertEquals(new ToConsole(), (new Logging())->pipe('-')->sink());
   }
 
   #[Test]
