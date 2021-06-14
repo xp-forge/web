@@ -73,7 +73,7 @@ class Standalone extends Server {
       $this->port,
       microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
       date('r'),
-      getmypid(),
+      getmypid()
     );
 
     $this->impl->service();
