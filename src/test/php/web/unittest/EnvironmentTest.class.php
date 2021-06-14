@@ -1,10 +1,10 @@
 <?php namespace web\unittest;
 
-use io\{Path, TempFile};
-use lang\ElementNotFoundException;
+use io\{Path, Files, File};
+use lang\{ElementNotFoundException, Environment as System};
 use unittest\{Expect, Test, TestCase, Values};
 use util\{Properties, PropertySource, RegisteredPropertySource};
-use web\Environment;
+use web\{Environment, Logging};
 
 class EnvironmentTest extends TestCase {
 
@@ -39,6 +39,11 @@ class EnvironmentTest extends TestCase {
   }
 
   #[Test]
+  public function logging_goes_to_console_by_defaul() {
+    $this->assertEquals(Logging::of('-'), (new Environment('dev', '.', 'static', []))->logging());
+  }
+
+  #[Test]
   public function variable() {
     putenv('XP_TEST=abc');
     $this->assertEquals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
@@ -47,6 +52,22 @@ class EnvironmentTest extends TestCase {
   #[Test]
   public function tempDir() {
     $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
+  }
+
+  #[Test]
+  public function tempDir_falls_back_to_sys_get_temp_dir() {
+    $restore= [];
+    foreach (['TEMP', 'TMP', 'TMPDIR', 'TEMPDIR'] as $variant) {
+      if (!isset($_ENV[$variant])) continue;
+      $restore[$variant]= $_ENV[$variant];
+      unset($_ENV[$variant]);
+    }
+
+    try {
+      $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
+    } finally {
+      $_ENV+= $restore;
+    }
   }
 
   #[Test]
@@ -76,23 +97,67 @@ class EnvironmentTest extends TestCase {
     $this->assertEquals($prop, $environment->properties('inject'));
   }
 
+  #[Test]
+  public function properties_from_file() {
+    $file= new File(System::tempDir(), 'inject.ini');
+    Files::write($file, "[test]\nkey=value");
+
+    try {
+      $environment= new Environment('dev', '.', 'static', [$file->getURI()]);
+      $this->assertEquals('value', $environment->properties('inject')->readString('test', 'key'));
+    } finally {
+      $file->unlink();
+    }
+  }
+
+  #[Test]
+  public function properties_from_dir() {
+    $file= new File(System::tempDir(), 'inject.ini');
+    Files::write($file, "[test]\nkey=value");
+
+    try {
+      $environment= new Environment('dev', '.', 'static', [$file->getPath()]);
+      $this->assertEquals('value', $environment->properties('inject')->readString('test', 'key'));
+    } finally {
+      $file->unlink();
+    }
+  }
+
   #[Test, Values('expansions')]
   public function property_expansions($value, $expanded) {
-    $target= new TempFile();
+    $file= new File(System::tempDir(), 'inject.ini');
+    Files::write($file, "[test]\nkey=".$value);
 
-    // We need to store this to the file system as property expansion
-    // is performed when reading from the file system.
-    $prop= new Properties();
-    $prop->create();
-    $prop->writeString(null, 'value', $value);
-    $prop->store($target->out());
+    try {
+      $environment= new Environment('dev', '.', 'static', [$file->getURI()]);
+      $this->assertEquals($expanded($environment), $environment->properties('inject')->readString('test', 'key'));
+    } finally {
+      $file->unlink();
+    }
+  }
 
-    $environment= new Environment('dev', '.', 'static', [newinstance(PropertySource::class, [], [
-      'provides' => function($name) { return true; },
-      'fetch'    => function($name) use($target) { return new Properties($target->getURI()); }
-    ])]);
+  #[Test]
+  public function composite_properties() {
+    $environment= new Environment('dev', '.', 'static', [
+      new RegisteredPropertySource('inject', new Properties('prod/inject.ini')),
+      new RegisteredPropertySource('inject', new Properties('default/inject.ini')),
+    ]);
+    $this->assertEquals(2, $environment->properties('inject')->length());
+  }
 
-    $this->assertEquals($expanded($environment), $environment->properties('config')->readString(null, 'value'));
+  #[Test, Expect(class: ElementNotFoundException::class, withMessage: '/ResourcePropertySource/')]
+  public function resource_properties() {
+    $environment= new Environment('dev', '.', 'static', ['inject.ini']);
+    try {
+      $environment->properties('inject');
+    } finally {
+      \xp::gc();
+    }
+  }
+
+  #[Test]
+  public function arguments_empty_by_default() {
+    $this->assertEquals([], (new Environment('dev', '.', 'static', []))->arguments());
   }
 
   #[Test, Values([[[]], [['test', 'value']]])]
