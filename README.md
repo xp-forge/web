@@ -51,8 +51,8 @@ Server models
 -------------
 The four server models (*selectable via `-m <model>` on the command line*) are:
 
-* **serve** (*the default*): A single-threaded web server, blocks until one client's HTTP request handler has finished executing before serving the next request.
-* **async**: Same as above, but handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
+* **async** (*the default*): A single-threaded web server. Handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
+* **sequential**: Same as above, but blocks until one client's HTTP request handler has finished executing before serving the next request.
 * **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension.
 * **develop**: As mentioned above, built ontop of the PHP development wenserver. Application code is recompiled and application setup performed from scratch on every request, errors and debug output are handled by the [development console](https://github.com/xp-forge/web/pull/35).
 
