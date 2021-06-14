@@ -3,7 +3,6 @@
 use lang\IllegalArgumentException;
 use unittest\{Assert, Expect, Test, Values};
 use xp\web\Servers;
-use xp\web\srv\{Develop, Prefork, Serve, Async};
 
 class ServersTest {
 
@@ -38,6 +37,11 @@ class ServersTest {
   #[Test]
   public function host() {
     Assert::equals('127.0.0.1', Servers::named('serve')->newInstance('127.0.0.1')->host());
+  }
+
+  #[Test]
+  public function bind_all() {
+    Assert::equals('0.0.0.0', Servers::named('serve')->newInstance('0.0.0.0')->host());
   }
 
   #[Test]
