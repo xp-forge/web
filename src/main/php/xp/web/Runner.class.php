@@ -1,9 +1,7 @@
 <?php namespace xp\web;
 
 use io\Path;
-use lang\{IllegalArgumentException, XPClass};
 use xp\runtime\Help;
-use xp\web\srv\{Develop, Prefork, Serve, Async};
 
 /**
  * Web server
@@ -47,7 +45,7 @@ class Runner {
     $docroot= new Path($webroot, 'static');
     $address= 'localhost:8080';
     $profile= getenv('SERVER_PROFILE') ?: 'dev';
-    $server= 'serve';
+    $server= Servers::$ASYNC;
     $arguments= [];
     $config= [];
     $source= '.';
@@ -66,7 +64,7 @@ class Runner {
         $log[]= $args[++$i];
       } else if ('-m' === $args[$i]) {
         $arguments= explode(',', $args[++$i]);
-        $server= array_shift($arguments);
+        $server= Servers::named(array_shift($arguments));
       } else if ('-s' === $args[$i]) {
         $source= $args[++$i];
       } else if ('--' === $args[$i]) {
@@ -77,7 +75,7 @@ class Runner {
       }
     }
 
-    Servers::named($server)->newInstance($address, $arguments)->serve(
+    $server->newInstance($address, $arguments)->serve(
       $source,
       $profile,
       $webroot,
