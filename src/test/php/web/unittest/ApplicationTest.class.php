@@ -48,6 +48,14 @@ class ApplicationTest extends \unittest\TestCase {
   }
 
   #[Test]
+  public function environment() {
+    $app= new class($this->environment) extends Application {
+      public function routes() { /* Implementation irrelevant for this test */ }
+    };
+    $this->assertEquals($this->environment, $app->environment());
+  }
+
+  #[Test]
   public function routing() {
     $routing= new Routing();
     $app= newinstance(Application::class, [$this->environment], [
@@ -196,5 +204,30 @@ class ApplicationTest extends \unittest\TestCase {
         }),
       ];
     });
+  }
+
+  #[Test]
+  public function string_representation() {
+    $this->assertEquals(
+      'web.unittest.HelloWorld(static)',
+      (new HelloWorld($this->environment))->toString()
+    );
+  }
+
+  #[Test]
+  public function hash_code() {
+    $this->assertNotEquals('', (new HelloWorld($this->environment))->hashCode());
+  }
+
+  #[Test]
+  public function equals_itself() {
+    $app= new HelloWorld($this->environment);
+    $this->assertEquals(0, $app->compareTo($app));
+  }
+
+  #[Test]
+  public function does_not_equal_clone() {
+    $app= new HelloWorld($this->environment);
+    $this->assertEquals(1, $app->compareTo(clone $app));
   }
 }
