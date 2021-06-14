@@ -127,12 +127,9 @@ class Routing {
     foreach ($this->routes as $route) {
       if ($handler= $route->route($request)) return $handler;
     }
+    if ($this->fallback) return $this->fallback;
 
-    if ($this->fallback) {
-      return $this->fallback;
-    } else {
-      throw new CannotRoute($request);
-    }
+    throw new CannotRoute($request);
   }
 
   /**
@@ -144,8 +141,8 @@ class Routing {
    */
   public function service($request, $response) {
     $seen= [];
-    dispatch: $result= $this->route($request)->handle($request, $response);
 
+    dispatch: $result= $this->route($request)->handle($request, $response);
     if ($this->top && $result instanceof Dispatch) {
       $seen[$request->uri()->hashCode()]= true;
       $request->rewrite($result->uri());
