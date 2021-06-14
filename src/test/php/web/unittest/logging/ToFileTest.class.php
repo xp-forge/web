@@ -29,6 +29,14 @@ class ToFileTest extends TestCase {
   }
 
   #[Test]
+  public function target() {
+    $this->assertEquals(
+      'web.logging.ToFile('.$this->temp->getURI().')',
+      (new ToFile($this->temp))->target()
+    );
+  }
+
+  #[Test]
   public function file_created_during_constructor_call() {
     new ToFile($this->temp);
     $this->assertTrue($this->temp->exists());
