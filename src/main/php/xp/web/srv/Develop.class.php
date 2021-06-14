@@ -7,19 +7,7 @@ use peer\Socket;
 use util\cmd\Console;
 use web\Logging;
 
-class Develop implements Server {
-  private $host, $port;
-
-  /**
-   * Creates a new instance
-   *
-   * @param  string $host
-   * @param  int $port
-   */
-  public function __construct($host, $port) {
-    $this->host= $host;
-    $this->port= $port;
-  }
+class Develop extends Server {
 
   /**
    * Serve requests
@@ -84,7 +72,7 @@ class Develop implements Server {
     Console::writeLinef(
       "\e[33;1m>\e[0m Server started: \e[35;4mhttp://%s:%d/\e[0m in %.3f seconds\n".
       "  %s - PID %d & %d; press Enter to exit\n",
-      $this->host,
+      '0.0.0.0' === $this->host ? '127.0.0.1' : $this->host,
       $this->port,
       microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
       date('r'),

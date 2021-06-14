@@ -1,9 +1,9 @@
 <?php namespace xp\web;
 
 use io\Path;
-use lang\{IllegalArgumentException, XPClass};
+use lang\Throwable;
+use util\cmd\Console;
 use xp\runtime\Help;
-use xp\web\srv\{Develop, Prefork, Serve, Async};
 
 /**
  * Web server
@@ -33,42 +33,6 @@ use xp\web\srv\{Develop, Prefork, Serve, Async};
  * to a file via *-l /path/to/logfile.log*.
  */
 class Runner {
-  private static $modes= [
-    'serve'   => Serve::class,
-    'async'   => Async::class,
-    'prefork' => Prefork::class,
-    'develop' => Develop::class
-  ];
-
-  /**
-   * Creates a server instance
-   *
-   * @param  string $mode
-   * @param  string $address
-   * @param  string[] $arguments
-   * @return peer.server.Server
-   * @throws lang.IllegalArgumentException
-   */
-  private static function server($mode, $address, $arguments) {
-    if (!isset(self::$modes[$mode])) {
-      throw new IllegalArgumentException(sprintf(
-        'Unkown server mode "%s", supported: [%s]',
-        $mode,
-        implode(', ', array_keys(self::$modes))
-      ));
-    }
-
-    $p= strpos($address, ':', '[' === $address[0] ? strpos($address, ']') : 0);
-    if (false === $p) {
-      $host= $address;
-      $port= 8080;
-    } else {
-      $host= substr($address, 0, $p);
-      $port= (int)substr($address, $p + 1);
-    }
-
-    return (new XPClass(self::$modes[$mode]))->newInstance($host, $port, ...$arguments);
-  }
 
   /**
    * Entry point
@@ -83,45 +47,50 @@ class Runner {
     $docroot= new Path($webroot, 'static');
     $address= 'localhost:8080';
     $profile= getenv('SERVER_PROFILE') ?: 'dev';
-    $mode= 'serve';
+    $server= Servers::$ASYNC;
     $arguments= [];
     $config= [];
     $source= '.';
     $log= [];
 
-    for ($i= 0; $i < sizeof($args); $i++) {
-       if ('-r' === $args[$i]) {
-        $docroot= $args[++$i];
-      } else if ('-a' === $args[$i]) {
-        $address= $args[++$i];
-      } else if ('-p' === $args[$i]) {
-        $profile= $args[++$i];
-      } else if ('-c' === $args[$i]) {
-        $config[]= $args[++$i];
-      } else if ('-l' === $args[$i]) {
-        $log[]= $args[++$i];
-      } else if ('-m' === $args[$i]) {
-        $arguments= explode(',', $args[++$i]);
-        $mode= array_shift($arguments);
-      } else if ('-s' === $args[$i]) {
-        $source= $args[++$i];
-      } else if ('--' === $args[$i]) {
-        break;
-      } else {
-        $source= $args[$i];
-        break;
+    try {
+      for ($i= 0; $i < sizeof($args); $i++) {
+         if ('-r' === $args[$i]) {
+          $docroot= $args[++$i];
+        } else if ('-a' === $args[$i]) {
+          $address= $args[++$i];
+        } else if ('-p' === $args[$i]) {
+          $profile= $args[++$i];
+        } else if ('-c' === $args[$i]) {
+          $config[]= $args[++$i];
+        } else if ('-l' === $args[$i]) {
+          $log[]= $args[++$i];
+        } else if ('-m' === $args[$i]) {
+          $arguments= explode(',', $args[++$i]);
+          $server= Servers::named(array_shift($arguments));
+        } else if ('-s' === $args[$i]) {
+          $source= $args[++$i];
+        } else if ('--' === $args[$i]) {
+          break;
+        } else {
+          $source= $args[$i];
+          break;
+        }
       }
-    }
 
-    self::server($mode, $address, $arguments)->serve(
-      $source,
-      $profile,
-      $webroot,
-      $webroot->resolve($docroot),
-      $config,
-      array_slice($args, $i + 1),
-      $log ?: '-'
-    );
-    return 0;
+      $server->newInstance($address, $arguments)->serve(
+        $source,
+        $profile,
+        $webroot,
+        $webroot->resolve($docroot),
+        $config,
+        array_slice($args, $i + 1),
+        $log ?: '-'
+      );
+      return 0;
+    } catch (Throwable $t) {
+      Console::$err->writeLine('*** Error: ', $t->getMessage());
+      return 1;
+    }
   }
 }

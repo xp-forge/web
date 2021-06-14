@@ -1,6 +1,29 @@
 <?php namespace xp\web\srv;
 
-interface Server {
+abstract class Server {
+  protected $host, $port;
+
+  /**
+   * Creates a new instance
+   *
+   * @param  string $address
+   */
+  public function __construct($address) {
+    $p= strpos($address, ':', '[' === $address[0] ? strpos($address, ']') : 0);
+    if (false === $p) {
+      $this->host= $address;
+      $this->port= 8080;
+    } else {
+      $this->host= substr($address, 0, $p);
+      $this->port= (int)substr($address, $p + 1);
+    }
+  }
+
+  /** @return string */
+  public function host() { return $this->host; }
+
+  /** @return int */
+  public function port() { return $this->port; }
 
   /**
    * Serve requests
@@ -13,5 +36,5 @@ interface Server {
    * @param  string[] $args
    * @param  string[] $logging
    */
-  public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging);
+  public abstract function serve($source, $profile, $webroot, $docroot, $config, $args, $logging);
 }
