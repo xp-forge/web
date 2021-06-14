@@ -1,6 +1,8 @@
 <?php namespace xp\web;
 
 use io\Path;
+use lang\Throwable;
+use util\cmd\Console;
 use xp\runtime\Help;
 
 /**
@@ -51,39 +53,44 @@ class Runner {
     $source= '.';
     $log= [];
 
-    for ($i= 0; $i < sizeof($args); $i++) {
-       if ('-r' === $args[$i]) {
-        $docroot= $args[++$i];
-      } else if ('-a' === $args[$i]) {
-        $address= $args[++$i];
-      } else if ('-p' === $args[$i]) {
-        $profile= $args[++$i];
-      } else if ('-c' === $args[$i]) {
-        $config[]= $args[++$i];
-      } else if ('-l' === $args[$i]) {
-        $log[]= $args[++$i];
-      } else if ('-m' === $args[$i]) {
-        $arguments= explode(',', $args[++$i]);
-        $server= Servers::named(array_shift($arguments));
-      } else if ('-s' === $args[$i]) {
-        $source= $args[++$i];
-      } else if ('--' === $args[$i]) {
-        break;
-      } else {
-        $source= $args[$i];
-        break;
+    try {
+      for ($i= 0; $i < sizeof($args); $i++) {
+         if ('-r' === $args[$i]) {
+          $docroot= $args[++$i];
+        } else if ('-a' === $args[$i]) {
+          $address= $args[++$i];
+        } else if ('-p' === $args[$i]) {
+          $profile= $args[++$i];
+        } else if ('-c' === $args[$i]) {
+          $config[]= $args[++$i];
+        } else if ('-l' === $args[$i]) {
+          $log[]= $args[++$i];
+        } else if ('-m' === $args[$i]) {
+          $arguments= explode(',', $args[++$i]);
+          $server= Servers::named(array_shift($arguments));
+        } else if ('-s' === $args[$i]) {
+          $source= $args[++$i];
+        } else if ('--' === $args[$i]) {
+          break;
+        } else {
+          $source= $args[$i];
+          break;
+        }
       }
-    }
 
-    $server->newInstance($address, $arguments)->serve(
-      $source,
-      $profile,
-      $webroot,
-      $webroot->resolve($docroot),
-      $config,
-      array_slice($args, $i + 1),
-      $log ?: '-'
-    );
-    return 0;
+      $server->newInstance($address, $arguments)->serve(
+        $source,
+        $profile,
+        $webroot,
+        $webroot->resolve($docroot),
+        $config,
+        array_slice($args, $i + 1),
+        $log ?: '-'
+      );
+      return 0;
+    } catch (Throwable $t) {
+      Console::$err->writeLine('*** Error: ', $t->getMessage());
+      return 1;
+    }
   }
 }
