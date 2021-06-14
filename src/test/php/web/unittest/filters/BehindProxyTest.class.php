@@ -1,6 +1,7 @@
 <?php namespace web\unittest\filters;
 
-use unittest\{Assert, Test, Values};
+use lang\IllegalArgumentException;
+use unittest\{Assert, Expect, Test, Values};
 use web\filters\{BehindProxy, Invocation};
 use web\io\{TestInput, TestOutput};
 use web\{Request, Response};
@@ -10,6 +11,16 @@ class BehindProxyTest {
   #[Test]
   public function can_create() {
     new BehindProxy(['http://remote' => '/']);
+  }
+
+  #[Test, Expect(IllegalArgumentException::class), Values([[[]], [[1]], [[1, 2, 3]]])]
+  public function raises_exception_for_invalid($arg) {
+    new BehindProxy($arg);
+  }
+
+  #[Test, Expect(IllegalArgumentException::class)]
+  public function raises_exception_for_relative() {
+    new BehindProxy(['/relative' => '/']);
   }
 
   #[Test, Values(['/', '/path', '/path/', '/path/index.html'])]

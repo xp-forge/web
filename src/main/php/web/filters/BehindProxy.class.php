@@ -1,8 +1,8 @@
 <?php namespace web\filters;
 
-use web\Filter;
-use util\URI;
 use lang\IllegalArgumentException;
+use util\URI;
+use web\Filter;
 
 /**
  * Rewrites URLs if behind a proxy
@@ -14,7 +14,8 @@ class BehindProxy implements Filter {
   /**
    * Creates a new instance given a map of the front-facing URL to the local path
    *
-   * @param  [:string] $mapping
+   * @param  [:string] $mapping e.g. `["http://remote.url/" => "/local.path"]`
+   * @throws lang.IllegalArgumentException
    */
   public function __construct($mapping) {
     if (1 !== sizeof($mapping)) {
@@ -22,6 +23,10 @@ class BehindProxy implements Filter {
     }
 
     $this->remote= new URI(key($mapping));
+    if ($this->remote->isRelative()) {
+      throw new IllegalArgumentException('Remote URL must be absolute');
+    }
+
     $this->replace= '#^'.rtrim(preg_quote(current($mapping), '#'), '/').'/#';
   }
 
