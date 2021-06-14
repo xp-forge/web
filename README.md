@@ -33,7 +33,7 @@ Run it using:
 
 ```bash
 $ xp -supervise web Service
-@xp.web.Serve(HTTP @ peer.ServerSocket(resource(type= Socket, id= 88) -> tcp://127.0.0.1:8080))
+@xp.web.srv.Standalone(HTTP @ peer.ServerSocket(Resource id #61 -> tcp://127.0.0.1:8080))
 # ...
 ```
 
@@ -41,7 +41,7 @@ Supports a development webserver which is slower but allows an easy edit/save/re
 
 ```bash
 $ xp -supervise web -m develop Service
-@xp.web.Develop(HTTP @ `php -S localhost:8080 -t /home/example/devel/shorturl`)
+@xp.web.srv.Develop(HTTP @ `php -S 127.0.0.1:8080 -t  /home/example/devel/shorturl`)
 # ...
 ```
 
