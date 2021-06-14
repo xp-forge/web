@@ -5,6 +5,7 @@ Web change log
 
 ## 3.0.0 / ????-??-??
 
+* Removed deprecated method `web.io.TestOutput::using()` - @thekid
 * Merged PR #82, making *async* the default server mode. Other server
   modes are *sequential*, *prefork* and *develop*. See issue #81
   (@thekid)

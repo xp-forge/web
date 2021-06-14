@@ -124,19 +124,4 @@ class TestOutputTest extends TestCase {
       $fixture->bytes()
     );
   }
-
-  /** @deprecated */
-  #[Test]
-  public function buffered_stream_with_using() {
-    $fixture= (new TestOutput())->using(Buffered::class);
-    with ($fixture->stream(), function($stream) {
-      $stream->begin(200, 'OK', []);
-      $stream->write('Hello');
-      $stream->write('Test');
-    });
-    $this->assertEquals(
-      "HTTP/1.1 200 OK\r\nContent-Length: 9\r\n\r\nHelloTest",
-      $fixture->bytes()
-    );
-  }
 }

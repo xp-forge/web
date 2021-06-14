@@ -233,7 +233,7 @@ class ResponseTest extends TestCase {
 
   #[Test]
   public function transfer_stream_buffered() {
-    $res= new Response((new TestOutput())->using(Buffered::class));
+    $res= new Response(new TestOutput(Buffered::class));
     $res->transfer(new MemoryInputStream('<h1>Test</h1>'), 'text/html');
 
     $this->assertResponse(
@@ -269,7 +269,7 @@ class ResponseTest extends TestCase {
 
   #[Test]
   public function transmit_stream_buffered() {
-    $res= new Response((new TestOutput())->using(Buffered::class));
+    $res= new Response(new TestOutput(Buffered::class));
     foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html') as $_) { }
 
     $this->assertResponse(

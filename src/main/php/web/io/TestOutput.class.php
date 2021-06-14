@@ -37,18 +37,6 @@ class TestOutput extends Output {
   public static function chunked() { return new self(WriteChunks::class); }
 
   /**
-   * Use stream class, which defaults to `WriteChunks`
-   *
-   * @deprecated Use constructor instead
-   * @param  string|lang.XPClass $stream
-   * @return self
-   */
-  public function using($stream) {
-    $this->stream= $stream instanceof XPClass ? $stream : XPClass::forName($stream);
-    return $this;
-  }
-
-  /**
    * Begins a request
    *
    * @param  int $status
