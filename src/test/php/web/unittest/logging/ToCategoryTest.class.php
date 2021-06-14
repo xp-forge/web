@@ -1,6 +1,6 @@
 <?php namespace web\unittest\logging;
 
-use unittest\{Expect, Test, TestCase};
+use unittest\{Test, TestCase};
 use util\log\{LogCategory, BufferedAppender};
 use web\io\{TestInput, TestOutput};
 use web\logging\ToCategory;
