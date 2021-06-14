@@ -2,7 +2,8 @@
 
 use io\TempFile;
 use unittest\{Test, TestCase, Values};
-use web\logging\{Sink, ToAllOf, ToConsole, ToFile, ToFunction};
+use util\log\LogCategory;
+use web\logging\{Sink, ToAllOf, ToConsole, ToFile, ToFunction, ToCategory};
 
 class SinkTest extends TestCase {
 
@@ -19,6 +20,11 @@ class SinkTest extends TestCase {
   #[Test]
   public function logging_to_function() {
     $this->assertInstanceOf(ToFunction::class, Sink::of(function($req, $res, $error) { }));
+  }
+
+  #[Test]
+  public function logging_to_category() {
+    $this->assertInstanceOf(ToCategory::class, Sink::of(new LogCategory('test')));
   }
 
   #[Test]
