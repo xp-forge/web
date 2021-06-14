@@ -108,6 +108,10 @@ abstract class Headers {
         $l= strlen($input);
         do {
           $s= strcspn($input, '=', $offset);
+          if ($offset + $s >= $l) {
+            throw new FormatException('Could not find "="');
+          }
+
           $name= trim(substr($input, $offset, $s));
           $offset+= $s + 1;
 

@@ -74,4 +74,19 @@ class HeadersTest extends TestCase {
   public function unclosed_quoted_string($input) {
     Headers::pairs()->parse($input);
   }
+
+  #[Test, Expect(FormatException::class)]
+  public function missing_comma() {
+    $single= new class() extends Headers {
+      protected function next($input, &$offset) {
+        return $input[$offset++];
+      }
+    };
+    Headers::values($single)->parse('a@');
+  }
+
+  #[Test, Expect(FormatException::class)]
+  public function missing_equals() {
+    Headers::pairs()->parse('for');
+  }
 }
