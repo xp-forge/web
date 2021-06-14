@@ -144,17 +144,17 @@ class Routing {
    */
   public function service($request, $response) {
     $seen= [];
-    do {
-      $result= $this->route($request)->handle($request, $response);
-      if ($this->top && $result instanceof Dispatch) {
-        $seen[$request->uri()->hashCode()]= true;
-        $request->rewrite($result->uri());
-        if (isset($seen[$request->uri()->hashCode()])) {
-          throw new Error(508, 'Internal redirect loop caused by dispatch to '.$result->uri());
-        }
-        continue;
+    dispatch: $result= $this->route($request)->handle($request, $response);
+
+    if ($this->top && $result instanceof Dispatch) {
+      $seen[$request->uri()->hashCode()]= true;
+      $request->rewrite($result->uri());
+      if (isset($seen[$request->uri()->hashCode()])) {
+        throw new Error(508, 'Internal redirect loop caused by dispatch to '.$result->uri());
       }
-      return $result;
-    } while (true);
+      goto dispatch;
+    }
+
+    return $result;
   }
 }
