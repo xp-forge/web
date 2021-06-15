@@ -117,6 +117,19 @@ class StreamTest extends TestCase {
     $this->assertEquals($expected, Streams::readAll($this->newFixture(self::NAME, ...$chunks)));
   }
 
+  #[Test]
+  public function read_empty() {
+    $fixture= $this->newFixture(self::NAME);
+    $this->assertNull($fixture->read());
+  }
+
+  #[Test]
+  public function read_after_end() {
+    $fixture= $this->newFixture(self::NAME, 'a');
+    $fixture->read();
+    $this->assertNull($fixture->read());
+  }
+
   #[Test, Values('chunks')]
   public function transfer_to_outputstream($chunks, $expected) {
     $out= new MemoryOutputStream();
@@ -147,5 +160,10 @@ class StreamTest extends TestCase {
   #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
   public function transfer_to_file($target) {
     $this->assertTransfer(['target.txt' => 'Test'], $target);
+  }
+
+  #[Test]
+  public function close_is_a_noop() {
+    $this->assertNull($this->newFixture(self::NAME)->close());
   }
 }
