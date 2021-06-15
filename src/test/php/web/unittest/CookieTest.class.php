@@ -127,4 +127,27 @@ class CookieTest extends TestCase {
       (new Cookie('name', 'value'))->secure()->header()
     );
   }
+
+  #[Test]
+  public function string_representation() {
+    $this->assertEquals(
+      'web.Cookie<name=value; SameSite=Lax; HttpOnly>',
+      (new Cookie('name', 'value'))->toString()
+    );
+  }
+
+  #[Test]
+  public function hash_code() {
+    $this->assertEquals(705299525, (new Cookie('name', 'value'))->hashCode());
+  }
+
+  #[Test]
+  public function compare_with_same_name_and_value() {
+    $this->assertEquals(0, (new Cookie('name', 'value'))->compareTo(new Cookie('name', 'value')));
+  }
+
+  #[Test]
+  public function compare_with_different_value() {
+    $this->assertEquals(1, (new Cookie('name', 'value'))->compareTo(new Cookie('name', 'other')));
+  }
 }
