@@ -26,9 +26,6 @@ abstract class Part implements Value {
   public function name() { return $this->name; }
 
   /** @return string */
-  public function toString() { return nameof($this).'('.$this->name.')'; }
-
-  /** @return string */
   public function hashCode() { return spl_object_hash($this); }
 
   /**
