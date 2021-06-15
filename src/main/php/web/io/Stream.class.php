@@ -40,9 +40,9 @@ class Stream extends Part implements InputStream {
     if ($raw) {
       return $this->name;
     } else if ('\\' === DIRECTORY_SEPARATOR) {
-      return basename(strtr($this->name, '/', '\\'));
+      return basename(strtr($this->name, '/', '\\')); // @codeCoverageIgnore
     } else {
-      return basename(strtr($this->name, '\\', '/'));
+      return basename(strtr($this->name, '\\', '/')); // @codeCoverageIgnore
     }
   }
 
