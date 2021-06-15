@@ -59,6 +59,11 @@ class TestInputTest extends TestCase {
   }
 
   #[Test]
+  public function reading_line_without_ending_crlf() {
+    $this->assertEquals('line', (new TestInput('GET', '/', [], "line"))->readLine());
+  }
+
+  #[Test]
   public function reading_lines() {
     $fixture= new TestInput('GET', '/', [], "line 1\r\nline 2\r\n");
     $this->assertEquals('line 1', $fixture->readLine());
