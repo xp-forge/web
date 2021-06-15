@@ -56,4 +56,10 @@ class ReadLengthTest extends TestCase {
       $this->fail('No exception raised', null, IOException::class);
     } catch (IOException $expected) { }
   }
+
+  #[Test]
+  public function close_is_a_noop() {
+    $fixture= new ReadLength($this->input('Test'), 4);
+    $this->assertNull($fixture->close());
+  }
 }
