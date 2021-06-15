@@ -43,4 +43,9 @@ class IncompleteTest {
   public function cannot_read_bytes() {
     (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->read();
   }
+
+  #[Test]
+  public function close_is_a_noop() {
+    Assert::null((new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->close());
+  }
 }
