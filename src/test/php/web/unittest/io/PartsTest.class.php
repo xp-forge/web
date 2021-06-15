@@ -1,7 +1,7 @@
 <?php namespace web\unittest\io;
 
 use io\OperationNotSupportedException;
-use io\streams\{MemoryInputStream, Streams};
+use io\streams\{InputStream, MemoryInputStream, Streams};
 use lang\FormatException;
 use unittest\{Expect, Test, TestCase, Values};
 use web\io\{Part, Parts};
@@ -146,6 +146,36 @@ class PartsTest extends TestCase {
       '--%1$s--',
       ''
     ));
+  }
+
+  #[Test]
+  public function crlf_inside_chunk_of_file_contents() {
+    $input= new class() implements InputStream {
+      private $chunk= 0;
+      private $buffer= [
+        '--%1$s',
+        'Content-Disposition: form-data; name="upload"; filename="test.data"',
+        'Content-Type: application/octet-stream',
+        '',
+        'Hey',
+        'Not the end',
+        '--%1$s--',
+        ''
+      ];
+
+      public function read($limit= 8192) {
+        return sprintf($this->buffer[$this->chunk++], PartsTest::BOUNDARY)."\r\n";
+      }
+
+      public function available() {
+        return $this->chunk < sizeof($this->buffer);
+      }
+
+      public function close() { }
+    };
+
+    $it= (new Parts($input, self::BOUNDARY))->getIterator();
+    $this->assertEquals("Hey\r\nNot the end", $it->current()->bytes());
   }
 
   #[Test]
