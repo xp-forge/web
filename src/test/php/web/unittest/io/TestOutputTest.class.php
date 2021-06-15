@@ -1,5 +1,6 @@
 <?php namespace web\unittest\io;
 
+use lang\XPClass;
 use unittest\{Test, TestCase};
 use web\io\{Buffered, TestOutput};
 
@@ -44,7 +45,6 @@ class TestOutputTest extends TestCase {
     $fixture= new TestOutput();
     $fixture->begin(200, 'OK', []);
     $this->assertEquals('HTTP/1.1 200 OK', $fixture->start());
-
   }
 
   #[Test]
@@ -83,9 +83,9 @@ class TestOutputTest extends TestCase {
     );
   }
 
-  #[Test]
-  public function buffered_stream() {
-    $fixture= new TestOutput(Buffered::class);
+  #[Test, Values(eval: '[[Buffered::class], [new XPClass(Buffered::class)]]')]
+  public function buffered_stream($arg) {
+    $fixture= new TestOutput($arg);
     with ($fixture->stream(), function($stream) {
       $stream->begin(200, 'OK', []);
       $stream->write('Hello');

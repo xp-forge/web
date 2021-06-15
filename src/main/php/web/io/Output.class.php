@@ -7,8 +7,9 @@ use io\streams\OutputStream;
  * `begin` and `write` methods, and may decide to implement `flush`,
  * `finish` and `stream`.
  *
- * @see   xp://xp.web.SAPI
- * @see   xp://xp.web.srv.Output
+ * @see   xp.web.SAPI
+ * @see   xp.web.srv.Output
+ * @test  web.unittest.io.OutputTest
  */
 abstract class Output implements OutputStream {
   private $closed= false;
