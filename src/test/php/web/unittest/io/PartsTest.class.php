@@ -212,6 +212,39 @@ class PartsTest extends TestCase {
   }
 
   #[Test]
+  public function parameter_string() {
+    $parts= $this->parts(
+      '--%1$s',
+      'Content-Disposition: form-data; name="submit"',
+      '',
+      'Upload',
+      '--%1$s--',
+      ''
+    );
+    $this->assertEquals(
+      'web.io.Param("submit", value= "Upload")',
+      iterator_to_array($parts)['submit']->toString()
+    );
+  }
+
+  #[Test]
+  public function file_string() {
+    $parts= $this->parts(
+      '--%1$s',
+      'Content-Disposition: form-data; name="upload"; filename="test.txt"',
+      'Content-Type: text/plain',
+      '',
+      'Test',
+      '--%1$s--',
+      ''
+    );
+    $this->assertEquals(
+      'web.io.Stream("test.txt", type= text/plain)',
+      iterator_to_array($parts)['upload']->toString()
+    );
+  }
+
+  #[Test]
   public function only_ending_delimiter() {
     $this->assertParts([], $this->parts('--%1$s--', ''));
   }
