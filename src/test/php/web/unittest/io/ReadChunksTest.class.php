@@ -75,6 +75,16 @@ class ReadChunksTest extends TestCase {
     $this->assertEquals($expected, $r);
   }
 
+  #[Test, Values([["0\r\n\r\n", []], ["4\r\nTest\r\n0\r\n\r\n", ['Test']], ["4\r\nTest\r\n3\r\n OK\r\n1\r\n!\r\n0\r\n\r\n", ['Test OK!']], ["1\r\n1\r\n2\r\n\r\n\r\n1\r\n2\r\n0\r\n\r\n", ['1', '2']]])]
+  public function lines($chunked, $expected) {
+    $fixture= new ReadChunks($this->input($chunked));
+    $r= [];
+    while ($fixture->available()) {
+      $r[]= $fixture->line();
+    }
+    $this->assertEquals($expected, $r);
+  }
+
   #[Test]
   public function read_until_end() {
     $input= $this->input("4\r\nTest\r\n0\r\n\r\n");
@@ -135,5 +145,11 @@ class ReadChunksTest extends TestCase {
       $fixture->read(1);
       $this->fail('No exception raised', null, IOException::class);
     } catch (IOException $expected) { }
+  }
+
+  #[Test]
+  public function close_is_a_noop() {
+    $fixture= new ReadChunks($this->input("0\r\n\r\n"));
+    $this->assertNull($fixture->close());
   }
 }
