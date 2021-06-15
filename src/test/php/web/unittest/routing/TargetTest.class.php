@@ -1,11 +1,11 @@
 <?php namespace web\unittest\routing;
 
-use unittest\{Test, Values};
+use unittest\{Test, Values, TestCase};
 use web\Request;
 use web\io\TestInput;
 use web\routing\Target;
 
-class TargetTest extends \unittest\TestCase {
+class TargetTest extends TestCase {
 
   #[Test, Values([['CONNECT', true], ['POST', false]])]
   public function method($method, $expected) {
