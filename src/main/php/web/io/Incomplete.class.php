@@ -9,7 +9,8 @@ use web\io\Part;
  * is exceeded or the uploaded file cannot be stored. Will raise exceptions
  * if used as a file.
  *
- * @see  https://www.php.net/manual/en/features.file-upload.errors.php
+ * @test  web.unittest.io.IncompleteTest
+ * @see   https://www.php.net/manual/en/features.file-upload.errors.php
  */
 class Incomplete extends Part implements InputStream {
   private $error;
