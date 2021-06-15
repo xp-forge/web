@@ -175,6 +175,6 @@ class Cookie implements Value {
    * @return int
    */
   public function compareTo($value) {
-    return $value instanceof self ? strcmp($this->header(), $value->header()) : 1;
+    return $value instanceof self ? $this->header() <=> $value->header() : 1;
   }
 }
