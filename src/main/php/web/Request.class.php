@@ -307,7 +307,7 @@ class Request implements Value {
   }
 
   /** @return string */
-  public function hashCode() { return uniqid(microtime(true)); }
+  public function hashCode() { return spl_object_id($this); }
 
   /**
    * Compares this request
