@@ -12,6 +12,8 @@ class RequestTest extends TestCase {
   /** @return var[][] */
   private function parameters() {
     return [
+      ['fixture', ''],
+      ['fixture=', ''],
       ['fixture=b', 'b'],
       ['fixture[]=b', ['b']],
       ['fixture[][]=b', [['b']]],

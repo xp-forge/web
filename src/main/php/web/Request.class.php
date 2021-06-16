@@ -71,8 +71,6 @@ class Request implements Value {
         $value= $this->encode($value);
       }
       return $param;
-    } else if (null === $param) {
-      return null;
     } else {
       return iconv($this->encoding, \xp::ENCODING, $param);
     }
