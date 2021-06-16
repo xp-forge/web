@@ -103,6 +103,15 @@ class RequestTest extends TestCase {
     );
   }
 
+  #[Test, Values([['%C3%BC', 'ü'], ['%E2%82%AC', '€'], ['%F0%9F%98%80', '😀']])]
+  public function multi_byte_sequence($hex, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 8 + strlen($hex)];
+    $this->assertEquals(
+      ['fixture' => $expected],
+      (new Request(new TestInput('POST', '/', $headers, 'fixture='.$hex)))->params()
+    );
+  }
+
   #[Test]
   public function charset_in_mediatype_common_nonspec() {
     $headers= ['Content-Type' => 'application/x-www-form-urlencoded; charset=iso-8859-1', 'Content-Length' => 14];
