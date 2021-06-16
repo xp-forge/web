@@ -296,6 +296,6 @@ class RequestTest extends TestCase {
   #[Test]
   public function hash_code() {
     $req= new Request(new TestInput('GET', '/', ['Host' => 'localhost', 'Connection' => 'close']));
-    $this->assertEquals(spl_object_id($req), $req->hashCode());
+    $this->assertEquals(spl_object_hash($req), $req->hashCode());
   }
 }
