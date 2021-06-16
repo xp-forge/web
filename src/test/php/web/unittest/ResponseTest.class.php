@@ -2,7 +2,7 @@
 
 use io\Channel;
 use io\streams\MemoryInputStream;
-use lang\IllegalArgumentException;
+use lang\{IllegalArgumentException, IllegalStateException};
 use unittest\{Test, Expect, Values, TestCase};
 use util\URI;
 use web\io\{Buffered, TestOutput};
@@ -312,5 +312,20 @@ class ResponseTest extends TestCase {
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: toggle=future; SameSite=Lax; HttpOnly\r\n\r\n",
       $res
     );
+  }
+
+  #[Test]
+  public function flushed() {
+    $res= new Response(new TestOutput());
+    $this->assertFalse($res->flushed());
+    $res->flush();
+    $this->assertTrue($res->flushed());
+  }
+
+  #[Test, Expect(IllegalStateException::class)]
+  public function flush_twice() {
+    $res= new Response(new TestOutput());
+    $res->flush();
+    $res->flush();
   }
 }
