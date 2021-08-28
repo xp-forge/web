@@ -18,29 +18,29 @@ class Routing {
    * Casts given routes to an instance of this Routing. Routes may be one of:
    *
    * - An instance of `Routing`, in which case it is returned directly
-   * - A map of definitions => handlers, which are passed to `mapping()`
+   * - A map of definitions => handlers, which are passed to `matching()`
    * - A handler, which becomes the argument to `fallback()`.
    *
-   * @param  self|[:var]|web.Handler|function(web.Request, web.Response): var $routes
+   * @param  self|[:var]|web.Handler|web.Application|function(web.Request, web.Response): var $routes
    * @param  bool $top Whether this is the top-level routing
    * @return self
    */
   public static function cast($routes, $top= false) {
     if ($routes instanceof self) {
-      $routes->top= $top;
-      return $routes;
+      $r= $routes;
+    } else if ($routes instanceof Application) {
+      $r= $routes->routing();
     } else if (is_array($routes)) {
-      $routing= new self();
-      $routing->top= $top;
+      $r= new self();
       foreach ($routes as $definition => $target) {
-        $routing->matching($definition, $target);
+        $r->matching($definition, $target);
       }
-      return $routing;
     } else {
-      $routing= (new self())->fallbacks($routes);
-      $routing->top= $top;
-      return $routing;
+      $r= (new self())->fallbacks($routes);
     }
+
+    $r->top= $top;
+    return $r;
   }
 
   /** @return web.routing.Route[] */
