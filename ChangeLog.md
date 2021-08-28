@@ -3,6 +3,21 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.0.0 / ????-??-??
+
+* Merged PR #41: Add `web.filters.BehindProxy` filter - @thekid
+* Removed deprecated method `web.io.TestOutput::using()` - @thekid
+* Merged PR #82, making *async* the default server mode. Other server
+  modes are *sequential*, *prefork* and *develop*. See issue #81
+  (@thekid)
+
+## 2.13.0 / 2021-08-29
+
+* Fixed PHP 8.1 warnings for `IteratorAggregate` interface compatibility
+  (@thekid)
+* Extended `Routing::cast()` to accept *Application* instances, see #84
+  (@thekid)
+
 ## 2.12.0 / 2021-06-13
 
 * Changed filters API so that any `web.Filter` implementation can use
