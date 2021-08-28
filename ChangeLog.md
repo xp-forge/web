@@ -5,6 +5,10 @@ Web change log
 
 ## 3.0.0 / ????-??-??
 
+* Fixed PHP 8.1 warnings for `IteratorAggregate` interface compatibility
+  (@thekid)
+* Extended `Routing::cast()` to accept *Application* instances, see #84
+  (@thekid)
 * Merged PR #41: Add `web.filters.BehindProxy` filter - @thekid
 * Removed deprecated method `web.io.TestOutput::using()` - @thekid
 * Merged PR #82, making *async* the default server mode. Other server

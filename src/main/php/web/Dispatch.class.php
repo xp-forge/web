@@ -1,5 +1,6 @@
 <?php namespace web;
 
+use IteratorAggregate, Traversable;
 use util\URI;
 
 /**
@@ -16,7 +17,7 @@ use util\URI;
  *
  * @see   xp://web.Request#dispatch
  */
-class Dispatch implements \IteratorAggregate {
+class Dispatch implements IteratorAggregate {
   private $uri;
 
   /** @param util.URI|string $uri */
@@ -28,5 +29,5 @@ class Dispatch implements \IteratorAggregate {
   public function uri() { return $this->uri; }
 
   /** @return iterable */
-  public function getIterator() { yield $this; }
+  public function getIterator(): Traversable { yield $this; }
 }

@@ -1,5 +1,6 @@
 <?php namespace web\io;
 
+use IteratorAggregate, Traversable;
 use lang\FormatException;
 use util\Objects;
 use web\Headers;
@@ -12,7 +13,7 @@ use web\Headers;
  * @see   xp://web.Multipart
  * @test  xp://web.unittest.io.PartsTest
  */
-class Parts implements \IteratorAggregate {
+class Parts implements IteratorAggregate {
   private $in, $boundary;
   private $buffer= '';
 
@@ -84,7 +85,7 @@ class Parts implements \IteratorAggregate {
    *
    * @return iterable
    */
-  public function getIterator() {
+  public function getIterator(): Traversable {
     $last= '--'.$this->boundary.'--';
     $boundary= $this->line();
 
