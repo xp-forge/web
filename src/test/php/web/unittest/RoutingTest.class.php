@@ -3,7 +3,7 @@
 use unittest\{Expect, Test, TestCase, Values};
 use web\io\{TestInput, TestOutput};
 use web\routing\{CannotRoute, Target};
-use web\{Handler, Request, Response, Route, Routing};
+use web\{Application, Environment, Handler, Request, Response, Route, Routing};
 
 class RoutingTest extends TestCase {
   private $handlers;
@@ -51,6 +51,23 @@ class RoutingTest extends TestCase {
   #[Test]
   public function for_map() {
     $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
+      ->route(new Request(new TestInput('GET', '/api')))
+    );
+  }
+
+  #[Test]
+  public function for_application() {
+    $app= new class($this->handlers) extends Application {
+      public function __construct($handlers) {
+        parent::__construct(new Environment('test'));
+        $this->handlers= $handlers;
+      }
+
+      public function routes() {
+        return ['/api' => $this->handlers['specific']];
+      }
+    };
+    $this->assertEquals($this->handlers['specific'], Routing::cast($app)
       ->route(new Request(new TestInput('GET', '/api')))
     );
   }
