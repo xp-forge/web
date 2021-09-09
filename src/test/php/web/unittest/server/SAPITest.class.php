@@ -220,6 +220,6 @@ class SAPITest extends TestCase {
     $_REQUEST= ['varname' => 'the value'];
     $fixture= new SAPI();
     $parts = iterator_to_array($fixture->parts(''));
-    $this->assertNotEquals('the+value', $parts['varname']->value());
+    $this->assertEquals('the value', $parts['varname']->value());
   }
 }
