@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 2.13.1 / 2021-09-09
+
+* Merged PR #85: Fixed param value is urlencoded when doing multipart
+  requests via SAPI
+  (@johannes85, @thekid)
+
 ## 2.13.0 / 2021-08-29
 
 * Fixed PHP 8.1 warnings for `IteratorAggregate` interface compatibility
