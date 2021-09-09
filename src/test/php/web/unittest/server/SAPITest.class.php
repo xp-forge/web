@@ -214,4 +214,12 @@ class SAPITest extends TestCase {
       $this->parts($this->upload('test.txt', 'text/plain'))
     ));
   }
+
+  #[Test]
+  public function parameter_unnecessary_urlencode_regression() {
+    $_REQUEST= ['varname' => 'the value'];
+    $fixture= new SAPI();
+    $parts = iterator_to_array($fixture->parts(''));
+    $this->assertNotEquals('the+value', $parts['varname']->value());
+  }
 }
