@@ -59,7 +59,7 @@ class IntegrationTest {
   }
 
   #[Test]
-  public function server_header_alwayss_present() {
+  public function server_header_always_present() {
     $this->send('GET', '/status/200', '1.1', ['Connection' => 'close']);
     Assert::equals('XP', $this->receive()['headers']['Server']);
   }
