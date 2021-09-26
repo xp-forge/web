@@ -116,6 +116,16 @@ class IntegrationTest {
   }
 
   #[Test]
+  public function post_body_read() {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9];
+    $this->send('POST', '/content', '1.0', $headers, 'data=Test');
+    $response= $this->receive();
+
+    Assert::equals('4', $response['headers']['Content-Length']);
+    Assert::equals('Test', $response['body']);
+  }
+
+  #[Test]
   public function stream_comes_with_length_in_http10() {
     $this->send('GET', '/stream?data=Test', '1.0', ['Connection' => 'close']);
     $response= $this->receive();
