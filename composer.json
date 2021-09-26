@@ -6,13 +6,13 @@
   "description" : "Web applications for the XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^10.0 | ^9.0 | ^8.0 | ^7.0",
-    "xp-framework/networking": "^10.1 | ^9.0 | ^8.0 | ^7.0",
-    "xp-forge/uri": "^2.0 | ^1.2",
+    "xp-framework/core": "^10.0",
+    "xp-framework/networking": "^10.1 | ^9.3",
+    "xp-forge/uri": "^2.0 | ^1.4",
     "php": ">=7.0.0"
   },
   "require-dev" : {
-    "xp-framework/unittest": "^11.0 | ^10.0 | ^9.0 | ^8.0 |^7.0"
+    "xp-framework/unittest": "^11.0 | ^10.1"
   },
   "bin": ["bin/xp.xp-forge.web"],
   "autoload" : {
