@@ -14,7 +14,8 @@ class IntegrationTest {
   }
 
   /**
-   * Sends a request
+   * Sends a request. Ensure connection is closed for receive() to be able
+   * to read until EOF.
    *
    * @param  string $method
    * @param  string $uri
@@ -25,7 +26,7 @@ class IntegrationTest {
    */
   private function send($method, $uri, $version= '1.0', $headers= [], $body= '') {
     self::$connection->write($method.' '.$uri.' HTTP/'.$version."\r\n");
-    foreach ($headers as $name => $value) {
+    foreach (['Connection' => 'close'] + $headers as $name => $value) {
       self::$connection->write($name.': '.$value."\r\n");
     }
     self::$connection->write("\r\n".$body);
@@ -129,7 +130,7 @@ class IntegrationTest {
 
   #[Test]
   public function chunked_body_read() {
-    $headers= ['Content-Type' => self::FORM_URLENCODED, 'Transfer-Encoding' => 'chunked', 'Connection' => 'close'];
+    $headers= ['Content-Type' => self::FORM_URLENCODED, 'Transfer-Encoding' => 'chunked'];
     $this->send('POST', '/content', '1.1', $headers, "9\r\ndata=Test\r\n0\r\n\r\n");
     $response= $this->receive();
 
@@ -148,7 +149,7 @@ class IntegrationTest {
 
   #[Test]
   public function stream_comes_with_chunked_te_in_http11() {
-    $this->send('GET', '/stream?data=Test', '1.1', ['Connection' => 'close']);
+    $this->send('GET', '/stream?data=Test', '1.1');
     $response= $this->receive();
 
     Assert::equals('chunked', $response['headers']['Transfer-Encoding']);
