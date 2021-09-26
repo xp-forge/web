@@ -63,7 +63,7 @@ class Standalone extends Server {
     $this->impl->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");
-    Console::writeLine("\e[1mServing ", $application, $config, "\e[0m > ", $environment->logging()->target());
+    Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
 
     Console::writeLinef(

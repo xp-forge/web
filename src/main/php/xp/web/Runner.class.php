@@ -46,7 +46,7 @@ class Runner {
     $webroot= new Path(getcwd());
     $docroot= new Path($webroot, 'static');
     $address= 'localhost:8080';
-    $profile= getenv('SERVER_PROFILE') ?: 'dev';
+    $profile= getenv('SERVER_PROFILE');
     $server= Servers::$ASYNC;
     $arguments= [];
     $config= [];
@@ -80,7 +80,7 @@ class Runner {
 
       $server->newInstance($address, $arguments)->serve(
         $source,
-        $profile,
+        $profile ?: (Servers::$DEVELOP === $server ? 'dev' : 'prod'),
         $webroot,
         $webroot->resolve($docroot),
         $config,
