@@ -4,6 +4,8 @@ use unittest\{Assert, Action, Test, Values};
 
 #[Action(eval: 'new StartServer("web.unittest.TestingServer", "connected")')]
 class IntegrationTest {
+  const FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
   private static $connection;
 
   /** @param peer.Socket $client */
@@ -117,7 +119,7 @@ class IntegrationTest {
 
   #[Test]
   public function post_body_read() {
-    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9];
+    $headers= ['Content-Type' => self::FORM_URLENCODED, 'Content-Length' => 9];
     $this->send('POST', '/content', '1.0', $headers, 'data=Test');
     $response= $this->receive();
 
@@ -126,8 +128,18 @@ class IntegrationTest {
   }
 
   #[Test]
+  public function chunked_body_read() {
+    $headers= ['Content-Type' => self::FORM_URLENCODED, 'Transfer-Encoding' => 'chunked', 'Connection' => 'close'];
+    $this->send('POST', '/content', '1.1', $headers, "9\r\ndata=Test\r\n0\r\n\r\n");
+    $response= $this->receive();
+
+    Assert::equals('4', $response['headers']['Content-Length']);
+    Assert::equals('Test', $response['body']);
+  }
+
+  #[Test]
   public function stream_comes_with_length_in_http10() {
-    $this->send('GET', '/stream?data=Test', '1.0', ['Connection' => 'close']);
+    $this->send('GET', '/stream?data=Test', '1.0');
     $response= $this->receive();
 
     Assert::equals('4', $response['headers']['Content-Length']);
