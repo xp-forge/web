@@ -3,8 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 3.0.0 / ????-??-??
+## 3.0.0 / 2021-09-26
 
+* Merged PR #86: Drop support for XP < 9 - @thekid
 * Merged PR #41: Add `web.filters.BehindProxy` filter - @thekid
 * Removed deprecated method `web.io.TestOutput::using()` - @thekid
 * Merged PR #82, making *async* the default server mode. Other server
