@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.0.1 / 2021-10-21
+
+* Made library compatible with XP 11 - @thekid
+
 ## 3.0.0 / 2021-09-26
 
 * Merged PR #87: Default server profile to "prod" - @thekid
