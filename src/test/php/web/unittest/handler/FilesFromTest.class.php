@@ -1,6 +1,6 @@
 <?php namespace web\unittest\handler;
 
-use io\{File, FileUtil, Folder, Path};
+use io\{File, Files, Folder, Path};
 use lang\Environment;
 use unittest\{Test, TestCase, Values};
 use web\handler\FilesFrom;
@@ -23,7 +23,7 @@ class FilesFromTest extends TestCase {
       if (is_array($contents)) {
         $this->create(new Folder($folder, $name), $contents);
       } else {
-        FileUtil::setContents(new File($folder, $name), $contents);
+        Files::write(new File($folder, $name), $contents);
       }
     }
     return $folder;
