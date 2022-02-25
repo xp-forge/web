@@ -145,16 +145,6 @@ class EnvironmentTest extends TestCase {
     $this->assertEquals(2, $environment->properties('inject')->length());
   }
 
-  #[Test, Expect(class: ElementNotFoundException::class, withMessage: '/ResourcePropertySource/')]
-  public function resource_properties() {
-    $environment= new Environment('dev', '.', 'static', ['inject.ini']);
-    try {
-      $environment->properties('inject');
-    } finally {
-      \xp::gc();
-    }
-  }
-
   #[Test]
   public function arguments_empty_by_default() {
     $this->assertEquals([], (new Environment('dev', '.', 'static', []))->arguments());
