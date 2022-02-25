@@ -123,7 +123,7 @@ class HttpProtocol implements ServerProtocol {
       $response->header('Server', 'XP');
 
       // HTTP/1.1 defaults to keeping connection alive, HTTP/1.0 defaults to closing
-      $connection= $request->header('Connection');
+      $connection= $request->header('Connection', '');
       if ($this->close) {
         $close= true;
         $response->header('Connection', 'close');
