@@ -4,7 +4,7 @@ use web\handler\Call;
 use web\routing\RouteMatch;
 
 class Route {
-  private $match, $hander;
+  private $match, $handler;
 
   /**
    * Creates a new route
