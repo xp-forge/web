@@ -43,9 +43,10 @@ abstract class Headers {
   protected abstract function next($input, &$offset);
 
   /**
-   * Returns a new parser for parameterized headers, e.g.:
+   * Returns a new parser for headers with multiple values
    *
-   * `Accept-Language: en, de;q=0.8, fr;q=0.5`
+   * `Accept-Language: en, de`
+   * `Accept-Encoding: gzip, br`
    *
    * @param  self $parse
    * @return self
