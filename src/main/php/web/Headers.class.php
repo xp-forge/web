@@ -53,9 +53,9 @@ abstract class Headers {
    */
   public static function values($parse) {
     return new class($parse) extends Headers {
-      public function __construct($parse) {
-        $this->parse= $parse;
-      }
+      private $parse;
+
+      public function __construct($parse) { $this->parse= $parse; }
 
       protected function next($input, &$offset) {
         $values= [];

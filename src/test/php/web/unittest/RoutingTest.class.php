@@ -58,6 +58,8 @@ class RoutingTest extends TestCase {
   #[Test]
   public function for_application() {
     $app= new class($this->handlers) extends Application {
+      private $handlers;
+
       public function __construct($handlers) {
         parent::__construct(new Environment('test'));
         $this->handlers= $handlers;

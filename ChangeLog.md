@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.0.2 / 2022-02-25
+
+* Fixed multiple occasions of "Creation of dynamic property" warnings
+  raised by PHP 8.2
+  (@thekid)
+
 ## 3.0.1 / 2021-10-21
 
 * Made library compatible with XP 11 - @thekid

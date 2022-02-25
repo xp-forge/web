@@ -10,6 +10,7 @@ use web\Filter;
  * @test  xp://web.unittest.filters.BehindProxyTest
  */
 class BehindProxy implements Filter {
+  private $remote, $replace;
 
   /**
    * Creates a new instance given a map of the front-facing URL to the local path

@@ -10,6 +10,7 @@ use web\filters\Invocation;
  * @test  xp://web.unittest.FiltersTest
  */
 class Filters implements Handler {
+  private $routing;
   private $filters= [];
 
   /**
