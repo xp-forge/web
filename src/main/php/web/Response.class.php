@@ -38,11 +38,16 @@ class Response {
   /**
    * Sets a cookie
    *
-   * @param  web.Response $cookie
+   * @param  web.Cookie $cookie
+   * @param  bool $append Append header if already existant
    * @return void
    */
-  public function cookie(Cookie $cookie) {
-    $this->cookies[]= $cookie;
+  public function cookie(Cookie $cookie, $append= false) {
+    if ($append) {
+      $this->cookies[]= $cookie;
+    } else {
+      $this->cookies[$cookie->name()]= $cookie;
+    }
   }
 
   /**
@@ -81,7 +86,7 @@ class Response {
   public function flushed() { return $this->flushed; }
 
   /** @return web.Cookie[] */
-  public function cookies() { return $this->cookies; }
+  public function cookies() { return array_values($this->cookies); }
 
   /** @return [:string|string[]] */
   public function headers() {

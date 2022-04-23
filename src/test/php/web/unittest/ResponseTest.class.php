@@ -115,6 +115,22 @@ class ResponseTest extends TestCase {
   }
 
   #[Test]
+  public function overwrite_cookie() {
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'light'));
+    $res->cookie(new Cookie('theme', 'dark'));
+    $this->assertEquals(['dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
+  }
+
+  #[Test]
+  public function append_cookie() {
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'light'));
+    $res->cookie(new Cookie('theme', 'dark'), true);
+    $this->assertEquals(['light', 'dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
+  }
+
+  #[Test]
   public function cookies() {
     $cookies= [new Cookie('theme', 'Test'), (new Cookie('sessionToken', 'abc123'))->expires('Wed, 09 Jun 2021 10:18:14 GMT')];
 
