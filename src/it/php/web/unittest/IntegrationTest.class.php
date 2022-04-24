@@ -151,4 +151,13 @@ class IntegrationTest {
     Assert::equals('chunked', $response['headers']['Transfer-Encoding']);
     Assert::equals("4\r\nTest\r\n0\r\n\r\n", $response['body']);
   }
+
+  #[Test, Values([1024, 4096, 8192])]
+  public function with_large_cookie($length) {
+    $header= 'cookie='.str_repeat('*', $length);
+    $this->send('GET', '/cookie', '1.0', ['Cookie' => $header]);
+    $response= $this->receive();
+
+    Assert::equals((string)strlen($header), $response['body']);
+  }
 }

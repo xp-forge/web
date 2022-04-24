@@ -23,9 +23,14 @@ class InputTest extends TestCase {
 
       public function eof() { return 0 === strlen($this->bytes); }
 
-      public function setBlocking($mode) { /* NOOP */ }
-
       public function canRead($timeout= null) { return strlen($this->bytes) > 0; }
+
+      public function read($maxLen= 4096) {
+        $read= false === ($p= strpos($this->bytes, "\n")) ? $maxLen : $p + 1;
+        $chunk= substr($this->bytes, 0, $read);
+        $this->bytes= substr($this->bytes, $read);
+        return (string)$chunk;
+      }
 
       public function readBinary($maxLen= 4096) {
         $chunk= substr($this->bytes, 0, $maxLen);
@@ -131,5 +136,14 @@ class InputTest extends TestCase {
     iterator_count($input->headers());
 
     $this->assertEquals('Test', $input->read(-1));
+  }
+
+  #[Test, Values([1024, 4096, 8192])]
+  public function with_large_headers($length) {
+    $header= 'cookie='.str_repeat('*', $length);
+    $input= new Input($this->socket("GET / HTTP/1.1\r\nCookie: {$header}\r\n\r\n"));
+    $headers= iterator_to_array($input->headers());
+
+    $this->assertEquals($header, $headers['Cookie']);
   }
 }

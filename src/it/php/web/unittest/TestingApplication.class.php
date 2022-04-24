@@ -37,6 +37,10 @@ class TestingApplication extends Application {
         $res->answer(200);
         $res->send($req->param('data') ?? 'Content', 'text/plain');
       },
+      '/cookie' => function($req, $res) {
+        $res->answer(200);
+        $res->send(strlen($req->header('Cookie')), 'text/plain');
+      },
       '/stream' => function($req, $res) {
         $res->answer(200);
         $res->header('Content-Type', 'text/plain');
