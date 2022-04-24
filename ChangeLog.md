@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.1.0 / 2022-04-24
+
+* Changed `xp web` command to show complete stacktrace for startup errors
+  as suggested in issue #88
+  (@thekid)
 * Fixed reading HTTP requests with headers exceeding 4096 bytes in length
   by using non-blocking mode for reads.
   (@thekid)

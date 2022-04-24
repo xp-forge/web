@@ -89,7 +89,7 @@ class Runner {
       );
       return 0;
     } catch (Throwable $t) {
-      Console::$err->writeLine('*** Error: ', $t->getMessage());
+      Console::$err->writeLine('*** Error: ', $t);
       return 1;
     }
   }
