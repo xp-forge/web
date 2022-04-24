@@ -23,6 +23,8 @@ class InputTest extends TestCase {
 
       public function eof() { return 0 === strlen($this->bytes); }
 
+      public function setBlocking($mode) { /* NOOP */ }
+
       public function canRead($timeout= null) { return strlen($this->bytes) > 0; }
 
       public function readBinary($maxLen= 4096) {

@@ -32,6 +32,7 @@ class Input implements IOInput {
     // Read status line cautiously. If a client does not send complete line
     // with the initial write (which it typically does), wait for another
     // 100 milliseconds. If no more data is transmitted, give up.
+    $socket->setBlocking(false);
     if (false === ($p= strpos($initial, "\r\n"))) {
       if ($socket->canRead(0.1)) {
         $initial.= $socket->readBinary();

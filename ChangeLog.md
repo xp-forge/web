@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed reading HTTP requests with headers exceeding 4096 bytes in length
+  by using non-blocking mode for reads.
+  (@thekid)
+
 ## 3.0.2 / 2022-02-25
 
 * Fixed multiple occasions of "Creation of dynamic property" warnings
