@@ -114,8 +114,7 @@ class IntegrationTest {
     $this->send('GET', '/content?data=Test');
     $response= $this->receive();
 
-    Assert::equals('4', $response['headers']['Content-Length']);
-    Assert::equals('Test', $response['body']);
+    Assert::equals(['4', 'Test'], [$response['headers']['Content-Length'], $response['body']]);
   }
 
   #[Test]
@@ -124,8 +123,7 @@ class IntegrationTest {
     $this->send('POST', '/content', '1.0', $headers, 'data=Test');
     $response= $this->receive();
 
-    Assert::equals('4', $response['headers']['Content-Length']);
-    Assert::equals('Test', $response['body']);
+    Assert::equals(['4', 'Test'], [$response['headers']['Content-Length'], $response['body']]);
   }
 
   #[Test]
@@ -134,8 +132,7 @@ class IntegrationTest {
     $this->send('POST', '/content', '1.1', $headers, "9\r\ndata=Test\r\n0\r\n\r\n");
     $response= $this->receive();
 
-    Assert::equals('4', $response['headers']['Content-Length']);
-    Assert::equals('Test', $response['body']);
+    Assert::equals(['4', 'Test'], [$response['headers']['Content-Length'], $response['body']]);
   }
 
   #[Test]
@@ -143,8 +140,7 @@ class IntegrationTest {
     $this->send('GET', '/stream?data=Test', '1.0');
     $response= $this->receive();
 
-    Assert::equals('4', $response['headers']['Content-Length']);
-    Assert::equals('Test', $response['body']);
+    Assert::equals(['4', 'Test'], [$response['headers']['Content-Length'], $response['body']]);
   }
 
   #[Test]
