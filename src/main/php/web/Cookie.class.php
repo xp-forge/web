@@ -151,7 +151,7 @@ class Cookie implements Value {
   /** @return string */
   public function header() {
     return (
-      $this->name.'='.$this->value.
+      $this->name.'='.rawurlencode($this->value).
       (null === $this->expires ? '' : '; Expires='.Headers::date($this->expires)).
       (null === $this->maxAge ? '' : '; Max-Age='.$this->maxAge).
       (null === $this->path ? '' : '; Path='.$this->path).

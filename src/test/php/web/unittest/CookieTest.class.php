@@ -89,6 +89,14 @@ class CookieTest extends TestCase {
   }
 
   #[Test]
+  public function spaces_in_value_get_encoded() {
+    $this->assertEquals(
+      'name=value%20with%20spaces; SameSite=Lax; HttpOnly',
+      (new Cookie('name', 'value with spaces'))->header()
+    );
+  }
+
+  #[Test]
   public function setting_max_age_to_zero() {
     $this->assertEquals(
       'name=value; Max-Age=0; SameSite=Lax; HttpOnly',
