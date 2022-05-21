@@ -1,6 +1,6 @@
 <?php namespace web;
 
-use lang\{IllegalArgumentException, Value};
+use lang\Value;
 use util\{Date, TimeSpan};
 
 /**
