@@ -12,16 +12,6 @@ class CookieTest extends TestCase {
     new Cookie('name', 'value');
   }
 
-  #[Test, Expect(IllegalArgumentException::class)]
-  public function cannot_create_with_control_character() {
-    new Cookie('name', "\x00");
-  }
-
-  #[Test, Expect(IllegalArgumentException::class)]
-  public function cannot_create_with_semicolon() {
-    new Cookie('name', ';');
-  }
-
   #[Test]
   public function name() {
     $this->assertEquals('name', (new Cookie('name', 'value'))->name());
@@ -93,6 +83,22 @@ class CookieTest extends TestCase {
     $this->assertEquals(
       'name=%22val%C3%BCe%22%20with%20spaces; SameSite=Lax; HttpOnly',
       (new Cookie('name', '"valüe" with spaces'))->header()
+    );
+  }
+
+  #[Test]
+  public function control_character_in_value_gets_encoded() {
+    $this->assertEquals(
+      'name=a%00; SameSite=Lax; HttpOnly',
+      (new Cookie('name', "a\0"))->header()
+    );
+  }
+
+  #[Test]
+  public function semicolon_in_value_gets_encoded() {
+    $this->assertEquals(
+      'name=a%3B; SameSite=Lax; HttpOnly',
+      (new Cookie('name', 'a;'))->header()
     );
   }
 

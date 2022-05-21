@@ -27,7 +27,6 @@ class Cookie implements Value {
    *
    * @param  string $name
    * @param  ?string $value Pass `null` to remove the cookie
-   * @throws lang.IllegalArgumentException if value contains control characters or a semicolon
    */
   public function __construct($name, $value) {
     $this->name= $name;
@@ -35,8 +34,6 @@ class Cookie implements Value {
       $this->value= '';
       $this->expires= time() - 86400 * 365;
       $this->maxAge= 0;
-    } else if (preg_match('/[\x00-\x1F;]/', $value)) {
-      throw new IllegalArgumentException('Cookie values cannot contain control characters or semicolons');
     } else {
       $this->value= $value;
     }
