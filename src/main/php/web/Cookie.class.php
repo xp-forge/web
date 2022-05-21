@@ -26,7 +26,7 @@ class Cookie implements Value {
    * Creates a new cookie
    *
    * @param  string $name
-   * @param  string $value Pass `null` to remove the cookie
+   * @param  ?string $value Pass `null` to remove the cookie
    * @throws lang.IllegalArgumentException if value contains control characters or a semicolon
    */
   public function __construct($name, $value) {
