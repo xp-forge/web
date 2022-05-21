@@ -42,7 +42,7 @@ class Cookie implements Value {
   /** @return string */
   public function name() { return $this->name; }
 
-  /** @return string */
+  /** @return ?string */
   public function value() { return $this->value; }
 
   /** @return [:var] */
@@ -61,7 +61,7 @@ class Cookie implements Value {
   /**
    * Set expiration date
    *
-   * @param  int|string|util.Date $expires
+   * @param  ?int|string|util.Date $expires
    * @return self
    */
   public function expires($expires) {
@@ -78,7 +78,7 @@ class Cookie implements Value {
   /**
    * Set maximum age in seconds.
    *
-   * @param  int|util.TimeSpan $maxAge
+   * @param  ?int|util.TimeSpan $maxAge
    * @return self
    */
   public function maxAge($maxAge) {
@@ -93,7 +93,7 @@ class Cookie implements Value {
   /**
    * Restricts to a given path. Use `/` for all paths on a given domain
    *
-   * @param  string $path
+   * @param  ?string $path
    * @return self
    */
   public function path($path) {
@@ -104,7 +104,7 @@ class Cookie implements Value {
   /**
    * Restricts to a given domain. Prefix with `.` to make valid for all subdomains
    *
-   * @param  string $domain
+   * @param  ?string $domain
    * @return self
    */
   public function domain($domain) {
@@ -137,7 +137,7 @@ class Cookie implements Value {
   /**
    * Switch whether to only transmit only to same site; preventing CSRF
    *
-   * @param  string $sameSite one of "Strict", "Lax" or null (use the latter to remove)
+   * @param  ?string $sameSite one of "Strict", "Lax" or null (use the latter to remove)
    * @return self
    */
   public function sameSite($sameSite) {
