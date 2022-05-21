@@ -4,12 +4,13 @@ use lang\{IllegalArgumentException, Value};
 use util\{Date, TimeSpan};
 
 /**
- * A HTTP/1.1 Cookie
+ * A HTTP/1.1 Cookie. Values are encoded using URL encoding.
  *
  * @see   https://tools.ietf.org/html/rfc6265
  * @see   http://httpwg.org/http-extensions/draft-ietf-httpbis-cookie-same-site.html
  * @see   https://www.owasp.org/index.php/SameSite
- * @test  xp://web.unittest.CookieTest
+ * @see   https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
+ * @test  web.unittest.CookieTest
  */
 class Cookie implements Value {
   private $name, $value;
