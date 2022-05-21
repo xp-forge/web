@@ -221,6 +221,14 @@ class RequestTest extends TestCase {
     );
   }
 
+  #[Test]
+  public function cookie_value_decoded() {
+    $this->assertEquals(
+      '"valüe" with spaces',
+      (new Request(new TestInput('GET', '/', ['Cookie' => 'test=%22val%C3%BCe%22%20with%20spaces'])))->cookie('test')
+    );
+  }
+
   #[Test, Values([0, 8192, 10000])]
   public function stream_with_content_length($length) {
     $body= str_repeat('A', $length);
