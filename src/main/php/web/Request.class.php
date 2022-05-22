@@ -239,7 +239,7 @@ class Request implements Value {
       if ($header= $this->header('Cookie')) {
         foreach (explode(';', $header) as $cookie) {
           sscanf(ltrim($cookie), '%[^=]=%[^;]', $name, $value);
-          $this->cookies[urldecode($name)]= urldecode($value);
+          $this->cookies[$name]= rawurldecode($value);
         }
       }
     }
