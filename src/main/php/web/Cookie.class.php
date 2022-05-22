@@ -1,6 +1,6 @@
 <?php namespace web;
 
-use lang\Value;
+use lang\{Value, IllegalArgumentException};
 use util\{Date, TimeSpan};
 
 /**
@@ -28,8 +28,13 @@ class Cookie implements Value {
    *
    * @param  string $name
    * @param  ?string $value Pass `null` to remove the cookie
+   * @throws lang.IllegalArgumentException if the cookie name contains illegal characters
    */
   public function __construct($name, $value) {
+    if (strcspn($name, "=,; \t\r\n\013\014") < strlen($name)) {
+      throw new IllegalArgumentException('Cookie names cannot contain any of [=,; \t\r\n\013\014]');
+    }
+
     $this->name= $name;
     if (null === $value) {
       $this->value= '';

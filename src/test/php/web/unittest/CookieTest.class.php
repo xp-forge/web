@@ -17,6 +17,11 @@ class CookieTest extends TestCase {
     $this->assertEquals('name', (new Cookie('name', 'value'))->name());
   }
 
+  #[Test, Expect(IllegalArgumentException::class), Values(["=", ",", ";", " ", "\t", "\r", "\n", "\013", "\014"])]
+  public function name_cannot_contain($char) {
+    new Cookie('name'.$char, 'value');
+  }
+
   #[Test]
   public function value() {
     $this->assertEquals('value', (new Cookie('name', 'value'))->value());
