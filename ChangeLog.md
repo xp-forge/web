@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #90: URL-encode cookie values. This is in line with what PHP
+  and ExpressJS do.
+  (@thekid)
+
 ## 3.1.0 / 2022-04-24
 
 * Changed `xp web` command to show complete stacktrace for startup errors
