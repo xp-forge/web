@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.2.0 / 2022-05-22
+
 * Merged PR #90: URL-encode cookie values. This is in line with what PHP
   and ExpressJS do.
   (@thekid)
