@@ -5,7 +5,7 @@ use lang\archive\ArchiveClassLoader;
 use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use peer\Socket;
 use util\cmd\Console;
-use web\Logging;
+use web\{Application, Environment, Logging};
 
 class Develop extends Server {
 
@@ -21,6 +21,9 @@ class Develop extends Server {
    * @param  string[] $logging
    */
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
+    $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
+    $application= (new Source($source, $environment))->application($args);
+    $application->initialize();
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {

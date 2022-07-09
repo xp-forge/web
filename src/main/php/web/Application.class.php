@@ -1,11 +1,13 @@
 <?php namespace web;
 
+use lang\Value;
+
 /**
  * Application is at the heart at every web project.
  *
  * @test  xp://web.unittest.ApplicationTest
  */
-abstract class Application implements \lang\Value {
+abstract class Application implements Value {
   private $routing= null;
   protected $environment;
 
@@ -31,6 +33,16 @@ abstract class Application implements \lang\Value {
       $this->routing= Routing::cast($this->routes(), true);
     }
     return $this->routing;    
+  }
+
+  /**
+   * Initializes this application, being run once when the server starts.
+   * Empty in this default implementation, overwrite in subclasses.
+   *
+   * @return void
+   */
+  public function initialize() {
+    // Empty
   }
 
   /**

@@ -56,6 +56,7 @@ class Standalone extends Server {
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
+    $application->initialize();
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
