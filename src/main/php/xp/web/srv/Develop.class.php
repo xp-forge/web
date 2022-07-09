@@ -42,7 +42,7 @@ class Develop extends Server {
     $cmd= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
       $arguments,
       $runtime->startupOptions()->withSetting('user_dir', $docroot)->withSetting('include_path', $include)->asArguments(),
-      [$runtime->bootStrapScript('web')]
+      [$runtime->bootstrapScript('web')]
     ));
 
     // Export environment
