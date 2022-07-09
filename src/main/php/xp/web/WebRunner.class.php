@@ -49,14 +49,26 @@ class WebRunner {
     $env->logging()->log($request, $response, $error);
   }
 
+  /**
+   * Splits given environment variable, returning an empty array if the
+   * environment variable itself is empty
+   *
+   * @param  string $separator
+   * @param  string $env
+   * @param  string[]
+   */
+  private static function split($separator, $env) {
+    return $env ? explode($separator, $env) : [];
+  }
+
   /** @param string[] $args */
   public static function main($args) {
     $env= new Environment(
       $args[2],
       $args[0],
       $args[1],
-      explode(PATH_SEPARATOR, getenv('WEB_CONFIG')),
-      explode('|', getenv('WEB_ARGS')),
+      self::split(PATH_SEPARATOR, getenv('WEB_CONFIG')),
+      self::split('|', getenv('WEB_ARGS')),
       getenv('WEB_LOG') ?: null
     );
 
