@@ -35,7 +35,7 @@ class Environment {
         $this->sources[]= new FilesystemPropertySource($source);
       } else if (is_file($source)) {
         $this->sources[]= new FilesystemPropertySource(dirname($source));
-      } else {
+      } else if (class_exists(ResourcePropertySource::class)) {
         $this->sources[]= new ResourcePropertySource($source);
       }
     }
