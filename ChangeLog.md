@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.3.0 / 2022-08-19
+
 * Do not send file contents from `web.handler.FilesFrom` for HTTP *HEAD*
   requests, saving bandwith and processing time.
   (@thekid)
