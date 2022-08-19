@@ -121,16 +121,21 @@ class FilesFrom implements Handler {
       $response->answer(200, 'OK');
       $response->header('Content-Type', $mimeType);
 
-      $out= $response->stream($file->size());
-      $file->open(File::READ);
-      try {
-        do {
-          $out->write($file->read(self::CHUNKSIZE));
-          yield;
-        } while (!$file->eof());
-      } finally {
-        $file->close();
-        $out->close();
+      if ('HEAD' === $request->method()) {
+        $response->header('Content-Length', $file->size());
+        $response->flush();
+      } else {
+        $out= $response->stream($file->size());
+        $file->open(File::READ);
+        try {
+          do {
+            $out->write($file->read(self::CHUNKSIZE));
+            yield;
+          } while (!$file->eof());
+        } finally {
+          $file->close();
+          $out->close();
+        }
       }
       return;
     }

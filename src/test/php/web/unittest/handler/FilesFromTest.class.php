@@ -392,4 +392,19 @@ class FilesFromTest extends TestCase {
       $this->serve($files, $file, 'text/html; charset=utf-8')
     );
   }
+
+  #[Test]
+  public function head_method_on_existing_file() {
+    $files= new FilesFrom($this->pathWith(['test.html' => 'Test']));
+    $this->assertResponse(
+      "HTTP/1.1 200 OK\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Content-Type: text/html\r\n".
+      "Content-Length: 4\r\n".
+      "\r\n",
+      $this->handle($files, new Request(new TestInput('HEAD', '/test.html')))
+    );
+  }
 }

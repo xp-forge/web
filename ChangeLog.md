@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Do not send file contents from `web.handler.FilesFrom` for HTTP *HEAD*
+  requests, saving bandwith and processing time.
+  (@thekid)
+
 ## 3.2.0 / 2022-05-22
 
 * Merged PR #90: URL-encode cookie values. This is in line with what PHP
