@@ -252,3 +252,4 @@ This library provides for the very basic functionality. To create web frontends 
 * [Sessions](https://github.com/xp-forge/sessions)
 * [Authentication](https://github.com/xp-forge/web-auth)
 * [REST APIs](https://github.com/xp-forge/rest-api)
+* [Run XP web applications on AWS lambda using API Gateway](https://github.com/xp-forge/lambda-ws)
