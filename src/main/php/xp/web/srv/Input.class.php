@@ -3,9 +3,9 @@
 use lang\FormatException;
 use peer\CryptoSocket;
 use web\Headers;
-use web\io\{ReadChunks, ReadLength, Parts, Input as IOInput};
+use web\io\{ReadChunks, ReadLength, Parts, Input as Base};
 
-class Input implements IOInput {
+class Input implements Base {
   const CLOSE   = 0;
   const REQUEST = 1;
 
