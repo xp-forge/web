@@ -98,6 +98,8 @@ class Stream extends Part implements InputStream {
     try {
       $written= 0;
       foreach ($this->chunks as $chunk) {
+        if (null === $chunk) continue;
+
         $out->write($chunk);
         $written+= strlen($chunk);
       }
@@ -134,11 +136,13 @@ class Stream extends Part implements InputStream {
 
     try {
       $written= 0;
-      yield 'read' => null;
       foreach ($this->chunks as $chunk) {
-        $out->write($chunk);
-        $written+= strlen($chunk);
-        yield 'read' => null;
+        if (null === $chunk) {
+          yield 'read' => null;
+        } else {
+          $out->write($chunk);
+          $written+= strlen($chunk);
+        }
       }
       return $written;
     } finally {
@@ -161,7 +165,7 @@ class Stream extends Part implements InputStream {
     if ($this->chunks->valid()) {
       $bytes= $this->chunks->current();
       $this->chunks->next();
-      return $bytes;
+      return (string)$bytes;
     }
 
     return null;

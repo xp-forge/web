@@ -16,9 +16,7 @@ class StreamTest extends TestCase {
    * @return iterable
    */
   private function asIterable(... $chunks) {
-    foreach ($chunks as $chunk) {
-      yield $chunk;
-    }
+    yield from $chunks;
   }
 
   /**
@@ -62,6 +60,7 @@ class StreamTest extends TestCase {
     yield [[], ''];
     yield [['Test'], 'Test'];
     yield [['Test', 'ed'], 'Tested'];
+    yield [['Test', null, 'ed'], 'Tested'];
   }
 
   /** @return iterable */
