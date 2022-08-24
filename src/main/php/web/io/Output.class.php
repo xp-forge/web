@@ -34,7 +34,7 @@ abstract class Output implements OutputStream {
 
   /**
    * Returns an output used when the content-length is not known at the
-   * time of staring the output.
+   * time of starting the output.
    *
    * @return self
    */
