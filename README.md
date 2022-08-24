@@ -166,22 +166,18 @@ $handler= function($req, $res) use($uploads) {
       $res->hint(100, 'Continue');
     }
 
-    // Upload files, yielding control back to the server after each file
-    // so that other clients' requests are not blocked.
+    // Transmit files to uploads directory asynchronously
     $files= [];
     $bytes= 0;
     foreach ($multipart->files() as $name => $file) {
       $files[]= $name;
-      $bytes+= $file->transfer($uploads);
-      yield;
+      $bytes+= yield from $file->transmit($uploads);
     }
 
     // Do something with files and bytes...
   }
 };
 ```
-
-*If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield control more often.*
 
 Early hints
 -----------
