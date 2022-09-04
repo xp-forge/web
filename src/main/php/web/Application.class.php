@@ -22,9 +22,9 @@ abstract class Application implements \lang\Value {
   public function environment() { return $this->environment; }
 
   /**
-   * Returns routing, lazily initialized
+   * Returns routing handler, lazily initialized
    *
-   * @return web.Routing
+   * @return web.Handler
    */
   public final function routing() {
     if (null === $this->routing) {
@@ -39,9 +39,9 @@ abstract class Application implements \lang\Value {
    *
    * _Overwrite this in your implementation!_
    *
-   * @return web.Routing|[:var]
+   * @return web.Handler|function(web.Request, web.Response): var|[:var]
    */
-  protected abstract function routes();
+  public abstract function routes();
 
   /**
    * Installs global filters
@@ -50,18 +50,18 @@ abstract class Application implements \lang\Value {
    * @return void
    */
   public function install($filters) {
-    $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
+    $this->routing= new Filters($filters, $this->routing());
   }
 
   /**
-   * Service delegates to the routing, calling its `service()` method.
+   * Service delegates to the routing, calling its `handle()` method.
    *
    * @param  web.Request $request
    * @param  web.Response $response
    * @return var
    */
   public function service($request, $response) {
-    return $this->routing()->service($request, $response);
+    return $this->routing()->handle($request, $response);
   }
 
   /** @return string */
