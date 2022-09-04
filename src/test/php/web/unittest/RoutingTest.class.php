@@ -48,10 +48,13 @@ class RoutingTest extends TestCase {
     $this->assertEquals($routes, Routing::cast($routes));
   }
 
-  #[Test]
-  public function for_map() {
-    $this->assertEquals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
-      ->route(new Request(new TestInput('GET', '/api')))
+  #[Test, Values(map: ['/api' => 'specific', '/api/' => 'specific', '/api/v1' => 'specific', '/apiv1' => 'default', '/' => 'default'])]
+  public function for_map($path, $expected) {
+    $fixture= ['/api' => $this->handlers['specific'], '/' => $this->handlers['default']];
+
+    $this->assertEquals(
+      $this->handlers[$expected],
+      Routing::cast($fixture)->route(new Request(new TestInput('GET', $path)))
     );
   }
 
