@@ -22,9 +22,9 @@ abstract class Application implements \lang\Value {
   public function environment() { return $this->environment; }
 
   /**
-   * Returns routing, lazily initialized
+   * Returns routing handler, lazily initialized
    *
-   * @return web.Routing
+   * @return web.Handler
    */
   public final function routing() {
     if (null === $this->routing) {
@@ -39,7 +39,7 @@ abstract class Application implements \lang\Value {
    *
    * _Overwrite this in your implementation!_
    *
-   * @return web.Routing|[:var]
+   * @return web.Handler|function(web.Request, web.Response): var|[:var]
    */
   public abstract function routes();
 
