@@ -49,6 +49,16 @@ class EnvironmentTest extends TestCase {
     $this->assertEquals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
   }
 
+  #[Test, Values(['abc', ''])]
+  public function set_variable($value) {
+    $this->assertEquals($value, (new Environment('dev', '.', 'static', []))->with('test', $value)->variable('test'));
+  }
+
+  #[Test]
+  public function unset_variable() {
+    $this->assertNull((new Environment('dev', '.', 'static', []))->with('test', null)->variable('test'));
+  }
+
   #[Test]
   public function tempDir() {
     $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
