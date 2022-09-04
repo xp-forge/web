@@ -41,7 +41,7 @@ abstract class Application implements \lang\Value {
    *
    * @return web.Routing|[:var]
    */
-  protected abstract function routes();
+  public abstract function routes();
 
   /**
    * Installs global filters
@@ -50,18 +50,18 @@ abstract class Application implements \lang\Value {
    * @return void
    */
   public function install($filters) {
-    $this->routing= Routing::cast(new Filters($filters, $this->routing()), true);
+    $this->routing= new Filters($filters, $this->routing());
   }
 
   /**
-   * Service delegates to the routing, calling its `service()` method.
+   * Service delegates to the routing, calling its `handle()` method.
    *
    * @param  web.Request $request
    * @param  web.Response $response
    * @return var
    */
   public function service($request, $response) {
-    return $this->routing()->service($request, $response);
+    return $this->routing()->handle($request, $response);
   }
 
   /** @return string */

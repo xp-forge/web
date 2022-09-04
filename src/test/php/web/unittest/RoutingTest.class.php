@@ -22,8 +22,8 @@ class RoutingTest extends TestCase {
   }
 
   #[Test, Expect(CannotRoute::class)]
-  public function cannot_service_by_default() {
-    (new Routing())->service(new Request(new TestInput('GET', '/')), new Response());
+  public function cannot_handle_by_default() {
+    (new Routing())->handle(new Request(new TestInput('GET', '/')), new Response());
   }
 
   #[Test]

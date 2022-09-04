@@ -10,7 +10,7 @@ class FiltersTest extends TestCase {
    * Handle filters
    *
    * @param  web.Filter|function(web.Request, web.Response, web.filters.Invocation): var $filter
-   * @param  web.Handler|function(web.Request, web.Response): var $handler
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $handler
    * @return web.Response
    */
   private function filter($filter, $handler) {
@@ -42,6 +42,15 @@ class FiltersTest extends TestCase {
     $this->filter(null, function($req, $res) use(&$invoked) {
       $invoked[]= $req->method().' '.$req->uri()->path();
     });
+    $this->assertEquals(['GET /'], $invoked);
+  }
+
+  #[Test]
+  public function runs_handlers() {
+    $invoked= [];
+    $this->filter(null, ['/' => function($req, $res) use(&$invoked) {
+      $invoked[]= $req->method().' '.$req->uri()->path();
+    }]);
     $this->assertEquals(['GET /'], $invoked);
   }
 
