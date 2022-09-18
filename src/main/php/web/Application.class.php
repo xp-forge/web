@@ -1,12 +1,16 @@
 <?php namespace web;
 
+use Closure;
+use lang\Value;
+
 /**
  * Application is at the heart at every web project.
  *
- * @test  xp://web.unittest.ApplicationTest
+ * @test  web.unittest.ApplicationTest
  */
-abstract class Application implements \lang\Value {
+abstract class Application implements Value {
   private $routing= null;
+  private $filters= [];
   protected $environment;
 
   /**
@@ -28,7 +32,8 @@ abstract class Application implements \lang\Value {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $this->routing= Routing::cast($this->routes(), true);
+      $routing= Routing::cast($this->routes(), true);
+      $this->routing= $this->filters ? new Filters($this->filters, $routing) : $routing;
     }
     return $this->routing;    
   }
@@ -46,11 +51,17 @@ abstract class Application implements \lang\Value {
   /**
    * Installs global filters
    *
-   * @param  web.Filter[] $filters
+   * @param  web.Filter|function(web.Request, web.Response, web.filters.Invocation): var|web.Filter[] $arg
    * @return void
    */
-  public function install($filters) {
-    $this->routing= new Filters($filters, $this->routing());
+  public function install($arg) {
+    if ($arg instanceof Filter || $arg instanceof Closure) {
+      $this->filters[]= $arg;
+    } else {
+      foreach ((array)$arg as $filter) {
+        $this->filters[]= $filter;
+      }
+    }
   }
 
   /**

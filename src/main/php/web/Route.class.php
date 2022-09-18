@@ -10,7 +10,7 @@ class Route {
    * Creates a new route
    *
    * @param  web.routing.Match|function(web.Request): web.Handler $match
-   * @param  web.Handler|function(web.Request, web.Response): var $handler
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $handler
    */
   public function __construct($match, $handler) {
     if ($match instanceof RouteMatch) {
@@ -21,6 +21,8 @@ class Route {
 
     if ($handler instanceof Handler) {
       $this->handler= $handler;
+    } else if (is_array($handler)) {
+      $this->handler= Routing::cast($handler);
     } else {
       $this->handler= new Call($handler);
     }
