@@ -3,7 +3,7 @@
 use unittest\{Expect, Test, TestCase, Values};
 use web\io\{TestInput, TestOutput};
 use web\routing\{CannotRoute, Target};
-use web\{Application, Environment, Handler, Request, Response, Route, Routing};
+use web\{Application, Environment, Filters, Handler, Request, Response, Route, Routing};
 
 class RoutingTest extends TestCase {
   private $handlers;
@@ -12,7 +12,8 @@ class RoutingTest extends TestCase {
   public function setUp() {
     $this->handlers= [
       'specific' => new class() implements Handler { public $name= 'specific'; public function handle($req, $res) { }},
-      'default'  => new class() implements Handler { public $name= 'default'; public function handle($req, $res) { }}
+      'default'  => new class() implements Handler { public $name= 'default'; public function handle($req, $res) { }},
+      'error'    => new class() implements Handler { public $name= 'error'; public function handle($req, $res) { }},
     ];
   }
 

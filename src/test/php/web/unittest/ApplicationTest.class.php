@@ -2,8 +2,9 @@
 
 use lang\IllegalStateException;
 use unittest\{Expect, Test};
+use util\Objects;
 use web\io\{TestInput, TestOutput};
-use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
+use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routing};
 
 class ApplicationTest extends \unittest\TestCase {
   private $environment;
@@ -11,6 +12,18 @@ class ApplicationTest extends \unittest\TestCase {
   /** @return void */
   public function setUp() {
     $this->environment= new Environment('dev', '.', 'static', []);
+  }
+
+  /** @return iterable */
+  private function filters() {
+    yield [function($req, $res, $invocation) {
+      return $invocation->proceed($req->pass('filtered', 'true'), $res);
+    }];
+    yield [new class() implements Filter {
+      public function filter($req, $res, $invocation) {
+        return $invocation->proceed($req->pass('filtered', 'true'), $res);
+      }
+    }];
   }
 
   /**
@@ -22,7 +35,7 @@ class ApplicationTest extends \unittest\TestCase {
   private function handle($routes) {
     with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
       $request= new Request(new TestInput('GET', '/'));
-      $response= new Response();
+      $response= new Response(new TestOutput());
       $app->service($request, $response);
       return [$request, $response];
     }
@@ -229,5 +242,39 @@ class ApplicationTest extends \unittest\TestCase {
   public function does_not_equal_clone() {
     $app= new HelloWorld($this->environment);
     $this->assertEquals(1, $app->compareTo(clone $app));
+  }
+
+  #[Test, Values('filters')]
+  public function install_filter($install) {
+    list($request, $response)= $this->handle(function() use($install) {
+      $this->install($install);
+
+      return function($req, $res) {
+        $res->send($req->value('filtered'), 'text/plain');
+      };
+    });
+    $this->assertEquals('true', $response->output()->body());
+  }
+
+  #[Test]
+  public function install_multiple_filters() {
+    list($request, $response)= $this->handle(function() {
+      $this->install([
+        function($req, $res, $invocation) {
+          return $invocation->proceed($req->pass('filtered', 'true'), $res);
+        },
+        function($req, $res, $invocation) {
+          return $invocation->proceed($req->pass('enhanced', 'twice'), $res);
+        }
+      ]);
+
+      return function($req, $res) {
+        $res->send(Objects::stringOf($req->values()), 'text/plain');
+      };
+    });
+    $this->assertEquals(
+      Objects::stringOf(['filtered' => 'true', 'enhanced' => 'twice']),
+      $response->output()->body()
+    );
   }
 }
