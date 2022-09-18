@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.4.0 / 2022-09-18
+
+* Merged PR #95: Allow calling install() from within routing - @thekid
 * Merged PR #94: Make `web.Routing` implement `web.Handler` - @thekid
 
 ## 3.3.0 / 2022-08-19
