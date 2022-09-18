@@ -58,4 +58,13 @@ class BehindProxyTest {
 
     Assert::equals('https://example.com/service'.$path, (string)$request->uri());
   }
+
+  #[Test, Values(['', '?', '?query', '?test=true', '?a=b&c=de'])]
+  public function retains_query_string($query) {
+    $request= new Request(new TestInput('GET', $query));
+    $fixture= new BehindProxy(['https://service.example.com/' => '/']);
+    $fixture->filter($request, new Response(new TestOutput()), new Invocation(function($req, $res) { }));
+
+    Assert::equals('https://service.example.com/'.$query, (string)$request->uri());
+  }
 }

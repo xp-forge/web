@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.4.1 / 2022-09-18
+
+* Fixed `web.filters.BehindProxy` stripping query strings - @thekid
+
 ## 3.4.0 / 2022-09-18
 
 * Merged PR #95: Allow calling install() from within routing - @thekid

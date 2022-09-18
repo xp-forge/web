@@ -40,11 +40,14 @@ class BehindProxy implements Filter {
    * @return var
    */
   public function filter($request, $response, $invocation) {
-    $uri= $this->remote->using()
-      ->path(preg_replace($this->replace, $this->remote->path(), $request->uri()->path()))
-      ->create()
-    ;
-
-    return $invocation->proceed($request->rewrite($uri), $response);
+    $uri= $request->uri();
+    return $invocation->proceed(
+      $request->rewrite($this->remote->using()
+        ->path(preg_replace($this->replace, $this->remote->path(), $uri->path()))
+        ->query($uri->query())
+        ->create()
+      ),
+      $response
+    );
   }
 }
