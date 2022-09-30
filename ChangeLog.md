@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.5.0 / 2022-09-30
+
+* Merged PR #92: File upload transmission. Using `yield from transmit()`
+  instead of `transfer()` on file uploads, these can be streamed in an
+  asynchronous manner and without blocking other requests.
+  (@thekid)
+
 ## 3.4.1 / 2022-09-18
 
 * Fixed `web.filters.BehindProxy` stripping query strings - @thekid
