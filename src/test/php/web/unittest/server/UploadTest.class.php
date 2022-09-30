@@ -28,7 +28,7 @@ class UploadTest extends TestCase {
    * @param  function(io.Folder): var
    * @throws unittest.AssertionFailedErrror
    */
-  private function assertTransferred($expected, $target) {
+  private function assertTransmission($expected, $target) {
     $t= new Folder(Environment::tempDir(), 'xp-web-uploadtests');
     $t->create();
 
@@ -36,7 +36,7 @@ class UploadTest extends TestCase {
     Files::write($s, 'Test');
 
     try {
-      $written= $this->newFixture(self::NAME, $s->getURI())->transfer($target($t));
+      $written= yield from $this->newFixture(self::NAME, $s->getURI())->transmit($target($t));
 
       $contents= [];
       foreach ($t->entries() as $name => $entry) {
@@ -90,12 +90,16 @@ class UploadTest extends TestCase {
   }
 
   #[Test]
-  public function transfer_to_outputstream() {
+  public function transmit_to_outputstream() {
     $in= new MemoryInputStream('Test');
     $out= new MemoryOutputStream();
-    $written= $this->newFixture(self::NAME, Streams::readableUri($in))->transfer($out);
 
-    $this->assertEquals(4, $written);
+    $it= $this->newFixture(self::NAME, Streams::readableUri($in))->transmit($out);
+    while ($it->valid()) {
+      $it->next();
+    }
+
+    $this->assertEquals(4, $it->getReturn());
     $this->assertEquals('Test', $out->bytes());
   }
 
@@ -105,21 +109,28 @@ class UploadTest extends TestCase {
     $out= new class() extends MemoryOutputStream {
       public function write($bytes) { throw new IOException('Disk full'); }
     };
-    $this->newFixture(self::NAME, Streams::readableUri($in))->transfer($out);
+
+    $it= $this->newFixture(self::NAME, Streams::readableUri($in))->transmit($out);
+    while ($it->valid()) {
+      $it->next();
+    }
   }
 
   #[Test, Values(['', null, "\0abc", "/etc/\0passwd"]), Expect(IllegalArgumentException::class)]
-  public function transfer_to_invalid_filename($name) {
-    $this->newFixture(self::NAME)->transfer($name);
+  public function transmit_to_invalid_filename($name) {
+    $it= $this->newFixture(self::NAME)->transmit($name);
+    while ($it->valid()) {
+      $it->next();
+    }
   }
 
   #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
-  public function transfer_to_folder($target) {
-    $this->assertTransferred(['test.txt' => 'Test'], $target);
+  public function transmit_to_folder($target) {
+    $this->assertTransmission(['test.txt' => 'Test'], $target);
   }
 
   #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
-  public function transfer_to_file($target) {
-    $this->assertTransferred(['target.txt' => 'Test'], $target);
+  public function transmit_to_file($target) {
+    $this->assertTransmission(['target.txt' => 'Test'], $target);
   }
 }

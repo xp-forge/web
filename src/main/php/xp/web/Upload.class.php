@@ -102,6 +102,50 @@ class Upload extends Part implements InputStream {
     return $file->size();
   }
 
+  /**
+   * Transfers this stream to a given target.
+   *
+   * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
+   * @return iterable
+   * @throws lang.IllegalArgumentException if filename is invalid
+   * @throws io.IOException
+   */
+  public function transmit($target) {
+
+    // If we are passed a stream, transfer the source file's contents
+    if ($target instanceof OutputStream) {
+      $this->handle= new File($this->source);
+      $this->handle->open(File::READ);
+
+      $written= 0;
+      do {
+        yield;
+        $chunk= $this->handle->read();
+        $target->write($chunk);
+        $written+= strlen($chunk);
+      } while (!$this->handle->eof());
+
+      return $written;
+    }
+
+    // Use filesystem I/O to move the already stored file
+    $file= new File($this->source);
+    if ($target instanceof File) {
+      $to= $target;
+    } else if ($target instanceof Folder) {
+      $to= new File($target, $this->name());
+    } else if (is_string($target) && (0 === strlen($target) || false !== strpos($target, "\0"))) {
+      throw new IllegalArgumentException('Invalid filename "'.addcslashes($target, "\0..\37!\177..\377").'"');
+    } else if (is_dir($target)) {
+      $to= new File($target, $this->name());
+    } else {
+      $to= new File($target);
+    }
+
+    $file->move($to);
+    return $file->size();
+  }
+
   /** @return int */
   public function available() {
     if (null === $this->handle) {
