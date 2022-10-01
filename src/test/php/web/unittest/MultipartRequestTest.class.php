@@ -1,7 +1,8 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
-use unittest\{Test, TestCase, Values};
+use lang\FormatException;
+use unittest\{Test, Expect, TestCase, Values};
 use web\Request;
 use web\io\{Multipart, TestInput};
 
@@ -193,4 +194,14 @@ class MultipartRequestTest extends TestCase {
     $this->assertEquals(['test' => 'illegal&char'], $req->params());
   }
 
+  #[Test, Expect(FormatException::class)]
+  public function raises_exceptions_for_incomplete_upload() {
+    $parts= $this->multipart([
+      $this->file('test.txt', 'Hello World'),
+      $this->param('submit', 'Upload')
+    ]);
+    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, substr($parts, 0, -10)));
+
+    iterator_count($req->multipart()->parts());
+  }
 }
