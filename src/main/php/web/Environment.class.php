@@ -87,10 +87,11 @@ class Environment {
    * Gets properties
    *
    * @param  string $name
+   * @param  bool $optional Whether to return or throw if properties aren't found.
    * @return util.PropertyAccess
    * @throws lang.ElementNotFoundException
    */
-  public function properties($name) {
+  public function properties($name, $optional= false) {
     $expand= function($name) { return $this->{$name}(); };
     $found= [];
     foreach ($this->sources as $source) {
@@ -99,15 +100,20 @@ class Environment {
       }
     }
 
-    switch (sizeof($found)) {
-      case 1: return $found[0];
-      case 0: throw new ElementNotFoundException(sprintf(
-        'Cannot find properties "%s" in any of %s',
-        $name,
-        Objects::stringOf($this->sources)
-      ));
-      default: return new CompositeProperties($found);
+    $n= sizeof($found);
+    if ($n > 1) {
+      return new CompositeProperties($found);
+    } else if (1 === $n) {
+      return $found[0];
+    } else if ($optional) {
+      return null;
     }
+
+    throw new ElementNotFoundException(sprintf(
+      'Cannot find properties "%s" in any of %s',
+      $name,
+      Objects::stringOf($this->sources)
+    ));
   }
 
   /** @return string[] */

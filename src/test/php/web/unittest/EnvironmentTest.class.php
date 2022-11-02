@@ -91,10 +91,15 @@ class EnvironmentTest extends TestCase {
   }
 
   #[Test]
-  public function properties() {
+  public function optional_non_existant_properties() {
+    $this->assertNull((new Environment('dev', '.', 'static', []))->properties('inject', true));
+  }
+
+  #[Test, Values([true, false])]
+  public function properties($optional) {
     $prop= new Properties('inject.ini');
     $environment= new Environment('dev', '.', 'static', [new RegisteredPropertySource('inject', $prop)]);
-    $this->assertEquals($prop, $environment->properties('inject'));
+    $this->assertEquals($prop, $environment->properties('inject', $optional));
   }
 
   #[Test]
