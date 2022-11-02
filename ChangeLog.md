@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.6.0 / 2022-11-02
+
+* Merged PR #96: Add ability to check for non-existant properties without
+  using exceptions
+  (@thekid)
+
 ## 3.5.0 / 2022-09-30
 
 * Merged PR #92: File upload transmission. Using `yield from transmit()`
