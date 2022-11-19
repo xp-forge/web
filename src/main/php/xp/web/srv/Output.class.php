@@ -56,7 +56,13 @@ class Output extends Base {
       $this->socket->write($bytes);
     } catch (SocketException $e) {
 
-      // See how the SocketException error message is constructed in Socket::write() at
+      // Caused by the client shutting down communications, and doesn't indicate an
+      // error on our side! This happens regularily when browsers read video meta data
+      // to be able to determine the video length - so they simply read until enough
+      // data is available, then close the connection. In any case, there's nothing
+      // we can do at this point to signal the error to the client!
+      //
+      // Extract the cause; see how the SocketException error message is constructed at
       // https://github.com/xp-framework/networking/blob/v10.4.0/src/main/php/peer/Socket.class.php#L359
       $message= $e->getMessage();
       $p= strpos($message, ': ');
