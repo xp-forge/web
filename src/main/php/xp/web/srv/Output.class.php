@@ -1,5 +1,6 @@
 <?php namespace xp\web\srv;
 
+use peer\SocketException;
 use web\io\{Buffered, WriteChunks, Output as Base};
 
 class Output extends Base {
@@ -51,6 +52,15 @@ class Output extends Base {
    * @return void
    */
   public function write($bytes) {
-    $this->socket->write($bytes);
+    try {
+      $this->socket->write($bytes);
+    } catch (SocketException $e) {
+
+      // See how the SocketException error message is constructed in Socket::write() at
+      // https://github.com/xp-framework/networking/blob/v10.4.0/src/main/php/peer/Socket.class.php#L359
+      $message= $e->getMessage();
+      $p= strpos($message, ': ');
+      throw new CannotWrite(false === $p ? $message : substr($message, $p + 2), $e);
+    }
   }
 }
