@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.7.0 / 2022-11-19
+
+* Merged PR #98: Catch socket I/O errors and log them in a less-verbose
+  manner (*as this is not a server-side issue*). See also #97
+  (@thekid)
+
 ## 3.6.0 / 2022-11-02
 
 * Merged PR #96: Add ability to check for non-existant properties without
