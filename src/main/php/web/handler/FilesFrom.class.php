@@ -90,7 +90,7 @@ class FilesFrom implements Handler {
    * @param   web.Response $response
    * @param   ?io.File|io.Path|string $target
    * @param   ?string $mimeType
-   * @return  void
+   * @return  iterable
    */
   public function serve($request, $response, $target, $mimeType= null) {
     if (null === $target || ($file= $target instanceof File ? $target : new File($target)) && !$file->exists()) {
