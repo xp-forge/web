@@ -48,7 +48,7 @@ class Console implements Filter {
 
     try {
       ob_start();
-      foreach ($invocation->proceed($req, $buffer) ?? [] as $_) { }
+      yield from $invocation->proceed($req, $buffer);
     } finally {
       $buffer->end();
       $debug= ob_get_clean();
