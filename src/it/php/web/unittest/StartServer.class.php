@@ -19,7 +19,7 @@ class StartServer implements Provider {
     $this->server= strtr($server, '\\', '.');
   }
 
-  public function values(Context $context): iterable {
+  public function values(Context $context) {
     $this->process= Runtime::getInstance()->newInstance(null, 'class', $this->server, []);
     $this->process->in->close();
 
