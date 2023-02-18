@@ -3,11 +3,11 @@
 use io\streams\{MemoryInputStream, MemoryOutputStream, Streams};
 use io\{File, Files, Folder, IOException, Path, TempFile};
 use lang\{Environment, IllegalArgumentException};
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\io\Part;
 use xp\web\Upload;
 
-class UploadTest extends TestCase {
+class UploadTest {
   const NAME = 'test.txt';
 
   /**
@@ -42,8 +42,8 @@ class UploadTest extends TestCase {
       foreach ($t->entries() as $name => $entry) {
         $contents[$name]= Files::read($entry->asFile());
       }
-      $this->assertEquals(4, $written);
-      $this->assertEquals($expected, $contents);
+      Assert::equals(4, $written);
+      Assert::equals($expected, $contents);
     } finally {
       $t->unlink();
     }
@@ -56,22 +56,22 @@ class UploadTest extends TestCase {
 
   #[Test]
   public function kind() {
-    $this->assertEquals(Part::FILE, $this->newFixture(self::NAME)->kind());
+    Assert::equals(Part::FILE, $this->newFixture(self::NAME)->kind());
   }
 
   #[Test]
   public function name() {
-    $this->assertEquals(self::NAME, $this->newFixture(self::NAME)->name());
+    Assert::equals(self::NAME, $this->newFixture(self::NAME)->name());
   }
 
   #[Test]
   public function type() {
-    $this->assertEquals('text/plain', $this->newFixture(self::NAME)->type());
+    Assert::equals('text/plain', $this->newFixture(self::NAME)->type());
   }
 
   #[Test]
   public function string_representation() {
-    $this->assertEquals(
+    Assert::equals(
       'xp.web.Upload("test.txt", type= text/plain, source= /tmp/upload)',
       $this->newFixture(self::NAME, '/tmp/upload')->toString()
     );
@@ -80,13 +80,13 @@ class UploadTest extends TestCase {
   #[Test]
   public function bytes() {
     $source= Streams::readableUri(new MemoryInputStream('Test'));
-    $this->assertEquals('Test', $this->newFixture(self::NAME, $source)->bytes());
+    Assert::equals('Test', $this->newFixture(self::NAME, $source)->bytes());
   }
 
   #[Test]
   public function read_all() {
     $source= Streams::readableUri(new MemoryInputStream('Test'));
-    $this->assertEquals('Test', Streams::readAll($this->newFixture(self::NAME, $source)));
+    Assert::equals('Test', Streams::readAll($this->newFixture(self::NAME, $source)));
   }
 
   #[Test]
@@ -99,8 +99,8 @@ class UploadTest extends TestCase {
       $it->next();
     }
 
-    $this->assertEquals(4, $it->getReturn());
-    $this->assertEquals('Test', $out->bytes());
+    Assert::equals(4, $it->getReturn());
+    Assert::equals('Test', $out->bytes());
   }
 
   #[Test, Expect(IOException::class)]

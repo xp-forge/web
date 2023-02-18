@@ -1,11 +1,11 @@
 <?php namespace web\unittest;
 
-use unittest\{Test, TestCase, Values};
+use test\{Assert, Test, Values};
 use web\io\{TestInput, TestOutput};
-use web\logging\{ToAllOf, ToFunction, ToConsole};
+use web\logging\{ToAllOf, ToConsole, ToFunction};
 use web\{Error, Logging, Request, Response};
 
-class LoggingTest extends TestCase {
+class LoggingTest {
 
   /** @return iterable */
   private function arguments() {
@@ -26,15 +26,15 @@ class LoggingTest extends TestCase {
   #[Test]
   public function target() {
     $sink= new ToFunction(function($req, $res, $error) { });
-    $this->assertEquals($sink->target(), (new Logging($sink))->target());
+    Assert::equals($sink->target(), (new Logging($sink))->target());
   }
 
   #[Test]
   public function no_logging_target() {
-    $this->assertEquals('(no logging)', (new Logging(null))->target());
+    Assert::equals('(no logging)', (new Logging(null))->target());
   }
 
-  #[Test, Values('arguments')]
+  #[Test, Values(from: 'arguments')]
   public function log($expected, $error) {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
@@ -45,26 +45,26 @@ class LoggingTest extends TestCase {
     }));
     $log->log($req, $res, $error);
 
-    $this->assertEquals([$expected], $logged);
+    Assert::equals([$expected], $logged);
   }
 
   #[Test]
   public function pipe() {
     $a= new ToFunction(function($req, $res, $error) { /* a */ });
     $b= new ToFunction(function($req, $res, $error) { /* b */ });
-    $this->assertEquals($b, (new Logging($a))->pipe($b)->sink());
+    Assert::equals($b, (new Logging($a))->pipe($b)->sink());
   }
 
   #[Test]
   public function pipe_with_string_arg() {
-    $this->assertEquals(new ToConsole(), (new Logging())->pipe('-')->sink());
+    Assert::equals(new ToConsole(), (new Logging())->pipe('-')->sink());
   }
 
   #[Test]
   public function tee() {
     $a= new ToFunction(function($req, $res, $error) { /* a */ });
     $b= new ToFunction(function($req, $res, $error) { /* b */ });
-    $this->assertEquals(new ToAllOf($a, $b), (new Logging($a))->tee($b)->sink());
+    Assert::equals(new ToAllOf($a, $b), (new Logging($a))->tee($b)->sink());
   }
 
   #[Test]
@@ -72,18 +72,18 @@ class LoggingTest extends TestCase {
     $a= new ToFunction(function($req, $res, $error) { /* a */ });
     $b= new ToFunction(function($req, $res, $error) { /* b */ });
     $c= new ToFunction(function($req, $res, $error) { /* c */ });
-    $this->assertEquals(new ToAllOf($a, $b, $c), (new Logging($a))->tee($b)->tee($c)->sink());
+    Assert::equals(new ToAllOf($a, $b, $c), (new Logging($a))->tee($b)->tee($c)->sink());
   }
 
   #[Test]
   public function pipe_on_no_logging() {
     $sink= new ToFunction(function($req, $res, $error) { });
-    $this->assertEquals($sink, (new Logging(null))->pipe($sink)->sink());
+    Assert::equals($sink, (new Logging(null))->pipe($sink)->sink());
   }
 
   #[Test]
   public function tee_on_no_logging() {
     $sink= new ToFunction(function($req, $res, $error) { });
-    $this->assertEquals($sink, (new Logging(null))->tee($sink)->sink());
+    Assert::equals($sink, (new Logging(null))->tee($sink)->sink());
   }
 }

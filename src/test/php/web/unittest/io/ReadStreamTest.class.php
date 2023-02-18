@@ -1,9 +1,9 @@
 <?php namespace web\unittest\io;
 
-use unittest\{Test, TestCase};
+use test\{Assert, Test};
 use web\io\{ReadStream, TestInput};
 
-class ReadStreamTest extends TestCase {
+class ReadStreamTest {
 
   /**
    * Creates an input instance
@@ -23,18 +23,18 @@ class ReadStreamTest extends TestCase {
   #[Test]
   public function available() {
     $fixture= new ReadStream($this->input('Test'));
-    $this->assertEquals(1, $fixture->available());
+    Assert::equals(1, $fixture->available());
   }
 
   #[Test]
   public function read() {
     $fixture= new ReadStream($this->input('Test'));
-    $this->assertEquals('Test', $fixture->read());
+    Assert::equals('Test', $fixture->read());
   }
 
   #[Test]
   public function close_is_a_noop() {
     $fixture= new ReadStream($this->input('Test'));
-    $this->assertNull($fixture->close());
+    Assert::null($fixture->close());
   }
 }

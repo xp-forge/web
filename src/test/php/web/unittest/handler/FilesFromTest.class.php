@@ -2,12 +2,12 @@
 
 use io\{File, Files, Folder, Path};
 use lang\Environment;
-use unittest\{Test, TestCase, Values};
+use test\{Assert, Test, Values};
 use web\handler\FilesFrom;
 use web\io\{TestInput, TestOutput};
-use web\{Request, Response, Headers};
+use web\{Headers, Request, Response};
 
-class FilesFromTest extends TestCase {
+class FilesFromTest {
   private $cleanup= [];
 
   /**
@@ -49,7 +49,7 @@ class FilesFromTest extends TestCase {
    * @throws unittest.AssertionFailedError
    */
   private function assertResponse($expected, $response) {
-    $this->assertEquals($expected, preg_replace(
+    Assert::equals($expected, preg_replace(
       '/[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9:]{8} GMT/i',
       '<Date>',
       $response->output()->bytes()
@@ -95,6 +95,7 @@ class FilesFromTest extends TestCase {
   }
 
   /** @return void */
+  #[After]
   public function tearDown() {
     foreach ($this->cleanup as $folder) {
       $folder->exists() && $folder->unlink();
@@ -108,7 +109,7 @@ class FilesFromTest extends TestCase {
 
   #[Test, Values(eval: '[["."], [new Path(".")]]')]
   public function path($arg) {
-    $this->assertEquals(new Path('.'), (new FilesFrom($arg))->path());
+    Assert::equals(new Path('.'), (new FilesFrom($arg))->path());
   }
 
   #[Test]

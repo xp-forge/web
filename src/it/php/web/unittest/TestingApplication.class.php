@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
 use lang\XPClass;
-use unittest\Assert;
+use test\Assert;
 use web\{Application, Error};
 
 class TestingApplication extends Application {

@@ -1,7 +1,7 @@
 <?php namespace web\unittest\io;
 
 use io\OperationNotSupportedException;
-use unittest\{Assert, Test};
+use test\{Assert, Expect, Test};
 use web\io\{Incomplete, Part};
 
 class IncompleteTest {

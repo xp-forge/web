@@ -3,10 +3,10 @@
 use io\OperationNotSupportedException;
 use io\streams\{InputStream, MemoryInputStream, Streams};
 use lang\FormatException;
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\io\{Part, Parts};
 
-class PartsTest extends TestCase {
+class PartsTest {
   const BOUNDARY = '------------------------899f0c287170dd63';
 
   /**
@@ -39,7 +39,7 @@ class PartsTest extends TestCase {
         $actual[]= ['incomplete', $name, $part->error()];
       }
     }
-    $this->assertEquals($expected, $actual);
+    Assert::equals($expected, $actual);
   }
 
   #[Test]
@@ -175,7 +175,7 @@ class PartsTest extends TestCase {
     };
 
     $it= (new Parts($input, self::BOUNDARY))->getIterator();
-    $this->assertEquals("Hey\r\nNot the end", $it->current()->bytes());
+    Assert::equals("Hey\r\nNot the end", $it->current()->bytes());
   }
 
   #[Test]
@@ -210,7 +210,7 @@ class PartsTest extends TestCase {
         $bytes= Streams::readAll($part);
       }
     }
-    $this->assertEquals('...', $bytes);
+    Assert::equals('...', $bytes);
   }
 
   #[Test, Expect(OperationNotSupportedException::class)]
@@ -251,7 +251,7 @@ class PartsTest extends TestCase {
       '--%1$s--',
       ''
     );
-    $this->assertEquals(
+    Assert::equals(
       'web.io.Param("submit", value= "Upload")',
       iterator_to_array($parts)['submit']->toString()
     );
@@ -268,7 +268,7 @@ class PartsTest extends TestCase {
       '--%1$s--',
       ''
     );
-    $this->assertEquals(
+    Assert::equals(
       'web.io.Stream("test.txt", type= text/plain)',
       iterator_to_array($parts)['upload']->toString()
     );
@@ -289,17 +289,17 @@ class PartsTest extends TestCase {
     $this->assertParts([], $this->parts('', '--%1$s--', ''));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Malformed or truncated part/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Malformed or truncated part/')]
   public function missing_headers() {
     iterator_to_array($this->parts('--%1$s', ''));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Malformed or truncated part/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Malformed or truncated part/')]
   public function empty_headers() {
     iterator_to_array($this->parts('--%1$s', '', 'Upload'));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Malformed or truncated part/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Malformed or truncated part/')]
   public function malformed_part_without_content_disposition() {
     iterator_to_array($this->parts(
       '--%1$s',
@@ -311,7 +311,7 @@ class PartsTest extends TestCase {
     ));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function missing_header_terminator() {
     iterator_to_array($this->parts(
       '--%1$s',
@@ -319,7 +319,7 @@ class PartsTest extends TestCase {
     ));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function missing_data() {
     iterator_to_array($this->parts(
       '--%1$s',
@@ -328,7 +328,7 @@ class PartsTest extends TestCase {
     ));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function missing_ending_delimiter() {
     iterator_to_array($this->parts(
       '--%1$s',
@@ -338,7 +338,7 @@ class PartsTest extends TestCase {
     ));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function mismatched_ending_delimiter() {
     iterator_to_array($this->parts(
       '--%1$s',
@@ -350,17 +350,17 @@ class PartsTest extends TestCase {
     ));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have "--BEGIN"/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have "--BEGIN"/')]
   public function mismatched_starting_delimiter() {
     iterator_to_array($this->parts('--BEGIN', ''));
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function from_empty_line() {
     iterator_to_array($this->parts());
   }
 
-  #[Test, Expect(['class' => FormatException::class, 'withMessage' => '/Expected boundary ".+", have ""/'])]
+  #[Test, Expect(class: FormatException::class, message: '/Expected boundary ".+", have ""/')]
   public function from_empty_payload() {
     iterator_to_array($this->parts());
   }
