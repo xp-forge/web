@@ -7,7 +7,7 @@ use test\{Assert, Expect, Test, Values};
 use web\io\{Part, Stream};
 
 class StreamTest {
-  const NAME = 'test.txt';
+  const NAME= 'test.txt';
 
   /**
    * Creates an iterable from given chunks
@@ -74,6 +74,20 @@ class StreamTest {
     yield ['/etc/passwd', 'passwd'];
     yield ['../test.txt', 'test.txt'];
     yield ['./test.txt', 'test.txt'];
+  }
+
+  /** @return iterable */
+  private function files() {
+    yield function($t) { return new File($t, 'target.txt'); };
+    yield function($t) { return new Path($t, 'target.txt'); };
+    yield function($t) { return $t->getURI().'target.txt'; };
+  }
+
+  /** @return iterable */
+  private function folders() {
+    yield function($t) { return $t; };
+    yield function($t) { return new Path($t); };
+    yield function($t) { return $t->getURI(); };
   }
 
   #[Test]
@@ -160,12 +174,12 @@ class StreamTest {
     }
   }
 
-  #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
+  #[Test, Values(from: 'folders')]
   public function transmit_to_folder($target) {
     $this->assertTransmission(['test.txt' => 'Test'], $target);
   }
 
-  #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
+  #[Test, Values(from: 'files')]
   public function transmit_to_file($target) {
     $this->assertTransmission(['target.txt' => 'Test'], $target);
   }

@@ -8,7 +8,7 @@ use web\io\Part;
 use xp\web\Upload;
 
 class UploadTest {
-  const NAME = 'test.txt';
+  const NAME= 'test.txt';
 
   /**
    * Creates a new fixture with given chunks
@@ -47,6 +47,20 @@ class UploadTest {
     } finally {
       $t->unlink();
     }
+  }
+
+  /** @return iterable */
+  private function files() {
+    yield function($t) { return new File($t, 'target.txt'); };
+    yield function($t) { return new Path($t, 'target.txt'); };
+    yield function($t) { return $t->getURI().'target.txt'; };
+  }
+
+  /** @return iterable */
+  private function folders() {
+    yield function($t) { return $t; };
+    yield function($t) { return new Path($t); };
+    yield function($t) { return $t->getURI(); };
   }
 
   #[Test]
@@ -124,12 +138,12 @@ class UploadTest {
     }
   }
 
-  #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
+  #[Test, Values(from: 'folders')]
   public function transmit_to_folder($target) {
     $this->assertTransmission(['test.txt' => 'Test'], $target);
   }
 
-  #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
+  #[Test, Values(from: 'files')]
   public function transmit_to_file($target) {
     $this->assertTransmission(['target.txt' => 'Test'], $target);
   }
