@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #99: Migrate to new testing library - @thekid
+
 ## 3.7.0 / 2022-11-19
 
 * Merged PR #98: Catch socket I/O errors and log them in a less-verbose
