@@ -1,26 +1,26 @@
 <?php namespace web\unittest;
 
 use lang\FormatException;
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use util\Date;
 use web\{Headers, Parameterized};
 
-class HeadersTest extends TestCase {
+class HeadersTest {
   const TIMESTAMP = 1621063890;
 
   #[Test]
   public function date_of_int() {
-    $this->assertEquals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(self::TIMESTAMP));
+    Assert::equals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(self::TIMESTAMP));
   }
 
   #[Test]
   public function date_of_date_instance() {
-    $this->assertEquals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(new Date(self::TIMESTAMP)));
+    Assert::equals('Sat, 15 May 2021 07:31:30 GMT', Headers::date(new Date(self::TIMESTAMP)));
   }
 
   #[Test, Values(['text/plain;charset=utf-8', 'text/plain; charset=utf-8', 'text/plain; charset="utf-8"'])]
   public function content_type($header) {
-    $this->assertEquals(
+    Assert::equals(
       new Parameterized('text/plain', ['charset' => 'utf-8']),
       Headers::parameterized()->parse($header)
     );
@@ -28,7 +28,7 @@ class HeadersTest extends TestCase {
 
   #[Test, Values(['attachment;filename=fname.ext', 'attachment; filename=fname.ext', 'attachment; filename="fname.ext"',])]
   public function content_disposition($header) {
-    $this->assertEquals(
+    Assert::equals(
       new Parameterized('attachment', ['filename' => 'fname.ext']),
       Headers::parameterized()->parse($header)
     );
@@ -36,7 +36,7 @@ class HeadersTest extends TestCase {
 
   #[Test, Values(['5;url=http://www.w3.org/pub/WWW/People.html', '5; url=http://www.w3.org/pub/WWW/People.html',])]
   public function refresh($header) {
-    $this->assertEquals(
+    Assert::equals(
       new Parameterized('5', ['url' => 'http://www.w3.org/pub/WWW/People.html']),
       Headers::parameterized()->parse($header)
     );
@@ -44,7 +44,7 @@ class HeadersTest extends TestCase {
 
   #[Test]
   public function accept() {
-    $this->assertEquals(
+    Assert::equals(
       [
         new Parameterized('text/html', []),
         new Parameterized('application/json', ['q' => '0.9']),
@@ -56,7 +56,7 @@ class HeadersTest extends TestCase {
 
   #[Test]
   public function forwarded() {
-    $this->assertEquals(
+    Assert::equals(
       [
         ['for' => '192.0.2.60', 'proto' => 'http', 'by' => '203.0.113.43'],
         ['for' => '198.51.100.17'],
@@ -67,7 +67,7 @@ class HeadersTest extends TestCase {
 
   #[Test, Values([['name="\"\""', '""'], ['name="\"T\""', '"T"'], ['name="\"Test\""', '"Test"'], ['name="\"Test=Works; really\""', '"Test=Works; really"'], ['name="\"T\" in the beginning"', '"T" in the beginning'], ['name="In the end, a \"T\""', 'In the end, a "T"'], ['name="A \"T\" in the middle"', 'A "T" in the middle'], ['name="A \"T\" and a \"Q\""', 'A "T" and a "Q"'], ['name="A \"T!"', 'A "T!'], ['name="A T\"!"', 'A T"!']])]
   public function quoted_param($input, $expected) {
-    $this->assertEquals(['name' => $expected], Headers::pairs()->parse($input));
+    Assert::equals(['name' => $expected], Headers::pairs()->parse($input));
   }
 
   #[Test, Expect(FormatException::class), Values(['name="', 'name=""; test="', 'name="\"', 'name="\"\"'])]

@@ -1,11 +1,11 @@
 <?php namespace web\unittest\io;
 
 use io\IOException;
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\io\{ReadChunks, TestInput};
 use web\unittest\Chunking;
 
-class ReadChunksTest extends TestCase {
+class ReadChunksTest {
   use Chunking;
 
   /**
@@ -43,26 +43,26 @@ class ReadChunksTest extends TestCase {
   #[Test]
   public function available() {
     $fixture= new ReadChunks($this->input("4\r\nTest\r\n0\r\n\r\n"));
-    $this->assertEquals(4, $fixture->available());
+    Assert::equals(4, $fixture->available());
   }
 
   #[Test, Values([[2, 'Te', 2], [4, 'Test', 6], [6, 'Test', 6],])]
   public function available_after_reading($length, $read, $remaining) {
     $fixture= new ReadChunks($this->input("4\r\nTest\r\n6\r\nTested\r\n0\r\n\r\n"));
-    $this->assertEquals($read, $fixture->read($length));
-    $this->assertEquals($remaining, $fixture->available());
+    Assert::equals($read, $fixture->read($length));
+    Assert::equals($remaining, $fixture->available());
   }
 
   #[Test]
   public function available_last_chunk() {
     $fixture= new ReadChunks($this->input("0\r\n\r\n"));
-    $this->assertEquals(0, $fixture->available());
+    Assert::equals(0, $fixture->available());
   }
 
   #[Test]
   public function read() {
     $fixture= new ReadChunks($this->input("4\r\nTest\r\n0\r\n\r\n"));
-    $this->assertEquals('Test', $fixture->read());
+    Assert::equals('Test', $fixture->read());
   }
 
   #[Test, Values([["0\r\n\r\n", []], ["4\r\nTest\r\n0\r\n\r\n", ['Test']], ["4\r\nTest\r\n2\r\nOK\r\n0\r\n\r\n", ['Test', 'OK']], ["6\r\nTest\r\n\r\n0\r\n\r\n", ["Test\r\n"]], ["e\r\n{\"name\":\"PHP\"}\r\n0\r\n\r\n", ['{"name":"PHP"}']], ["F\r\n{\"name\":\"JSON\"}\r\n0\r\n\r\n", ['{"name":"JSON"}']],])]
@@ -72,7 +72,7 @@ class ReadChunksTest extends TestCase {
     while ($fixture->available()) {
       $r[]= $fixture->read();
     }
-    $this->assertEquals($expected, $r);
+    Assert::equals($expected, $r);
   }
 
   #[Test, Values([["0\r\n\r\n", []], ["4\r\nTest\r\n0\r\n\r\n", ['Test']], ["4\r\nTest\r\n3\r\n OK\r\n1\r\n!\r\n0\r\n\r\n", ['Test OK!']], ["1\r\n1\r\n2\r\n\r\n\r\n1\r\n2\r\n0\r\n\r\n", ['1', '2']]])]
@@ -82,7 +82,7 @@ class ReadChunksTest extends TestCase {
     while ($fixture->available()) {
       $r[]= $fixture->line();
     }
-    $this->assertEquals($expected, $r);
+    Assert::equals($expected, $r);
   }
 
   #[Test]
@@ -92,7 +92,7 @@ class ReadChunksTest extends TestCase {
     while ($fixture->available()) {
       $fixture->read();
     }
-    $this->assertEquals('', $input->read(-1));
+    Assert::equals('', $input->read(-1));
   }
 
   #[Test]
@@ -115,7 +115,7 @@ class ReadChunksTest extends TestCase {
       $fixture->read();
     }
 
-    $this->assertEquals(
+    Assert::equals(
       [
         'readLine:"4"', 'read:4:"Test"', 'readLine:""',
         'readLine:"2"', 'read:2:"ed"', 'readLine:""',
@@ -150,6 +150,6 @@ class ReadChunksTest extends TestCase {
   #[Test]
   public function close_is_a_noop() {
     $fixture= new ReadChunks($this->input("0\r\n\r\n"));
-    $this->assertNull($fixture->close());
+    Assert::null($fixture->close());
   }
 }

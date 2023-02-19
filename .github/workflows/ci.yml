@@ -33,9 +33,6 @@ jobs:
         extensions: com_dotnet
         ini-values: date.timezone=Europe/Berlin
 
-    - name: Setup Problem Matchers for PHP
-      run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-
     - name: Validate composer.json and composer.lock
       run: composer validate
 
@@ -57,7 +54,7 @@ jobs:
         echo "vendor/autoload.php" > composer.pth
 
     - name: Run test suite
-      run: sh xp-run xp.unittest.TestRunner src/test/php
+      run: sh xp-run xp.test.Runner src/test/php
 
     - name: Run integration tests
-      run: sh xp-run xp.unittest.TestRunner src/it/php
+      run: sh xp-run xp.test.Runner src/it/php

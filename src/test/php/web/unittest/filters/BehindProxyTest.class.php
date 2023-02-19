@@ -1,7 +1,7 @@
 <?php namespace web\unittest\filters;
 
 use lang\IllegalArgumentException;
-use unittest\{Assert, Expect, Test, Values};
+use test\{Assert, Expect, Test, Values};
 use web\filters\{BehindProxy, Invocation};
 use web\io\{TestInput, TestOutput};
 use web\{Request, Response};

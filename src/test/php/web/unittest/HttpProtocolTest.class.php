@@ -2,18 +2,23 @@
 
 use io\streams\Streams;
 use peer\SocketException;
-use unittest\{Test, TestCase, Values};
+use test\{Assert, Test, Values};
 use web\{Application, Environment, Logging};
-use xp\web\srv\{HttpProtocol, CannotWrite};
+use xp\web\srv\{CannotWrite, HttpProtocol};
 
-class HttpProtocolTest extends TestCase {
+class HttpProtocolTest {
   private $log;
 
-  /** @return void */
-  public function setUp() {
+  public function __construct() {
     $this->log= new Logging(null);
   }
 
+  /**
+   * Returns an application with given handlers
+   *
+   * @param  var $handler
+   * @return web.Application
+   */
   private function application($handler) {
     return newinstance(Application::class, [new Environment('test', '.', '.', [])], [
       'routes' => function() use($handler) {
@@ -161,7 +166,7 @@ class HttpProtocolTest extends TestCase {
       "\r\n4\r\nTest\r\n0\r\n\r\n",
       $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"])
     );
-    $this->assertInstanceOf(CannotWrite::class, $caught);
-    $this->assertEquals('// Test error', $caught->toString());
+    Assert::instance(CannotWrite::class, $caught);
+    Assert::equals('// Test error', $caught->toString());
   }
 }

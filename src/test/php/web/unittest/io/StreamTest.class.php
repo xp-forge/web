@@ -3,11 +3,11 @@
 use io\streams\{MemoryOutputStream, Streams};
 use io\{File, Files, Folder, IOException, Path};
 use lang\{Environment, IllegalArgumentException};
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\io\{Part, Stream};
 
-class StreamTest extends TestCase {
-  const NAME = 'test.txt';
+class StreamTest {
+  const NAME= 'test.txt';
 
   /**
    * Creates an iterable from given chunks
@@ -48,8 +48,8 @@ class StreamTest extends TestCase {
       foreach ($t->entries() as $name => $entry) {
         $contents[$name]= Files::read($entry->asFile());
       }
-      $this->assertEquals(4, $written);
-      $this->assertEquals($expected, $contents);
+      Assert::equals(4, $written);
+      Assert::equals($expected, $contents);
     } finally {
       $t->unlink();
     }
@@ -76,6 +76,20 @@ class StreamTest extends TestCase {
     yield ['./test.txt', 'test.txt'];
   }
 
+  /** @return iterable */
+  private function files() {
+    yield function($t) { return new File($t, 'target.txt'); };
+    yield function($t) { return new Path($t, 'target.txt'); };
+    yield function($t) { return $t->getURI().'target.txt'; };
+  }
+
+  /** @return iterable */
+  private function folders() {
+    yield function($t) { return $t; };
+    yield function($t) { return new Path($t); };
+    yield function($t) { return $t->getURI(); };
+  }
+
   #[Test]
   public function can_create() {
     $this->newFixture(self::NAME);
@@ -83,53 +97,53 @@ class StreamTest extends TestCase {
 
   #[Test]
   public function kind() {
-    $this->assertEquals(Part::FILE, $this->newFixture(self::NAME)->kind());
+    Assert::equals(Part::FILE, $this->newFixture(self::NAME)->kind());
   }
 
-  #[Test, Values('names')]
+  #[Test, Values(from: 'names')]
   public function name($name, $base) {
-    $this->assertEquals($base, $this->newFixture($name)->name());
+    Assert::equals($base, $this->newFixture($name)->name());
   }
 
-  #[Test, Values('names')]
+  #[Test, Values(from: 'names')]
   public function raw_name($name, $base) {
-    $this->assertEquals($name, $this->newFixture($name)->name(true));
+    Assert::equals($name, $this->newFixture($name)->name(true));
   }
 
   #[Test]
   public function type() {
-    $this->assertEquals('text/plain', $this->newFixture(self::NAME)->type());
+    Assert::equals('text/plain', $this->newFixture(self::NAME)->type());
   }
 
   #[Test]
   public function string_representation() {
-    $this->assertEquals('web.io.Stream("test", type= text/plain)', $this->newFixture('test')->toString());
+    Assert::equals('web.io.Stream("test", type= text/plain)', $this->newFixture('test')->toString());
   }
 
-  #[Test, Values('chunks')]
+  #[Test, Values(from: 'chunks')]
   public function bytes($chunks, $expected) {
-    $this->assertEquals($expected, $this->newFixture(self::NAME, ...$chunks)->bytes());
+    Assert::equals($expected, $this->newFixture(self::NAME, ...$chunks)->bytes());
   }
 
-  #[Test, Values('chunks')]
+  #[Test, Values(from: 'chunks')]
   public function read_all($chunks, $expected) {
-    $this->assertEquals($expected, Streams::readAll($this->newFixture(self::NAME, ...$chunks)));
+    Assert::equals($expected, Streams::readAll($this->newFixture(self::NAME, ...$chunks)));
   }
 
   #[Test]
   public function read_empty() {
     $fixture= $this->newFixture(self::NAME);
-    $this->assertNull($fixture->read());
+    Assert::null($fixture->read());
   }
 
   #[Test]
   public function read_after_end() {
     $fixture= $this->newFixture(self::NAME, 'a');
     $fixture->read();
-    $this->assertNull($fixture->read());
+    Assert::null($fixture->read());
   }
 
-  #[Test, Values('chunks')]
+  #[Test, Values(from: 'chunks')]
   public function transmit_to_outputstream($chunks, $expected) {
     $out= new MemoryOutputStream();
     $it= $this->newFixture(self::NAME, ...$chunks)->transmit($out);
@@ -137,8 +151,8 @@ class StreamTest extends TestCase {
       $it->next();
     }
 
-    $this->assertEquals(strlen($expected), $it->getReturn());
-    $this->assertEquals($expected, $out->bytes());
+    Assert::equals(strlen($expected), $it->getReturn());
+    Assert::equals($expected, $out->bytes());
   }
 
   #[Test, Expect(IOException::class)]
@@ -160,18 +174,18 @@ class StreamTest extends TestCase {
     }
   }
 
-  #[Test, Values(eval: '[[fn($t) => $t], [fn($t) => new Path($t)], [fn($t) => $t->getURI()]]')]
+  #[Test, Values(from: 'folders')]
   public function transmit_to_folder($target) {
     $this->assertTransmission(['test.txt' => 'Test'], $target);
   }
 
-  #[Test, Values(eval: '[[fn($t) => new File($t, "target.txt")], [fn($t) => new Path($t, "target.txt")], [fn($t) => $t->getURI()."target.txt"]]')]
+  #[Test, Values(from: 'files')]
   public function transmit_to_file($target) {
     $this->assertTransmission(['target.txt' => 'Test'], $target);
   }
 
   #[Test]
   public function close_is_a_noop() {
-    $this->assertNull($this->newFixture(self::NAME)->close());
+    Assert::null($this->newFixture(self::NAME)->close());
   }
 }
