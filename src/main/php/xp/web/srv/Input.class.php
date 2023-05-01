@@ -6,11 +6,11 @@ use web\Headers;
 use web\io\{ReadChunks, ReadLength, Parts, Input as Base};
 
 class Input implements Base {
-  const REQUEST    = 0;
-  const CLOSE      = 1;
-  const INCOMPLETE = 2;
-  const EXCESSIVE  = 3;
-  const TIMEOUT    = 4;
+  const REQUEST    = 0x01;
+  const CLOSE      = 0x02;
+  const MALFORMED  = 0x04;
+  const EXCESSIVE  = 0x08;
+  const TIMEOUT    = 0x10;
 
   public $kind= null;
   public $buffer= null;
@@ -44,7 +44,8 @@ class Input implements Base {
     // Read until we have the complete headers, imposing given length limit
     do {
       if (strlen($this->buffer) > $limit) {
-        return $this->kind= self::EXCESSIVE;
+        $this->kind= self::EXCESSIVE;
+        break;
       } else if (false !== strpos($this->buffer, "\r\n\r\n")) {
         break;
       }
@@ -53,16 +54,18 @@ class Input implements Base {
         yield 'read' => null;
         $this->buffer.= $this->socket->read();
       } catch (SocketTimeoutException $e) {
-        return $this->kind= self::TIMEOUT;
+        $this->kind= self::TIMEOUT;
+        break;
       }
     } while (true);
 
-    if (3 !== sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
-      return $this->kind= self::INCOMPLETE;
+    // Parse status line
+    if (3 === sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
+      $this->kind|= self::REQUEST;
+      $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
+    } else {
+      $this->kind|= self::MALFORMED;
     }
-
-    $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
-    $this->kind= self::REQUEST;
   }
 
   /** @return string */
@@ -99,6 +102,7 @@ class Input implements Base {
   /** @return iterable */
   public function headers() {
     yield 'Remote-Addr' => $this->socket->remoteEndpoint()->getHost();
+    if (self::REQUEST !== $this->kind) return;
 
     while ($line= $this->readLine()) {
       sscanf($line, "%[^:]: %[^\r]", $name, $value);

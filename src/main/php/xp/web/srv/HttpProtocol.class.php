@@ -117,8 +117,9 @@ class HttpProtocol implements ServerProtocol {
     $input= new Input($socket);
     yield from $input->consume();
 
-    if ($version= $input->version()) {
+    if ($input->kind & Input::REQUEST) {
       gc_enable();
+      $version= $input->version();
       $request= new Request($input);
       $response= new Response(new Output($socket, $version));
       $response->header('Date', Headers::date());
@@ -138,7 +139,18 @@ class HttpProtocol implements ServerProtocol {
       }
 
       try {
-        yield from $this->application->service($request, $response) ?? [];
+        if (Input::REQUEST === $input->kind) {
+          yield from $this->application->service($request, $response) ?? [];
+        } else if ($input->kind & Input::TIMEOUT) {
+          $response->answer(408);
+          $response->send('Client timed out sending status line and request headers', 'text/plain');
+          $close= true;
+        } else if ($input->kind & Input::EXCESSIVE) {
+          $response->answer(431);
+          $response->send('Client sent excessively long status line or request headers', 'text/plain');
+          $close= true;
+        }
+
         $this->logging->log($request, $response);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
@@ -159,26 +171,17 @@ class HttpProtocol implements ServerProtocol {
     }
 
     // Handle request errors and close the socket
-    if (Input::CLOSE === $input->kind) {
-      goto close;
-    } else if (Input::TIMEOUT === $input->kind) {
-      $status= '408 Request Timeout';
-      $error= 'Client failed sending status line and request headers in a timely manner';
-    } else if (Input::EXCESSIVE === $input->kind) {
-      $status= '431 Request Header Fields Too Large';
-      $error= 'Client sent excessively long status line or request headers';
-    } else {
+    if (!($input->kind & Input::CLOSE)) {
       $status= '400 Bad Request';
       $error= 'Client sent incomplete HTTP request: "'.addcslashes($input->buffer, "\0..\37!\177..\377").'"';
+      $socket->write(sprintf(
+        "HTTP/1.1 %s\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s",
+        $status,
+        strlen($error),
+        $error
+      ));
     }
-
-    $socket->write(sprintf(
-      "HTTP/1.1 %s\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s",
-      $status,
-      strlen($error),
-      $error
-    ));
-    close: $socket->close();
+    $socket->close();
   }
 
   /**

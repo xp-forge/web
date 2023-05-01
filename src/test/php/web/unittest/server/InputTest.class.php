@@ -74,23 +74,52 @@ class InputTest {
 
   #[Test]
   public function request_kind() {
-    Assert::equals(Input::REQUEST, ($this->consume($this->socket("GET / HTTP/1.1\r\n\r\n")))->kind);
+    Assert::equals(
+      Input::REQUEST,
+      $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->kind
+    );
   }
 
   #[Test]
   public function request_timeout() {
-    Assert::equals(Input::TIMEOUT, ($this->consume($this->socket("GET / HTTP/1.1\r\n...")))->kind);
-  }
-
-  #[Test]
-  public function incomplete_request() {
-    Assert::equals(Input::INCOMPLETE, ($this->consume($this->socket("EHLO example.org\r\n\r\n")))->kind);
+    Assert::equals(
+      Input::REQUEST | Input::TIMEOUT,
+      $this->consume($this->socket("GET / HTTP/1.1\r\n..."))->kind
+    );
   }
 
   #[Test]
   public function header_limit_exceeded() {
-    $headers= 'Cookie: excess='.str_repeat('x', self::HEADER_LIMIT)."\r\n";
-    Assert::equals(Input::EXCESSIVE, ($this->consume($this->socket("GET / HTTP/1.1\r\n{$headers}\r\n")))->kind);
+    $cookie= str_repeat('x', self::HEADER_LIMIT);
+    Assert::equals(
+      Input::REQUEST | Input::EXCESSIVE,
+      $this->consume($this->socket("GET / HTTP/1.1\r\nCookie: excess={$cookie}\r\n\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_request() {
+    Assert::equals(
+      Input::MALFORMED,
+      $this->consume($this->socket("EHLO example.org\r\n\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_incomplete_request() {
+    Assert::equals(
+      Input::MALFORMED | Input::TIMEOUT,
+      $this->consume($this->socket("EHLO example.org\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_excessive_request() {
+    $payload= str_repeat('x', self::HEADER_LIMIT);
+    Assert::equals(
+      Input::MALFORMED | Input::EXCESSIVE,
+      $this->consume($this->socket("EHLO example.org\r\n{$payload}"))->kind
+    );
   }
 
   #[Test]
