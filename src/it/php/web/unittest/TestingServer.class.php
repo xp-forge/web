@@ -2,7 +2,7 @@
 
 use lang\Throwable;
 use peer\ServerSocket;
-use peer\server\Server;
+use peer\server\AsyncServer;
 use test\Assert;
 use util\cmd\Console;
 use web\{Environment, Logging};
@@ -23,12 +23,13 @@ class TestingServer {
   /** Starts the server */
   public static function main(array $args) {
     $application= new TestingApplication(new Environment('test', '.', '.', '.', [], null));
+    $socket= new ServerSocket('127.0.0.1', $args[0] ?? 0);
 
-    $s= new Server();
+    $s= new AsyncServer();
     try {
-      $s->listen(new ServerSocket('127.0.0.1', $args[0] ?? 0), HttpProtocol::executing($application, new Logging(null)));
+      $s->listen($socket, HttpProtocol::executing($application, new Logging(null)));
       $s->init();
-      Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
+      Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
       $s->service();
       $s->shutdown();
     } catch (Throwable $e) {
