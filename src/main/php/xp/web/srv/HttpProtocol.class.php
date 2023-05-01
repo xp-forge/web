@@ -115,6 +115,8 @@ class HttpProtocol implements ServerProtocol {
    */
   public function handleData($socket) {
     $input= new Input($socket);
+    yield from $input->consume();
+
     if ($version= $input->version()) {
       gc_enable();
       $request= new Request($input);
@@ -153,17 +155,30 @@ class HttpProtocol implements ServerProtocol {
         clearstatcache();
         \xp::gc();
       }
-    } else if (Input::CLOSE === $input->kind) {
-      $socket->close();
-    } else {
-      $error= 'Incomplete HTTP request: "'.addcslashes($input->kind, "\0..\37!\177..\377").'"';
-      $socket->write(sprintf(
-        "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s",
-        strlen($error),
-        $error
-      ));
-      $socket->close();
+      return;
     }
+
+    // Handle request errors and close the socket
+    if (Input::CLOSE === $input->kind) {
+      goto close;
+    } else if (Input::TIMEOUT === $input->kind) {
+      $status= '408 Request Timeout';
+      $error= 'Client failed sending status line and request headers in a timely manner';
+    } else if (Input::EXCESSIVE === $input->kind) {
+      $status= '431 Request Header Fields Too Large';
+      $error= 'Client sent excessively long status line or request headers';
+    } else {
+      $status= '400 Bad Request';
+      $error= 'Client sent incomplete HTTP request: "'.addcslashes($input->buffer, "\0..\37!\177..\377").'"';
+    }
+
+    $socket->write(sprintf(
+      "HTTP/1.1 %s\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s",
+      $status,
+      strlen($error),
+      $error
+    ));
+    close: $socket->close();
   }
 
   /**

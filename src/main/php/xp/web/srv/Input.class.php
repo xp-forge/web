@@ -1,18 +1,21 @@
 <?php namespace xp\web\srv;
 
 use lang\FormatException;
-use peer\CryptoSocket;
+use peer\{CryptoSocket, SocketTimeoutException};
 use web\Headers;
 use web\io\{ReadChunks, ReadLength, Parts, Input as Base};
 
 class Input implements Base {
-  const CLOSE   = 0;
-  const REQUEST = 1;
+  const REQUEST    = 0;
+  const CLOSE      = 1;
+  const INCOMPLETE = 2;
+  const EXCESSIVE  = 3;
+  const TIMEOUT    = 4;
 
-  public $kind;
+  public $kind= null;
+  public $buffer= null;
   private $socket;
   private $method, $uri, $version;
-  private $buffer= null;
   private $incoming= null;
 
   /**
@@ -21,30 +24,45 @@ class Input implements Base {
    * @param  peer.Socket $socket
    */
   public function __construct($socket) {
+    $this->socket= $socket;
+  }
+
+  /**
+   * Consumes status line and headers
+   *
+   * @param  int $limit defaults to 16 KB
+   * @return iterable
+   */
+  public function consume($limit= 16384) {
 
     // If we instantly get an EOF while reading, it's either a preconnect
     // or a kept-alive socket being closed.
-    if ('' === ($initial= $socket->readBinary())) {
-      $this->kind= self::CLOSE;
-      return;
+    if ('' === ($this->buffer= $this->socket->readBinary())) {
+      return $this->kind= self::CLOSE;
     }
 
-    // Read status line cautiously. If a client does not send complete line
-    // with the initial write (which it typically does), wait for another
-    // 100 milliseconds. If no more data is transmitted, give up.
-    if (false === ($p= strpos($initial, "\r\n"))) {
-      if ($socket->canRead(0.1)) {
-        $initial.= $socket->readBinary();
+    // Read until we have the complete headers, imposing given length limit
+    do {
+      if (strlen($this->buffer) > $limit) {
+        return $this->kind= self::EXCESSIVE;
+      } else if (false !== strpos($this->buffer, "\r\n\r\n")) {
+        break;
       }
+
+      try {
+        yield 'read' => null;
+        $this->buffer.= $this->socket->readBinary();
+      } catch (SocketTimeoutException $e) {
+        return $this->kind= self::TIMEOUT;
+      }
+    } while (true);
+
+    if (3 !== sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
+      return $this->kind= self::INCOMPLETE;
     }
 
-    if (3 === sscanf($initial, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
-      $this->buffer= substr($initial, $p + 2);
-      $this->socket= $socket;
-      $this->kind= self::REQUEST;
-    } else {
-      $this->kind= rtrim($initial);
-    }
+    $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
+    $this->kind= self::REQUEST;
   }
 
   /** @return string */
