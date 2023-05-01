@@ -37,7 +37,7 @@ class Input implements Base {
 
     // If we instantly get an EOF while reading, it's either a preconnect
     // or a kept-alive socket being closed.
-    if ('' === ($this->buffer= $this->socket->readBinary())) {
+    if ('' === ($this->buffer= $this->socket->read())) {
       return $this->kind= self::CLOSE;
     }
 
