@@ -51,12 +51,12 @@ class EnvironmentTest {
 
   #[Test, Values(['abc', ''])]
   public function set_variable($value) {
-    $this->assertEquals($value, (new Environment('dev', '.', 'static', []))->export('test', $value)->variable('test'));
+    Assert::equals($value, (new Environment('dev', '.', 'static', []))->export('test', $value)->variable('test'));
   }
 
   #[Test]
   public function unset_variable() {
-    $this->assertNull((new Environment('dev', '.', 'static', []))->export('test', null)->variable('test'));
+    Assert::null((new Environment('dev', '.', 'static', []))->export('test', null)->variable('test'));
   }
 
   #[Test]
