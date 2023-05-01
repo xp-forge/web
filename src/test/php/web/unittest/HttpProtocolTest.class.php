@@ -1,18 +1,24 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
-use unittest\{Test, TestCase, Values};
+use peer\SocketException;
+use test\{Assert, Test, Values};
 use web\{Application, Environment, Logging};
-use xp\web\srv\HttpProtocol;
+use xp\web\srv\{CannotWrite, HttpProtocol};
 
-class HttpProtocolTest extends TestCase {
+class HttpProtocolTest {
   private $log;
 
-  /** @return void */
-  public function setUp() {
+  public function __construct() {
     $this->log= new Logging(null);
   }
 
+  /**
+   * Returns an application with given handlers
+   *
+   * @param  var $handler
+   * @return web.Application
+   */
   private function application($handler) {
     return newinstance(Application::class, [new Environment('test', '.', '.', [])], [
       'routes' => function() use($handler) {
@@ -137,5 +143,30 @@ class HttpProtocolTest extends TestCase {
       "\r\n4\r\nTest\r\n0\r\n\r\n",
       $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"])
     );
+  }
+
+  #[Test]
+  public function catches_write_errors_and_logs_them() {
+    $caught= null;
+    $p= HttpProtocol::executing(
+      $this->application(function($req, $res) {
+        with ($res->stream(), function($s) {
+          $s->write('Test');
+          throw new CannotWrite('Test error', new SocketException('...'));
+         });
+      }),
+      Logging::of(function($req, $res, $error= null) use(&$caught) { $caught= $error; })
+    );
+
+    $this->assertHttp(
+      "HTTP/1.1 200 OK\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
+      "Transfer-Encoding: chunked\r\n".
+      "\r\n4\r\nTest\r\n0\r\n\r\n",
+      $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"])
+    );
+    Assert::instance(CannotWrite::class, $caught);
+    Assert::equals('// Test error', $caught->toString());
   }
 }

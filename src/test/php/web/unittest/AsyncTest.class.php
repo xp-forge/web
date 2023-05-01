@@ -1,6 +1,6 @@
 <?php namespace web\unittest;
 
-use unittest\{Assert, Test};
+use test\{Assert, Test};
 use web\io\{TestInput, TestOutput};
 use web\{Request, Response};
 

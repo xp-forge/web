@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use unittest\{Assert, Test};
+use test\{Assert, Test};
 use web\io\Output;
 
 class OutputTest {

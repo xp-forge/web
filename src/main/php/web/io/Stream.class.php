@@ -72,6 +72,7 @@ class Stream extends Part implements InputStream {
   /**
    * Transfers this stream to a given target.
    *
+   * @deprecated Use `yield from $stream->transmit(...)` instead!
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return int Number of bytes written
    * @throws lang.IllegalArgumentException if filename is invalid
@@ -97,8 +98,51 @@ class Stream extends Part implements InputStream {
     try {
       $written= 0;
       foreach ($this->chunks as $chunk) {
+        if (null === $chunk) continue;
+
         $out->write($chunk);
         $written+= strlen($chunk);
+      }
+      return $written;
+    } finally {
+      $out->close();
+    }
+  }
+
+  /**
+   * Transmits this stream to a given target.
+   *
+   * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
+   * @return iterable
+   * @throws lang.IllegalArgumentException if filename is invalid
+   * @throws io.IOException
+   */
+  public function transmit($target) {
+    if ($target instanceof OutputStream) {
+      $out= $target;
+    } else if ($target instanceof File) {
+      $out= $target->out();
+    } else if ($target instanceof Folder) {
+      $out= new FileOutputStream(new File($target, $this->name()));
+    } else if (null === $target) {
+      throw new IllegalArgumentException('Invalid filename <null>');
+    } else if (is_string($target) && (0 === strlen($target) || false !== strpos($target, "\0"))) {
+      throw new IllegalArgumentException('Invalid filename "'.addcslashes($target, "\0..\37!\177..\377").'"');
+    } else if (is_dir($target)) {
+      $out= new FileOutputStream(new File($target, $this->name()));
+    } else {
+      $out= new FileOutputStream($target);
+    }
+
+    try {
+      $written= 0;
+      foreach ($this->chunks as $chunk) {
+        if (null === $chunk) {
+          yield 'read' => null;
+        } else {
+          $out->write($chunk);
+          $written+= strlen($chunk);
+        }
       }
       return $written;
     } finally {
@@ -121,7 +165,7 @@ class Stream extends Part implements InputStream {
     if ($this->chunks->valid()) {
       $bytes= $this->chunks->current();
       $this->chunks->next();
-      return $bytes;
+      return (string)$bytes;
     }
 
     return null;

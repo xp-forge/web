@@ -1,11 +1,12 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
-use unittest\{Test, TestCase, Values};
+use lang\FormatException;
+use test\{Assert, Expect, Test, Values};
 use web\Request;
 use web\io\{Multipart, TestInput};
 
-class MultipartRequestTest extends TestCase {
+class MultipartRequestTest {
   use Chunking;
 
   const BOUNDARY = '------------------------899f0c287170dd63';
@@ -72,7 +73,7 @@ class MultipartRequestTest extends TestCase {
     yield ['blank.gif', "GIF89a\1\0\1\0\200\0\0\0\0\0\377\377\377\!\371\4\1\0\0\0\0,\0\0\0\0\1\0\1\0@\2\1D\0;"];
   }
 
-  #[Test, Values('files')]
+  #[Test, Values(from: 'files')]
   public function files_in_file_upload($filename, $bytes) {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->file($filename, $bytes),
@@ -83,7 +84,7 @@ class MultipartRequestTest extends TestCase {
     foreach ($req->multipart()->files() as $name => $file) {
       $files[$name]= addcslashes($file->bytes(), "\0..\37\177..\377");
     }
-    $this->assertEquals([$filename => addcslashes($bytes, "\0..\37\177..\377")], $files);
+    Assert::equals([$filename => addcslashes($bytes, "\0..\37\177..\377")], $files);
   }
 
   #[Test]
@@ -97,7 +98,7 @@ class MultipartRequestTest extends TestCase {
     foreach ($req->multipart()->parts() as $name => $part) {
       $params[$name]= $part->value();
     }
-    $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $params);
+    Assert::equals(['tc' => 'Checked', 'submit' => 'Upload'], $params);
   }
 
   #[Test]
@@ -108,9 +109,9 @@ class MultipartRequestTest extends TestCase {
       $this->param('submit', 'Upload')
     ])));
 
-    $this->assertEquals(['tc' => 'Checked'], $req->params(), 'Before iterating parts');
+    Assert::equals(['tc' => 'Checked'], $req->params(), 'Before iterating parts');
     iterator_count($req->multipart()->parts());
-    $this->assertEquals(['tc' => 'Checked', 'submit' => 'Upload'], $req->params(), 'When complete');
+    Assert::equals(['tc' => 'Checked', 'submit' => 'Upload'], $req->params(), 'When complete');
   }
 
   #[Test, Values([['/', []], ['/?a=b', ['a' => 'b']], ['/?a=b&c=d', ['a' => 'b', 'c' => 'd']],])]
@@ -121,7 +122,7 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     iterator_count($req->multipart()->parts());
-    $this->assertEquals($params + ['tc' => 'Checked', 'submit' => 'Upload'], $req->params());
+    Assert::equals($params + ['tc' => 'Checked', 'submit' => 'Upload'], $req->params());
   }
 
   #[Test]
@@ -133,7 +134,7 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     iterator_count($req->multipart()->parts());
-    $this->assertEquals(['accepted' => ['tc', 'privacy'], 'submit' => 'Upload'], $req->params());
+    Assert::equals(['accepted' => ['tc', 'privacy'], 'submit' => 'Upload'], $req->params());
   }
 
   #[Test]
@@ -145,7 +146,7 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     iterator_count($req->multipart()->parts());
-    $this->assertEquals(['accepted' => ['tc' => 'true', 'privacy' => 'true'], 'submit' => 'Upload'], $req->params());
+    Assert::equals(['accepted' => ['tc' => 'true', 'privacy' => 'true'], 'submit' => 'Upload'], $req->params());
   }
 
   #[Test]
@@ -156,7 +157,7 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     $req->multipart();
-    $this->assertEquals((int)$req->header('Content-Length'), $req->consume());
+    Assert::equals((int)$req->header('Content-Length'), $req->consume());
   }
 
   #[Test]
@@ -167,7 +168,7 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     foreach ($req->multipart()->parts() as $part) { }
-    $this->assertEquals(0, $req->consume());
+    Assert::equals(0, $req->consume());
   }
 
   #[Test, Values([0, 4, 0xff, 0x100, 0xffff])]
@@ -180,7 +181,7 @@ class MultipartRequestTest extends TestCase {
     foreach ($req->multipart()->files() as $name => $file) {
       $files[$name]= strlen($file->bytes());
     }
-    $this->assertEquals(['test.txt' => $length], $files);
+    Assert::equals(['test.txt' => $length], $files);
   }
 
   #[Test]
@@ -190,7 +191,17 @@ class MultipartRequestTest extends TestCase {
     ])));
 
     iterator_count($req->multipart()->parts());
-    $this->assertEquals(['test' => 'illegal&char'], $req->params());
+    Assert::equals(['test' => 'illegal&char'], $req->params());
   }
 
+  #[Test, Expect(FormatException::class)]
+  public function raises_exceptions_for_incomplete_upload() {
+    $parts= $this->multipart([
+      $this->file('test.txt', 'Hello World'),
+      $this->param('submit', 'Upload')
+    ]);
+    $req= new Request(new TestInput('POST', '/', self::$MULTIPART, substr($parts, 0, -10)));
+
+    iterator_count($req->multipart()->parts());
+  }
 }

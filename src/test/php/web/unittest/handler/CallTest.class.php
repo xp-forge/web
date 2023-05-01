@@ -1,12 +1,12 @@
 <?php namespace web\unittest\handler;
 
 use lang\IllegalArgumentException;
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\handler\Call;
 use web\io\{TestInput, TestOutput};
 use web\{Request, Response};
 
-class CallTest extends TestCase {
+class CallTest {
 
   /** @return iterable */
   private function invalid() {
@@ -21,7 +21,7 @@ class CallTest extends TestCase {
     new Call(function($request, $response) { });
   }
 
-  #[Test, Expect(IllegalArgumentException::class), Values('invalid')]
+  #[Test, Expect(IllegalArgumentException::class), Values(from: 'invalid')]
   public function create_with_invalid($invokeable) {
     new Call($invokeable);
   }
@@ -37,6 +37,6 @@ class CallTest extends TestCase {
     $response= new Response(new TestOutput());
     (new Call($invokeable))->handle($request, $response);
 
-    $this->assertEquals([[$request, $response]], $handled);
+    Assert::equals([[$request, $response]], $handled);
   }
 }

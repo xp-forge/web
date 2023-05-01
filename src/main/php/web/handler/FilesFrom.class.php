@@ -67,19 +67,19 @@ class FilesFrom implements Handler {
   /**
    * Copies a given amount of bytes from the specified file to the output
    *
-   * @param  web.io.Output $output
+   * @param  web.io.Output $out
    * @param  io.File $file
    * @param  web.io.Range $range
    * @return iterable
    */
-  private function copy($output, $file, $range) {
+  private function copy($out, $file, $range) {
     $file->seek($range->start());
 
     $length= $range->length();
     while ($length && $chunk= $file->read(min(self::CHUNKSIZE, $length))) {
-      $output->write($chunk);
+      yield 'write' => $out;
+      $out->write($chunk);
       $length-= strlen($chunk);
-      yield;
     }
   }
 
@@ -90,7 +90,7 @@ class FilesFrom implements Handler {
    * @param   web.Response $response
    * @param   ?io.File|io.Path|string $target
    * @param   ?string $mimeType
-   * @return  void
+   * @return  iterable
    */
   public function serve($request, $response, $target, $mimeType= null) {
     if (null === $target || ($file= $target instanceof File ? $target : new File($target)) && !$file->exists()) {
@@ -129,8 +129,8 @@ class FilesFrom implements Handler {
         $file->open(File::READ);
         try {
           do {
+            yield 'write' => $out;
             $out->write($file->read(self::CHUNKSIZE));
-            yield;
           } while (!$file->eof());
         } finally {
           $file->close();

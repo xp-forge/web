@@ -1,10 +1,10 @@
 <?php namespace web\unittest\io;
 
-use unittest\{Test, TestCase, Values};
+use test\{Assert, Test, Values};
 use web\io\TestInput;
 use web\unittest\Chunking;
 
-class TestInputTest extends TestCase {
+class TestInputTest {
   use Chunking;
 
   #[Test]
@@ -14,80 +14,80 @@ class TestInputTest extends TestCase {
 
   #[Test]
   public function version() {
-    $this->assertEquals('1.1', (new TestInput('GET', '/'))->version());
+    Assert::equals('1.1', (new TestInput('GET', '/'))->version());
   }
 
   #[Test]
   public function scheme() {
-    $this->assertEquals('http', (new TestInput('GET', '/'))->scheme());
+    Assert::equals('http', (new TestInput('GET', '/'))->scheme());
   }
 
   #[Test, Values(['GET', 'HEAD', 'POST'])]
   public function method($name) {
-    $this->assertEquals($name, (new TestInput($name, '/'))->method());
+    Assert::equals($name, (new TestInput($name, '/'))->method());
   }
 
   #[Test, Values(['/', '/test'])]
   public function uri($path) {
-    $this->assertEquals($path, (new TestInput('GET', $path))->uri());
+    Assert::equals($path, (new TestInput('GET', $path))->uri());
   }
 
   #[Test]
   public function headers_empty_by_default() {
-    $this->assertEquals([], (new TestInput('GET', '/'))->headers());
+    Assert::equals([], (new TestInput('GET', '/'))->headers());
   }
 
   #[Test]
   public function headers() {
     $headers= ['Host' => 'example.com'];
-    $this->assertEquals($headers, (new TestInput('GET', '/', $headers))->headers());
+    Assert::equals($headers, (new TestInput('GET', '/', $headers))->headers());
   }
 
   #[Test]
   public function body_empty_by_default() {
-    $this->assertEquals('', (new TestInput('GET', '/'))->read());
+    Assert::equals('', (new TestInput('GET', '/'))->read());
   }
 
   #[Test, Values(['', 'body'])]
   public function read($body) {
-    $this->assertEquals($body, (new TestInput('GET', '/', [], $body))->read());
+    Assert::equals($body, (new TestInput('GET', '/', [], $body))->read());
   }
 
   #[Test]
   public function reading_line() {
-    $this->assertEquals('line', (new TestInput('GET', '/', [], "line\r\n"))->readLine());
+    Assert::equals('line', (new TestInput('GET', '/', [], "line\r\n"))->readLine());
   }
 
   #[Test]
   public function reading_line_without_ending_crlf() {
-    $this->assertEquals('line', (new TestInput('GET', '/', [], "line"))->readLine());
+    Assert::equals('line', (new TestInput('GET', '/', [], "line"))->readLine());
   }
 
   #[Test]
   public function reading_lines() {
     $fixture= new TestInput('GET', '/', [], "line 1\r\nline 2\r\n");
-    $this->assertEquals('line 1', $fixture->readLine());
-    $this->assertEquals('line 2', $fixture->readLine());
-    $this->assertNull($fixture->readLine());
+    Assert::equals('line 1', $fixture->readLine());
+    Assert::equals('line 2', $fixture->readLine());
+    Assert::null($fixture->readLine());
   }
 
   #[Test]
   public function content_length_calculated() {
     $fixture= new TestInput('GET', '/', ['Content-Type' => 'text/plain'], 'Test');
-    $this->assertEquals(['Content-Type' => 'text/plain', 'Content-Length' => 4], $fixture->headers());
+    Assert::equals(['Content-Type' => 'text/plain', 'Content-Length' => 4], $fixture->headers());
   }
 
   #[Test]
   public function content_length_not_calculated_when_chunked() {
     $fixture= new TestInput('GET', '/', self::$CHUNKED, $this->chunked('Test'));
-    $this->assertEquals(self::$CHUNKED, $fixture->headers());
+    Assert::equals(self::$CHUNKED, $fixture->headers());
   }
 
   #[Test]
   public function body_can_be_passed_as_array() {
     $fixture= new TestInput('GET', '/', ['Accept' => '*/*'], ['key' => 'value']);
-    $this->assertEquals('key=value', $fixture->read());
-    $this->assertEquals(
+    Assert::equals('key=value', $fixture->read());
+    Assert::equals(
       ['Accept' => '*/*', 'Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => 9],
       $fixture->headers()
     );

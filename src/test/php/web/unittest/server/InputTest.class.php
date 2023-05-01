@@ -2,10 +2,10 @@
 
 use io\streams\Streams;
 use peer\{Socket, SocketEndpoint};
-use unittest\{Test, TestCase};
+use test\{Assert, Test, Values};
 use xp\web\srv\Input;
 
-class InputTest extends TestCase {
+class InputTest {
 
   /**
    * Returns a socket which can be read from
@@ -47,43 +47,43 @@ class InputTest extends TestCase {
 
   #[Test]
   public function close_kind() {
-    $this->assertEquals(Input::CLOSE, (new Input($this->socket('')))->kind);
+    Assert::equals(Input::CLOSE, (new Input($this->socket('')))->kind);
   }
 
   #[Test]
   public function request_kind() {
-    $this->assertEquals(Input::REQUEST, (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->kind);
+    Assert::equals(Input::REQUEST, (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->kind);
   }
 
   #[Test]
   public function malformed_kind() {
-    $this->assertEquals('EHLO example.org', (new Input($this->socket("EHLO example.org\r\n")))->kind);
+    Assert::equals('EHLO example.org', (new Input($this->socket("EHLO example.org\r\n")))->kind);
   }
 
   #[Test]
   public function http_scheme_default() {
-    $this->assertEquals('http', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->scheme());
+    Assert::equals('http', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->scheme());
   }
 
   #[Test]
   public function method() {
-    $this->assertEquals('GET', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->method());
+    Assert::equals('GET', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->method());
   }
 
   #[Test]
   public function uri() {
-    $this->assertEquals('/', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->uri());
+    Assert::equals('/', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->uri());
   }
 
   #[Test]
   public function version() {
-    $this->assertEquals('1.1', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->version());
+    Assert::equals('1.1', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->version());
   }
 
   #[Test]
   public function no_headers() {
     $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
-    $this->assertEquals(
+    Assert::equals(
       ['Remote-Addr' => '127.0.0.1'],
       iterator_to_array($input->headers())
     );
@@ -92,7 +92,7 @@ class InputTest extends TestCase {
   #[Test]
   public function headers() {
     $input= new Input($this->socket("GET / HTTP/1.1\r\nHost: example\r\nDate: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"));
-    $this->assertEquals(
+    Assert::equals(
       ['Remote-Addr' => '127.0.0.1', 'Host' => 'example', 'Date' => 'Tue, 15 Nov 1994 08:12:31 GMT'],
       iterator_to_array($input->headers())
     );
@@ -103,7 +103,7 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
     iterator_count($input->headers());
 
-    $this->assertNull($input->incoming());
+    Assert::null($input->incoming());
   }
 
   #[Test]
@@ -111,7 +111,7 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', Streams::readAll($input->incoming()));
+    Assert::equals('Test', Streams::readAll($input->incoming()));
   }
 
   #[Test]
@@ -119,7 +119,7 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n4\r\nTest\r\n0\r\n\r\n"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', Streams::readAll($input->incoming()));
+    Assert::equals('Test', Streams::readAll($input->incoming()));
   }
 
   #[Test]
@@ -127,7 +127,7 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', $input->read(4));
+    Assert::equals('Test', $input->read(4));
   }
 
   #[Test]
@@ -135,7 +135,7 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', $input->read(-1));
+    Assert::equals('Test', $input->read(-1));
   }
 
   #[Test, Values([1024, 4096, 8192])]
@@ -144,6 +144,6 @@ class InputTest extends TestCase {
     $input= new Input($this->socket("GET / HTTP/1.1\r\nCookie: {$header}\r\n\r\n"));
     $headers= iterator_to_array($input->headers());
 
-    $this->assertEquals($header, $headers['Cookie']);
+    Assert::equals($header, $headers['Cookie']);
   }
 }

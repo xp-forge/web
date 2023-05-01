@@ -1,16 +1,28 @@
 <?php namespace web\unittest;
 
 use lang\IllegalStateException;
-use unittest\{Expect, Test};
+use test\{Assert, Expect, Test, Values};
+use util\Objects;
 use web\io\{TestInput, TestOutput};
-use web\{Application, Environment, Error, Filters, Handler, Request, Response, Routing};
+use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routing};
 
-class ApplicationTest extends \unittest\TestCase {
+class ApplicationTest {
   private $environment;
 
-  /** @return void */
-  public function setUp() {
+  public function __construct() {
     $this->environment= new Environment('dev', '.', 'static', []);
+  }
+
+  /** @return iterable */
+  private function filters() {
+    yield [function($req, $res, $invocation) {
+      return $invocation->proceed($req->pass('filtered', 'true'), $res);
+    }];
+    yield [new class() implements Filter {
+      public function filter($req, $res, $invocation) {
+        return $invocation->proceed($req->pass('filtered', 'true'), $res);
+      }
+    }];
   }
 
   /**
@@ -22,7 +34,7 @@ class ApplicationTest extends \unittest\TestCase {
   private function handle($routes) {
     with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
       $request= new Request(new TestInput('GET', '/'));
-      $response= new Response();
+      $response= new Response(new TestOutput());
       $app->service($request, $response);
       return [$request, $response];
     }
@@ -37,7 +49,7 @@ class ApplicationTest extends \unittest\TestCase {
    */
   private function assertHandled(&$handled, $routes) {
     $result= $this->handle($routes);
-    $this->assertEquals([$result], $handled);
+    Assert::equals([$result], $handled);
   }
 
   #[Test]
@@ -52,7 +64,7 @@ class ApplicationTest extends \unittest\TestCase {
     $app= new class($this->environment) extends Application {
       public function routes() { /* Implementation irrelevant for this test */ }
     };
-    $this->assertEquals($this->environment, $app->environment());
+    Assert::equals($this->environment, $app->environment());
   }
 
   #[Test]
@@ -61,7 +73,7 @@ class ApplicationTest extends \unittest\TestCase {
     $app= newinstance(Application::class, [$this->environment], [
       'routes' => function() use($routing) { return $routing; }
     ]);
-    $this->assertEquals($routing, $app->routing());
+    Assert::equals($routing, $app->routing());
   }
 
   #[Test]
@@ -77,7 +89,7 @@ class ApplicationTest extends \unittest\TestCase {
       }
     ]);
     $app->routing();
-    $this->assertEquals($routing, $app->routing());
+    Assert::equals($routing, $app->routing());
   }
 
   #[Test]
@@ -145,7 +157,7 @@ class ApplicationTest extends \unittest\TestCase {
         },
       ];
     });
-    $this->assertEquals([], $passed);
+    Assert::equals([], $passed);
   }
 
   #[Test]
@@ -161,10 +173,10 @@ class ApplicationTest extends \unittest\TestCase {
         },
       ];
     });
-    $this->assertEquals(['url' => 'http://example.com/'], $passed);
+    Assert::equals(['url' => 'http://example.com/'], $passed);
   }
 
-  #[Test, Expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
+  #[Test, Expect(class: Error::class, message: '/Internal redirect loop/')]
   public function dispatch_request_to_self_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -175,7 +187,7 @@ class ApplicationTest extends \unittest\TestCase {
     });
   }
 
-  #[Test, Expect(['class' => Error::class, 'withMessage' => '/Internal redirect loop/'])]
+  #[Test, Expect(class: Error::class, message: '/Internal redirect loop/')]
   public function dispatch_request_ping_pong_causes_error() {
     $this->assertHandled($handled, function() use(&$handled) {
       return [
@@ -208,7 +220,7 @@ class ApplicationTest extends \unittest\TestCase {
 
   #[Test]
   public function string_representation() {
-    $this->assertEquals(
+    Assert::equals(
       'web.unittest.HelloWorld(static)',
       (new HelloWorld($this->environment))->toString()
     );
@@ -216,18 +228,52 @@ class ApplicationTest extends \unittest\TestCase {
 
   #[Test]
   public function hash_code() {
-    $this->assertNotEquals('', (new HelloWorld($this->environment))->hashCode());
+    Assert::notEquals('', (new HelloWorld($this->environment))->hashCode());
   }
 
   #[Test]
   public function equals_itself() {
     $app= new HelloWorld($this->environment);
-    $this->assertEquals(0, $app->compareTo($app));
+    Assert::equals(0, $app->compareTo($app));
   }
 
   #[Test]
   public function does_not_equal_clone() {
     $app= new HelloWorld($this->environment);
-    $this->assertEquals(1, $app->compareTo(clone $app));
+    Assert::equals(1, $app->compareTo(clone $app));
+  }
+
+  #[Test, Values(from: 'filters')]
+  public function install_filter($install) {
+    list($request, $response)= $this->handle(function() use($install) {
+      $this->install($install);
+
+      return function($req, $res) {
+        $res->send($req->value('filtered'), 'text/plain');
+      };
+    });
+    Assert::equals('true', $response->output()->body());
+  }
+
+  #[Test]
+  public function install_multiple_filters() {
+    list($request, $response)= $this->handle(function() {
+      $this->install([
+        function($req, $res, $invocation) {
+          return $invocation->proceed($req->pass('filtered', 'true'), $res);
+        },
+        function($req, $res, $invocation) {
+          return $invocation->proceed($req->pass('enhanced', 'twice'), $res);
+        }
+      ]);
+
+      return function($req, $res) {
+        $res->send(Objects::stringOf($req->values()), 'text/plain');
+      };
+    });
+    Assert::equals(
+      Objects::stringOf(['filtered' => 'true', 'enhanced' => 'twice']),
+      $response->output()->body()
+    );
   }
 }

@@ -1,8 +1,9 @@
 <?php namespace xp\web\srv;
 
-use web\io\{Buffered, WriteChunks};
+use peer\SocketException;
+use web\io\{Buffered, WriteChunks, Output as Base};
 
-class Output extends \web\io\Output {
+class Output extends Base {
   private $socket, $version;
 
   /**
@@ -51,6 +52,21 @@ class Output extends \web\io\Output {
    * @return void
    */
   public function write($bytes) {
-    $this->socket->write($bytes);
+    try {
+      $this->socket->write($bytes);
+    } catch (SocketException $e) {
+
+      // Caused by the client shutting down communications, and doesn't indicate an
+      // error on our side! This happens regularily when browsers read video meta data
+      // to be able to determine the video length - so they simply read until enough
+      // data is available, then close the connection. In any case, there's nothing
+      // we can do at this point to signal the error to the client!
+      //
+      // Extract the cause; see how the SocketException error message is constructed at
+      // https://github.com/xp-framework/networking/blob/v10.4.0/src/main/php/peer/Socket.class.php#L359
+      $message= $e->getMessage();
+      $p= strpos($message, ': ');
+      throw new CannotWrite(false === $p ? $message : substr($message, $p + 2), $e);
+    }
   }
 }

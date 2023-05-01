@@ -1,12 +1,12 @@
 <?php namespace web\unittest\logging;
 
-use unittest\{Test, TestCase};
-use util\log\{LogCategory, BufferedAppender};
+use test\{Assert, Test};
+use util\log\{BufferedAppender, LogCategory};
 use web\io\{TestInput, TestOutput};
 use web\logging\ToCategory;
 use web\{Error, Request, Response};
 
-class ToCategoryTest extends TestCase {
+class ToCategoryTest {
 
   #[Test]
   public function can_create() {
@@ -16,7 +16,7 @@ class ToCategoryTest extends TestCase {
   #[Test]
   public function target() {
     $cat= new LogCategory('test');
-    $this->assertEquals('web.logging.ToCategory('.$cat->toString().')', (new ToCategory($cat))->target());
+    Assert::equals('web.logging.ToCategory('.$cat->toString().')', (new ToCategory($cat))->target());
   }
 
   #[Test]
@@ -27,7 +27,7 @@ class ToCategoryTest extends TestCase {
     $buffered= new BufferedAppender();
     (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, null);
 
-    $this->assertNotEquals(0, strlen($buffered->getBuffer()));
+    Assert::notEquals(0, strlen($buffered->getBuffer()));
   }
 
   #[Test]
@@ -38,6 +38,6 @@ class ToCategoryTest extends TestCase {
     $buffered= new BufferedAppender();
     (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, new Error(404, 'Test'));
 
-    $this->assertNotEquals(0, strlen($buffered->getBuffer()));
+    Assert::notEquals(0, strlen($buffered->getBuffer()));
   }
 }

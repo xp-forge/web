@@ -140,6 +140,8 @@ class HttpProtocol implements ServerProtocol {
         $this->logging->log($request, $response);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
+      } catch (CannotWrite $e) {
+        $this->logging->log($request, $response, $e);
       } catch (\Throwable $e) {
         $this->sendError($request, $response, new InternalServerError($e));
       } finally {

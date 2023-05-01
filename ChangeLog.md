@@ -3,6 +3,36 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #99: Migrate to new testing library - @thekid
+
+## 3.7.0 / 2022-11-19
+
+* Merged PR #98: Catch socket I/O errors and log them in a less-verbose
+  manner (*as this is not a server-side issue*). See also #97
+  (@thekid)
+
+## 3.6.0 / 2022-11-02
+
+* Merged PR #96: Add ability to check for non-existant properties without
+  using exceptions
+  (@thekid)
+
+## 3.5.0 / 2022-09-30
+
+* Merged PR #92: File upload transmission. Using `yield from transmit()`
+  instead of `transfer()` on file uploads, these can be streamed in an
+  asynchronous manner and without blocking other requests.
+  (@thekid)
+
+## 3.4.1 / 2022-09-18
+
+* Fixed `web.filters.BehindProxy` stripping query strings - @thekid
+
+## 3.4.0 / 2022-09-18
+
+* Merged PR #95: Allow calling install() from within routing - @thekid
+* Merged PR #94: Make `web.Routing` implement `web.Handler` - @thekid
+
 ## 3.3.0 / 2022-08-19
 
 * Do not send file contents from `web.handler.FilesFrom` for HTTP *HEAD*

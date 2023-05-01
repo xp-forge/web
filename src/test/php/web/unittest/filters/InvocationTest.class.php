@@ -1,12 +1,13 @@
 <?php namespace web\unittest\filters;
 
 use lang\IllegalStateException;
-use unittest\Test;
+use test\Assert;
+use test\Test;
 use web\filters\Invocation;
 use web\io\{TestInput, TestOutput};
 use web\{Filter, Request, Response};
 
-class InvocationTest extends \unittest\TestCase {
+class InvocationTest {
 
   #[Test]
   public function can_create_with_routing_function() {
@@ -23,7 +24,7 @@ class InvocationTest extends \unittest\TestCase {
     $invoked= false;
     $fixture= new Invocation(function($req, $res) use(&$invoked) { $invoked= true; }, []);
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
-    $this->assertTrue($invoked);
+    Assert::true($invoked);
   }
 
   #[Test]
@@ -37,7 +38,7 @@ class InvocationTest extends \unittest\TestCase {
       }
     }]);
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
-    $this->assertTrue($invoked);
+    Assert::true($invoked);
   }
 
   #[Test]
@@ -59,7 +60,7 @@ class InvocationTest extends \unittest\TestCase {
     ]);
 
     $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput()));
-    $this->assertEquals(['First', 'Second'], $invoked);
+    Assert::equals(['First', 'Second'], $invoked);
   }
 
   #[Test]
@@ -76,7 +77,7 @@ class InvocationTest extends \unittest\TestCase {
   #[Test]
   public function returns_iterable() {
     $fixture= new Invocation(function($req, $res) { }, []);
-    $this->assertEquals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
+    Assert::equals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
   }
 
   #[Test]
@@ -86,6 +87,6 @@ class InvocationTest extends \unittest\TestCase {
         return $invocation->proceed($req, $res);
       }
     }]);
-    $this->assertEquals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
+    Assert::equals([], $fixture->proceed(new Request(new TestInput('GET', '/')), new Response(new TestOutput())));
   }
 }

@@ -3,7 +3,7 @@
 use lang\Throwable;
 use peer\ServerSocket;
 use peer\server\Server;
-use unittest\Assert;
+use test\Assert;
 use util\cmd\Console;
 use web\{Environment, Logging};
 use xp\web\srv\HttpProtocol;

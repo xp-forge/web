@@ -1,16 +1,16 @@
 <?php namespace web\unittest;
 
-use unittest\{Test, TestCase};
+use test\{Assert, Test, Values};
 use web\io\{TestInput, TestOutput};
 use web\{Filter, Filters, Request, Response};
 
-class FiltersTest extends TestCase {
+class FiltersTest {
 
   /**
    * Handle filters
    *
    * @param  web.Filter|function(web.Request, web.Response, web.filters.Invocation): var $filter
-   * @param  web.Handler|function(web.Request, web.Response): var $handler
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $handler
    * @return web.Response
    */
   private function filter($filter, $handler) {
@@ -42,7 +42,16 @@ class FiltersTest extends TestCase {
     $this->filter(null, function($req, $res) use(&$invoked) {
       $invoked[]= $req->method().' '.$req->uri()->path();
     });
-    $this->assertEquals(['GET /'], $invoked);
+    Assert::equals(['GET /'], $invoked);
+  }
+
+  #[Test]
+  public function runs_handlers() {
+    $invoked= [];
+    $this->filter(null, ['/' => function($req, $res) use(&$invoked) {
+      $invoked[]= $req->method().' '.$req->uri()->path();
+    }]);
+    Assert::equals(['GET /'], $invoked);
   }
 
   #[Test]
@@ -58,7 +67,7 @@ class FiltersTest extends TestCase {
     $this->filter($filter, function($req, $res) use(&$invoked) {
       $invoked[]= $req->method().' '.$req->uri()->path();
     });
-    $this->assertEquals(['GET /rewritten'], $invoked);
+    Assert::equals(['GET /rewritten'], $invoked);
   }
 
   #[Test]
@@ -72,10 +81,10 @@ class FiltersTest extends TestCase {
     $this->filter($filter, function($req, $res) use(&$invoked) {
       $invoked[]= $req->method().' '.$req->uri()->path();
     });
-    $this->assertEquals(['GET /rewritten'], $invoked);
+    Assert::equals(['GET /rewritten'], $invoked);
   }
 
-  #[Test, Values('handlers')]
+  #[Test, Values(from: 'handlers')]
   public function filter_yielding_handler_using_yield_from($handler) {
     $filter= function($req, $res, $invocation) {
       $res->header('X-Filtered', true);
@@ -87,10 +96,10 @@ class FiltersTest extends TestCase {
     };
 
     $res= $this->filter($filter, $handler);
-    $this->assertEquals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
+    Assert::equals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
   }
 
-  #[Test, Values('handlers')]
+  #[Test, Values(from: 'handlers')]
   public function filter_yielding_handler_using_return($handler) {
     $filter= function($req, $res, $invocation) {
       $res->header('X-Filtered', true);
@@ -102,11 +111,11 @@ class FiltersTest extends TestCase {
     };
 
     $res= $this->filter($filter, $handler);
-    $this->assertEquals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
+    Assert::equals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
   }
 
   /** @deprecated Filters should always use `yield from` or `return`! */
-  #[Test, Values('handlers')]
+  #[Test, Values(from: 'handlers')]
   public function filter_without_return($handler) {
     $filter= function($req, $res, $invocation) {
       $res->header('X-Filtered', true);
@@ -118,6 +127,6 @@ class FiltersTest extends TestCase {
     };
 
     $res= $this->filter($filter, $handler);
-    $this->assertEquals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
+    Assert::equals(['X-Filtered' => '1', 'X-Completed' => '1'], $res->headers());
   }
 }
