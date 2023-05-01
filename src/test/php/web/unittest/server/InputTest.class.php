@@ -69,7 +69,10 @@ class InputTest {
 
   #[Test]
   public function close_kind() {
-    Assert::equals(Input::CLOSE, ($this->consume($this->socket('')))->kind);
+    Assert::equals(
+      Input::CLOSE,
+      $this->consume($this->socket(''))->kind
+    );
   }
 
   #[Test]
@@ -124,22 +127,22 @@ class InputTest {
 
   #[Test]
   public function http_scheme_default() {
-    Assert::equals('http', ($this->consume($this->socket("GET / HTTP/1.1\r\n\r\n")))->scheme());
+    Assert::equals('http', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->scheme());
   }
 
   #[Test]
   public function method() {
-    Assert::equals('GET', ($this->consume($this->socket("GET / HTTP/1.1\r\n\r\n")))->method());
+    Assert::equals('GET', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->method());
   }
 
   #[Test]
   public function uri() {
-    Assert::equals('/', ($this->consume($this->socket("GET / HTTP/1.1\r\n\r\n")))->uri());
+    Assert::equals('/', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->uri());
   }
 
   #[Test]
   public function version() {
-    Assert::equals('1.1', ($this->consume($this->socket("GET / HTTP/1.1\r\n\r\n")))->version());
+    Assert::equals('1.1', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->version());
   }
 
   #[Test]
