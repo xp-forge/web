@@ -51,12 +51,12 @@ class EnvironmentTest extends TestCase {
 
   #[Test, Values(['abc', ''])]
   public function set_variable($value) {
-    $this->assertEquals($value, (new Environment('dev', '.', 'static', []))->with('test', $value)->variable('test'));
+    $this->assertEquals($value, (new Environment('dev', '.', 'static', []))->export('test', $value)->variable('test'));
   }
 
   #[Test]
   public function unset_variable() {
-    $this->assertNull((new Environment('dev', '.', 'static', []))->with('test', null)->variable('test'));
+    $this->assertNull((new Environment('dev', '.', 'static', []))->export('test', null)->variable('test'));
   }
 
   #[Test]

@@ -91,7 +91,7 @@ class Environment {
    * @param  ?string $value
    * @return self
    */
-  public function with($name, $value) {
+  public function export($name, $value) {
     if (null === $value) {
       putenv($name);
     } else {
