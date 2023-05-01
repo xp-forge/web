@@ -51,7 +51,7 @@ class Input implements Base {
 
       try {
         yield 'read' => null;
-        $this->buffer.= $this->socket->readBinary();
+        $this->buffer.= $this->socket->read();
       } catch (SocketTimeoutException $e) {
         return $this->kind= self::TIMEOUT;
       }
