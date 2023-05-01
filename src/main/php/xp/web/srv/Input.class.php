@@ -24,7 +24,7 @@ class Input implements Base {
 
     // If we instantly get an EOF while reading, it's either a preconnect
     // or a kept-alive socket being closed.
-    if ('' === ($initial= $socket->readBinary())) {
+    if ('' === ($initial= $socket->read())) {
       $this->kind= self::CLOSE;
       return;
     }
@@ -34,7 +34,7 @@ class Input implements Base {
     // 100 milliseconds. If no more data is transmitted, give up.
     if (false === ($p= strpos($initial, "\r\n"))) {
       if ($socket->canRead(0.1)) {
-        $initial.= $socket->readBinary();
+        $initial.= $socket->read();
       }
     }
 
