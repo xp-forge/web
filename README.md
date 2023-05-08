@@ -128,9 +128,9 @@ Filters wrap around handlers and can perform tasks before and after the handlers
 ```php
 use web\Filter;
 use util\profiling\Timer;
-use util\log\LogCategory;
+use util\log\{Logging, LogCategory};
 
-$timer= new class() implements Filter {
+$timer= new class(Logging::all()->toConsole()) implements Filter {
   private $timer;
 
   public function __construct(private LogCategory $cat) {
