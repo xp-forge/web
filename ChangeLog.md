@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.8.0 / 2023-05-08
+
+* Merged PR #101: Limit request size (status line and headers) to 16 K.
+  This prevents potential out-of-memory scenarios when too many parallel
+  requests transmit huge lists of headers slowly. See issue #100 for the
+  motivation and how other server implementations handle this
+  (@thekid)
 * Merged PR #99: Migrate to new testing library - @thekid
 
 ## 3.7.0 / 2022-11-19
