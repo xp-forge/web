@@ -2,7 +2,7 @@
 
 use io\streams\Streams;
 use peer\SocketException;
-use test\{Assert, Test, Values};
+use test\{Assert, AssertionFailed, Test, Values};
 use web\{Application, Environment, Logging};
 use xp\web\srv\{CannotWrite, HttpProtocol};
 
@@ -37,7 +37,7 @@ class HttpProtocolTest {
   private function assertHttp($expected, $out) {
     $actual= implode('', $out);
     if (!preg_match('#^'.$expected.'$#', $actual)) {
-      $this->fail('=~', $actual, $expected);
+      throw new AssertionFailed($actual.' =~ '.$expected);
     }
   }
 

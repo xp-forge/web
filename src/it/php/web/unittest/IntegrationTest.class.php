@@ -60,7 +60,7 @@ class IntegrationTest {
   public function malformed_protocol() {
     $this->server->connection->connect();
     try {
-      $this->server->connection->write("EHLO example.org\r\n");
+      $this->server->connection->write("EHLO example.org\r\n\r\n");
       $status= $this->server->connection->readLine();
     } finally {
       $this->server->connection->close();
