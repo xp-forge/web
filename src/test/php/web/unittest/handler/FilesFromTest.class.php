@@ -36,7 +36,9 @@ class FilesFromTest {
    * @return io.Path
    */
   private function pathWith($files) {
-    $folder= new Folder(Environment::tempDir(), uniqid($this->name, true));
+    static $id= 0;
+
+    $folder= new Folder(Environment::tempDir(), uniqid('test_'.(++$id), true));
     $this->cleanup[]= $this->create($folder, $files);
     return new Path($folder);
   }
