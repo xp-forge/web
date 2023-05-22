@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.8.1 / 2023-05-22
+
+* Extended EOF handling inside server protocol handler to include NULL,
+  preventing warnings inside header reading
+  (@thekid)
+
 ## 3.8.0 / 2023-05-08
 
 * Merged PR #101: Limit request size (status line and headers) to 16 K.
