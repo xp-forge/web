@@ -56,7 +56,7 @@ class StaticContentTest {
       "Content-Length: 8\r\n".
       "\r\n".
       "Homepage",
-      $this->serve(new StaticContent(), $this->file, 'text/html'),
+      $this->serve(new StaticContent(), $this->file, 'text/html')
     );
   }
 
@@ -71,7 +71,7 @@ class StaticContentTest {
       "Content-Length: 8\r\n".
       "\r\n".
       "Homepage",
-      $this->serve(new StaticContent(), $this->file),
+      $this->serve(new StaticContent(), $this->file)
     );
   }
 
@@ -85,7 +85,7 @@ class StaticContentTest {
       "Content-Type: text/html\r\n".
       "Content-Length: 8\r\n".
       "\r\n",
-      $this->serve(new StaticContent(), $this->file, null, new TestInput('HEAD', '/')),
+      $this->serve(new StaticContent(), $this->file, null, new TestInput('HEAD', '/'))
     );
   }
 
@@ -102,7 +102,7 @@ class StaticContentTest {
       "Homepage",
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'If-Modified-Since' => Headers::date(time() - 86400)
-      ])),
+      ]))
     );
   }
 
@@ -113,7 +113,7 @@ class StaticContentTest {
       "\r\n",
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'If-Modified-Since' => Headers::date(time() + 86400)
-      ])),
+      ]))
     );
   }
 
@@ -131,7 +131,7 @@ class StaticContentTest {
       "Content-Length: 8\r\n".
       "\r\n".
       "Homepage",
-      $this->serve((new StaticContent())->with($headers), $this->file),
+      $this->serve((new StaticContent())->with($headers), $this->file)
     );
   }
 
@@ -151,7 +151,7 @@ class StaticContentTest {
       "Content-Length: 8\r\n".
       "\r\n".
       "Homepage",
-      $this->serve((new StaticContent())->with($headers), $this->file),
+      $this->serve((new StaticContent())->with($headers), $this->file)
     );
   }
 
@@ -163,7 +163,7 @@ class StaticContentTest {
       "Content-Length: 26\r\n".
       "\r\n".
       "The file '/' was not found",
-      $this->serve(new StaticContent(), new File('does.not.exist')),
+      $this->serve(new StaticContent(), new File('does.not.exist'))
     );
   }
 
@@ -175,7 +175,7 @@ class StaticContentTest {
       "Content-Length: 35\r\n".
       "\r\n".
       "The file '/not-found' was not found",
-      $this->serve(new StaticContent(), null, null, new TestInput('GET', '/not-found')),
+      $this->serve(new StaticContent(), null, null, new TestInput('GET', '/not-found'))
     );
   }
 
@@ -193,7 +193,7 @@ class StaticContentTest {
       $result,
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'Range' => "bytes={$range}" 
-      ])),
+      ]))
     );
   }
 
@@ -211,7 +211,7 @@ class StaticContentTest {
       "page",
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'Range' => 'bytes=4-' 
-      ])),
+      ]))
     );
   }
 
@@ -231,7 +231,7 @@ class StaticContentTest {
       "page",
       $this->serve(new StaticContent(), $padded, 'text/html', new TestInput('GET', '/', [
         'Range' => 'bytes=-4' 
-      ])),
+      ]))
     );
   }
 
@@ -256,7 +256,7 @@ class StaticContentTest {
       "\r\n--594fa07300f865fe--\r\n",
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'Range' => 'bytes=0-3,4-7' 
-      ])),
+      ]))
     );
   }
 
@@ -271,7 +271,7 @@ class StaticContentTest {
       "\r\n",
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'Range' => $range
-      ])),
+      ]))
     );
   }
 }
