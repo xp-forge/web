@@ -11,7 +11,7 @@ use web\Headers;
  *
  * ```php
  * $content= (new StaticContent())->with(['Cache-Control' => '...']);
- * yield from $content->serve($req, $res, new File('...'), 'image/gif');
+ * return $content->serve($req, $res, new File('...'), 'image/gif');
  * ```
  *
  * @test web.unittest.io.StaticContentTest
