@@ -8,6 +8,7 @@ Web change log
 * Improve error messages when class reference given on the command line
   is not a `web.Application` subclass
   (@thekid)
+* Added PHP 8.4 to the test matrix - @thekid
 
 ## 3.8.1 / 2023-05-22
 
