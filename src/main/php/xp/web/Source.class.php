@@ -1,14 +1,40 @@
 <?php namespace xp\web;
 
-use lang\{ClassLoader, XPClass};
+use lang\{ClassLoader, XPClass, IllegalArgumentException, ClassLoadingException};
+use web\Application;
 
 /**
  * An application source
  *
- * @test xp://web.unittest.SourceTest
+ * @test  web.unittest.SourceTest
  */
 class Source {
   private $application;
+
+  /**
+   * Creates a new instance
+   *
+   * @param  string $application
+   * @param  web.Environment $environment
+   * @return web.Application
+   * @throws lang.IllegalArgumentException
+   */
+  private function newInstance($application, $environment) {
+    if ('-' === $application) return new ServeDocumentRootStatically($environment);
+
+    $cl= ClassLoader::getDefault();
+    try {
+      $class= is_file($application) ? $cl->loadUri($application) : $cl->loadClass($application);
+    } catch (ClassLoadingException $e) {
+      throw new IllegalArgumentException('Cannot load class '.$application, $e);
+    }
+
+    if (!$class->isSubclassOf(Application::class)) {
+      throw new IllegalArgumentException($class->getName().' is not a web.Application');
+    }
+
+    return $class->newInstance($environment);
+  }
 
   /**
    * Creates a new application from a given name and environment
@@ -18,14 +44,7 @@ class Source {
    */
   public function __construct($name, $environment) {
     sscanf($name, '%[^+]+%s', $application, $filters);
-
-    if ('-' === $application) {
-      $this->application= new ServeDocumentRootStatically($environment);
-    } else if (is_file($application)) {
-      $this->application= ClassLoader::getDefault()->loadUri($application)->newInstance($environment);
-    } else {
-      $this->application= ClassLoader::getDefault()->loadClass($application)->newInstance($environment);
-    }
+    $this->application= $this->newInstance($application, $environment);
 
     if ($filters) {
       $this->application->install(array_map(

@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.9.0 / 2023-11-17
+
+* Improve error messages when class reference given on the command line
+  is not a `web.Application` subclass
+  (@thekid)
+
 ## 3.8.1 / 2023-05-22
 
 * Extended EOF handling inside server protocol handler to include NULL,
