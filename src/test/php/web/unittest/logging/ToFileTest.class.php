@@ -54,7 +54,7 @@ class ToFileTest {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
-    (new ToFile($this->temp))->log($req, $res, null);
+    (new ToFile($this->temp))->log($req, $res, []);
 
     Assert::notEquals(0, $this->temp->size());
   }
@@ -64,7 +64,7 @@ class ToFileTest {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
-    (new ToFile($this->temp))->log($req, $res, new Error(404, 'Test'));
+    (new ToFile($this->temp))->log($req, $res, ['error' => new Error(404, 'Test')]);
 
     Assert::notEquals(0, $this->temp->size());
   }

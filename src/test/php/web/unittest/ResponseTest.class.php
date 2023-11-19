@@ -138,6 +138,13 @@ class ResponseTest {
   }
 
   #[Test]
+  public function trace() {
+    $res= new Response(new TestOutput());
+    $res->trace('request-time-ms', 1);
+    Assert::equals(['request-time-ms' => 1], $res->trace);
+  }
+
+  #[Test]
   public function hint() {
     $res= new Response(new TestOutput());
     $res->hint(100, 'Continue');

@@ -1,6 +1,7 @@
 <?php namespace xp\web\srv;
 
-use lang\{ClassLoader, Throwable};
+use Throwable;
+use lang\ClassLoader;
 use peer\server\{AsyncServer, ServerProtocol};
 use web\{Error, InternalServerError, Request, Response, Headers, Status};
 
@@ -76,7 +77,7 @@ class HttpProtocol implements ServerProtocol {
         break;
       }
     }
-    $this->logging->log($request, $response, $error);
+    $this->logging->log($request, $response, $response->trace + ['error' => $error]);
   }
 
   /**
@@ -151,12 +152,12 @@ class HttpProtocol implements ServerProtocol {
           $close= true;
         }
 
-        $this->logging->log($request, $response);
+        $this->logging->log($request, $response, $response->trace);
+      } catch (CannotWrite $e) {
+        $this->logging->log($request, $response, $response->trace + ['warning' => $e]);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
-      } catch (CannotWrite $e) {
-        $this->logging->log($request, $response, $e);
-      } catch (\Throwable $e) {
+      } catch (Throwable $e) {
         $this->sendError($request, $response, new InternalServerError($e));
       } finally {
         $response->end();

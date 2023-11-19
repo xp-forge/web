@@ -25,7 +25,7 @@ class ToCategoryTest {
     $res= new Response(new TestOutput());
 
     $buffered= new BufferedAppender();
-    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, null);
+    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, []);
 
     Assert::notEquals(0, strlen($buffered->getBuffer()));
   }
@@ -36,7 +36,11 @@ class ToCategoryTest {
     $res= new Response(new TestOutput());
 
     $buffered= new BufferedAppender();
-    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, new Error(404, 'Test'));
+    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log(
+      $req,
+      $res,
+      ['error' => new Error(404, 'Test')]
+    );
 
     Assert::notEquals(0, strlen($buffered->getBuffer()));
   }

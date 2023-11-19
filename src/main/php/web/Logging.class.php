@@ -62,11 +62,11 @@ class Logging {
    *
    * @param  web.Request $response
    * @param  web.Response $response
-   * @param  ?web.Error $error Optional error
+   * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($request, $response, $error= null) {
-    $this->sink && $this->sink->log($request, $response, $error);
+  public function log($request, $response, $hints= []) {
+    $this->sink && $this->sink->log($request, $response, $hints);
   }
 
   /**
