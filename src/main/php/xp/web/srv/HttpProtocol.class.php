@@ -154,7 +154,7 @@ class HttpProtocol implements ServerProtocol {
 
         $this->logging->log($request, $response, $response->trace);
       } catch (CannotWrite $e) {
-        $this->logging->log($request, $response, $response->trace + ['warning' => $e]);
+        $this->logging->log($request, $response, $response->trace + ['warn' => $e]);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
       } catch (Throwable $e) {

@@ -155,7 +155,7 @@ class HttpProtocolTest {
           throw new CannotWrite('Test error', new SocketException('...'));
         });
       }),
-      Logging::of(function($req, $res, $hints) use(&$caught) { $caught= $hints['warning']; })
+      Logging::of(function($req, $res, $hints) use(&$caught) { $caught= $hints['warn']; })
     );
 
     $this->assertHttp(
