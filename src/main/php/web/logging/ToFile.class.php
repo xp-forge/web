@@ -37,18 +37,18 @@ class ToFile extends Sink {
     $query= $request->uri()->query();
     $hint= '';
     foreach ($hints as $kind => $value) {
-      $hint.= ', '.$kind.': '.Objects::stringOf($value);
+      $hint.= ', '.$kind.': '.(is_string($value) ? $value : Objects::stringOf($value));
     }
 
     $line= sprintf(
-      "[%s %d %.3fkB] %d %s %s %s\n",
+      "[%s %d %.3fkB] %d %s %s%s\n",
       date('Y-m-d H:i:s'),
       getmypid(),
       memory_get_usage() / 1024,
       $response->status(),
       $request->method(),
       $request->uri()->path().($query ? '?'.$query : ''),
-      $hint ? '['.substr($hint, 2).']' : ''
+      $hint ? ' ['.substr($hint, 2).']' : ''
     );
     file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);
   }

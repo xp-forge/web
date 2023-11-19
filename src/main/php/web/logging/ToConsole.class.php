@@ -17,7 +17,7 @@ class ToConsole extends Sink {
     $query= $request->uri()->query();
     $hint= '';
     foreach ($hints as $kind => $value) {
-      $hint.= ', '.$kind.': '.Objects::stringOf($value);
+      $hint.= ', '.$kind.': '.(is_string($value) ? $value : Objects::stringOf($value));
     }
 
     Console::writeLinef(
@@ -28,7 +28,7 @@ class ToConsole extends Sink {
       $response->status(),
       $request->method(),
       $request->uri()->path().($query ? '?'.$query : ''),
-      $hint ? " \e[3m[".substr($hint, 2)."]\e[0m" : ''
+      $hint ? " \e[2m[".substr($hint, 2)."]\e[0m" : ''
     );
   }
 }
