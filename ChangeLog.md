@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.10.0 / 2023-11-20
+
 * Merged PR #104: Make `xp web [name]` load the class `xp.[name].Web`
   (@thekid)
 * Allow `-m dev` as a shorthand for `-m develop` following the principle
