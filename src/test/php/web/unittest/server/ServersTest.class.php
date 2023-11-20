@@ -12,6 +12,10 @@ class ServersTest {
     yield ['sequential', Servers::$SEQUENTIAL];
     yield ['prefork', Servers::$PREFORK];
     yield ['develop', Servers::$DEVELOP];
+
+    // Shorthands
+    yield ['dev', Servers::$DEVELOP];
+    yield ['serve', Servers::$ASYNC];
   }
 
   #[Test, Values(from: 'servers')]

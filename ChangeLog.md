@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Allow `-m dev` as a shorthand for `-m develop` following the principle
+  "be liberal in what you accept"
+  (@thekid)
+
 ## 3.9.0 / 2023-11-17
 
 * Improve error messages when class reference given on the command line
