@@ -1,9 +1,9 @@
 <?php namespace web\unittest;
 
 use io\Path;
-use lang\{XPClass, IllegalArgumentException};
+use lang\{XPClass, IllegalArgumentException, ClassLoader};
 use test\{Assert, Before, Expect, Test};
-use web\Environment;
+use web\{Application, Environment};
 use xp\web\{ServeDocumentRootStatically, Source};
 
 class SourceTest {
@@ -27,8 +27,17 @@ class SourceTest {
   }
 
   #[Test]
+  public function application_class_in_global_namespace() {
+    $class= ClassLoader::defineClass('HelloWorld', Application::class, [], [
+      'routes' => function() { }
+    ]);
+    $src= new Source('HelloWorld', $this->environment);
+    Assert::instance($class, $src->application());
+  }
+
+  #[Test]
   public function application_file() {
-    $base= XPClass::forName('web.unittest.HelloWorld')->getClassLoader()->path;
+    $base= ClassLoader::getDefault()->findClass(HelloWorld::class)->path;
     $src= new Source(new Path($base, 'web/unittest/HelloWorld.class.php'), $this->environment);
     Assert::instance(HelloWorld::class, $src->application());
   }
@@ -47,5 +56,15 @@ class SourceTest {
   #[Test, Expect(class: IllegalArgumentException::class, message: 'util.Date is not a web.Application')]
   public function unrelated_class() {
     (new Source('util.Date', $this->environment))->application();
+  }
+
+  #[Test]
+  public function lowercase_xp_namespaced_web_app() {
+    $class= ClassLoader::defineClass('xp.lambda.Web', Application::class, [], [
+      'routes' => function() { }
+    ]);
+
+    $src= new Source('lambda', $this->environment);
+    Assert::instance($class, $src->application());
   }
 }
