@@ -24,13 +24,19 @@ class Source {
 
     $cl= ClassLoader::getDefault();
     try {
-      $class= is_file($application) ? $cl->loadUri($application) : $cl->loadClass($application);
+      if (is_file($application)) {
+        $class= $cl->loadUri($application);
+      } else if ($application[0] < 'a' || false !== strpos($application, '.')) {
+        $class= $cl->loadClass($application);
+      } else {
+        $class= $cl->loadClass("xp.{$application}.Web");
+      }
     } catch (ClassLoadingException $e) {
-      throw new IllegalArgumentException('Cannot load class '.$application, $e);
+      throw new IllegalArgumentException('Cannot load web application '.$application, $e);
     }
 
     if (!$class->isSubclassOf(Application::class)) {
-      throw new IllegalArgumentException($class->getName().' is not a web.Application');
+      throw new IllegalArgumentException($class->getName().' is not a web application');
     }
 
     return $class->newInstance($environment);
