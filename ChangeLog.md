@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #104: Make `xp web [name]` load the class `xp.[name].Web`
+  (@thekid)
 * Allow `-m dev` as a shorthand for `-m develop` following the principle
   "be liberal in what you accept"
   (@thekid)
