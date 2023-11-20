@@ -32,11 +32,11 @@ class Source {
         $class= $cl->loadClass("xp.{$application}.Web");
       }
     } catch (ClassLoadingException $e) {
-      throw new IllegalArgumentException('Cannot load class '.$application, $e);
+      throw new IllegalArgumentException('Cannot load web application '.$application, $e);
     }
 
     if (!$class->isSubclassOf(Application::class)) {
-      throw new IllegalArgumentException($class->getName().' is not a web.Application');
+      throw new IllegalArgumentException($class->getName().' is not a web application');
     }
 
     return $class->newInstance($environment);

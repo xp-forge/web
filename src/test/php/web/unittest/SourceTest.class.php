@@ -48,12 +48,12 @@ class SourceTest {
     Assert::instance(HelloWorld::class, $src->application());
   }
 
-  #[Test, Expect(class: IllegalArgumentException::class, message: 'Cannot load class not.a.class')]
+  #[Test, Expect(class: IllegalArgumentException::class, message: 'Cannot load web application not.a.class')]
   public function non_existant_class() {
     (new Source('not.a.class', $this->environment))->application();
   }
 
-  #[Test, Expect(class: IllegalArgumentException::class, message: 'util.Date is not a web.Application')]
+  #[Test, Expect(class: IllegalArgumentException::class, message: 'util.Date is not a web application')]
   public function unrelated_class() {
     (new Source('util.Date', $this->environment))->application();
   }
