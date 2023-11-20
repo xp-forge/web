@@ -37,7 +37,7 @@ class SourceTest {
 
   #[Test]
   public function application_file() {
-    $base= ClassLoader::getDefault()->findClass(HelloWorld::class)->path;
+    $base= ClassLoader::getDefault()->findClass('web.unittest.HelloWorld')->path;
     $src= new Source(new Path($base, 'web/unittest/HelloWorld.class.php'), $this->environment);
     Assert::instance(HelloWorld::class, $src->application());
   }
