@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
 use io\Path;
-use lang\{XPClass, IllegalArgumentException, ClassLoader};
+use lang\{IllegalArgumentException, ClassLoader};
 use test\{Assert, Before, Expect, Test};
 use web\{Application, Environment};
 use xp\web\{ServeDocumentRootStatically, Source};
