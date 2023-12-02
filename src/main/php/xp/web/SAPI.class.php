@@ -16,6 +16,7 @@ class SAPI extends Output implements Input {
   private $out;
 
   static function __static() {
+    if (!defined('STDOUT')) defined('STDOUT', fopen('php://stdout'));
     if (!function_exists('getallheaders')) {
       function getallheaders() {
         $headers= [];
