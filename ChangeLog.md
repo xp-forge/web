@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.11.0 / 2023-12-02
+
 * Removed superfluous layer of output buffering in development webserver
   (@thekid)
 * Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely
