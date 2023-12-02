@@ -6,7 +6,7 @@ use xp\web\srv\{Standalone, Develop};
 
 /** @test web.unittest.server.ServersTest */
 abstract class Servers extends Enum {
-  public static $ASYNC, $PREFORK, $SEQUENTIAL, $DEVELOP;
+  public static $ASYNC, $PREFORK, $SEQUENTIAL, $DEVELOP, $DEBUG;
 
   static function __static() {
     self::$ASYNC= new class(0, 'ASYNC') extends Servers {
@@ -29,11 +29,22 @@ abstract class Servers extends Enum {
     };
     self::$DEVELOP= new class(3, 'DEVELOP') extends Servers {
       static function __static() { }
+      public function defaultProfile() { return 'dev'; }
       public function newInstance($address, $arguments= []) {
         return new Develop($address);
       }
     };
+    self::$DEBUG= new class(4, 'DEBUG') extends Servers {
+      static function __static() { }
+      public function defaultProfile() { return 'dev'; }
+      public function newInstance($address, $arguments= []) {
+        return new Develop($address, '+xp.web.dev.Console');
+      }
+    };
   }
+
+  /** @return string */
+  public function defaultProfile() { return 'prod'; }
 
   /**
    * Creates a new instance. Implemented by enum values.
@@ -55,6 +66,7 @@ abstract class Servers extends Enum {
     switch (strtolower($name)) {
       case 'async': case 'serve': return self::$ASYNC;
       case 'develop': case 'dev': return self::$DEVELOP;
+      case 'debug': return self::$DEBUG;
       case 'prefork': return self::$PREFORK;
       case 'sequential': return self::$SEQUENTIAL;
       default: throw new IllegalArgumentException(sprintf(

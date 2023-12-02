@@ -8,6 +8,18 @@ use util\cmd\Console;
 use web\Logging;
 
 class Develop extends Server {
+  private $console;
+
+  /**
+   * Creates a new instance
+   *
+   * @param  string $address
+   * @param  string $console
+   */
+  public function __construct($address, $console= '') {
+    parent::__construct($address);
+    $this->console= $console;
+  }
 
   /**
    * Serve requests
@@ -53,7 +65,7 @@ class Develop extends Server {
     // Export environment
     putenv('DOCUMENT_ROOT='.$docroot);
     putenv('SERVER_PROFILE='.$profile);
-    putenv('WEB_SOURCE='.$source.'+xp.web.dev.Console');
+    putenv('WEB_SOURCE='.$source.$this->console);
     putenv('WEB_CONFIG='.implode(PATH_SEPARATOR, $config));
     putenv('WEB_ROOT='.$webroot);
     putenv('WEB_ARGS='.implode('|', $args));

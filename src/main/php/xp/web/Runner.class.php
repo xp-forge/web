@@ -80,7 +80,7 @@ class Runner {
 
       $server->newInstance($address, $arguments)->serve(
         $source,
-        $profile ?: (Servers::$DEVELOP === $server ? 'dev' : 'prod'),
+        $profile ?: $server->defaultProfile(),
         $webroot,
         $webroot->resolve($docroot),
         $config,
