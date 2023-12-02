@@ -12,6 +12,7 @@ class ServersTest {
     yield ['sequential', Servers::$SEQUENTIAL];
     yield ['prefork', Servers::$PREFORK];
     yield ['develop', Servers::$DEVELOP];
+    yield ['debug', Servers::$DEBUG];
 
     // Shorthands
     yield ['dev', Servers::$DEVELOP];
