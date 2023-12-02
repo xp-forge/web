@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+
+* Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely
+  flushing
+  (@thekid)
+
 ## 3.10.0 / 2023-11-20
 
 * Merged PR #104: Make `xp web [name]` load the class `xp.[name].Web`
