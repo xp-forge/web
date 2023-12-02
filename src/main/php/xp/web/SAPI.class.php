@@ -196,6 +196,7 @@ class SAPI extends Output implements Input {
   public function flush() {
     echo $this->out;
     $this->out= '';
+    flush();
   }
 
   /** @return void */
