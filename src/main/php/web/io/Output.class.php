@@ -52,4 +52,9 @@ abstract class Output implements OutputStream {
     $this->finish();
     $this->closed= true;
   }
+
+  /** Ensures `close()` is called */
+  public function __destruct() {
+    $this->close();
+  }
 }

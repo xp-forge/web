@@ -5,6 +5,8 @@ Web change log
 
 ## 3.11.0 / 2023-12-02
 
+* Ensured the output stream is always closed when it goes out of scope
+  (@thekid)
 * Removed superfluous layer of output buffering in development webserver
   (@thekid)
 * Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely

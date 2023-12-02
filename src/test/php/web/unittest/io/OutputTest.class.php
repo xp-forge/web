@@ -51,4 +51,19 @@ class OutputTest {
 
     Assert::equals(1, $out->finished);
   }
+
+  #[Test]
+  public function destructor_calls_finish() {
+    $finished= 0;
+    $out= new class($finished) extends Output {
+      private $finished;
+      public function __construct(&$finished) { $this->finished= &$finished; }
+      public function begin($status, $message, $headers) { }
+      public function write($bytes) { }
+      public function finish() { $this->finished++; }
+    };
+    $out= null;
+
+    Assert::equals(1, $finished);
+  }
 }
