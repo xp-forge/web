@@ -3,7 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-
+* Removed superfluous layer of output buffering in development webserver
+  (@thekid)
 * Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely
   flushing
   (@thekid)

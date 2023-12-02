@@ -41,7 +41,12 @@ class Develop extends Server {
     $arguments= ['-S', ('localhost' === $this->host ? '127.0.0.1' : $this->host).':'.$this->port, '-t', $docroot];
     $cmd= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
       $arguments,
-      $runtime->startupOptions()->withSetting('user_dir', $docroot)->withSetting('include_path', $include)->asArguments(),
+      $runtime->startupOptions()
+        ->withSetting('user_dir', $docroot)
+        ->withSetting('include_path', $include)
+        ->withSetting('output_buffering', 0)
+        ->asArguments()
+      ,
       [$runtime->bootstrapScript('web')]
     ));
 
