@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 3.12.0 / 2023-12-03
+
+* Merged PR #93: Allow passing or removing environment variables via the
+  new `Environment::export()` method
+  (@thekid)
 * Fixed code not to yield output streams, the AsyncServer API does not
   expect any value there, but it might, see xp-framework/networking#28
   (@thekid)
