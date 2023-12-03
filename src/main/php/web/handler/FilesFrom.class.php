@@ -77,7 +77,7 @@ class FilesFrom implements Handler {
 
     $length= $range->length();
     while ($length && $chunk= $file->read(min(self::CHUNKSIZE, $length))) {
-      yield 'write' => $out;
+      yield 'write' => null;
       $out->write($chunk);
       $length-= strlen($chunk);
     }
@@ -129,7 +129,7 @@ class FilesFrom implements Handler {
         $file->open(File::READ);
         try {
           do {
-            yield 'write' => $out;
+            yield 'write' => null;
             $out->write($file->read(self::CHUNKSIZE));
           } while (!$file->eof());
         } finally {
