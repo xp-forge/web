@@ -49,6 +49,16 @@ class EnvironmentTest {
     Assert::equals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
   }
 
+  #[Test, Values(['abc', ''])]
+  public function set_variable($value) {
+    Assert::equals($value, (new Environment('dev', '.', 'static', []))->export('test', $value)->variable('test'));
+  }
+
+  #[Test]
+  public function unset_variable() {
+    Assert::null((new Environment('dev', '.', 'static', []))->export('test', null)->variable('test'));
+  }
+
   #[Test]
   public function tempDir() {
     Assert::true(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));

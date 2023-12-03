@@ -84,6 +84,23 @@ class Environment {
   }
 
   /**
+   * Pass a given environment variable and value. Pass NULL in value to
+   * remove this environment variable.
+   *
+   * @param  string $name
+   * @param  ?string $value
+   * @return self
+   */
+  public function export($name, $value) {
+    if (null === $value) {
+      putenv($name);
+    } else {
+      putenv($name.'='.$value);
+    }
+    return $this;
+  }
+
+  /**
    * Gets properties
    *
    * @param  string $name
