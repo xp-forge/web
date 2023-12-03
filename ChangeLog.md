@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed code not to yield output streams, the AsyncServer API does not
+  expect any value there, but it might, see xp-framework/networking#28
+  (@thekid)
+
 ## 3.11.0 / 2023-12-02
 
 * Ensured the output stream is always closed when it goes out of scope
