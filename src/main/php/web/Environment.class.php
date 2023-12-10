@@ -57,10 +57,13 @@ class Environment {
 
   /** @return io.Path */
   public function tempDir() {
-    foreach (['TEMP', 'TMP', 'TMPDIR', 'TEMPDIR'] as $variant) {
-      if (isset($_ENV[$variant])) return new Path($_ENV[$variant]);
-    }
-    return new Path(sys_get_temp_dir());
+    return new Path(
+      $_ENV['TEMP'] ??
+      $_ENV['TMP'] ??
+      $_ENV['TMPDIR'] ??
+      $_ENV['TEMPDIR'] ??
+      sys_get_temp_dir()
+    );
   }
 
   /**
