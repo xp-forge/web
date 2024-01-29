@@ -209,7 +209,7 @@ class SAPITest {
   #[Test]
   public function parameters_yielded_by_parts() {
     $_REQUEST= ['submit' => 'Test'];
-    Assert::equals(['submit' => 'web.io.Param', 'file' => 'xp.web.Upload'], array_map(
+    Assert::equals(['submit' => 'xp.web.Decoded', 'file' => 'xp.web.Upload'], array_map(
       function($part) { return nameof($part); },
       $this->parts($this->upload('test.txt', 'text/plain'))
     ));
@@ -221,5 +221,13 @@ class SAPITest {
     $fixture= new SAPI();
     $parts = iterator_to_array($fixture->parts(''));
     Assert::equals('the value', $parts['varname']->value());
+  }
+
+  #[Test, Values([[['the value']], [['key' => 'value']]])]
+  public function array_parameter_no_string_conversion_error($input) {
+    $_REQUEST= ['varname' => $input];
+    $fixture= new SAPI();
+    $parts = iterator_to_array($fixture->parts(''));
+    Assert::equals($input, $parts['varname']->value());
   }
 }
