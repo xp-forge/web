@@ -21,7 +21,7 @@ class MultipartTest {
 
   #[Before]
   public function param() {
-    $this->param= new Param('key', ['value']);
+    $this->param= Param::from('key', 'value');
   }
 
   #[Test, Values(from: 'parts')]
