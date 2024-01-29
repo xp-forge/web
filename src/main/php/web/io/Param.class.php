@@ -1,5 +1,6 @@
 <?php namespace web\io;
 
+use lang\FormatException;
 use util\Objects;
 
 /**
@@ -30,6 +31,7 @@ class Param extends Part {
    * @param  string $name
    * @param  iterable $chunks
    * @return self
+   * @throws lang.FormatException When input variable nesting level exceeded
    */
   public static function parse($name, $chunks) {
     $encoded= '';
@@ -37,6 +39,13 @@ class Param extends Part {
       $encoded.= $chunk;
     }
     parse_str($name.'='.urlencode($encoded), $param);
+
+    // Check if the input variable nesting level was exceeded
+    if (empty($param)) {
+      $e= new FormatException('Cannot parse '.$name);
+      \xp::gc(__FILE__);
+      throw $e;
+    }
 
     $self= new self(key($param));
     $self->value= current($param);

@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
-use test\{Assert, Before, Test, Values};
+use lang\FormatException;
+use test\{Assert, Before, Expect, Test, Values};
 use web\io\Param;
 
 class ParamsTest {
@@ -16,6 +17,11 @@ class ParamsTest {
   #[Test, Values(from: 'params')]
   public function parse($fixture, $expected) {
     Assert::equals($expected, $fixture->value());
+  }
+
+  #[Test, Expect(class: FormatException::class, message: '/Cannot parse key.+/')]
+  public function max_input_nesting_level() {
+    Param::parse('key'.str_repeat('[]', ini_get('max_input_nesting_level') + 1), ['value']);
   }
 
   #[Test]
