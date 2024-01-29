@@ -209,7 +209,7 @@ class SAPITest {
   #[Test]
   public function parameters_yielded_by_parts() {
     $_REQUEST= ['submit' => 'Test'];
-    Assert::equals(['submit' => 'xp.web.Decoded', 'file' => 'xp.web.Upload'], array_map(
+    Assert::equals(['submit' => 'web.io.Param', 'file' => 'xp.web.Upload'], array_map(
       function($part) { return nameof($part); },
       $this->parts($this->upload('test.txt', 'text/plain'))
     ));

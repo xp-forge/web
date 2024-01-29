@@ -1,24 +1,42 @@
 <?php namespace web\io;
 
+use util\Objects;
+
 /**
  * A parameter as part of a multipart request
  *
- * @see  xp://web.io.Parts
+ * @see  web.io.Parts
+ * @test web.unittest.ParamsTest
  */
 class Param extends Part {
-  private $value= '';
+  private $value;
 
   /**
    * Creates a new instance
    *
-   * @param  string $name The `name` parameter of the Content-Disposition header
-   * @param  iterable $chunks
+   * @param  string $name
+   * @param  var $value
    */
-  public function __construct($name, $chunks) {
+  public function __construct($name, $value) {
     parent::__construct($name);
+    $this->value= $value;
+  }
+
+  /**
+   * Parse parameters from the `name` parameter of the Content-Disposition
+   * header and its payload, including array handling.
+   *
+   * @param  string $name
+   * @param  iterable $chunks
+   * @return self
+   */
+  public static function parse($name, $chunks) {
+    $encoded= '';
     foreach ($chunks as $chunk) {
-      $this->value.= $chunk;
+      $encoded.= $chunk;
     }
+    parse_str($name.'='.urlencode($encoded), $param);
+    return new self(key($param), current($param));
   }
 
   /**
@@ -28,18 +46,17 @@ class Param extends Part {
    * @return [:var]
    */
   public function append($params) {
-    parse_str($this->name.'='.urlencode($this->value), $param);
-    return array_merge_recursive($params, $param);
+    return array_merge_recursive($params, [$this->name => $this->value]);
   }
 
   /** @return int */
   public function kind() { return Part::PARAM; }
 
-  /** @return string */
+  /** @return var */
   public function value() { return $this->value; }
 
   /** @return string */
   public function toString() {
-    return nameof($this).'("'.$this->name.'", value= "'.$this->value.'")';
+    return nameof($this).'("'.$this->name.'", value= '.Objects::stringOf($this->value).')';
   }
 }

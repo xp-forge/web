@@ -90,7 +90,7 @@ class SAPI extends Output implements Input {
    */
   public function parts($boundary) {
     foreach ($_REQUEST as $name => $value) {
-      yield $name => new Decoded($name, $value);
+      yield $name => new Param($name, $value);
     }
     foreach ($_FILES as $name => $file) {
       if (is_array($file['error'])) {
