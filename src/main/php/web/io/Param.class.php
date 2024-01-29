@@ -12,14 +12,15 @@ class Param extends Part {
   private $value;
 
   /**
-   * Creates a new instance
-   *
+   * Creates an instance from a given name and value
+   * 
    * @param  string $name
-   * @param  var $value
+   * @param  var $valu
    */
-  public function __construct($name, $value) {
-    parent::__construct($name);
-    $this->value= $value;
+  public static function from($name, $value) {
+    $self= new self($name);
+    $self->value= $value;
+    return $self;
   }
 
   /**
@@ -36,7 +37,10 @@ class Param extends Part {
       $encoded.= $chunk;
     }
     parse_str($name.'='.urlencode($encoded), $param);
-    return new self(key($param), current($param));
+
+    $self= new self(key($param));
+    $self->value= current($param);
+    return $self;
   }
 
   /**

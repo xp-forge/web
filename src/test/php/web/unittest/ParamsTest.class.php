@@ -22,7 +22,7 @@ class ParamsTest {
   public function append_to_empty_params() {
     Assert::equals(
       ['key' => 'value'],
-      (new Param('key', 'value'))->append([])
+      (Param::from('key', 'value'))->append([])
     );
   }
 
@@ -30,7 +30,7 @@ class ParamsTest {
   public function append_to_params() {
     Assert::equals(
       ['key' => 'value', 'color' => 'green'],
-      (new Param('key', 'value'))->append(['color' => 'green'])
+      (Param::from('key', 'value'))->append(['color' => 'green'])
     );
   }
 }
