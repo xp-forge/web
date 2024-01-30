@@ -1,21 +1,21 @@
 <?php namespace web\unittest\logging;
 
 use io\streams\MemoryOutputStream;
-use unittest\{Test, TestCase};
+use test\{Assert, Test};
 use util\cmd\Console;
 use web\io\{TestInput, TestOutput};
 use web\logging\ToConsole;
 use web\{Error, Request, Response};
 
-class ToConsoleTest extends TestCase {
+class ToConsoleTest {
 
   /** 
    * Log a message
    *
-   * @param  ?web.Error $error
+   * @param  [:var] $hints
    * @return string
    */
-  private function log($error) {
+  private function log($hints) {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
@@ -24,7 +24,7 @@ class ToConsoleTest extends TestCase {
     Console::$out->redirect($memory);
 
     try {
-      (new ToConsole())->log($req, $res, $error);
+      (new ToConsole())->log($req, $res, $hints);
       return $memory->bytes();
     } finally {
       Console::$out->redirect($restore);
@@ -38,11 +38,11 @@ class ToConsoleTest extends TestCase {
 
   #[Test]
   public function log_without_error() {
-    $this->assertNotEquals(0, strlen($this->log(null)));
+    Assert::notEquals(0, strlen($this->log([])));
   }
 
   #[Test]
   public function log_with_error() {
-    $this->assertNotEquals(0, strlen($this->log(new Error(404, 'Test'))));
+    Assert::notEquals(0, strlen($this->log(['error' => new Error(404, 'Test')])));
   }
 }

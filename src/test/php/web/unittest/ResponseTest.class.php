@@ -3,12 +3,12 @@
 use io\Channel;
 use io\streams\MemoryInputStream;
 use lang\{IllegalArgumentException, IllegalStateException};
-use unittest\{Test, Expect, Values, TestCase};
+use test\{Assert, Expect, Test, Values};
 use util\URI;
 use web\io\{Buffered, TestOutput};
 use web\{Cookie, Response};
 
-class ResponseTest extends TestCase {
+class ResponseTest {
 
   /**
    * Assertion helper
@@ -18,7 +18,7 @@ class ResponseTest extends TestCase {
    * @throws unittest.AssertionFailedError
    */
   private function assertResponse($expected, $response) {
-    $this->assertEquals($expected, $response->output()->bytes());
+    Assert::equals($expected, $response->output()->bytes());
   }
 
   #[Test]
@@ -29,41 +29,41 @@ class ResponseTest extends TestCase {
   #[Test]
   public function status_initially_200() {
     $res= new Response(new TestOutput());
-    $this->assertEquals(200, $res->status());
+    Assert::equals(200, $res->status());
   }
 
   #[Test]
   public function status() {
     $res= new Response(new TestOutput());
     $res->answer(201);
-    $this->assertEquals(201, $res->status());
+    Assert::equals(201, $res->status());
   }
 
   #[Test]
   public function message() {
     $res= new Response(new TestOutput());
     $res->answer(201, 'Created');
-    $this->assertEquals('Created', $res->message());
+    Assert::equals('Created', $res->message());
   }
 
   #[Test]
   public function custom_message() {
     $res= new Response(new TestOutput());
     $res->answer(201, 'Creation succeeded');
-    $this->assertEquals('Creation succeeded', $res->message());
+    Assert::equals('Creation succeeded', $res->message());
   }
 
   #[Test]
   public function headers_initially_empty() {
     $res= new Response(new TestOutput());
-    $this->assertEquals([], $res->headers());
+    Assert::equals([], $res->headers());
   }
 
   #[Test]
   public function header() {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
-    $this->assertEquals(['Content-Type' => 'text/plain'], $res->headers());
+    Assert::equals(['Content-Type' => 'text/plain'], $res->headers());
   }
 
   #[Test]
@@ -71,7 +71,7 @@ class ResponseTest extends TestCase {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
     $res->header('Content-Length', '0');
-    $this->assertEquals(
+    Assert::equals(
       ['Content-Type' => 'text/plain', 'Content-Length' => '0'],
       $res->headers()
     );
@@ -82,14 +82,14 @@ class ResponseTest extends TestCase {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
     $res->header('Content-Type', null);
-    $this->assertEquals([], $res->headers());
+    Assert::equals([], $res->headers());
   }
 
   #[Test]
   public function multiple_header() {
     $res= new Response(new TestOutput());
     $res->header('Set-Cookie', ['theme=light', 'sessionToken=abc123']);
-    $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+    Assert::equals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
   }
 
   #[Test]
@@ -97,21 +97,37 @@ class ResponseTest extends TestCase {
     $res= new Response(new TestOutput());
     $res->header('Set-Cookie', 'theme=light', true);
     $res->header('Set-Cookie', 'sessionToken=abc123', true);
-    $this->assertEquals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
+    Assert::equals(['Set-Cookie' => ['theme=light', 'sessionToken=abc123']], $res->headers());
   }
 
   #[Test]
   public function uri_header() {
     $res= new Response(new TestOutput());
     $res->header('Location', new URI('http://example.com/'));
-    $this->assertEquals(['Location' => 'http://example.com/'], $res->headers());
+    Assert::equals(['Location' => 'http://example.com/'], $res->headers());
   }
 
   #[Test]
   public function cookie() {
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
-    $this->assertEquals('light', $res->cookies()[0]->value());
+    Assert::equals('light', $res->cookies()[0]->value());
+  }
+
+  #[Test]
+  public function overwrite_cookie() {
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'light'));
+    $res->cookie(new Cookie('theme', 'dark'));
+    $this->assertEquals(['dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
+  }
+
+  #[Test]
+  public function append_cookie() {
+    $res= new Response(new TestOutput());
+    $res->cookie(new Cookie('theme', 'light'));
+    $res->cookie(new Cookie('theme', 'dark'), true);
+    $this->assertEquals(['light', 'dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
   }
 
   #[Test]
@@ -123,7 +139,7 @@ class ResponseTest extends TestCase {
       $res->cookie($cookie);
     }
 
-    $this->assertEquals($cookies, $res->cookies());
+    Assert::equals($cookies, $res->cookies());
   }
 
   #[Test, Values([[200, 'OK', 'HTTP/1.1 200 OK'], [404, 'Not Found', 'HTTP/1.1 404 Not Found'], [200, null, 'HTTP/1.1 200 OK'], [404, null, 'HTTP/1.1 404 Not Found'], [200, 'Okay', 'HTTP/1.1 200 Okay'], [404, 'Nope', 'HTTP/1.1 404 Nope']])]
@@ -135,6 +151,13 @@ class ResponseTest extends TestCase {
     $res->flush();
 
     $this->assertResponse($line."\r\n\r\n", $res);
+  }
+
+  #[Test]
+  public function trace() {
+    $res= new Response(new TestOutput());
+    $res->trace('request-time-ms', 1);
+    Assert::equals(['request-time-ms' => 1], $res->trace);
   }
 
   #[Test]
@@ -317,9 +340,9 @@ class ResponseTest extends TestCase {
   #[Test]
   public function flushed() {
     $res= new Response(new TestOutput());
-    $this->assertFalse($res->flushed());
+    Assert::false($res->flushed());
     $res->flush();
-    $this->assertTrue($res->flushed());
+    Assert::true($res->flushed());
   }
 
   #[Test, Expect(IllegalStateException::class)]

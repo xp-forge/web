@@ -1,18 +1,24 @@
 <?php namespace web\unittest;
 
 use io\streams\Streams;
-use unittest\{Test, TestCase, Values};
+use peer\SocketException;
+use test\{Assert, AssertionFailed, Test, Values};
 use web\{Application, Environment, Logging};
-use xp\web\srv\HttpProtocol;
+use xp\web\srv\{CannotWrite, HttpProtocol};
 
-class HttpProtocolTest extends TestCase {
+class HttpProtocolTest {
   private $log;
 
-  /** @return void */
-  public function setUp() {
+  public function __construct() {
     $this->log= new Logging(null);
   }
 
+  /**
+   * Returns an application with given handlers
+   *
+   * @param  var $handler
+   * @return web.Application
+   */
   private function application($handler) {
     return newinstance(Application::class, [new Environment('test', '.', '.', [])], [
       'routes' => function() use($handler) {
@@ -31,7 +37,7 @@ class HttpProtocolTest extends TestCase {
   private function assertHttp($expected, $out) {
     $actual= implode('', $out);
     if (!preg_match('#^'.$expected.'$#', $actual)) {
-      $this->fail('=~', $actual, $expected);
+      throw new AssertionFailed($actual.' =~ '.$expected);
     }
   }
 
@@ -137,5 +143,44 @@ class HttpProtocolTest extends TestCase {
       "\r\n4\r\nTest\r\n0\r\n\r\n",
       $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"])
     );
+  }
+
+  #[Test]
+  public function catches_write_errors_and_logs_them_as_warning() {
+    $caught= null;
+    $p= HttpProtocol::executing(
+      $this->application(function($req, $res) {
+        with ($res->stream(), function($s) {
+          $s->write('Test');
+          throw new CannotWrite('Test error', new SocketException('...'));
+        });
+      }),
+      Logging::of(function($req, $res, $hints) use(&$caught) { $caught= $hints['warn']; })
+    );
+
+    $this->assertHttp(
+      "HTTP/1.1 200 OK\r\n".
+      "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
+      "Server: XP\r\n".
+      "Transfer-Encoding: chunked\r\n".
+      "\r\n4\r\nTest\r\n0\r\n\r\n",
+      $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"])
+    );
+    Assert::instance(CannotWrite::class, $caught);
+    Assert::equals('Test error', $caught->toString());
+  }
+
+  #[Test]
+  public function response_trace_appears_in_log() {
+    $logged= null;
+    $p= HttpProtocol::executing(
+      $this->application(function($req, $res) {
+        $res->trace('request-time-ms', 1);
+      }),
+      Logging::of(function($req, $res, $hints) use(&$logged) { $logged= $hints; })
+    );
+
+    $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"]);
+    Assert::equals(['request-time-ms' => 1], $logged);
   }
 }

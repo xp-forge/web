@@ -3,6 +3,100 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.0.0 / ????-??-??
+
+* Merged PR #103: Make it possible to append trace data to the response
+  which will appear in the log file
+  (@thekid)
+* Merged PR #102: Extract static content handling into reusable class.
+  See also https://github.com/xp-forge/frontend/pull/39
+  (@thekid)
+* Merged PR #89: Add optional parameter $append to `cookie()` - @thekid
+* Merged PR #107: Fix SAPI uploads with array parameters - @thekid
+
+## 3.12.0 / 2023-12-03
+
+* Merged PR #93: Allow passing or removing environment variables via the
+  new `Environment::export()` method
+  (@thekid)
+* Fixed code not to yield output streams, the AsyncServer API does not
+  expect any value there, but it might, see xp-framework/networking#28
+  (@thekid)
+
+## 3.11.0 / 2023-12-02
+
+* Ensured the output stream is always closed when it goes out of scope
+  (@thekid)
+* Removed superfluous layer of output buffering in development webserver
+  (@thekid)
+* Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely
+  flushing
+  (@thekid)
+
+## 3.10.0 / 2023-11-20
+
+* Merged PR #104: Make `xp web [name]` load the class `xp.[name].Web`
+  (@thekid)
+* Allow `-m dev` as a shorthand for `-m develop` following the principle
+  "be liberal in what you accept"
+  (@thekid)
+
+## 3.9.0 / 2023-11-17
+
+* Improve error messages when class reference given on the command line
+  is not a `web.Application` subclass
+  (@thekid)
+* Added PHP 8.4 to the test matrix - @thekid
+
+## 3.8.1 / 2023-05-22
+
+* Extended EOF handling inside server protocol handler to include NULL,
+  preventing warnings inside header reading
+  (@thekid)
+
+## 3.8.0 / 2023-05-08
+
+* Merged PR #101: Limit request size (status line and headers) to 16 K.
+  This prevents potential out-of-memory scenarios when too many parallel
+  requests transmit huge lists of headers slowly. See issue #100 for the
+  motivation and how other server implementations handle this
+  (@thekid)
+* Merged PR #99: Migrate to new testing library - @thekid
+
+## 3.7.0 / 2022-11-19
+
+* Merged PR #98: Catch socket I/O errors and log them in a less-verbose
+  manner (*as this is not a server-side issue*). See also #97
+  (@thekid)
+
+## 3.6.0 / 2022-11-02
+
+* Merged PR #96: Add ability to check for non-existant properties without
+  using exceptions
+  (@thekid)
+
+## 3.5.0 / 2022-09-30
+
+* Merged PR #92: File upload transmission. Using `yield from transmit()`
+  instead of `transfer()` on file uploads, these can be streamed in an
+  asynchronous manner and without blocking other requests.
+  (@thekid)
+
+## 3.4.1 / 2022-09-18
+
+* Fixed `web.filters.BehindProxy` stripping query strings - @thekid
+
+## 3.4.0 / 2022-09-18
+
+* Merged PR #95: Allow calling install() from within routing - @thekid
+* Merged PR #94: Make `web.Routing` implement `web.Handler` - @thekid
+
+## 3.3.0 / 2022-08-19
+
+* Do not send file contents from `web.handler.FilesFrom` for HTTP *HEAD*
+  requests, saving bandwith and processing time.
+  (@thekid)
+
 ## 3.2.0 / 2022-05-22
 
 * Merged PR #90: URL-encode cookie values. This is in line with what PHP

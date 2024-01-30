@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
 use lang\IllegalArgumentException;
-use unittest\{Assert, Test};
+use test\{Assert, Test};
 use web\InternalServerError;
 
 class InternalServerErrorTest {

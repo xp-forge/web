@@ -1,11 +1,11 @@
 <?php namespace web\unittest\logging;
 
-use unittest\{Test, TestCase, Values};
+use test\{Assert, Test, Values};
 use web\io\{TestInput, TestOutput};
 use web\logging\{ToAllOf, ToConsole, ToFunction};
 use web\{Error, Request, Response};
 
-class ToAllOfTest extends TestCase {
+class ToAllOfTest {
 
   /** @return iterable */
   private function arguments() {
@@ -32,29 +32,29 @@ class ToAllOfTest extends TestCase {
   public function sinks() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) {  });
-    $this->assertEquals([$a, $b], (new ToAllOf($a, $b))->sinks());
+    Assert::equals([$a, $b], (new ToAllOf($a, $b))->sinks());
   }
 
   #[Test]
   public function sinks_are_merged_when_passed_ToAllOf_instance() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) {  });
-    $this->assertEquals([$a, $b], (new ToAllOf(new ToAllOf($a, $b)))->sinks());
+    Assert::equals([$a, $b], (new ToAllOf(new ToAllOf($a, $b)))->sinks());
   }
 
   #[Test]
   public function sinks_are_empty_when_created_without_arg() {
-    $this->assertEquals([], (new ToAllOf())->sinks());
+    Assert::equals([], (new ToAllOf())->sinks());
   }
 
   #[Test]
   public function targets() {
     $a= new ToConsole();
     $b= new ToFunction(function($req, $res, $error) { });
-    $this->assertEquals('(web.logging.ToConsole & web.logging.ToFunction)', (new ToAllOf($a, $b))->target());
+    Assert::equals('(web.logging.ToConsole & web.logging.ToFunction)', (new ToAllOf($a, $b))->target());
   }
 
-  #[Test, Values('arguments')]
+  #[Test, Values(from: 'arguments')]
   public function logs_to_all($expected, $error) {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
@@ -70,6 +70,6 @@ class ToAllOfTest extends TestCase {
     );
     $sink->log($req, $res, $error);
 
-    $this->assertEquals($expected, $logged);
+    Assert::equals($expected, $logged);
   }
 }

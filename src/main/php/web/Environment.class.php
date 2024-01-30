@@ -57,10 +57,13 @@ class Environment {
 
   /** @return io.Path */
   public function tempDir() {
-    foreach (['TEMP', 'TMP', 'TMPDIR', 'TEMPDIR'] as $variant) {
-      if (isset($_ENV[$variant])) return new Path($_ENV[$variant]);
-    }
-    return new Path(sys_get_temp_dir());
+    return new Path(
+      $_ENV['TEMP'] ??
+      $_ENV['TMP'] ??
+      $_ENV['TMPDIR'] ??
+      $_ENV['TEMPDIR'] ??
+      sys_get_temp_dir()
+    );
   }
 
   /**
@@ -84,13 +87,31 @@ class Environment {
   }
 
   /**
+   * Pass a given environment variable and value. Pass NULL in value to
+   * remove this environment variable.
+   *
+   * @param  string $name
+   * @param  ?string $value
+   * @return self
+   */
+  public function export($name, $value) {
+    if (null === $value) {
+      putenv($name);
+    } else {
+      putenv($name.'='.$value);
+    }
+    return $this;
+  }
+
+  /**
    * Gets properties
    *
    * @param  string $name
+   * @param  bool $optional Whether to return or throw if properties aren't found.
    * @return util.PropertyAccess
    * @throws lang.ElementNotFoundException
    */
-  public function properties($name) {
+  public function properties($name, $optional= false) {
     $expand= function($name) { return $this->{$name}(); };
     $found= [];
     foreach ($this->sources as $source) {
@@ -99,15 +120,20 @@ class Environment {
       }
     }
 
-    switch (sizeof($found)) {
-      case 1: return $found[0];
-      case 0: throw new ElementNotFoundException(sprintf(
-        'Cannot find properties "%s" in any of %s',
-        $name,
-        Objects::stringOf($this->sources)
-      ));
-      default: return new CompositeProperties($found);
+    $n= sizeof($found);
+    if ($n > 1) {
+      return new CompositeProperties($found);
+    } else if (1 === $n) {
+      return $found[0];
+    } else if ($optional) {
+      return null;
     }
+
+    throw new ElementNotFoundException(sprintf(
+      'Cannot find properties "%s" in any of %s',
+      $name,
+      Objects::stringOf($this->sources)
+    ));
   }
 
   /** @return string[] */

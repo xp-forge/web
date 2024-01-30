@@ -1,11 +1,12 @@
 <?php namespace web\filters;
 
+use Generator, Traversable;
 use web\{Routing, Dispatch};
 
 /**
  * Filter chain invocation
  *
- * @test  xp://web.unittest.filters.InvocationTest
+ * @test  web.unittest.filters.InvocationTest
  */
 class Invocation {
   private $routing, $filters, $offset, $length;
@@ -13,7 +14,7 @@ class Invocation {
   /**
    * Create a new Invocation
    *
-   * @param  web.Routing|[:var]|web.Handler|function(web.Request, web.Response): var $routes
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $routing
    * @param  web.Filter[] $filters
    */
   public function __construct($routing, $filters= []) {
@@ -36,11 +37,7 @@ class Invocation {
     }
 
     // Ensure the results of service invocation are iterable
-    $return= $this->routing->service($request, $response);
-    if ($return instanceof \Generator || $return instanceof \Traversable) {
-      return $return;
-    } else {
-      return (array)$return;
-    }
+    $return= $this->routing->handle($request, $response);
+    return $return instanceof Traversable ? $return : (array)$return;
   }
 }

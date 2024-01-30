@@ -1,14 +1,46 @@
 <?php namespace xp\web;
 
-use lang\{ClassLoader, XPClass};
+use lang\{ClassLoader, XPClass, IllegalArgumentException, ClassLoadingException};
+use web\Application;
 
 /**
  * An application source
  *
- * @test xp://web.unittest.SourceTest
+ * @test  web.unittest.SourceTest
  */
 class Source {
   private $application;
+
+  /**
+   * Creates a new instance
+   *
+   * @param  string $application
+   * @param  web.Environment $environment
+   * @return web.Application
+   * @throws lang.IllegalArgumentException
+   */
+  private function newInstance($application, $environment) {
+    if ('-' === $application) return new ServeDocumentRootStatically($environment);
+
+    $cl= ClassLoader::getDefault();
+    try {
+      if (is_file($application)) {
+        $class= $cl->loadUri($application);
+      } else if ($application[0] < 'a' || false !== strpos($application, '.')) {
+        $class= $cl->loadClass($application);
+      } else {
+        $class= $cl->loadClass("xp.{$application}.Web");
+      }
+    } catch (ClassLoadingException $e) {
+      throw new IllegalArgumentException('Cannot load web application '.$application, $e);
+    }
+
+    if (!$class->isSubclassOf(Application::class)) {
+      throw new IllegalArgumentException($class->getName().' is not a web application');
+    }
+
+    return $class->newInstance($environment);
+  }
 
   /**
    * Creates a new application from a given name and environment
@@ -18,14 +50,7 @@ class Source {
    */
   public function __construct($name, $environment) {
     sscanf($name, '%[^+]+%s', $application, $filters);
-
-    if ('-' === $application) {
-      $this->application= new ServeDocumentRootStatically($environment);
-    } else if (is_file($application)) {
-      $this->application= ClassLoader::getDefault()->loadUri($application)->newInstance($environment);
-    } else {
-      $this->application= ClassLoader::getDefault()->loadClass($application)->newInstance($environment);
-    }
+    $this->application= $this->newInstance($application, $environment);
 
     if ($filters) {
       $this->application->install(array_map(

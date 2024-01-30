@@ -128,9 +128,9 @@ Filters wrap around handlers and can perform tasks before and after the handlers
 ```php
 use web\Filter;
 use util\profiling\Timer;
-use util\log\LogCategory;
+use util\log\{Logging, LogCategory};
 
-$timer= new class() implements Filter {
+$timer= new class(Logging::all()->toConsole()) implements Filter {
   private $timer;
 
   public function __construct(private LogCategory $cat) {
@@ -166,22 +166,18 @@ $handler= function($req, $res) use($uploads) {
       $res->hint(100, 'Continue');
     }
 
-    // Upload files, yielding control back to the server after each file
-    // so that other clients' requests are not blocked.
+    // Transmit files to uploads directory asynchronously
     $files= [];
     $bytes= 0;
     foreach ($multipart->files() as $name => $file) {
       $files[]= $name;
-      $bytes+= $file->transfer($uploads);
-      yield;
+      $bytes+= yield from $file->transmit($uploads);
     }
 
     // Do something with files and bytes...
   }
 };
 ```
-
-*If you expect bigger file uploads, you can use `$file` as an `io.streams.InputStream` and yield control more often.*
 
 Early hints
 -----------
@@ -252,3 +248,4 @@ This library provides for the very basic functionality. To create web frontends 
 * [Sessions](https://github.com/xp-forge/sessions)
 * [Authentication](https://github.com/xp-forge/web-auth)
 * [REST APIs](https://github.com/xp-forge/rest-api)
+* [Run XP web applications on AWS lambda using API Gateway](https://github.com/xp-forge/lambda-ws)

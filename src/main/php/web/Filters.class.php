@@ -6,8 +6,8 @@ use web\filters\Invocation;
  * Filters acts as a handler and invokes all filters before passing control
  * on to the given handler.
  *
- * @see   xp://web.Filter
- * @test  xp://web.unittest.FiltersTest
+ * @see   web.Filter
+ * @test  web.unittest.FiltersTest
  */
 class Filters implements Handler {
   private $routing;
@@ -17,7 +17,7 @@ class Filters implements Handler {
    * Creates a new instance
    *
    * @param  (web.Filter|function(web.Request, web.Response, web.filters.Invocation)[] $filters
-   * @param  [:web.Routing]|web.Routing $routing
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $routing
    */
   public function __construct($filters, $routing) {
     foreach ($filters as $filter) {

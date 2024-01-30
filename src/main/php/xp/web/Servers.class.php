@@ -52,12 +52,11 @@ abstract class Servers extends Enum {
    * @throws lang.IllegalArgumentException
    */
   public static function named($name) {
-    switch (strtoupper($name)) {
-      case 'ASYNC': return self::$ASYNC;
-      case 'PREFORK': return self::$PREFORK;
-      case 'SEQUENTIAL': return self::$SEQUENTIAL;
-      case 'DEVELOP': return self::$DEVELOP;
-      case 'SERVE': return self::$ASYNC;
+    switch (strtolower($name)) {
+      case 'async': case 'serve': return self::$ASYNC;
+      case 'develop': case 'dev': return self::$DEVELOP;
+      case 'prefork': return self::$PREFORK;
+      case 'sequential': return self::$SEQUENTIAL;
       default: throw new IllegalArgumentException(sprintf(
         'Unknown server "%s", supported: [%s]',
         $name,

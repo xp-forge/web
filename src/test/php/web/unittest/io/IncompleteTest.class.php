@@ -1,7 +1,7 @@
 <?php namespace web\unittest\io;
 
 use io\OperationNotSupportedException;
-use unittest\{Assert, Test};
+use test\{Assert, Expect, Test};
 use web\io\{Incomplete, Part};
 
 class IncompleteTest {
@@ -35,8 +35,11 @@ class IncompleteTest {
   }
 
   #[Test, Expect(OperationNotSupportedException::class)]
-  public function cannot_transfer() {
-    (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->transfer('./uploads');
+  public function cannot_transmit() {
+    $it= (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->transmit('./uploads');
+    while ($it->valid()) {
+      $it->next();
+    }
   }
 
   #[Test, Expect(OperationNotSupportedException::class)]

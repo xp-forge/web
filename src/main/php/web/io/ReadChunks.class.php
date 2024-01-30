@@ -17,7 +17,7 @@ class ReadChunks implements InputStream {
   /**
    * Scans a chunk, populating length and buffer
    *
-   * @return void
+   * @return int
    * @throws io.IOException for chunked format errors
    */
   private function scan() {

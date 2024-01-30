@@ -1,10 +1,10 @@
 <?php namespace web\unittest\io;
 
 use io\IOException;
-use unittest\{Test, Values, TestCase};
+use test\{Assert, Test, Values};
 use web\io\{ReadLength, TestInput};
 
-class ReadLengthTest extends TestCase {
+class ReadLengthTest {
 
   /**
    * Creates an input instance
@@ -24,26 +24,26 @@ class ReadLengthTest extends TestCase {
   #[Test]
   public function available() {
     $fixture= new ReadLength($this->input('Test'), 4);
-    $this->assertEquals(4, $fixture->available());
+    Assert::equals(4, $fixture->available());
   }
 
   #[Test]
   public function read() {
     $fixture= new ReadLength($this->input('Test'), 4);
-    $this->assertEquals('Test', $fixture->read());
+    Assert::equals('Test', $fixture->read());
   }
 
   #[Test]
   public function available_when_empty() {
     $fixture= new ReadLength($this->input(''), 0);
-    $this->assertEquals(0, $fixture->available());
+    Assert::equals(0, $fixture->available());
   }
 
   #[Test]
   public function available_after_read() {
     $fixture= new ReadLength($this->input('Test'), 4);
     $fixture->read();
-    $this->assertEquals(0, $fixture->available());
+    Assert::equals(0, $fixture->available());
   }
 
   #[Test, Values([4, 8192])]
@@ -60,6 +60,6 @@ class ReadLengthTest extends TestCase {
   #[Test]
   public function close_is_a_noop() {
     $fixture= new ReadLength($this->input('Test'), 4);
-    $this->assertNull($fixture->close());
+    Assert::null($fixture->close());
   }
 }

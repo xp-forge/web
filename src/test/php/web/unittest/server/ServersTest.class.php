@@ -1,7 +1,7 @@
 <?php namespace web\unittest\server;
 
 use lang\IllegalArgumentException;
-use unittest\{Assert, Expect, Test, Values};
+use test\{Assert, Expect, Test, Values};
 use xp\web\Servers;
 
 class ServersTest {
@@ -12,9 +12,13 @@ class ServersTest {
     yield ['sequential', Servers::$SEQUENTIAL];
     yield ['prefork', Servers::$PREFORK];
     yield ['develop', Servers::$DEVELOP];
+
+    // Shorthands
+    yield ['dev', Servers::$DEVELOP];
+    yield ['serve', Servers::$ASYNC];
   }
 
-  #[Test, Values('servers')]
+  #[Test, Values(from: 'servers')]
   public function named($name, $expected) {
     Assert::equals($expected, Servers::named($name));
   }
@@ -29,7 +33,7 @@ class ServersTest {
     Assert::equals(Servers::$ASYNC, Servers::named('serve'));
   }
 
-  #[Test, Expect(class: IllegalArgumentException::class, withMessage: '/Unknown server "unknown", supported: .+/')]
+  #[Test, Expect(class: IllegalArgumentException::class, message: '/Unknown server "unknown", supported: .+/')]
   public function unknown_server() {
     Servers::named('unknown');
   }

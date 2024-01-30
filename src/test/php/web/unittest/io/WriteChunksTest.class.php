@@ -1,9 +1,10 @@
 <?php namespace web\unittest\io;
 
-use unittest\Test;
+use test\Assert;
+use test\Test;
 use web\io\{TestOutput, WriteChunks};
 
-class WriteChunksTest extends \unittest\TestCase {
+class WriteChunksTest {
 
   #[Test]
   public function can_create() {
@@ -18,7 +19,7 @@ class WriteChunksTest extends \unittest\TestCase {
     $w->write('Test');
     $w->finish();
 
-    $this->assertEquals("4\r\nTest\r\n0\r\n\r\n", $out->bytes());
+    Assert::equals("4\r\nTest\r\n0\r\n\r\n", $out->bytes());
   }
 
   #[Test]
@@ -30,7 +31,7 @@ class WriteChunksTest extends \unittest\TestCase {
     $w->write('Test');
     $w->finish();
 
-    $this->assertEquals("8\r\nUnitTest\r\n0\r\n\r\n", $out->bytes());
+    Assert::equals("8\r\nUnitTest\r\n0\r\n\r\n", $out->bytes());
   }
 
   #[Test]
@@ -43,6 +44,44 @@ class WriteChunksTest extends \unittest\TestCase {
     $w->write('Test');
     $w->finish();
 
-    $this->assertEquals("1001\r\n".$chunk."\r\n4\r\nTest\r\n0\r\n\r\n", $out->bytes());
+    Assert::equals("1001\r\n".$chunk."\r\n4\r\nTest\r\n0\r\n\r\n", $out->bytes());
+  }
+
+  #[Test]
+  public function flush() {
+    $out= new TestOutput();
+
+    $w= new WriteChunks($out);
+    $w->flush();
+    $w->finish();
+
+    Assert::equals("0\r\n\r\n", $out->bytes());
+  }
+
+  #[Test]
+  public function write_then_explicitely_flush() {
+    $out= new TestOutput();
+
+    $w= new WriteChunks($out);
+    $w->write('Test');
+    $w->flush();
+    $w->finish();
+
+    Assert::equals("4\r\nTest\r\n0\r\n\r\n", $out->bytes());
+  }
+
+  #[Test]
+  public function no_data_written_until_flushed() {
+    $out= new TestOutput();
+
+    $w= new WriteChunks($out);
+    $w->write('Test');
+    $before= $out->bytes();
+    $w->flush();
+    $after= $out->bytes();
+    $w->finish();
+
+    Assert::equals('', $before);
+    Assert::equals("4\r\nTest\r\n", $after);
   }
 }

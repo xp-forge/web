@@ -16,6 +16,7 @@ class SAPI extends Output implements Input {
   private $out;
 
   static function __static() {
+    if (!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'wb'));
     if (!function_exists('getallheaders')) {
       function getallheaders() {
         $headers= [];
@@ -89,7 +90,7 @@ class SAPI extends Output implements Input {
    */
   public function parts($boundary) {
     foreach ($_REQUEST as $name => $value) {
-      yield $name => new Param($name, [$value]);
+      yield $name => Param::from($name, $value);
     }
     foreach ($_FILES as $name => $file) {
       if (is_array($file['error'])) {
@@ -196,6 +197,7 @@ class SAPI extends Output implements Input {
   public function flush() {
     echo $this->out;
     $this->out= '';
+    flush();
   }
 
   /** @return void */

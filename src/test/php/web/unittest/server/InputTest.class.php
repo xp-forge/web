@@ -1,11 +1,12 @@
 <?php namespace web\unittest\server;
 
 use io\streams\Streams;
-use peer\{Socket, SocketEndpoint};
-use unittest\{Test, TestCase};
+use peer\{Socket, SocketEndpoint, SocketTimeoutException};
+use test\{Assert, Test, Values};
 use xp\web\srv\Input;
 
-class InputTest extends TestCase {
+class InputTest {
+  const HEADER_LIMIT= 16384;
 
   /**
    * Returns a socket which can be read from
@@ -40,50 +41,114 @@ class InputTest extends TestCase {
     };
   }
 
+  /**
+   * Creates socket input and consumes status line and headers
+   *
+   * @param  peer.Socket $socket
+   * @return web.io.Input
+   */
+  private function consume($socket) {
+    $input= new Input($socket, false);
+
+    $c= $input->consume(self::HEADER_LIMIT);
+    while ($c->valid()) {
+      if ($socket->canRead()) {
+        $c->next();
+      } else {
+        $c->throw(new SocketTimeoutException('Timeout', 0.0));
+      }
+    }
+
+    return $input;
+  }
+
   #[Test]
   public function can_create() {
-    new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
+    $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"));
   }
 
   #[Test]
   public function close_kind() {
-    $this->assertEquals(Input::CLOSE, (new Input($this->socket('')))->kind);
+    Assert::equals(
+      Input::CLOSE,
+      $this->consume($this->socket(''))->kind
+    );
   }
 
   #[Test]
   public function request_kind() {
-    $this->assertEquals(Input::REQUEST, (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->kind);
+    Assert::equals(
+      Input::REQUEST,
+      $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->kind
+    );
   }
 
   #[Test]
-  public function malformed_kind() {
-    $this->assertEquals('EHLO example.org', (new Input($this->socket("EHLO example.org\r\n")))->kind);
+  public function request_timeout() {
+    Assert::equals(
+      Input::REQUEST | Input::TIMEOUT,
+      $this->consume($this->socket("GET / HTTP/1.1\r\n..."))->kind
+    );
+  }
+
+  #[Test]
+  public function header_limit_exceeded() {
+    $cookie= str_repeat('x', self::HEADER_LIMIT);
+    Assert::equals(
+      Input::REQUEST | Input::EXCESSIVE,
+      $this->consume($this->socket("GET / HTTP/1.1\r\nCookie: excess={$cookie}\r\n\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_request() {
+    Assert::equals(
+      Input::MALFORMED,
+      $this->consume($this->socket("EHLO example.org\r\n\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_incomplete_request() {
+    Assert::equals(
+      Input::MALFORMED | Input::TIMEOUT,
+      $this->consume($this->socket("EHLO example.org\r\n"))->kind
+    );
+  }
+
+  #[Test]
+  public function malformed_excessive_request() {
+    $payload= str_repeat('x', self::HEADER_LIMIT);
+    Assert::equals(
+      Input::MALFORMED | Input::EXCESSIVE,
+      $this->consume($this->socket("EHLO example.org\r\n{$payload}"))->kind
+    );
   }
 
   #[Test]
   public function http_scheme_default() {
-    $this->assertEquals('http', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->scheme());
+    Assert::equals('http', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->scheme());
   }
 
   #[Test]
   public function method() {
-    $this->assertEquals('GET', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->method());
+    Assert::equals('GET', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->method());
   }
 
   #[Test]
   public function uri() {
-    $this->assertEquals('/', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->uri());
+    Assert::equals('/', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->uri());
   }
 
   #[Test]
   public function version() {
-    $this->assertEquals('1.1', (new Input($this->socket("GET / HTTP/1.1\r\n\r\n")))->version());
+    Assert::equals('1.1', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->version());
   }
 
   #[Test]
   public function no_headers() {
-    $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
-    $this->assertEquals(
+    $input= $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"));
+    Assert::equals(
       ['Remote-Addr' => '127.0.0.1'],
       iterator_to_array($input->headers())
     );
@@ -91,8 +156,8 @@ class InputTest extends TestCase {
 
   #[Test]
   public function headers() {
-    $input= new Input($this->socket("GET / HTTP/1.1\r\nHost: example\r\nDate: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"));
-    $this->assertEquals(
+    $input= $this->consume($this->socket("GET / HTTP/1.1\r\nHost: example\r\nDate: Tue, 15 Nov 1994 08:12:31 GMT\r\n\r\n"));
+    Assert::equals(
       ['Remote-Addr' => '127.0.0.1', 'Host' => 'example', 'Date' => 'Tue, 15 Nov 1994 08:12:31 GMT'],
       iterator_to_array($input->headers())
     );
@@ -100,50 +165,50 @@ class InputTest extends TestCase {
 
   #[Test]
   public function without_payload() {
-    $input= new Input($this->socket("GET / HTTP/1.1\r\n\r\n"));
+    $input= $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"));
     iterator_count($input->headers());
 
-    $this->assertNull($input->incoming());
+    Assert::null($input->incoming());
   }
 
   #[Test]
   public function with_content_length() {
-    $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
+    $input= $this->consume($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', Streams::readAll($input->incoming()));
+    Assert::equals('Test', Streams::readAll($input->incoming()));
   }
 
   #[Test]
   public function with_chunked_te() {
-    $input= new Input($this->socket("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n4\r\nTest\r\n0\r\n\r\n"));
+    $input= $this->consume($this->socket("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n4\r\nTest\r\n0\r\n\r\n"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', Streams::readAll($input->incoming()));
+    Assert::equals('Test', Streams::readAll($input->incoming()));
   }
 
   #[Test]
   public function read_length() {
-    $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
+    $input= $this->consume($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', $input->read(4));
+    Assert::equals('Test', $input->read(4));
   }
 
   #[Test]
   public function read_all() {
-    $input= new Input($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
+    $input= $this->consume($this->socket("POST / HTTP/1.1\r\nContent-Length: 4\r\n\r\nTest"));
     iterator_count($input->headers());
 
-    $this->assertEquals('Test', $input->read(-1));
+    Assert::equals('Test', $input->read(-1));
   }
 
   #[Test, Values([1024, 4096, 8192])]
   public function with_large_headers($length) {
     $header= 'cookie='.str_repeat('*', $length);
-    $input= new Input($this->socket("GET / HTTP/1.1\r\nCookie: {$header}\r\n\r\n"));
+    $input= $this->consume($this->socket("GET / HTTP/1.1\r\nCookie: {$header}\r\n\r\n"));
     $headers= iterator_to_array($input->headers());
 
-    $this->assertEquals($header, $headers['Cookie']);
+    Assert::equals($header, $headers['Cookie']);
   }
 }

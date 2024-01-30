@@ -17,6 +17,7 @@ class Response {
   private $message= 'OK';
   private $cookies= [];
   private $headers= [];
+  public $trace= [];
 
   /** @param web.io.Output $output */
   public function __construct($output= null) {
@@ -38,11 +39,16 @@ class Response {
   /**
    * Sets a cookie
    *
-   * @param  web.Response $cookie
+   * @param  web.Cookie $cookie
+   * @param  bool $append Append header if already existant
    * @return void
    */
-  public function cookie(Cookie $cookie) {
-    $this->cookies[]= $cookie;
+  public function cookie(Cookie $cookie, $append= false) {
+    if ($append) {
+      $this->cookies[]= $cookie;
+    } else {
+      $this->cookies[$cookie->name()]= $cookie;
+    }
   }
 
   /**
@@ -68,6 +74,17 @@ class Response {
     }
   }
 
+  /**
+   * Adds a named value to the trace, which will show up in the log file
+   *
+   * @param  string $name
+   * @param  var $value
+   * @return void
+   */
+  public function trace($name, $value) {
+    $this->trace[$name]= $value;
+  }
+
   /** @return int */
   public function status() { return $this->status; }
 
@@ -81,7 +98,7 @@ class Response {
   public function flushed() { return $this->flushed; }
 
   /** @return web.Cookie[] */
-  public function cookies() { return $this->cookies; }
+  public function cookies() { return array_values($this->cookies); }
 
   /** @return [:string|string[]] */
   public function headers() {
@@ -216,8 +233,8 @@ class Response {
     $out= $this->stream($size);
     try {
       while ($in->available()) {
+        yield 'write' => null;
         $out->write($in->read());
-        yield;
       }
     } finally {
       $out->close();

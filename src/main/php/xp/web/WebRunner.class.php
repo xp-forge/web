@@ -1,5 +1,6 @@
 <?php namespace xp\web;
 
+use Throwable;
 use lang\ClassLoader;
 use web\{Environment, Error, InternalServerError, Request, Response, Headers, Status};
 
@@ -46,7 +47,7 @@ class WebRunner {
         break;
       }
     }
-    $env->logging()->log($request, $response, $error);
+    $env->logging()->log($request, $response, ['error' => $error]);
   }
 
   /**
@@ -79,13 +80,13 @@ class WebRunner {
 
     try {
       $application= (new Source(getenv('WEB_SOURCE'), $env))->application();
-      foreach ($application->service($request, $response) ?? [] as $_) { }
+      foreach ($application->service($request, $response) ?? [] as $event => $arg) {
+        if ('delay' === $event) usleep($arg * 1000);
+      }
       $env->logging()->log($request, $response);
     } catch (Error $e) {
       self::error($request, $response, $env, $e);
-    } catch (\Throwable $e) {   // PHP7
-      self::error($request, $response, $env, new InternalServerError($e));
-    } catch (\Exception $e) {   // PHP5
+    } catch (Throwable $e) {
       self::error($request, $response, $env, new InternalServerError($e));
     } finally {
       $response->end();

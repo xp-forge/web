@@ -2,11 +2,11 @@
 
 use io\OperationNotSupportedException;
 use io\streams\{MemoryInputStream, Streams};
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use web\io\{ReadLength, ReadStream};
 use xp\web\SAPI;
 
-class SAPITest extends TestCase {
+class SAPITest {
   const BOUNDARY = '------------------------899f0c287170dd63';
 
   /**
@@ -69,37 +69,37 @@ class SAPITest extends TestCase {
 
   #[Test]
   public function http_scheme_default() {
-    $this->assertEquals('http', (new SAPI())->scheme());
+    Assert::equals('http', (new SAPI())->scheme());
   }
 
   #[Test, Values(['on', 'ON', '1'])]
   public function https_scheme_via_https_server_entry($value) {
     $_SERVER['HTTPS']= $value;
-    $this->assertEquals('https', (new SAPI())->scheme());
+    Assert::equals('https', (new SAPI())->scheme());
   }
 
   #[Test, Values(['off', 'OFF', '0'])]
   public function http_scheme_via_https_server_entry($value) {
     $_SERVER['HTTPS']= $value;
-    $this->assertEquals('http', (new SAPI())->scheme());
+    Assert::equals('http', (new SAPI())->scheme());
   }
 
   #[Test, Values(['GET', 'POST', 'OPTIONS'])]
   public function method($value) {
     $_SERVER['REQUEST_METHOD']= $value;
-    $this->assertEquals($value, (new SAPI())->method());
+    Assert::equals($value, (new SAPI())->method());
   }
 
   #[Test]
   public function uri() {
     $_SERVER['REQUEST_URI']= '/favicon.ico';
-    $this->assertEquals('/favicon.ico', (new SAPI())->uri());
+    Assert::equals('/favicon.ico', (new SAPI())->uri());
   }
 
   #[Test]
   public function version() {
     $_SERVER['SERVER_PROTOCOL']= 'HTTP/1.1';
-    $this->assertEquals('1.1', (new SAPI())->version());
+    Assert::equals('1.1', (new SAPI())->version());
   }
 
   #[Test]
@@ -109,7 +109,7 @@ class SAPITest extends TestCase {
 
     $fixture= new SAPI();
     iterator_count($fixture->headers());
-    $this->assertInstanceOf(ReadStream::class, $fixture->incoming());
+    Assert::instance(ReadStream::class, $fixture->incoming());
   }
 
   #[Test]
@@ -119,18 +119,18 @@ class SAPITest extends TestCase {
 
     $fixture= new SAPI();
     iterator_count($fixture->headers());
-    $this->assertInstanceOf(ReadLength::class, $fixture->incoming());
+    Assert::instance(ReadLength::class, $fixture->incoming());
   }
 
   #[Test]
   public function parts_without_files() {
     $_FILES= [];
-    $this->assertEquals([], iterator_to_array((new SAPI())->parts(self::BOUNDARY)));
+    Assert::equals([], iterator_to_array((new SAPI())->parts(self::BOUNDARY)));
   }
 
   #[Test]
   public function successful_upload() {
-    $this->assertEquals(['file' => 'xp.web.Upload'], array_map(
+    Assert::equals(['file' => 'xp.web.Upload'], array_map(
       function($part) { return nameof($part); },
       $this->parts($this->upload('test.txt', 'text/plain'))
     ));
@@ -138,7 +138,7 @@ class SAPITest extends TestCase {
 
   #[Test]
   public function successful_upload_with_array_parameter() {
-    $this->assertEquals(['file[]' => 'xp.web.Upload'], array_map(
+    Assert::equals(['file[]' => 'xp.web.Upload'], array_map(
       function($part) { return nameof($part); },
       $this->parts(function($uri) {
         return [
@@ -157,30 +157,30 @@ class SAPITest extends TestCase {
   #[Test]
   public function upload_name() {
     $parts= $this->parts($this->upload('test.txt', 'text/plain'));
-    $this->assertEquals('test.txt', $parts['file']->name());
+    Assert::equals('test.txt', $parts['file']->name());
   }
 
   #[Test]
   public function upload_type() {
     $parts= $this->parts($this->upload('test.txt', 'text/plain'));
-    $this->assertEquals('text/plain', $parts['file']->type());
+    Assert::equals('text/plain', $parts['file']->type());
   }
 
   #[Test]
   public function read_part() {
     $parts= $this->parts($this->upload('test.txt', 'text/plain'));
-    $this->assertEquals('Test', $parts['file']->bytes());
+    Assert::equals('Test', $parts['file']->bytes());
   }
 
   #[Test]
   public function use_part_as_stream() {
     $parts= $this->parts($this->upload('test.txt', 'text/plain'));
-    $this->assertEquals('Test', Streams::readAll($parts['file']));
+    Assert::equals('Test', Streams::readAll($parts['file']));
   }
 
   #[Test]
   public function upload_exceeding_ini_size() {
-    $this->assertEquals(['file' => 'web.io.Incomplete("test.txt", error= ERR_INI_SIZE)'], array_map(
+    Assert::equals(['file' => 'web.io.Incomplete("test.txt", error= ERR_INI_SIZE)'], array_map(
       function($part) { return $part->toString(); },
       $this->parts($this->incomplete('test.txt', UPLOAD_ERR_INI_SIZE))
     ));
@@ -188,7 +188,7 @@ class SAPITest extends TestCase {
 
   #[Test]
   public function upload_without_file() {
-    $this->assertEquals(['file' => 'web.io.Incomplete("", error= ERR_NO_FILE)'], array_map(
+    Assert::equals(['file' => 'web.io.Incomplete("", error= ERR_NO_FILE)'], array_map(
       function($part) { return $part->toString(); },
       $this->parts($this->incomplete('', UPLOAD_ERR_NO_FILE))
     ));
@@ -209,7 +209,7 @@ class SAPITest extends TestCase {
   #[Test]
   public function parameters_yielded_by_parts() {
     $_REQUEST= ['submit' => 'Test'];
-    $this->assertEquals(['submit' => 'web.io.Param', 'file' => 'xp.web.Upload'], array_map(
+    Assert::equals(['submit' => 'web.io.Param', 'file' => 'xp.web.Upload'], array_map(
       function($part) { return nameof($part); },
       $this->parts($this->upload('test.txt', 'text/plain'))
     ));
@@ -220,6 +220,14 @@ class SAPITest extends TestCase {
     $_REQUEST= ['varname' => 'the value'];
     $fixture= new SAPI();
     $parts = iterator_to_array($fixture->parts(''));
-    $this->assertEquals('the value', $parts['varname']->value());
+    Assert::equals('the value', $parts['varname']->value());
+  }
+
+  #[Test, Values([[['the value']], [['key' => 'value']]])]
+  public function array_parameter_no_string_conversion_error($input) {
+    $_REQUEST= ['varname' => $input];
+    $fixture= new SAPI();
+    $parts = iterator_to_array($fixture->parts(''));
+    Assert::equals($input, $parts['varname']->value());
   }
 }

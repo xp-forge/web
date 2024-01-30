@@ -58,11 +58,13 @@ class Parts implements IteratorAggregate {
       // Yield chunks as long as no "\r" is encountered
       while (false === ($p= strpos($this->buffer, "\r")) && $this->in->available()) {
         yield $this->buffer;
+        yield null;
         $this->buffer= $this->in->read(8192);
       }
 
       // Found beginning of delimiter, read enough bytes to be able to decide
       while ($p + $n >= strlen($this->buffer) && $this->in->available()) {
+        yield null;
         $this->buffer.= $this->in->read(8192);
       }
 
@@ -113,7 +115,7 @@ class Parts implements IteratorAggregate {
       $filename= $type->param('filename', null);
       $chunks= $this->part();
       if (null === $filename) {
-        yield $name => new Param($name, $chunks);
+        yield $name => Param::parse($name, $chunks);
       } else if ('' === $filename) {
         yield $name => new Incomplete($name, UPLOAD_ERR_NO_FILE);
       } else {

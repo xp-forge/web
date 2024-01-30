@@ -34,7 +34,7 @@ abstract class Output implements OutputStream {
 
   /**
    * Returns an output used when the content-length is not known at the
-   * time of staring the output.
+   * time of starting the output.
    *
    * @return self
    */
@@ -51,5 +51,10 @@ abstract class Output implements OutputStream {
     if ($this->closed) return;
     $this->finish();
     $this->closed= true;
+  }
+
+  /** Ensures `close()` is called */
+  public function __destruct() {
+    $this->close();
   }
 }

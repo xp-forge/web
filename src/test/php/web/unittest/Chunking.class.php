@@ -1,5 +1,4 @@
 <?php namespace web\unittest;
-
 /**
  * Chunked transfer encoding
  *

@@ -1,12 +1,12 @@
 <?php namespace web\unittest;
 
-use io\{Path, Files, File};
+use io\{File, Files, Path};
 use lang\{ElementNotFoundException, Environment as System};
-use unittest\{Expect, Test, TestCase, Values};
+use test\{Assert, Expect, Test, Values};
 use util\{Properties, PropertySource, RegisteredPropertySource};
 use web\{Environment, Logging};
 
-class EnvironmentTest extends TestCase {
+class EnvironmentTest {
 
   /** @return iterable */
   private function expansions() {
@@ -25,33 +25,43 @@ class EnvironmentTest extends TestCase {
 
   #[Test]
   public function profile() {
-    $this->assertEquals('dev', (new Environment('dev', '.', 'static', []))->profile());
+    Assert::equals('dev', (new Environment('dev', '.', 'static', []))->profile());
   }
 
   #[Test]
   public function webroot() {
-    $this->assertEquals(new Path('.'), (new Environment('dev', '.', 'static', []))->webroot());
+    Assert::equals(new Path('.'), (new Environment('dev', '.', 'static', []))->webroot());
   }
 
   #[Test]
   public function docroot() {
-    $this->assertEquals(new Path('static'), (new Environment('dev', '.', 'static', []))->docroot());
+    Assert::equals(new Path('static'), (new Environment('dev', '.', 'static', []))->docroot());
   }
 
   #[Test]
   public function logging_goes_to_console_by_defaul() {
-    $this->assertEquals(Logging::of('-'), (new Environment('dev', '.', 'static', []))->logging());
+    Assert::equals(Logging::of('-'), (new Environment('dev', '.', 'static', []))->logging());
   }
 
   #[Test]
   public function variable() {
     putenv('XP_TEST=abc');
-    $this->assertEquals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
+    Assert::equals('abc', (new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
+  }
+
+  #[Test, Values(['abc', ''])]
+  public function set_variable($value) {
+    Assert::equals($value, (new Environment('dev', '.', 'static', []))->export('test', $value)->variable('test'));
+  }
+
+  #[Test]
+  public function unset_variable() {
+    Assert::null((new Environment('dev', '.', 'static', []))->export('test', null)->variable('test'));
   }
 
   #[Test]
   public function tempDir() {
-    $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
+    Assert::true(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
   }
 
   #[Test]
@@ -64,7 +74,7 @@ class EnvironmentTest extends TestCase {
     }
 
     try {
-      $this->assertTrue(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
+      Assert::true(is_dir((new Environment('dev', '.', 'static', []))->tempDir()));
     } finally {
       $_ENV+= $restore;
     }
@@ -73,7 +83,7 @@ class EnvironmentTest extends TestCase {
   #[Test]
   public function path() {
     $environment= new Environment('dev', '.', 'static', []);
-    $this->assertEquals(
+    Assert::equals(
       new Path($environment->webroot(), 'src/main/handlebars'),
       $environment->path('src/main/handlebars')
     );
@@ -82,7 +92,7 @@ class EnvironmentTest extends TestCase {
   #[Test]
   public function non_existant_variable() {
     putenv('XP_TEST');
-    $this->assertNull((new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
+    Assert::null((new Environment('dev', '.', 'static', []))->variable('XP_TEST'));
   }
 
   #[Test, Expect(ElementNotFoundException::class)]
@@ -91,10 +101,15 @@ class EnvironmentTest extends TestCase {
   }
 
   #[Test]
-  public function properties() {
+  public function optional_non_existant_properties() {
+    Assert::null((new Environment('dev', '.', 'static', []))->properties('inject', true));
+  }
+
+  #[Test, Values([true, false])]
+  public function properties($optional) {
     $prop= new Properties('inject.ini');
     $environment= new Environment('dev', '.', 'static', [new RegisteredPropertySource('inject', $prop)]);
-    $this->assertEquals($prop, $environment->properties('inject'));
+    Assert::equals($prop, $environment->properties('inject', $optional));
   }
 
   #[Test]
@@ -104,7 +119,7 @@ class EnvironmentTest extends TestCase {
 
     try {
       $environment= new Environment('dev', '.', 'static', [$file->getURI()]);
-      $this->assertEquals('value', $environment->properties('inject')->readString('test', 'key'));
+      Assert::equals('value', $environment->properties('inject')->readString('test', 'key'));
     } finally {
       $file->unlink();
     }
@@ -117,20 +132,20 @@ class EnvironmentTest extends TestCase {
 
     try {
       $environment= new Environment('dev', '.', 'static', [$file->getPath()]);
-      $this->assertEquals('value', $environment->properties('inject')->readString('test', 'key'));
+      Assert::equals('value', $environment->properties('inject')->readString('test', 'key'));
     } finally {
       $file->unlink();
     }
   }
 
-  #[Test, Values('expansions')]
+  #[Test, Values(from: 'expansions')]
   public function property_expansions($value, $expanded) {
     $file= new File(System::tempDir(), 'inject.ini');
     Files::write($file, "[test]\nkey=".$value);
 
     try {
       $environment= new Environment('dev', '.', 'static', [$file->getURI()]);
-      $this->assertEquals($expanded($environment), $environment->properties('inject')->readString('test', 'key'));
+      Assert::equals($expanded($environment), $environment->properties('inject')->readString('test', 'key'));
     } finally {
       $file->unlink();
     }
@@ -142,16 +157,16 @@ class EnvironmentTest extends TestCase {
       new RegisteredPropertySource('inject', new Properties('prod/inject.ini')),
       new RegisteredPropertySource('inject', new Properties('default/inject.ini')),
     ]);
-    $this->assertEquals(2, $environment->properties('inject')->length());
+    Assert::equals(2, $environment->properties('inject')->length());
   }
 
   #[Test]
   public function arguments_empty_by_default() {
-    $this->assertEquals([], (new Environment('dev', '.', 'static', []))->arguments());
+    Assert::equals([], (new Environment('dev', '.', 'static', []))->arguments());
   }
 
   #[Test, Values([[[]], [['test', 'value']]])]
   public function arguments($arguments) {
-    $this->assertEquals($arguments, (new Environment('dev', '.', 'static', [], $arguments))->arguments());
+    Assert::equals($arguments, (new Environment('dev', '.', 'static', [], $arguments))->arguments());
   }
 }

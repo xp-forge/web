@@ -53,12 +53,23 @@ class Incomplete extends Part implements InputStream {
   /**
    * Transfers this stream to a given target.
    *
+   * @deprecated Use `yield from $stream->transmit(...)` instead!
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return int Number of bytes written
    * @throws lang.IllegalArgumentException if filename is invalid
    * @throws io.IOException
    */
   public function transfer($target) { throw $this->notSupported(); }
+
+  /**
+   * Transmits this stream to a given target.
+   *
+   * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
+   * @return iterable
+   * @throws lang.IllegalArgumentException if filename is invalid
+   * @throws io.IOException
+   */
+  public function transmit($target) { throw $this->notSupported(); yield; }
 
   /** @return int */
   public function available() { throw $this->notSupported(); }

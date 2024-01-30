@@ -7,9 +7,9 @@ use web\routing\{CannotRoute, Matches, Path, Target};
  * Routing takes care of directing the request to the correct target
  * by using one or more routes given to it.
  *
- * @test  xp://web.unittest.RoutingTest
+ * @test  web.unittest.RoutingTest
  */
-class Routing {
+class Routing implements Handler {
   private $top= false;
   private $fallback= null;
   private $routes= [];
@@ -21,7 +21,7 @@ class Routing {
    * - A map of definitions => handlers, which are passed to `matching()`
    * - A handler, which becomes the argument to `fallback()`.
    *
-   * @param  self|[:var]|web.Handler|web.Application|function(web.Request, web.Response): var $routes
+   * @param  web.Handler|web.Application|function(web.Request, web.Response): var|[:var] $routes
    * @param  bool $top Whether this is the top-level routing
    * @return self
    */
@@ -133,13 +133,13 @@ class Routing {
   }
 
   /**
-   * Service a request
+   * Handle a request
    *
    * @param  web.Request $request
    * @param  web.Response $response
    * @return var
    */
-  public function service($request, $response) {
+  public function handle($request, $response) {
     $seen= [];
 
     dispatch: $result= $this->route($request)->handle($request, $response);
@@ -153,5 +153,10 @@ class Routing {
     }
 
     return $result;
+  }
+
+  /** @deprecated */
+  public function service($request, $response) {
+    return $this->handle($request, $response);
   }
 }
