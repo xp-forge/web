@@ -1,25 +1,27 @@
 <?php namespace web\unittest;
 
-use test\{Assert, Test, Values};
+use IteratorAggregate, Traversable;
+use test\{Assert, Before, Test, Values};
 use web\Multipart;
 use web\io\Param;
 
 class MultipartTest {
   private $param;
 
-  public function __construct() {
-    $this->param= new Param('key', ['value']);
-  }
-
   /** @return iterator */
   private function parts() {
     yield [[$this->param]];
     yield [(function() { yield $this->param; })()];
-    yield [new class($this->param) implements \IteratorAggregate {
+    yield [new class($this->param) implements IteratorAggregate {
       private $param;
       public function __construct($param) { $this->param= $param; }
-      public function getIterator() { yield $this->param; }
+      public function getIterator(): Traversable { yield $this->param; }
     }];
+  }
+
+  #[Before]
+  public function param() {
+    $this->param= Param::from('key', 'value');
   }
 
   #[Test, Values(from: 'parts')]
