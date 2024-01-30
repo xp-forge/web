@@ -238,7 +238,7 @@ Performance
 -----------
 Because the code for the web application is only compiled once when using production servers, we achieve lightning-fast request/response roundtrip times:
 
-![Network console screenshot](https://user-images.githubusercontent.com/696742/114267149-78a6c080-99fa-11eb-9e6e-182f298ef9dc.png)
+![Network console screenshot](https://github.com/xp-forge/web/assets/696742/2707a921-8ae2-4884-ae33-59972a8e7a12)
 
 See also
 --------
