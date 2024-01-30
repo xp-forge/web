@@ -7,7 +7,8 @@ Web change log
 
 * Merged PR #91: Application initialization. Implementations can chose
   to implement the `initialize()` method (*which is empty by default*)
-  to perform database migration, wait for dependant services, etcetera.
+  to perform database migration, wait for dependant services, etcetera,
+  when the server starts up.
   (@thekid)
 * Merged PR #103: Make it possible to append trace data to the response
   which will appear in the log file
