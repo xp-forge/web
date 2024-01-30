@@ -5,6 +5,9 @@ Web change log
 
 ## 4.0.0 / ????-??-??
 
+* Merged PR #102: Extract static content handling into reusable class.
+  See also https://github.com/xp-forge/frontend/pull/39
+  (@thekid)
 * Merged PR #89: Add optional parameter $append to `cookie()` - @thekid
 * Merged PR #107: Fix SAPI uploads with array parameters - @thekid
 
