@@ -5,6 +5,9 @@ Web change log
 
 ## 4.0.0 / ????-??-??
 
+* **Heads up:** Removed deprecated `transfer()` methods from Stream,
+  Upload and Response classes, they have been superseded by `transmit()`.
+  (@thekid)
 * Merged PR #91: Application initialization. Implementations can chose
   to implement the `initialize()` method (*which is empty by default*)
   to perform database migration, wait for dependant services, etcetera,

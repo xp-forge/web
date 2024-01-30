@@ -190,28 +190,6 @@ class Response {
   }
 
   /**
-   * Transfers a stream
-   *
-   * @deprecated Use `yield from $this->transmit(...)` instead!
-   * @param  io.streams.InputStream $in
-   * @param  string $mediaType
-   * @param  int $size If omitted, uses chunked transfer encoding
-   */
-  public function transfer($in, $mediaType= 'application/octet-stream', $size= null) {
-    $this->headers['Content-Type']= [$mediaType];
-
-    $out= $this->stream($size);
-    try {
-      while ($in->available()) {
-        $out->write($in->read());
-      }
-    } finally {
-      $out->close();
-      $in->close();
-    }
-  }
-
-  /**
    * Transmits a given source to the output asynchronously.
    *
    * @param  io.Channel|io.streams.InputStream $source
