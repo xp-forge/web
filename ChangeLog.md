@@ -5,6 +5,7 @@ Web change log
 
 ## 4.0.0 / ????-??-??
 
+* Merged PR #89: Add optional parameter $append to `cookie()` - @thekid
 * Merged PR #107: Fix SAPI uploads with array parameters - @thekid
 
 ## 3.12.0 / 2023-12-03
