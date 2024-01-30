@@ -119,7 +119,7 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
     $res->cookie(new Cookie('theme', 'dark'));
-    $this->assertEquals(['dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
+    Assert::equals(['dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
   }
 
   #[Test]
@@ -127,7 +127,7 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     $res->cookie(new Cookie('theme', 'light'));
     $res->cookie(new Cookie('theme', 'dark'), true);
-    $this->assertEquals(['light', 'dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
+    Assert::equals(['light', 'dark'], array_map(function($c) { return $c->value(); }, $res->cookies()));
   }
 
   #[Test]
