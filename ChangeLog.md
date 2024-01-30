@@ -5,6 +5,9 @@ Web change log
 
 ## 4.0.0 / ????-??-??
 
+* Merged PR #103: Make it possible to append trace data to the response
+  which will appear in the log file
+  (@thekid)
 * Merged PR #102: Extract static content handling into reusable class.
   See also https://github.com/xp-forge/frontend/pull/39
   (@thekid)
