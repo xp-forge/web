@@ -3,7 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
-## 4.0.0 / ????-??-??
+## 4.0.0 / 2024-01-30
 
 * **Heads up:** Removed deprecated `transfer()` methods from Stream,
   Upload and Response classes, they have been superseded by `transmit()`.
