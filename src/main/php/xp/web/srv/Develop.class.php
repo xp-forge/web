@@ -5,7 +5,8 @@ use lang\archive\ArchiveClassLoader;
 use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use peer\Socket;
 use util\cmd\Console;
-use web\Logging;
+use web\{Application, Environment, Logging};
+use xp\web\Source;
 
 class Develop extends Server {
 
@@ -21,6 +22,9 @@ class Develop extends Server {
    * @param  string[] $logging
    */
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
+    $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
+    $application= (new Source($source, $environment))->application($args);
+    $application->initialize();
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
@@ -60,9 +64,8 @@ class Develop extends Server {
     putenv('WEB_LOG='.$logging);
 
     Console::writeLine("\e[33m@", nameof($this), "(HTTP @ `php ", implode(' ', $arguments), "`)\e[0m");
-    Console::writeLine("\e[1mServing {$profile}:", $source, $config, "\e[0m > ", Logging::of($logging)->target());
+    Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
-    Console::writeLine();
 
     if ('WINDOWS' === $os->name()) {
       $nul= 'NUL';

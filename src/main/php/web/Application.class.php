@@ -39,6 +39,16 @@ abstract class Application implements Value {
   }
 
   /**
+   * Initializes this application, being run once when the server starts.
+   * Empty in this default implementation, overwrite in subclasses.
+   *
+   * @return void
+   */
+  public function initialize() {
+    // Empty
+  }
+
+  /**
    * Returns this application's routes, which are either a `Routing`
    * instance or a map of paths to routing targets.
    *
