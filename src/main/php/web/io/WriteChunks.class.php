@@ -45,8 +45,18 @@ class WriteChunks extends Output {
   }
 
   /** @return void */
+  public function flush() {
+    if (strlen($this->buffer) > 0) {
+      $this->target->write(dechex(strlen($this->buffer))."\r\n".$this->buffer."\r\n");
+      $this->buffer= '';
+      $this->target->flush();
+    }
+  }
+
+  /** @return void */
   public function finish() {
-    $this->target->write(dechex(strlen($this->buffer))."\r\n".$this->buffer."\r\n0\r\n\r\n");
+    $this->flush();
+    $this->target->write("0\r\n\r\n");
     $this->target->close();
   }
 }

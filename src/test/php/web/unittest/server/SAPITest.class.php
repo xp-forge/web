@@ -222,4 +222,12 @@ class SAPITest {
     $parts = iterator_to_array($fixture->parts(''));
     Assert::equals('the value', $parts['varname']->value());
   }
+
+  #[Test, Values([[['the value']], [['key' => 'value']]])]
+  public function array_parameter_no_string_conversion_error($input) {
+    $_REQUEST= ['varname' => $input];
+    $fixture= new SAPI();
+    $parts = iterator_to_array($fixture->parts(''));
+    Assert::equals($input, $parts['varname']->value());
+  }
 }

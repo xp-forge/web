@@ -57,10 +57,13 @@ class Environment {
 
   /** @return io.Path */
   public function tempDir() {
-    foreach (['TEMP', 'TMP', 'TMPDIR', 'TEMPDIR'] as $variant) {
-      if (isset($_ENV[$variant])) return new Path($_ENV[$variant]);
-    }
-    return new Path(sys_get_temp_dir());
+    return new Path(
+      $_ENV['TEMP'] ??
+      $_ENV['TMP'] ??
+      $_ENV['TMPDIR'] ??
+      $_ENV['TEMPDIR'] ??
+      sys_get_temp_dir()
+    );
   }
 
   /**
@@ -81,6 +84,23 @@ class Environment {
    */
   public function variable($name) {
     return false === ($env= getenv($name)) ? null : $env;
+  }
+
+  /**
+   * Pass a given environment variable and value. Pass NULL in value to
+   * remove this environment variable.
+   *
+   * @param  string $name
+   * @param  ?string $value
+   * @return self
+   */
+  public function export($name, $value) {
+    if (null === $value) {
+      putenv($name);
+    } else {
+      putenv($name.'='.$value);
+    }
+    return $this;
   }
 
   /**

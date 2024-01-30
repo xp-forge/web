@@ -3,6 +3,44 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.0.0 / ????-??-??
+
+* Merged PR #107: Fix SAPI uploads with array parameters - @thekid
+
+## 3.12.0 / 2023-12-03
+
+* Merged PR #93: Allow passing or removing environment variables via the
+  new `Environment::export()` method
+  (@thekid)
+* Fixed code not to yield output streams, the AsyncServer API does not
+  expect any value there, but it might, see xp-framework/networking#28
+  (@thekid)
+
+## 3.11.0 / 2023-12-02
+
+* Ensured the output stream is always closed when it goes out of scope
+  (@thekid)
+* Removed superfluous layer of output buffering in development webserver
+  (@thekid)
+* Merged PR #105: Implement `WriteChunks::flush()` to use for explicitely
+  flushing
+  (@thekid)
+
+## 3.10.0 / 2023-11-20
+
+* Merged PR #104: Make `xp web [name]` load the class `xp.[name].Web`
+  (@thekid)
+* Allow `-m dev` as a shorthand for `-m develop` following the principle
+  "be liberal in what you accept"
+  (@thekid)
+
+## 3.9.0 / 2023-11-17
+
+* Improve error messages when class reference given on the command line
+  is not a `web.Application` subclass
+  (@thekid)
+* Added PHP 8.4 to the test matrix - @thekid
+
 ## 3.8.1 / 2023-05-22
 
 * Extended EOF handling inside server protocol handler to include NULL,

@@ -216,7 +216,7 @@ class Response {
     $out= $this->stream($size);
     try {
       while ($in->available()) {
-        yield 'write' => $out;
+        yield 'write' => null;
         $out->write($in->read());
       }
     } finally {
