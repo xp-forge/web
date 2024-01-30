@@ -47,7 +47,7 @@ class WebRunner {
         break;
       }
     }
-    $env->logging()->log($request, $response, $error);
+    $env->logging()->log($request, $response, ['error' => $error]);
   }
 
   /**

@@ -17,6 +17,7 @@ class Response {
   private $message= 'OK';
   private $cookies= [];
   private $headers= [];
+  public $trace= [];
 
   /** @param web.io.Output $output */
   public function __construct($output= null) {
@@ -71,6 +72,17 @@ class Response {
     } else {
       $this->headers[$name]= [(string)$value];
     }
+  }
+
+  /**
+   * Adds a named value to the trace, which will show up in the log file
+   *
+   * @param  string $name
+   * @param  var $value
+   * @return void
+   */
+  public function trace($name, $value) {
+    $this->trace[$name]= $value;
   }
 
   /** @return int */
