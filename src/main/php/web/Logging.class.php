@@ -10,7 +10,7 @@ class Logging {
    *
    * @param  ?web.log.Sink $sink
    */
-  public function __construct(Sink $sink= null) {
+  public function __construct($sink= null) {
     $this->sink= $sink;
   }
 
