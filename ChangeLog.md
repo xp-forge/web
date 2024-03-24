@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.1.0 / 2024-03-24
+
+* Made compatible with XP 12 - @thekid
+
 ## 4.0.0 / 2024-01-30
 
 * **Heads up:** Removed deprecated `transfer()` methods from Stream,
