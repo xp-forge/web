@@ -34,7 +34,7 @@ class Ranges {
    *
    * @param  string $input
    * @param  int $complete
-   * @return self or NULL if input is NULL.
+   * @return ?self or NULL if input is NULL.
    * @throws lang.FormatException
    */
   public static function in($input, $complete) {
