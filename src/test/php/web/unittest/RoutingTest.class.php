@@ -43,6 +43,14 @@ class RoutingTest {
     );
   }
 
+  #[Test, Values([['/test.txt', '/test\\.txt']])]
+  public function routes_escaping($definition, $expected) {
+    Assert::equals(
+      ['#^[A-Z]+ '.$expected.'/#' => $this->handlers['default']],
+      Routing::cast([$definition => $this->handlers['default']])->routes()
+    );
+  }
+
   #[Test]
   public function for_self() {
     $routes= new Routing();

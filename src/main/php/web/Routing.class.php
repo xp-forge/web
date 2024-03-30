@@ -60,7 +60,7 @@ class Routing implements Handler {
    * @return self
    */
   public function matching($definitions, $target) {
-    static $quote= ['#' => '\\#'];
+    static $quote= ['#' => '\\#', '.' => '\\.'];
 
     $handler= $target instanceof Handler ? $target : new Call($target);
     foreach ((array)$definitions as $definition) {
