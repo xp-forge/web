@@ -1,7 +1,7 @@
 <?php namespace web;
 
 use web\handler\Call;
-use web\routing\{CannotRoute, Matches, Path, Target};
+use web\routing\CannotRoute;
 
 /**
  * Routing takes care of directing the request to the correct target
@@ -10,9 +10,9 @@ use web\routing\{CannotRoute, Matches, Path, Target};
  * @test  web.unittest.RoutingTest
  */
 class Routing implements Handler {
+  private $routes= [];
   private $top= false;
   private $fallback= null;
-  private $routes= [];
 
   /**
    * Casts given routes to an instance of this Routing. Routes may be one of:
@@ -43,19 +43,8 @@ class Routing implements Handler {
     return $r;
   }
 
-  /** @return web.routing.Route[] */
+  /** @return [:web.Handler] */
   public function routes() { return $this->routes; }
-
-  /**
-   * Adds a given route and returns this routing instance
-   *
-   * @param  web.routing.Route $route
-   * @return self
-   */
-  public function with(Route $route) {
-    $this->routes[]= $route;
-    return $this;
-  }
 
   /**
    * Matches a given definition, routing it to the specified target.
@@ -72,30 +61,15 @@ class Routing implements Handler {
    * @return self
    */
   public function matching($definitions, $target) {
+    $handler= $target instanceof Handler ? $target : new Call($target);
     foreach ((array)$definitions as $definition) {
       if ('/' === $definition[0]) {
-        $matcher= new Path($definition);
+        $this->routes['#^[A-Z]+ '.preg_quote(rtrim($definition, '/'), '#').'/#']= $handler;
       } else {
-        sscanf($definition, '%[A-Z|] %[^ ]', $method, $path);
-        $matcher= new Target(explode('|', $method), $path ?: '*');
+        sscanf($definition, "%[A-Z|] %[^\r]", $methods, $path);
+        $this->routes['#^'.$methods.' '.(null === $path ? '' : preg_quote(rtrim($path, '/'), '#')).'/#']= $handler;
       }
-      $this->routes[]= new Route($matcher, $target);
     }
-    return $this;
-  }
-
-  /**
-   * Maps all requests matching a given matcher to a given target.
-   *
-   * Always calls this as last method when creating the routing instance;
-   * or else other mappings will not be honored.
-   *
-   * @param  web.routing.Match|function(web.Request): bool $matcher
-   * @param  web.Handler|function(web.Request, web.Response): var $target
-   * @return self
-   */
-  public function mapping($matcher, $target) {
-    $this->routes[]= new Route($matcher, $target);
     return $this;
   }
 
@@ -105,12 +79,8 @@ class Routing implements Handler {
    * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
-  public function fallbacks($handler) {
-    if ($handler instanceof Handler) {
-      $this->fallback= $handler;
-    } else {
-      $this->fallback= new Call($handler);
-    }
+  public function fallbacks($target) {
+    $this->fallback= $target instanceof Handler ? $target : new Call($target);
     return $this;
   }
 
@@ -124,8 +94,9 @@ class Routing implements Handler {
    * @throws web.Error
    */
   public function route($request) {
-    foreach ($this->routes as $route) {
-      if ($handler= $route->route($request)) return $handler;
+    $match= $request->method().' '.rtrim($request->uri()->path(), '/').'/';
+    foreach ($this->routes as $pattern => $handler) {
+      if (preg_match($pattern, $match)) return $handler;
     }
     if ($this->fallback) return $this->fallback;
 
@@ -153,10 +124,5 @@ class Routing implements Handler {
     }
 
     return $result;
-  }
-
-  /** @deprecated */
-  public function service($request, $response) {
-    return $this->handle($request, $response);
   }
 }

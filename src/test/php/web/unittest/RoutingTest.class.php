@@ -38,8 +38,10 @@ class RoutingTest {
 
   #[Test]
   public function routes_returns_previously_added_map() {
-    $route= new Route(new Target('GET', '/'), $this->handlers['default']);
-    Assert::equals([$route], (new Routing())->with($route)->routes());
+    Assert::equals(
+      ['#^[A-Z]+ /#' => $this->handlers['default']],
+      Routing::cast(['/' => $this->handlers['default']])->routes()
+    );
   }
 
   #[Test]
@@ -127,27 +129,6 @@ class RoutingTest {
       ->matching(['/test', '/test.html'], $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
       ->route(new Request(new TestInput('GET', $url)))
-    );
-  }
-
-  #[Test, Values([['GET', 'specific'], ['POST', 'default'], ['HEAD', 'specific']])]
-  public function mapping($verb, $expected) {
-    Assert::equals($this->handlers[$expected], (new Routing())
-      ->mapping(
-        function($request) { return in_array($request->method(), ['GET', 'HEAD']); },
-        $this->handlers['specific']
-      )
-      ->fallbacks($this->handlers['default'])
-      ->route(new Request(new TestInput($verb, '/')))
-    );
-  }
-
-  #[Test, Values([['GET', 'specific'], ['POST', 'default'], ['HEAD', 'specific']])]
-  public function with($verb, $expected) {
-    Assert::equals($this->handlers[$expected], (new Routing())
-      ->with(new Route(new Target(['GET', 'HEAD'], '*'), $this->handlers['specific']))
-      ->fallbacks($this->handlers['default'])
-      ->route(new Request(new TestInput($verb, '/')))
     );
   }
 
