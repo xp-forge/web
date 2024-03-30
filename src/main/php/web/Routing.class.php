@@ -92,7 +92,7 @@ class Routing implements Handler {
    * 
    * @param  web.Request $request
    * @return web.Handler
-   * @throws web.Error
+   * @throws web.CannotRoute
    */
   public function route($request) {
     $match= $request->method().' '.rtrim($request->uri()->path(), '/').'/';
