@@ -60,13 +60,15 @@ class Routing implements Handler {
    * @return self
    */
   public function matching($definitions, $target) {
+    static $quote= ['#' => '\\#'];
+
     $handler= $target instanceof Handler ? $target : new Call($target);
     foreach ((array)$definitions as $definition) {
       if ('/' === $definition[0]) {
-        $this->routes['#^[A-Z]+ '.preg_quote(rtrim($definition, '/'), '#').'/#']= $handler;
+        $this->routes['#^[A-Z]+ '.strtr(rtrim($definition, '/'), $quote).'/#']= $handler;
       } else {
         sscanf($definition, "%[A-Z|] %[^\r]", $methods, $path);
-        $this->routes['#^'.$methods.' '.(null === $path ? '' : preg_quote(rtrim($path, '/'), '#')).'/#']= $handler;
+        $this->routes['#^'.$methods.' '.(null === $path ? '' : strtr(rtrim($path, '/'), $quote)).'/#']= $handler;
       }
     }
     return $this;

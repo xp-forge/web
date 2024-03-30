@@ -131,6 +131,15 @@ class RoutingTest {
     );
   }
 
+  #[Test, Values([['/test', 'specific'], ['/test.html', 'specific'], ['/', 'default']])]
+  public function matching_pattern($url, $expected) {
+    Assert::equals($this->handlers[$expected], (new Routing())
+      ->matching('/test(.html)?', $this->handlers['specific'])
+      ->fallbacks($this->handlers['default'])
+      ->route(new Request(new TestInput('GET', $url)))
+    );
+  }
+
   #[Test, Values(['/api', '//api', '///api', '/test/../api', '/./api', '/../api', '/./../api',])]
   public function request_canonicalized_before_matching($requested) {
     Assert::equals($this->handlers['specific'], Routing::cast(['/api' => $this->handlers['specific']])
