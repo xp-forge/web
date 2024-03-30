@@ -139,10 +139,10 @@ class RoutingTest {
     );
   }
 
-  #[Test, Values([['/test', 'specific'], ['/test.html', 'specific'], ['/', 'default']])]
+  #[Test, Values([['/test', 'specific'], ['/test.html', 'specific'], ['/Test.html', 'specific'], ['/test_html', 'default'], ['/', 'default']])]
   public function matching_pattern($url, $expected) {
     Assert::equals($this->handlers[$expected], (new Routing())
-      ->matching('/test(.html)?', $this->handlers['specific'])
+      ->matching('/(?i)test(.html)?', $this->handlers['specific'])
       ->fallbacks($this->handlers['default'])
       ->route(new Request(new TestInput('GET', $url)))
     );
