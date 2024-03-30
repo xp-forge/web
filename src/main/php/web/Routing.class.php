@@ -1,7 +1,6 @@
 <?php namespace web;
 
 use web\handler\Call;
-use web\routing\CannotRoute;
 
 /**
  * Routing takes care of directing the request to the correct target

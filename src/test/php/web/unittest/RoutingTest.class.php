@@ -2,8 +2,7 @@
 
 use test\{Assert, Expect, Test, Values};
 use web\io\{TestInput, TestOutput};
-use web\routing\{CannotRoute, Target};
-use web\{Application, Environment, Filters, Handler, Request, Response, Route, Routing};
+use web\{Application, Environment, Filters, Handler, Request, Response, CannotRoute, Routing};
 
 class RoutingTest {
   private $handlers;
