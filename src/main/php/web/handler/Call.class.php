@@ -1,13 +1,14 @@
 <?php namespace web\handler;
 
 use lang\FunctionType;
+use web\handler;
 
 /**
  * Calls to a given invokeable 
  *
- * @test  xp://web.unittest.handler.CallTest
+ * @test  web.unittest.handler.CallTest
  */
-class Call implements \web\Handler {
+class Call implements Handler {
   private static $TYPE;
   private $invokeable;
 
