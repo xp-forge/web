@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Made compatible with `xp-forge/uri` version 3.0.0 - @thekid
+
 ## 4.1.0 / 2024-03-24
 
 * Made compatible with XP 12 - @thekid

@@ -8,7 +8,7 @@
   "require" : {
     "xp-framework/core": "^12.0 | ^11.0 | ^10.0",
     "xp-framework/networking": "^10.1 | ^9.3",
-    "xp-forge/uri": "^2.0 | ^1.4",
+    "xp-forge/uri": "^3.0 | ^2.0 | ^1.4",
     "php": ">=7.0.0"
   },
   "require-dev" : {
