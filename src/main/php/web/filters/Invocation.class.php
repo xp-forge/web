@@ -1,7 +1,7 @@
 <?php namespace web\filters;
 
 use Generator, Traversable;
-use web\{Routing, Dispatch};
+use web\{Routes, Dispatch};
 
 /**
  * Filter chain invocation
@@ -18,7 +18,7 @@ class Invocation {
    * @param  web.Filter[] $filters
    */
   public function __construct($routing, $filters= []) {
-    $this->routing= Routing::cast($routing);
+    $this->routing= Routes::cast($routing);
     $this->filters= $filters;
     $this->offset= 0;
     $this->length= sizeof($filters);
