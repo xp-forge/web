@@ -27,7 +27,7 @@ class Filters implements Handler {
         $this->filters[]= newinstance(Filter::class, [], ['filter' => $filter]);
       }
     }
-    $this->routing= Routing::cast($routing);
+    $this->routing= Routes::cast($routing);
   }
 
   /**
