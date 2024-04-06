@@ -49,7 +49,7 @@ abstract class Application implements Value {
   }
 
   /**
-   * Returns this application's routes, which are either a `Routing`
+   * Returns this application's routes, which are either a `Routes`
    * instance or a map of paths to routing targets.
    *
    * _Overwrite this in your implementation!_

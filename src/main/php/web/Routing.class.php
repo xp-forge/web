@@ -1,7 +1,7 @@
 <?php namespace web;
 
 use web\handler\Call;
-use web\routing\{CannotRoute, Matches, Path, Target};
+use web\routing\{CannotRoute, Path, Target};
 
 /**
  * Routing takes care of directing the request to the correct target
