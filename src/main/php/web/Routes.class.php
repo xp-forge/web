@@ -57,18 +57,25 @@ class Routes implements Handler {
    * - `/test` matches any request inside /test
    *
    * @param  string $match
-   * @param  web.Handler|function(web.Request, web.Response): var $target
+   * @param  web.Handler|function(web.Request, web.Response): var|[:var] $target
    * @return self
    */
-  public function route($match, $target) {
+  public function route($match, $target, $base= '') {
     static $quote= ['#' => '\\#', '.' => '\\.'];
 
-    $handler= $target instanceof Handler ? $target : new Call($target);
-    if ('/' === $match[0]) {
-      $this->routes['#^[A-Z]+ '.strtr(rtrim($match, '/'), $quote).'/#']= $handler;
+    if (is_array($target)) {
+      $base.= rtrim($match, '/');
+      foreach ($target as $suffix => $nested) {
+        $this->route($suffix, $nested, $base);
+      }
     } else {
-      sscanf($match, "%[A-Z|] %[^\r]", $methods, $path);
-      $this->routes['#^'.$methods.' '.(null === $path ? '' : strtr(rtrim($path, '/'), $quote)).'/#']= $handler;
+      $handler= $target instanceof Handler ? $target : new Call($target);
+      if ('/' === $match[0]) {
+        $this->routes['#^[A-Z]+ '.$base.strtr(rtrim($match, '/'), $quote).'/#']= $handler;
+      } else {
+        sscanf($match, "%[A-Z|] %[^\r]", $methods, $path);
+        $this->routes['#^'.$methods.' '.$base.(null === $path ? '' : strtr(rtrim($path, '/'), $quote)).'/#']= $handler;
+      }
     }
     return $this;
   }

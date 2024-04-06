@@ -140,6 +140,22 @@ class RoutesTest {
     );
   }
 
+  #[Test, Values([['/test/specific', 'specific'], ['/test/default', 'default']])]
+  public function route_nested($url, $expected) {
+    Assert::equals($this->handlers[$expected], (new Routes())
+      ->route('/test', ['/specific' => $this->handlers['specific'], '/default' => $this->handlers['default']])
+      ->target(new Request(new TestInput('GET', $url)))
+    );
+  }
+
+  #[Test, Values([['GET', 'specific'], ['POST', 'default']])]
+  public function route_nested_method($verb, $expected) {
+    Assert::equals($this->handlers[$expected], (new Routes())
+      ->route('/test', ['GET' => $this->handlers['specific'], 'POST' => $this->handlers['default']])
+      ->target(new Request(new TestInput($verb, '/test')))
+    );
+  }
+
   #[Test, Values(['/api', '//api', '///api', '/test/../api', '/./api', '/../api', '/./../api',])]
   public function request_canonicalized_before_route($requested) {
     Assert::equals($this->handlers['specific'], Routes::cast(['/api' => $this->handlers['specific']])
