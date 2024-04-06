@@ -47,7 +47,7 @@ class Routes implements Handler {
   public function routes() { return $this->routes; }
 
   /**
-   * Matches a given definition, routing it to the specified target.
+   * Routes a given match to the specified target.
    *
    * - `GET` matches GET requests
    * - `GET /` matches GET requests to any path
@@ -56,18 +56,18 @@ class Routes implements Handler {
    * - `/` matches any request to any path
    * - `/test` matches any request inside /test
    *
-   * @param  string $definition
+   * @param  string $match
    * @param  web.Handler|function(web.Request, web.Response): var $target
    * @return self
    */
-  public function route($definition, $target) {
+  public function route($match, $target) {
     static $quote= ['#' => '\\#', '.' => '\\.'];
 
     $handler= $target instanceof Handler ? $target : new Call($target);
-    if ('/' === $definition[0]) {
-      $this->routes['#^[A-Z]+ '.strtr(rtrim($definition, '/'), $quote).'/#']= $handler;
+    if ('/' === $match[0]) {
+      $this->routes['#^[A-Z]+ '.strtr(rtrim($match, '/'), $quote).'/#']= $handler;
     } else {
-      sscanf($definition, "%[A-Z|] %[^\r]", $methods, $path);
+      sscanf($match, "%[A-Z|] %[^\r]", $methods, $path);
       $this->routes['#^'.$methods.' '.(null === $path ? '' : strtr(rtrim($path, '/'), $quote)).'/#']= $handler;
     }
     return $this;
