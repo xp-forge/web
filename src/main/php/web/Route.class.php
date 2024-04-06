@@ -3,6 +3,7 @@
 use web\handler\Call;
 use web\routing\RouteMatch;
 
+/** @deprecated */
 class Route {
   private $match, $handler;
 

@@ -1,5 +1,6 @@
 <?php namespace web\routing;
 
+/** @deprecated */
 interface RouteMatch {
 
   /**
