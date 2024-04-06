@@ -30,7 +30,13 @@ class Routing implements Handler {
     if ($routes instanceof self) {
       $r= $routes;
     } else if ($routes instanceof Application) {
-      $r= self::cast($routes->routes(), true);
+      $r= new self();
+      foreach ($routes->routing()->routes() as $pattern => $target) {
+        $matcher= function($req) use($pattern) {
+          return (bool)preg_match($pattern, $req->method().' '.rtrim($req->uri()->path(), '/').'/');
+        };
+        $r->with(new Route($matcher, $target));
+      }
     } else if (is_array($routes)) {
       $r= new self();
       foreach ($routes as $definition => $target) {
