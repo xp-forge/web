@@ -86,12 +86,12 @@ class Routes implements Handler {
 
   /**
    * Routes a request to the handler specified by this routing instance's
-   * routes. Throws a `CannotRoute` error if not route is matched and no
+   * routes. Throws a `NotFound` error if not route is matched and no
    * default route exists.
    * 
    * @param  web.Request $request
    * @return web.Handler
-   * @throws web.CannotRoute
+   * @throws web.NotFound
    */
   public function target($request) {
     $match= $request->method().' '.rtrim($request->uri()->path(), '/').'/';
@@ -100,7 +100,7 @@ class Routes implements Handler {
     }
     if ($this->default) return $this->default;
 
-    throw new CannotRoute($request);
+    throw new NotFound($request->uri()->path());
   }
 
   /**
