@@ -7,6 +7,7 @@ use web\routing\{CannotRoute, Matches, Path, Target};
  * Routing takes care of directing the request to the correct target
  * by using one or more routes given to it.
  *
+ * @deprecated Use web.Routes instead!
  * @test  web.unittest.RoutingTest
  */
 class Routing implements Handler {
@@ -29,7 +30,7 @@ class Routing implements Handler {
     if ($routes instanceof self) {
       $r= $routes;
     } else if ($routes instanceof Application) {
-      $r= $routes->routing();
+      $r= self::cast($routes->routes(), true);
     } else if (is_array($routes)) {
       $r= new self();
       foreach ($routes as $definition => $target) {
