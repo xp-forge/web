@@ -58,6 +58,7 @@ class Routes implements Handler {
    *
    * @param  string $match
    * @param  web.Handler|function(web.Request, web.Response): var|[:var] $target
+   * @param  string $base
    * @return self
    */
   public function route($match, $target, $base= '') {
