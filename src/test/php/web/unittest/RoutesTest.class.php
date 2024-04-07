@@ -1,6 +1,6 @@
 <?php namespace web\unittest;
 
-use test\{Assert, Expect, Test, Values};
+use test\{Assert, Before, Expect, Test, Values};
 use web\io\{TestInput, TestOutput};
 use web\routing\CannotRoute;
 use web\{Application, Environment, Filters, Handler, Request, Response, Routes, NotFound};
@@ -8,7 +8,8 @@ use web\{Application, Environment, Filters, Handler, Request, Response, Routes, 
 class RoutesTest {
   private $handlers;
 
-  public function __construct() {
+  #[Before]
+  public function handlers() {
     $this->handlers= [
       'specific' => new class() implements Handler { public $name= 'specific'; public function handle($req, $res) { }},
       'default'  => new class() implements Handler { public $name= 'default'; public function handle($req, $res) { }},
