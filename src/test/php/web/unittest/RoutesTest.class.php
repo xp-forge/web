@@ -37,6 +37,15 @@ class RoutesTest {
   }
 
   #[Test]
+  public function handle_route() {
+    (new Routes())
+      ->route('/', function($req, $res) use(&$called) { $called++; })
+      ->handle(new Request(new TestInput('GET', '/')), new Response())
+    ;
+    Assert::equals(1, $called);
+  }
+
+  #[Test]
   public function routes_initially_empty() {
     Assert::equals([], (new Routes())->routes());
   }
