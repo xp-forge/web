@@ -28,6 +28,15 @@ class RoutesTest {
   }
 
   #[Test]
+  public function handle_default() {
+    (new Routes())
+      ->default(function($req, $res) use(&$called) { $called++; })
+      ->handle(new Request(new TestInput('GET', '/')), new Response())
+    ;
+    Assert::equals(1, $called);
+  }
+
+  #[Test]
   public function routes_initially_empty() {
     Assert::equals([], (new Routes())->routes());
   }
