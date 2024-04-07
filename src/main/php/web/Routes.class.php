@@ -70,13 +70,18 @@ class Routes implements Handler {
         $this->route($suffix, $nested, $base);
       }
     } else {
-      $handler= $target instanceof Handler ? $target : new Call($target);
       if ('/' === $match[0]) {
-        $this->routes['#^[A-Z]+ '.$base.strtr(rtrim($match, '/'), $quote).'/#']= $handler;
+        $methods= '[A-Z]+';
+        $base.= rtrim($match, '/');
       } else {
         sscanf($match, "%[A-Z|] %[^\r]", $methods, $path);
-        $this->routes['#^'.$methods.' '.$base.(null === $path ? '' : strtr(rtrim($path, '/'), $quote)).'/#']= $handler;
+        null === $path || $base.= rtrim($path, '/');
       }
+
+      $this->routes['#^'.$methods.' '.strtr($base, $quote).'/#']= $target instanceof Handler
+        ? $target
+        : new Call($target)
+      ;
     }
     return $this;
   }
