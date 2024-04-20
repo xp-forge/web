@@ -51,6 +51,14 @@ class RequestTest {
     Assert::equals(new URI('http://localhost/r'), (new Request(new TestInput('GET', '/')))->rewrite($uri)->uri());
   }
 
+  #[Test, Values([['/', []], ['/?c=test', ['c' => 'test']]])]
+  public function parameters_and_rewriting($uri, $expected) {
+    $req= new Request(new TestInput('GET', '/?a=b&c=d'));
+    $req->params(); // Ensure params are passed from the query string
+
+    Assert::equals($expected, $req->rewrite($uri)->params());
+  }
+
   #[Test]
   public function uri_respects_host_header() {
     Assert::equals(

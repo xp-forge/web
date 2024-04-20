@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.1.1 / 2024-04-20
+
+* Fixed request parameters being out of sync with the URI after calling
+  the `web.Request::rewrite()` method
+  (@thekid)
 * Made compatible with `xp-forge/uri` version 3.0.0 - @thekid
 
 ## 4.1.0 / 2024-03-24
