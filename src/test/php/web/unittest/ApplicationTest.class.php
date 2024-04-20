@@ -219,6 +219,22 @@ class ApplicationTest {
   }
 
   #[Test]
+  public function dispatch_works_with_nesting() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => [
+          '/test' => function($request, $response) use(&$handled) {
+            $handled[]= [$request, $response];
+          },
+        ],
+        '/' => new Filters([], function($request, $response) {
+          return $request->dispatch('/home/test');
+        }),
+      ];
+    });
+  }
+
+  #[Test]
   public function string_representation() {
     Assert::equals(
       'web.unittest.HelloWorld(static)',
