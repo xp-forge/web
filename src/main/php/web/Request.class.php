@@ -56,6 +56,7 @@ class Request implements Value {
    */
   public function rewrite($uri) {
     $this->uri= $this->uri->resolve($uri instanceof URI ? $uri : new URI($uri));
+    $this->params= null; // Force re-evaluation
     return $this;
   }
 
