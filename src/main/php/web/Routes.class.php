@@ -55,6 +55,8 @@ class Routes implements Handler {
    * - `GET|POST` matches GET and POST requests
    * - `/` matches any request to any path
    * - `/test` matches any request inside /test
+   * - `/{id}` matches any path segment and passes it as request value "id"
+   * - `/{id:[0-9]+}` matches `[0-9]+` and passes it as request value "id"
    *
    * @param  string $match
    * @param  web.Handler|function(web.Request, web.Response): var|[:var] $target
@@ -62,8 +64,6 @@ class Routes implements Handler {
    * @return self
    */
   public function route($match, $target, $base= '') {
-    static $quote= ['#' => '\\#', '.' => '\\.'];
-
     if (is_array($target)) {
       $base.= rtrim($match, '/');
       foreach ($target as $suffix => $nested) {
@@ -78,7 +78,12 @@ class Routes implements Handler {
         null === $path || $base.= rtrim($path, '/');
       }
 
-      $this->routes['#^'.$methods.' '.strtr($base, $quote).'/#']= $target instanceof Handler
+      $pattern= preg_replace(
+        ['/\{([^:}]+)?:([^}]+)\}/', '/\{([^}]+)\}/', '/[.#]/'],
+        ['(?<$1>$2)', '(?<$1>[^/]+)', '\\\\$0'],
+        $base
+      );
+      $this->routes["#^{$methods} {$pattern}/#"]= $target instanceof Handler
         ? $target
         : new Call($target)
       ;
@@ -109,7 +114,12 @@ class Routes implements Handler {
   public function target($request) {
     $match= $request->method().' '.rtrim($request->uri()->path(), '/').'/';
     foreach ($this->routes as $pattern => $handler) {
-      if (preg_match($pattern, $match)) return $handler;
+      if (preg_match($pattern, $match, $matches)) {
+        foreach ($matches as $key => $value) {
+          is_string($key) && $request->pass($key, $value);
+        }
+        return $handler;
+      }
     }
     if ($this->default) return $this->default;
 

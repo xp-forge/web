@@ -45,6 +45,15 @@ class RoutesTest {
     Assert::equals(1, $called);
   }
 
+  #[Test, Values(['/{path}', '/{path:[a-z]+}'])]
+  public function handle_passes_placeholder($pattern) {
+    (new Routes())
+      ->route($pattern, function($req, $res) use(&$passed) { $passed= $req->values(); })
+      ->handle(new Request(new TestInput('GET', '/test')), new Response())
+    ;
+    Assert::equals(['path' => 'test'], $passed);
+  }
+
   #[Test]
   public function routes_initially_empty() {
     Assert::equals([], (new Routes())->routes());
@@ -147,6 +156,15 @@ class RoutesTest {
       ->route('GET /', $this->handlers['specific'])
       ->default($this->handlers['default'])
       ->target(new Request(new TestInput($verb, '/')))
+    );
+  }
+
+  #[Test, Values([['/test', 'specific'], ['/test.html', 'specific'], ['/test/sub', 'specific'], ['/', 'default']])]
+  public function route_placeholder($url, $expected) {
+    Assert::equals($this->handlers[$expected], (new Routes())
+      ->route('/{id}', $this->handlers['specific'])
+      ->default($this->handlers['default'])
+      ->target(new Request(new TestInput('GET', $url)))
     );
   }
 
