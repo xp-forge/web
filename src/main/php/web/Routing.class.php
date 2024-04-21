@@ -10,7 +10,6 @@ use web\routing\{CannotRoute, Matches, Path, Target};
  * @test  web.unittest.RoutingTest
  */
 class Routing implements Handler {
-  private $top= false;
   private $fallback= null;
   private $routes= [];
 
@@ -22,25 +21,22 @@ class Routing implements Handler {
    * - A handler, which becomes the argument to `fallback()`.
    *
    * @param  web.Handler|web.Application|function(web.Request, web.Response): var|[:var] $routes
-   * @param  bool $top Whether this is the top-level routing
    * @return self
    */
-  public static function cast($routes, $top= false) {
+  public static function cast($routes) {
     if ($routes instanceof self) {
-      $r= $routes;
+      return $routes;
     } else if ($routes instanceof Application) {
-      $r= $routes->routing();
+      return $routes->routing();
     } else if (is_array($routes)) {
       $r= new self();
       foreach ($routes as $definition => $target) {
         $r->matching($definition, $target);
       }
+      return $r;
     } else {
-      $r= (new self())->fallbacks($routes);
+      return (new self())->fallbacks($routes);
     }
-
-    $r->top= $top;
-    return $r;
   }
 
   /** @return web.routing.Route[] */
@@ -145,6 +141,6 @@ class Routing implements Handler {
 
   /** @deprecated */
   public function service($request, $response) {
-    return $this->handle($request, $response);
+    return $this->route($request)->handle($request, $response);
   }
 }
