@@ -32,10 +32,10 @@ abstract class Application implements Value {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $routing= Routing::cast($this->routes(), true);
-      $this->routing= $this->filters ? new Filters($this->filters, $routing) : $routing;
+      $routes= $this->routes();
+      $this->routing= $this->filters ? new Filters($this->filters, $routes) : Routing::cast($routes);
     }
-    return $this->routing;    
+    return $this->routing;
   }
 
   /**
