@@ -1,7 +1,6 @@
 <?php namespace web;
 
 use web\handler\Call;
-use web\routing\CannotRoute;
 
 /**
  * Routing takes care of directing the request to the correct target
@@ -22,25 +21,22 @@ class Routes implements Handler {
    * - A handler, which becomes the argument to `default()`.
    *
    * @param  web.Handler|web.Application|function(web.Request, web.Response): var|[:var] $routes
-   * @param  bool $top Whether this is the top-level routing
    * @return self
    */
-  public static function cast($routes, $top= false) {
+  public static function cast($routes) {
     if ($routes instanceof self) {
-      $r= $routes;
+      return $routes;
     } else if ($routes instanceof Application) {
-      $r= $routes->routing();
+      return $routes->routing();
     } else if (is_array($routes)) {
       $r= new self();
       foreach ($routes as $definition => $target) {
         $r->route($definition, $target);
       }
+      return $r;
     } else {
-      $r= (new self())->default($routes);
+      return (new self())->default($routes);
     }
-
-    $r->top= $top;
-    return $r;
   }
 
   /** @return [:web.Handler] */
