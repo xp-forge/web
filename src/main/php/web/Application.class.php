@@ -1,6 +1,6 @@
 <?php namespace web;
 
-use Closure, Generator;
+use Closure, Traversable;
 use lang\Value;
 
 /**
@@ -86,7 +86,7 @@ abstract class Application implements Value {
 
     // Handle dispatching
     dispatch: $result= $this->routing()->handle($request, $response);
-    if ($result instanceof Generator) {
+    if ($result instanceof Traversable) {
       foreach ($result as $kind => $argument) {
         if ('dispatch' === $kind) {
           $seen[$request->uri()->hashCode()]= true;
