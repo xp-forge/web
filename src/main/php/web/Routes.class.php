@@ -1,5 +1,6 @@
 <?php namespace web;
 
+use Traversable;
 use web\handler\Call;
 
 /**
@@ -60,7 +61,7 @@ class Routes implements Handler {
    * @return self
    */
   public function route($match, $target, $base= '') {
-    if (is_array($target)) {
+    if ($target instanceof Traversable || is_array($target)) {
       $base.= rtrim($match, '/');
       foreach ($target as $suffix => $nested) {
         $this->route($suffix, $nested, $base);

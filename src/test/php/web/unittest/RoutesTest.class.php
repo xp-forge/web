@@ -1,5 +1,6 @@
 <?php namespace web\unittest;
 
+use IteratorAggregate, Traversable;
 use test\{Assert, Before, Expect, Test, Values};
 use web\io\{TestInput, TestOutput};
 use web\routing\CannotRoute;
@@ -190,6 +191,23 @@ class RoutesTest {
     Assert::equals($this->handlers[$expected], (new Routes())
       ->route('/test', ['GET' => $this->handlers['specific'], 'POST' => $this->handlers['default']])
       ->target(new Request(new TestInput($verb, '/test')))
+    );
+  }
+
+  #[Test, Values([['/test/specific', 'specific'], ['/test/default', 'default']])]
+  public function route_nested_iterator($url, $expected) {
+    $test= new class($this->handlers) implements IteratorAggregate {
+      private $handlers;
+      public function __construct($handlers) { $this->handlers= $handlers; }
+      public function getIterator(): Traversable {
+        yield '/specific' => $this->handlers['specific'];
+        yield '/default' => $this->handlers['default'];
+      }
+    };
+
+    Assert::equals($this->handlers[$expected], (new Routes())
+      ->route('/test', $test)
+      ->target(new Request(new TestInput('GET', $url)))
     );
   }
 
