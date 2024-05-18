@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Deprecated the `web.Dispatch` class. This class was never intended to
+  be used directly, one would call `web.Request::dispatch()` instead.
+  (@thekid)
 * Merged PR #112: Refactor dispatching to be handled inside application
   (@thekid)
 
