@@ -4,7 +4,7 @@ use lang\IllegalStateException;
 use test\{Assert, Expect, Test, Values};
 use util\Objects;
 use web\io\{TestInput, TestOutput};
-use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routes};
+use web\{Application, Dispatch, Environment, Error, Filter, Filters, Handler, Request, Response, Routes};
 
 class ApplicationTest {
   private $environment;
@@ -214,6 +214,21 @@ class ApplicationTest {
         '/' => new Filters([], function($request, $response) {
           return $request->dispatch('/home');
         }),
+      ];
+    });
+  }
+
+  /** @deprecated */
+  #[Test]
+  public function dispatch_request_via_dispatch_instance() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => function($request, $response) use(&$handled) {
+          $handled[]= [$request, $response];
+        },
+        '/' => function($request, $response) {
+          return new Dispatch('/home');
+        },
       ];
     });
   }
