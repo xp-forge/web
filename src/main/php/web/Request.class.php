@@ -252,10 +252,10 @@ class Request implements Value {
    *
    * @param  string $path
    * @param  [:string] $params Optional request parameters to pass
-   * @return web.Dispatch
+   * @return iterable
    */
   public function dispatch($path, $params= []) {
-    return new Dispatch($this->uri()->using()->path($path)->params($params)->create());
+    yield 'dispatch' => $this->uri()->using()->path($path)->params($params)->create();
   }
 
   /**

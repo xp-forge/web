@@ -32,12 +32,12 @@ class ApplicationTest {
    * @return var[] A tuple of request and response instances
    */
   private function handle($routes) {
-    with ($app= newinstance(Application::class, [$this->environment], ['routes' => $routes])); {
-      $request= new Request(new TestInput('GET', '/'));
-      $response= new Response(new TestOutput());
-      $app->service($request, $response);
-      return [$request, $response];
-    }
+    $app= newinstance(Application::class, [$this->environment], ['routes' => $routes]);
+    $request= new Request(new TestInput('GET', '/'));
+    $response= new Response(new TestOutput());
+
+    foreach ($app->service($request, $response) ?? [] as $_) { }
+    return [$request, $response];
   }
 
   /**
