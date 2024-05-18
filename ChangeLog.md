@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #112: Refactor dispatching to be handled inside application
+  (@thekid)
+
 ## 4.1.1 / 2024-04-20
 
 * Fixed request parameters being out of sync with the URI after calling

@@ -1,6 +1,6 @@
 <?php namespace web;
 
-use Closure;
+use Closure, Generator;
 use lang\Value;
 
 /**
@@ -32,10 +32,10 @@ abstract class Application implements Value {
    */
   public final function routing() {
     if (null === $this->routing) {
-      $routing= Routes::cast($this->routes(), true);
-      $this->routing= $this->filters ? new Filters($this->filters, $routing) : $routing;
+      $routes= $this->routes();
+      $this->routing= $this->filters ? new Filters($this->filters, $routes) : Routes::cast($routes);
     }
-    return $this->routing;    
+    return $this->routing;
   }
 
   /**
@@ -82,7 +82,23 @@ abstract class Application implements Value {
    * @return var
    */
   public function service($request, $response) {
-    return $this->routing()->handle($request, $response);
+    $seen= [];
+
+    // Handle dispatching
+    dispatch: $result= $this->routing()->handle($request, $response);
+    if ($result instanceof Generator) {
+      foreach ($result as $kind => $argument) {
+        if ('dispatch' === $kind) {
+          $seen[$request->uri()->hashCode()]= true;
+          $request->rewrite($argument);
+          if (isset($seen[$request->uri()->hashCode()])) {
+            throw new Error(508, 'Internal redirect loop caused by dispatch to '.$argument);
+          }
+          goto dispatch;
+        }
+        yield $kind => $argument;
+      }
+    }
   }
 
   /** @return string */

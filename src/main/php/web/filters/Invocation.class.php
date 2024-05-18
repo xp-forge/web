@@ -1,6 +1,6 @@
 <?php namespace web\filters;
 
-use Generator, Traversable;
+use Traversable;
 use web\{Routes, Dispatch};
 
 /**
