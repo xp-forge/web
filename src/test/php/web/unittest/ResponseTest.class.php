@@ -309,6 +309,14 @@ class ResponseTest {
     Assert::true($res->flushed());
   }
 
+  #[Test]
+  public function ended() {
+    $res= new Response(new TestOutput());
+    Assert::false($res->flushed());
+    $res->end();
+    Assert::true($res->flushed());
+  }
+
   #[Test, Expect(IllegalStateException::class)]
   public function flush_twice() {
     $res= new Response(new TestOutput());
@@ -333,6 +341,16 @@ class ResponseTest {
       $executed++;
     });
     $res->send('Test', 'text/plain');
+    Assert::equals(1, $executed);
+  }
+
+  #[Test]
+  public function flushing_on_end() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->end();
     Assert::equals(1, $executed);
   }
 
