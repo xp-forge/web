@@ -136,16 +136,15 @@ class Response {
   /**
    * Flushes response
    *
-   * @param  web.io.Output $output
    * @return void
    * @throws lang.IllegalStateException
    */
-  public function flush($output= null) {
+  public function flush() {
     if ($this->flushed) {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $this->begin($output ?: $this->output);
+    $this->begin($this->output);
   }
 
   /**
@@ -172,8 +171,13 @@ class Response {
    *
    * @param  int $size If omitted, uses chunked transfer encoding
    * @return io.streams.OutputStream
+   * @throws lang.IllegalStateException
    */
   public function stream($size= null) {
+    if ($this->flushed) {
+      throw new IllegalStateException('Response already flushed');
+    }
+
     if (null === $size) {
       $output= $this->output->stream();
     } else {
@@ -181,7 +185,7 @@ class Response {
       $output= $this->output;
     }
 
-    $this->flush($output);
+    $this->begin($output);
     return $output;
   }
 
