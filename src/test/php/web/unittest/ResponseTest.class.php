@@ -315,4 +315,24 @@ class ResponseTest {
     $res->flush();
     $res->flush();
   }
+
+  #[Test]
+  public function flushing_explicitely() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->flush();
+    Assert::equals(1, $executed);
+  }
+
+  #[Test]
+  public function flushing_implicitely() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->send('Test', 'text/plain');
+    Assert::equals(1, $executed);
+  }
 }
