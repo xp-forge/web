@@ -335,4 +335,15 @@ class ResponseTest {
     $res->send('Test', 'text/plain');
     Assert::equals(1, $executed);
   }
+
+  #[Test]
+  public function multiple_flushing_functions() {
+    $executed= ['one' => 0, 'two' => 0];
+    $res= (new Response(new TestOutput()))
+      ->flushing(function() use(&$executed) { $executed['one']++; })
+      ->flushing(function() use(&$executed) { $executed['two']++; })
+    ;
+    $res->flush();
+    Assert::equals(['one' => 1, 'two' => 1], $executed);
+  }
 }

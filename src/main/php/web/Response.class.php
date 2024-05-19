@@ -12,7 +12,7 @@ use web\io\WriteChunks;
  */
 class Response {
   private $output;
-  private $flushing= null;
+  private $flushing= [];
   private $flushed= false;
   private $status= 200;
   private $message= 'OK';
@@ -112,7 +112,9 @@ class Response {
 
   /** @param web.io.Output $output */
   private function begin($output) {
-    $this->flushing && ($this->flushing)($this);
+    foreach ($this->flushing as $function) {
+      $function($this);
+    }
     $output->begin($this->status, $this->message, $this->cookies
       ? array_merge($this->headers, ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)])
       : $this->headers
@@ -123,11 +125,11 @@ class Response {
   /**
    * Passes a function to call before flushing the response
    *
-   * @param  ?function(self): void $function
+   * @param  function(self): void $function
    * @return self
    */
-  public function flushing($function) {
-    $this->flushing= $function;
+  public function flushing(callable $function) {
+    $this->flushing[]= $function;
     return $this;
   }
 
