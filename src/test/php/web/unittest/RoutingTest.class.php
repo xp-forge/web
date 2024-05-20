@@ -5,6 +5,7 @@ use web\io\{TestInput, TestOutput};
 use web\routing\{CannotRoute, Target};
 use web\{Application, Environment, Filters, Handler, Request, Response, Route, Routing};
 
+/** @deprecated */
 class RoutingTest {
   private $handlers;
 

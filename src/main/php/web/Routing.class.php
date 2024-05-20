@@ -1,12 +1,13 @@
 <?php namespace web;
 
 use web\handler\Call;
-use web\routing\{CannotRoute, Matches, Path, Target};
+use web\routing\{CannotRoute, Path, Target};
 
 /**
  * Routing takes care of directing the request to the correct target
  * by using one or more routes given to it.
  *
+ * @deprecated Use web.Routes instead!
  * @test  web.unittest.RoutingTest
  */
 class Routing implements Handler {
@@ -27,7 +28,14 @@ class Routing implements Handler {
     if ($routes instanceof self) {
       return $routes;
     } else if ($routes instanceof Application) {
-      return $routes->routing();
+      $r= new self();
+      foreach ($routes->routing()->routes() as $pattern => $target) {
+        $matcher= function($req) use($pattern) {
+          return (bool)preg_match($pattern, $req->method().' '.rtrim($req->uri()->path(), '/').'/');
+        };
+        $r->with(new Route($matcher, $target));
+      }
+      return $r;
     } else if (is_array($routes)) {
       $r= new self();
       foreach ($routes as $definition => $target) {
