@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.2.0 / 2024-05-20
+
 * Deprecated the `web.Dispatch` class. This class was never intended to
   be used directly, one would call `web.Request::dispatch()` instead.
   (@thekid)
