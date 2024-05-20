@@ -255,7 +255,17 @@ class Request implements Value {
    * @return iterable
    */
   public function dispatch($path, $params= []) {
-    yield 'dispatch' => $this->uri()->using()->path($path)->params($params)->create();
+    if (false === ($p= strpos($path, '?'))) {
+      $uri= $this->uri()->using()->path($path)->params($params);
+    } else {
+      $uri= $this->uri()->using()->path(substr($path, 0, $p))->query(substr($path, $p + 1), false);
+
+      // Merge parameters instead of overwriting them all via `params()`
+      foreach ($params as $name => $value) {
+        $uri->param($name, $value);
+      }
+    }
+    yield 'dispatch' => $uri->create();
   }
 
   /**
