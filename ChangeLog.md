@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.3.0 / 2024-05-20
+
+* Extended `web.Request::dispatch()` to accept query strings inside path
+  (@thekid)
+
 ## 4.2.0 / 2024-05-20
 
 * Deprecated the `web.Dispatch` class. This class was never intended to
