@@ -8,7 +8,7 @@ use util\Date;
  *
  * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
  * @see   https://en.wikipedia.org/wiki/Content_negotiation
- * @test  xp://web.unittest.HeadersTest
+ * @test  web.unittest.HeadersTest
  */
 abstract class Headers {
 
