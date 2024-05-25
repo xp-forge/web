@@ -96,6 +96,40 @@ abstract class Headers {
   }
 
   /**
+   * Returns a new parser for qvalues headers, e.g.:
+   *
+   * `Accept-Encoding: deflate, gzip;q=1.0, *;q=0.5`
+   *
+   * @return self
+   */
+  public static function qvalues() {
+    return new class() extends Headers {
+      protected function next($input, &$offset) {
+        $weighted= [];
+        $q= 1.0;
+        do {
+          $s= strcspn($input, ',;', $offset);
+          $value= ltrim(substr($input, $offset, $s), ' ');
+          $offset+= $s + 1;
+
+          $c= $input[$offset - 1] ?? null;
+          if (';' === $c) {
+            $weighted[$value]= (float)(Headers::pairs()->next($input, $offset)['q'] ?? $q);
+            $c= $input[$offset - 1] ?? null;
+          } else {
+            $weighted[$value]= $q;
+          }
+
+          $q-= 0.0001;
+        } while ($c);
+
+        arsort($weighted);
+        return $weighted;
+      }
+    };
+  }
+
+  /**
    * Returns a new parser for headers with key/value pairs
    *
    * `Forwarded: for=192.0.2.43;proto=http, for=198.51.100.17`
