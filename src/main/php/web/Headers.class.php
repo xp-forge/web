@@ -123,7 +123,7 @@ abstract class Headers {
           $q-= 0.0001;
         } while ($c);
 
-        arsort($weighted);
+        arsort($weighted, SORT_NUMERIC);
         return $weighted;
       }
     };
