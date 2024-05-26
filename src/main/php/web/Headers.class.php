@@ -96,13 +96,13 @@ abstract class Headers {
   }
 
   /**
-   * Returns a new parser for qvalues headers, e.g.:
+   * Returns a new parser for quality-factor headers, e.g.:
    *
    * `Accept-Encoding: deflate, gzip;q=1.0, *;q=0.5`
    *
    * @return self
    */
-  public static function qvalues() {
+  public static function qfactors() {
     return new class() extends Headers {
       protected function next($input, &$offset) {
         $weighted= [];

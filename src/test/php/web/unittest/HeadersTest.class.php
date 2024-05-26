@@ -46,7 +46,7 @@ class HeadersTest {
   public function accept() {
     Assert::equals(
       ['text/html' => 1.0, 'application/json' => 0.9, '*/*' => 0.8],
-      Headers::qvalues()->parse('text/html, application/json;q=0.9, */*;q=0.8')
+      Headers::qfactors()->parse('text/html, application/json;q=0.9, */*;q=0.8')
     );
   }
 
@@ -54,7 +54,7 @@ class HeadersTest {
   public function accept_encoding() {
     Assert::equals(
       ['deflate' => 1.0, 'gzip' => 1.0, '*' => 0.5],
-      Headers::qvalues()->parse('deflate, gzip;q=1.0, *;q=0.5')
+      Headers::qfactors()->parse('deflate, gzip;q=1.0, *;q=0.5')
     );
   }
 
