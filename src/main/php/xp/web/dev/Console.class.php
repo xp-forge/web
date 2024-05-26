@@ -54,6 +54,7 @@ class Console implements Filter {
       $debug= ob_get_clean();
     }
 
+    $res->trace= $buffer->trace;
     $out= $buffer->output();
     if (empty($debug)) {
       $out->drain($res);

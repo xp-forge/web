@@ -3,6 +3,7 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed trace data not appearing in logfile in development mode - @thekid
 * Merged PR #115: Add `web.Headers::qfactors()`, which can be used when
   implementing content negotiation
   (@thekid)
