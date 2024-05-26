@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #115: Add `web.Headers::qfactors()`, which can be used when
+  implementing content negotiation
+  (@thekid)
+
 ## 4.3.0 / 2024-05-20
 
 * Extended `web.Request::dispatch()` to accept query strings inside path
