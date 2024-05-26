@@ -8,7 +8,7 @@ use util\Date;
  *
  * @see   https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
  * @see   https://en.wikipedia.org/wiki/Content_negotiation
- * @test  xp://web.unittest.HeadersTest
+ * @test  web.unittest.HeadersTest
  */
 abstract class Headers {
 
@@ -91,6 +91,40 @@ abstract class Headers {
         $parameters= ';' === $c ? Headers::pairs()->next($input, $offset) : [];
 
         return new Parameterized($value, $parameters);
+      }
+    };
+  }
+
+  /**
+   * Returns a new parser for quality-factor headers, e.g.:
+   *
+   * `Accept-Encoding: deflate, gzip;q=1.0, *;q=0.5`
+   *
+   * @return self
+   */
+  public static function qfactors() {
+    return new class() extends Headers {
+      protected function next($input, &$offset) {
+        $weighted= [];
+        $q= 1.0;
+        do {
+          $s= strcspn($input, ',;', $offset);
+          $value= ltrim(substr($input, $offset, $s), ' ');
+          $offset+= $s + 1;
+
+          $c= $input[$offset - 1] ?? null;
+          if (';' === $c) {
+            $weighted[$value]= (float)(Headers::pairs()->next($input, $offset)['q'] ?? $q);
+            $c= $input[$offset - 1] ?? null;
+          } else {
+            $weighted[$value]= $q;
+          }
+
+          $q-= 0.0001;
+        } while ($c);
+
+        arsort($weighted, SORT_NUMERIC);
+        return $weighted;
       }
     };
   }
