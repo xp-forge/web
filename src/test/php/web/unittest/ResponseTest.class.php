@@ -11,6 +11,28 @@ use web\{Cookie, Response};
 class ResponseTest {
 
   /**
+   * Output implementation reversing the written bytes into the given buffer
+   * 
+   * @param  string $buffer
+   * @return web.io.Output
+   */
+  private function reverse(&$buffer) {
+    return new class($buffer) extends Output {
+      private $buffer;
+
+      public function __construct(&$buffer) { $this->buffer= &$buffer; }
+
+      public function begin($status, $message, $headers) { }
+
+      public function write($chunk) { $this->buffer.= strrev($chunk); }
+
+      public function flush() { }
+
+      public function finish() { }
+    };
+  }
+
+  /**
    * Assertion helper
    *
    * @param  string $expected
@@ -317,26 +339,29 @@ class ResponseTest {
   }
 
   #[Test]
-  public function streaming() {
+  public function streaming_with_send() {
     $res= (new Response(new TestOutput()))->streaming(function($res, $size) use(&$buffer) {
-      return new class($buffer) extends Output {
-        private $buffer;
-
-        public function __construct(&$buffer) { $this->buffer= &$buffer; }
-
-        public function begin($status, $message, $headers) { }
-
-        public function write($chunk) { $this->buffer.= strrev($chunk); }
-
-        public function flush() { }
-
-        public function finish() { }
-      };
+      return $this->reverse($buffer);
     });
 
     $buffer= '';
     $res->send('Test');
 
     Assert::equals('tseT', $buffer);
+  }
+
+  #[Test]
+  public function streaming_with_stream() {
+    $res= (new Response(new TestOutput()))->streaming(function($res, $size) use(&$buffer) {
+      return $this->reverse($buffer);
+    });
+
+    $buffer= '';
+    $stream= $res->stream();
+    $stream->write('Test');
+    $stream->write('OK');
+    $stream->close();
+
+    Assert::equals('tseTKO', $buffer);
   }
 }
