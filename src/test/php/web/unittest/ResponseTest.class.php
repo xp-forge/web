@@ -318,8 +318,7 @@ class ResponseTest {
 
   #[Test]
   public function streaming() {
-    $res= new Response(new TestOutput());
-    $res->streaming(function($res, $size) use(&$buffer) {
+    $res= (new Response(new TestOutput()))->streaming(function($res, $size) use(&$buffer) {
       return new class($buffer) extends Output {
         private $buffer;
 
