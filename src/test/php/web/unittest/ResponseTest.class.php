@@ -5,7 +5,7 @@ use io\streams\MemoryInputStream;
 use lang\{IllegalArgumentException, IllegalStateException};
 use test\{Assert, Expect, Test, Values};
 use util\URI;
-use web\io\{Buffered, TestOutput};
+use web\io\{Output, Buffered, TestOutput};
 use web\{Cookie, Response};
 
 class ResponseTest {
@@ -314,5 +314,30 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     $res->flush();
     $res->flush();
+  }
+
+  #[Test]
+  public function streaming() {
+    $res= new Response(new TestOutput());
+    $res->streaming(function($res, $size) use(&$buffer) {
+      return new class($buffer) extends Output {
+        private $buffer;
+
+        public function __construct(&$buffer) { $this->buffer= &$buffer; }
+
+        public function begin($status, $message, $headers) { }
+
+        public function write($chunk) { $this->buffer.= strrev($chunk); }
+
+        public function flush() { }
+
+        public function finish() { }
+      };
+    });
+
+    $buffer= '';
+    $res->send('Test');
+
+    Assert::equals('tseT', $buffer);
   }
 }

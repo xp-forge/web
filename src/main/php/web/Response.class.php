@@ -12,6 +12,7 @@ use web\io\WriteChunks;
  */
 class Response {
   private $output;
+  private $streaming= null;
   private $flushed= false;
   private $status= 200;
   private $message= 'OK';
@@ -152,9 +153,22 @@ class Response {
   }
 
   /**
-   * Returns a stream to write on
+   * Changes the implementation used inside `stream()` to determine the output.
    *
-   * @param  int $size If omitted, uses chunked transfer encoding
+   * @param  function(self, ?int): web.io.Output $func
+   * @return self
+   */
+  public function streaming($func) {
+    $this->streaming= $func;
+    return $this;
+  }
+
+  /**
+   * Returns a stream to write on. By default, uses chunked transfer encoding if
+   * a length is passed, and sets the `Content-Length` header and writes directly
+   * to the raw underlying output otherwise.
+   *
+   * @param  int $size
    * @return io.streams.OutputStream
    * @throws lang.IllegalStateException
    */
@@ -163,7 +177,9 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    if (null === $size) {
+    if ($this->streaming) {
+      $output= ($this->streaming)($this, $size);
+    } else if (null === $size) {
       $output= $this->output->stream();
     } else {
       $this->headers['Content-Length']= [$size];
