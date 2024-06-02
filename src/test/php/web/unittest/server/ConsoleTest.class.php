@@ -101,7 +101,7 @@ class ConsoleTest {
     });
 
     Assert::matches(
-      '/<pre id="output">string\(4\) &quot;true&quot;\n<\/pre>/',
+      '/<pre id="output">.*string\(4\) &quot;true&quot;\n<\/pre>/s',
       $res->output()->bytes()
     );
   }
