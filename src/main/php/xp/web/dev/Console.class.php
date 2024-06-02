@@ -8,7 +8,8 @@ use web\{Filter, Response};
  * inside an easily readable format above the real output, using a 200
  * HTTP response status.
  *
- * @see   php://ob_start
+ * @see   https://www.php.net/ob_start
+ * @test  web.unittest.server.ConsoleTest
  */
 class Console implements Filter {
   private $template;
@@ -56,7 +57,7 @@ class Console implements Filter {
 
     $res->trace= $buffer->trace;
     $out= $buffer->output();
-    if (empty($debug)) {
+    if (0 === strlen($debug)) {
       $out->drain($res);
     } else {
       $res->status(200, 'Debug');
