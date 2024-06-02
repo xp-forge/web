@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed `echo 0;` (or 0.0, or "0") not triggering the development console
+  (@thekid)
 * Fixed trace data not appearing in logfile in development mode - @thekid
 * Merged PR #115: Add `web.Headers::qfactors()`, which can be used when
   implementing content negotiation
