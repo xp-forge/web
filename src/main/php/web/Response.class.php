@@ -170,20 +170,20 @@ class Response {
   }
 
   /**
-   * Returns a stream to write on. By default, uses chunked transfer encoding if
-   * a length is passed, and sets the `Content-Length` header and writes directly
-   * to the raw underlying output otherwise.
+   * Returns a stream to write on: When given a length, sets the `Content-Length`
+   * header to this value and writes the subsequently given bytes unmodified to
+   * the output. Otheriwse, chunked transfer encoding is used.
    *
-   * @param  int $size
+   * @param  ?int $length
    * @return io.streams.OutputStream
    * @throws lang.IllegalStateException
    */
-  public function stream($size= null) {
+  public function stream($length= null) {
     if ($this->flushed) {
       throw new IllegalStateException('Response already flushed');
     }
 
-    return $this->begin($this->streaming ? ($this->streaming)($this, $size) : $this->output->stream($size));
+    return $this->begin($this->streaming ? ($this->streaming)($this, $length) : $this->output->stream($length));
   }
 
   /**
