@@ -1,5 +1,6 @@
 <?php namespace xp\web\dev;
 
+use Closure;
 use web\{Filter, Response};
 
 /**
@@ -20,20 +21,20 @@ class Console implements Filter {
   }
 
   /**
-   * Creates HTML table rows
+   * Transforms template
    *
-   * @param  [:var] $headers
-   * @return string
+   * @param  string $template
+   * @param  [:var] $context
    */
-  private function rows($headers) {
-    $r= '';
-    foreach ($headers as $name => $value) {
-      $r.= '<tr>
-        <td class="name">'.htmlspecialchars($name).'</td>
-        <td class="value">'.htmlspecialchars(implode(', ', $value)).'</td>
-      </tr>';
-    }
-    return $r;
+  private function transform($template, $context) {
+    return preg_replace_callback(
+      '/\{\{([^ }]+) ?([^}]+)?\}\}/',
+      function($m) use($context) {
+        $value= $context[$m[1]] ?? '';
+        return $value instanceof Closure ? $value($context[$m[2]] ?? '') : htmlspecialchars($value);
+      },
+      $template
+    );
   }
 
   /**
@@ -61,14 +62,23 @@ class Console implements Filter {
       $out->drain($res);
     } else {
       $res->status(200, 'Debug');
-      $res->send(sprintf(
-        typeof($this)->getClassLoader()->getResource($this->template),
-        htmlspecialchars($debug),
-        $out->status,
-        htmlspecialchars($out->message),
-        $this->rows($out->headers),
-        htmlspecialchars($out->bytes)
-      ));
+      $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template),  [
+        'debug'    => $debug,
+        'status'   => $out->status,
+        'message'  => $out->message,
+        'headers'  => $out->headers,
+        'contents' => $out->bytes,
+        '#rows'    => function($headers) {
+          $r= '';
+          foreach ($headers as $name => $value) {
+            $r.= '<tr>
+              <td class="name">'.htmlspecialchars($name).'</td>
+              <td class="value">'.htmlspecialchars(implode(', ', $value)).'</td>
+            </tr>';
+          }
+          return $r;
+        }
+      ]), 'text/html; charset='.\xp::ENCODING);
     }
   }
 }
