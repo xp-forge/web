@@ -1,6 +1,7 @@
 <?php namespace xp\web\dev;
 
-use Closure;
+use Closure, Throwable;
+use lang\XPException;
 use web\{Filter, Response};
 
 /**
@@ -51,9 +52,13 @@ class Console implements Filter {
     try {
       ob_start();
       yield from $invocation->proceed($req, $buffer);
+      $kind= 'debug';
+      $debug= ob_get_clean();
+    } catch (Throwable $t) {
+      $kind= 'error';
+      $debug= ob_get_clean()."\n".XPException::wrap($t)->toString();
     } finally {
       $buffer->end();
-      $debug= ob_get_clean();
     }
 
     $res->trace= $buffer->trace;
@@ -62,7 +67,8 @@ class Console implements Filter {
       $out->drain($res);
     } else {
       $res->status(200, 'Debug');
-      $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template),  [
+      $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template), [
+        'kind'     => $kind,
         'debug'    => $debug,
         'status'   => $out->status,
         'message'  => $out->message,
