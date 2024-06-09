@@ -5,7 +5,7 @@ use lang\XPClass;
 /**
  * Input for testing purposes
  *
- * @test  xp://web.unittest.io.TestOutputTest
+ * @test  web.unittest.io.TestOutputTest
  */
 class TestOutput extends Output {
   private $stream;
@@ -53,8 +53,15 @@ class TestOutput extends Output {
     $this->bytes.= "\r\n";
   }
 
-  /** @return web.io.Output */
-  public function stream() { return $this->stream->newInstance($this); }
+  /**
+   * Returns writer with length if known, using the configured stream otherwise
+   *
+   * @param  ?int $length
+   * @return web.io.Output
+   */
+  public function stream($length= null) {
+    return null === $length ? $this->stream->newInstance($this) : new WriteLength($this, $length);
+  }
 
   /**
    * Writes the bytes (in this case, to the internal buffer which can be

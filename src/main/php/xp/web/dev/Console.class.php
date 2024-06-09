@@ -1,6 +1,6 @@
 <?php namespace xp\web\dev;
 
-use web\{Filter, Response};
+use web\Filter;
 
 /**
  * The development console captures content written via `var_dump()`,
@@ -45,30 +45,32 @@ class Console implements Filter {
    * @return var
    */
   public function filter($req, $res, $invocation) {
-    $buffer= new Response(new Buffer());
-
+    $capture= new CaptureOutput();
     try {
       ob_start();
-      yield from $invocation->proceed($req, $buffer);
+      yield from $invocation->proceed($req, $res->streaming(function($res, $length) use($capture) {
+        return $capture->length($length);
+      }));
     } finally {
-      $buffer->end();
+      $capture->end($res);
       $debug= ob_get_clean();
+      if (0 === strlen($debug)) return $capture->drain($res);
     }
 
-    $res->trace= $buffer->trace;
-    $out= $buffer->output();
-    if (0 === strlen($debug)) {
-      $out->drain($res);
-    } else {
-      $res->status(200, 'Debug');
-      $res->send(sprintf(
-        typeof($this)->getClassLoader()->getResource($this->template),
-        htmlspecialchars($debug),
-        $out->status,
-        htmlspecialchars($out->message),
-        $this->rows($out->headers),
-        htmlspecialchars($out->bytes)
-      ));
+    $console= sprintf(
+      typeof($this)->getClassLoader()->getResource($this->template),
+      htmlspecialchars($debug),
+      $capture->status,
+      htmlspecialchars($capture->message),
+      $this->rows($capture->headers),
+      htmlspecialchars($capture->bytes)
+    );
+    $target= $res->output()->stream(strlen($console));
+    try {
+      $target->begin(200, 'Debug', ['Content-Type' => ['text/html; charset=utf-8']]);
+      $target->write($console);
+    } finally {
+      $target->close();
     }
   }
 }

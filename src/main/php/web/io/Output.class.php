@@ -36,9 +36,10 @@ abstract class Output implements OutputStream {
    * Returns an output used when the content-length is not known at the
    * time of starting the output.
    *
+   * @param  ?int $length
    * @return self
    */
-  public function stream() { return $this; }
+  public function stream($length= null) { return $this; }
 
   /** @return void */
   public function finish() { }
@@ -47,7 +48,7 @@ abstract class Output implements OutputStream {
   public function flush() { }
 
   /** @return void */
-  public function close() {
+  public final function close() {
     if ($this->closed) return;
     $this->finish();
     $this->closed= true;
