@@ -2,7 +2,7 @@
 
 use Closure, Throwable;
 use lang\XPException;
-use web\{Filter, Response};
+use web\{Filter, Response, Error};
 
 /**
  * The development console captures content written via `var_dump()`,
@@ -56,6 +56,7 @@ class Console implements Filter {
       $debug= ob_get_clean();
     } catch (Throwable $t) {
       $kind= 'error';
+      $buffer->answer($t instanceof Error ? $t->status() : 500);
       $debug= ob_get_clean()."\n".XPException::wrap($t)->toString();
     } finally {
       $buffer->end();
