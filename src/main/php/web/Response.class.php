@@ -110,13 +110,30 @@ class Response {
     return $r;
   }
 
-  /** @param web.io.Output $output */
+  /**
+   * Begins output by sending the status line and headers
+   *
+   * @param  web.io.Output $output
+   * @return web.io.Output
+   */
   private function begin($output) {
     $output->begin($this->status, $this->message, $this->cookies
-      ? array_merge($this->headers, ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)])
+      ? $this->headers + ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)]
       : $this->headers
     );
     $this->flushed= true;
+    return $output;
+  }
+
+  /**
+   * Changes the implementation used inside `stream()` to determine the output.
+   *
+   * @param  function(self, ?int): web.io.Output $func
+   * @return self
+   */
+  public function streaming($func) {
+    $this->streaming= $func;
+    return $this;
   }
 
   /**
@@ -130,7 +147,7 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $this->begin($this->output);
+    $this->begin($this->streaming ? ($this->streaming)($this, 0) : $this->output);
   }
 
   /**
@@ -153,17 +170,6 @@ class Response {
   }
 
   /**
-   * Changes the implementation used inside `stream()` to determine the output.
-   *
-   * @param  function(self, ?int): web.io.Output $func
-   * @return self
-   */
-  public function streaming($func) {
-    $this->streaming= $func;
-    return $this;
-  }
-
-  /**
    * Returns a stream to write on. By default, uses chunked transfer encoding if
    * a length is passed, and sets the `Content-Length` header and writes directly
    * to the raw underlying output otherwise.
@@ -177,17 +183,7 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    if ($this->streaming) {
-      $output= ($this->streaming)($this, $size);
-    } else if (null === $size) {
-      $output= $this->output->stream();
-    } else {
-      $this->headers['Content-Length']= [$size];
-      $output= $this->output;
-    }
-
-    $this->begin($output);
-    return $output;
+    return $this->begin($this->streaming ? ($this->streaming)($this, $size) : $this->output->stream($size));
   }
 
   /**
