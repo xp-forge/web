@@ -1,6 +1,8 @@
 <?php namespace xp\web\dev;
 
-use web\Filter;
+use Throwable as Any;
+use lang\Throwable;
+use web\{Error, Filter};
 
 /**
  * The development console captures content written via `var_dump()`,
@@ -51,10 +53,13 @@ class Console implements Filter {
       yield from $invocation->proceed($req, $res->streaming(function($res, $length) use($capture) {
         return $capture->length($length);
       }));
-    } finally {
-      $capture->end($res);
       $debug= ob_get_clean();
       if (0 === strlen($debug)) return $capture->drain($res);
+    } catch (Any $e) {
+      $res->answer($e instanceof Error ? $e->status() : 500);
+      $debug= ob_get_clean()."\n".Throwable::wrap($e)->toString();
+    } finally {
+      $capture->end($res);
     }
 
     $console= sprintf(
@@ -67,7 +72,10 @@ class Console implements Filter {
     );
     $target= $res->output()->stream(strlen($console));
     try {
-      $target->begin(200, 'Debug', ['Content-Type' => ['text/html; charset=utf-8']]);
+      $target->begin(200, 'Debug', [
+        'Content-Type'  => ['text/html; charset='.\xp::ENCODING],
+        'Cache-Control' => ['no-cache, no-store'],
+      ]);
       $target->write($console);
     } finally {
       $target->close();
