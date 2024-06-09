@@ -128,11 +128,11 @@ class Response {
   /**
    * Changes the implementation used inside `stream()` to determine the output.
    *
-   * @param  function(self, ?int): web.io.Output $func
+   * @param  function(self, ?int): web.io.Output $implementation
    * @return self
    */
-  public function streaming($func) {
-    $this->streaming= $func;
+  public function streaming(callable $implementation) {
+    $this->streaming= $implementation;
     return $this;
   }
 
