@@ -1,6 +1,6 @@
 <?php namespace xp\web\dev;
 
-use Throwable as Any;
+use Closure, Throwable as Any;
 use lang\Throwable;
 use web\{Error, Filter};
 
@@ -22,20 +22,21 @@ class Console implements Filter {
   }
 
   /**
-   * Creates HTML table rows
+   * Transforms template
    *
-   * @param  [:var] $headers
+   * @param  string $template
+   * @param  [:var] $context
    * @return string
    */
-  private function rows($headers) {
-    $r= '';
-    foreach ($headers as $name => $value) {
-      $r.= '<tr>
-        <td class="name">'.htmlspecialchars($name).'</td>
-        <td class="value">'.htmlspecialchars(implode(', ', $value)).'</td>
-      </tr>';
-    }
-    return $r;
+  private function transform($template, $context) {
+    return preg_replace_callback(
+      '/\{\{([^ }]+) ?([^}]+)?\}\}/',
+      function($m) use($context) {
+        $value= $context[$m[1]] ?? '';
+        return $value instanceof Closure ? $value($context[$m[2]] ?? '') : htmlspecialchars($value);
+      },
+      $template
+    );
   }
 
   /**
@@ -53,23 +54,36 @@ class Console implements Filter {
       yield from $invocation->proceed($req, $res->streaming(function($res, $length) use($capture) {
         return $capture->length($length);
       }));
+
+      $kind= 'Debug';
       $debug= ob_get_clean();
       if (0 === strlen($debug)) return $capture->drain($res);
     } catch (Any $e) {
+      $kind= 'Error';
       $res->answer($e instanceof Error ? $e->status() : 500);
       $debug= ob_get_clean()."\n".Throwable::wrap($e)->toString();
     } finally {
       $capture->end($res);
     }
 
-    $console= sprintf(
-      typeof($this)->getClassLoader()->getResource($this->template),
-      htmlspecialchars($debug),
-      $capture->status,
-      htmlspecialchars($capture->message),
-      $this->rows($capture->headers),
-      htmlspecialchars($capture->bytes)
-    );
+    $console= $this->transform(typeof($this)->getClassLoader()->getResource($this->template), [
+      'kind'     => $kind,
+      'debug'    => $debug,
+      'status'   => $capture->status,
+      'message'  => $capture->message,
+      'headers'  => $capture->headers,
+      'contents' => $capture->bytes,
+      '#rows'    => function($headers) {
+        $r= '';
+        foreach ($headers as $name => $value) {
+          $r.= '<tr>
+            <td class="name">'.htmlspecialchars($name).'</td>
+            <td class="value">'.htmlspecialchars(implode(', ', $value)).'</td>
+          </tr>';
+        }
+        return $r;
+      }
+    ]);
     $target= $res->output()->stream(strlen($console));
     try {
       $target->begin(200, 'Debug', [
