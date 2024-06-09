@@ -1,7 +1,6 @@
 <?php namespace web\unittest\io;
 
-use test\Assert;
-use test\Test;
+use test\{Assert, Test};
 use web\io\{TestOutput, WriteChunks};
 
 class WriteChunksTest {
