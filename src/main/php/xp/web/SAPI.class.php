@@ -1,6 +1,6 @@
 <?php namespace xp\web;
 
-use web\io\{Buffered, Input, Output, Param, ReadStream, ReadLength, WriteChunks, Incomplete};
+use web\io\{Buffered, Input, Output, Param, ReadStream, ReadLength, WriteChunks, WriteLength, Incomplete};
 
 /**
  * Wrapper for PHP's Server API ("SAPI").
@@ -144,17 +144,19 @@ class SAPI extends Output implements Input {
    * Uses chunked TE for HTTP/1.1, buffering for HTTP/1.0 or when using
    * Apache and FastCGI, which is broken.
    *
+   * @param  ?int $length
    * @return web.io.Output
    * @see    https://tools.ietf.org/html/rfc2068#section-19.7.1
    * @see    https://bz.apache.org/bugzilla/show_bug.cgi?id=53332
    */
-  public function stream() {
-    $buffered= (
+  public function stream($length= null) {
+    if (null !== $length) return new WriteLength($this, $length);
+
+    $buffered= $_SERVER['SERVER_PROTOCOL'] < 'HTTP/1.1' || (
       isset($_SERVER['GATEWAY_INTERFACE']) &&
       stristr($_SERVER['GATEWAY_INTERFACE'], 'CGI') &&
       stristr($_SERVER['SERVER_SOFTWARE'], 'Apache')
-    ) || $_SERVER['SERVER_PROTOCOL'] < 'HTTP/1.1';
-
+    );
     return $buffered ? new Buffered($this) : new WriteChunks($this);
   }
 

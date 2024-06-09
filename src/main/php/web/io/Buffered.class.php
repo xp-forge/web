@@ -1,14 +1,12 @@
 <?php namespace web\io;
 
-/**
- * Buffers data
- */
+/** Buffers data */
 class Buffered extends Output {
   private $target;
   private $status, $message, $headers;
   private $buffer= '';
 
-  /** @param web.io.Output $target */
+  /** @param parent $target */
   public function __construct($target) {
     $this->target= $target;
   }

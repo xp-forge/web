@@ -1,8 +1,9 @@
 <?php namespace web\unittest\server;
 
+use lang\IllegalArgumentException;
 use test\{Assert, Test, Values};
 use web\io\{TestInput, TestOutput};
-use web\{Filters, Request, Response};
+use web\{Error, Filters, Request, Response};
 use xp\web\dev\Console;
 
 class ConsoleTest {
@@ -128,6 +129,38 @@ class ConsoleTest {
 
     Assert::matches(
       '/<td class="name">Content-Type<\/td>.*<td class="value">text\/plain; charset=utf-8<\/td>/s',
+      $res->output()->bytes()
+    );
+  }
+
+  #[Test]
+  public function uncaught_exceptions() {
+    $res= $this->handle(function($req, $res) {
+      throw new IllegalArgumentException('Test');
+    });
+
+    Assert::matches(
+      '/HTTP\/1.1 <span id="status">500 Internal Server Error<\/span>/',
+      $res->output()->bytes()
+    );
+    Assert::matches(
+      '/Exception lang.IllegalArgumentException \(Test\)/',
+      $res->output()->bytes()
+    );
+  }
+
+  #[Test]
+  public function uncaught_errors() {
+    $res= $this->handle(function($req, $res) {
+      throw new Error(404);
+    });
+
+    Assert::matches(
+      '/HTTP\/1.1 <span id="status">404 Not Found<\/span>/',
+      $res->output()->bytes()
+    );
+    Assert::matches(
+      '/Error web.Error\(#404: Not Found\)/',
       $res->output()->bytes()
     );
   }

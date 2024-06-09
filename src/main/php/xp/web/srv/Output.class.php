@@ -1,7 +1,7 @@
 <?php namespace xp\web\srv;
 
 use peer\SocketException;
-use web\io\{Buffered, WriteChunks, Output as Base};
+use web\io\{Buffered, WriteChunks, WriteLength, Output as Base};
 
 class Output extends Base {
   private $socket, $version;
@@ -18,13 +18,20 @@ class Output extends Base {
   }
 
   /**
-   * Uses chunked TE for HTTP/1.1, buffering for HTTP/1.0 
+   * Returns writer with length if known, chunked TE for HTTP/1.1, buffering otherwise
    *
+   * @param  ?int $length
    * @return web.io.Output
    * @see    https://tools.ietf.org/html/rfc2068#section-19.7.1
    */
-  public function stream() {
-    return $this->version < '1.1' ? new Buffered($this) : new WriteChunks($this);
+  public function stream($length= null) {
+    if (null !== $length) {
+      return new WriteLength($this, $length);
+    } else if ($this->version >= '1.1') {
+      return new WriteChunks($this);
+    } else {
+      return new Buffered($this);
+    }
   }
 
   /**

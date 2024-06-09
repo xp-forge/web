@@ -12,6 +12,7 @@ use web\io\WriteChunks;
  */
 class Response {
   private $output;
+  private $streaming= null;
   private $flushed= false;
   private $status= 200;
   private $message= 'OK';
@@ -109,13 +110,30 @@ class Response {
     return $r;
   }
 
-  /** @param web.io.Output $output */
+  /**
+   * Begins output by sending the status line and headers
+   *
+   * @param  web.io.Output $output
+   * @return web.io.Output
+   */
   private function begin($output) {
     $output->begin($this->status, $this->message, $this->cookies
-      ? array_merge($this->headers, ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)])
+      ? $this->headers + ['Set-Cookie' => array_map(function($c) { return $c->header(); }, $this->cookies)]
       : $this->headers
     );
     $this->flushed= true;
+    return $output;
+  }
+
+  /**
+   * Changes the implementation used inside `stream()` to determine the output.
+   *
+   * @param  function(self, ?int): web.io.Output $implementation
+   * @return self
+   */
+  public function streaming(callable $implementation) {
+    $this->streaming= $implementation;
+    return $this;
   }
 
   /**
@@ -129,7 +147,7 @@ class Response {
       throw new IllegalStateException('Response already flushed');
     }
 
-    $this->begin($this->output);
+    $this->begin($this->streaming ? ($this->streaming)($this, 0) : $this->output);
   }
 
   /**
@@ -152,26 +170,20 @@ class Response {
   }
 
   /**
-   * Returns a stream to write on
+   * Returns a stream to write on: When given a length, sets the `Content-Length`
+   * header to this value and writes the subsequently given bytes unmodified to
+   * the output. Otheriwse, chunked transfer encoding is used.
    *
-   * @param  int $size If omitted, uses chunked transfer encoding
+   * @param  ?int $length
    * @return io.streams.OutputStream
    * @throws lang.IllegalStateException
    */
-  public function stream($size= null) {
+  public function stream($length= null) {
     if ($this->flushed) {
       throw new IllegalStateException('Response already flushed');
     }
 
-    if (null === $size) {
-      $output= $this->output->stream();
-    } else {
-      $this->headers['Content-Length']= [$size];
-      $output= $this->output;
-    }
-
-    $this->begin($output);
-    return $output;
+    return $this->begin($this->streaming ? ($this->streaming)($this, $length) : $this->output->stream($length));
   }
 
   /**

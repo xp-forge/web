@@ -4,15 +4,15 @@
  * Writes Chunked transfer encoding
  *
  * @see   https://tools.ietf.org/html/rfc7230#section-4.1
- * @test  xp://web.unittest.io.WriteChunksTest
+ * @test  web.unittest.io.WriteChunksTest
  */
 class WriteChunks extends Output {
-  const BUFFER_SIZE = 4096;
+  const BUFFER_SIZE= 4096;
 
   private $target;
   private $buffer= '';
 
-  /** @param web.io.Output $target */
+  /** @param parent $target */
   public function __construct($target) {
     $this->target= $target;
   }
