@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #117: Catch errors and display them in development console.
+  (@thekid)
 * Fixed `echo 0;` (or 0.0, or "0") not triggering the development console
   (@thekid)
 * Fixed trace data not appearing in logfile in development mode - @thekid
