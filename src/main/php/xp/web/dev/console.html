@@ -1,68 +1,81 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>{{kind}}</title>
-    <style type="text/css">
-      body         { font-family: "Segoe UI",Arial,Helvetica; background-color: rgb(27, 43, 52); color: rgb(205, 211, 222); }
-      #content     { margin: 2em; }
-      h1 img       { float: left; margin-right: 0.5em; }
-      h1 #code     { padding: 0.1em 0.5em; background-color: rgb(102, 153, 204); color: white; border-radius: 0.1em; text-transform: uppercase; }
-      #debug       { border: 1px dotted rgb(205, 211, 222); overflow: hidden; padding: 0.5em; font-size: 13px; }
-      button.clip  { float: right; }
-      h2 #status   { color: rgb(102, 153, 204); }
-      table        { margin-bottom: 1.5em; }
-      td           { padding: 0.3em; }
-      td.name      { background-color: rgb(41, 56, 65); }
-      td.value     { color: rgb(249, 145, 87); font-family: monospace; font-size: 13px; }
-      button       { background-color: rgb(41, 56, 65); cursor: pointer; border-radius: 0.1em; border: none; }
-      button:hover { opacity: .65; transition: all 150ms linear; }
-    </style>
-  </head>
-  <body bgcolor="#ffffff" text="#000000">
-    <div id="content">
-      <h1>
-        <img width="59" height="48" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADsAAAAwCAYAAACv4gJwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAEeSURBVGhD7ZdNCsIwEEaj1/AILvUCHsStuPIwrsStB/EEnkmTkoESMklq85/vgQwFS+frm2npZrc/fsUgbHUdAoTtFYTtFW/Y0+3RVHXBvnrUye/7VR+1g6tvvGdDRqJmuP6HMmsNG7qvJSYgtC/b/6xj3OKDac6iB5TPLBl9XQ5Tzcn5+Zmqrz+YjWGW7nZKzGvBrIbrP+p7Vt19+tFxCbj+o5tVY0ajpmqJwFnMKkyzOfbZJItZsjo3W4JsZmsg287WAMxKYBZmGwJmJUOZxfcszFrgdiMloX3B7BqzIZB9136H7OESYFaSzCwZ/YcY14bZ1DtbAq5/a9hesY6xYs3OlcTVNxuWxoBObqW61g9j3CsI2ysI2ysDhRXiB5CuA+ASNuP/AAAAAElFTkSuQmCC" alt="Debug"/>
-
-        <span id="code">Debug</span>
-      </h1>
-      <div id="debug">
-        <button class="clip" title="Copy to clipboard" onclick="clip(document.getElementById('output').innerText); flash(document.getElementById('debug'))">📋</button>
-        <pre id="output">{{debug}}</pre>
-      </div>
-
-      <!-- Original HTTP response -->
-      <h2>HTTP/1.1 <span id="status">{{status}} {{message}}</span></h2>
-      <table id="headers">
-        {{#rows headers}}
-      </table>
-      <pre id="body">{{content}}</pre>
+<html lang="en">
+<head>
+  <title>Console: {{kind}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Developer console">
+  <style type="text/css">
+    body         { font-family: system-ui,Arial,Helvetica; background-color: rgb(33, 37, 41); color: rgb(205, 211, 222); }
+    .debug       { background-color: rgb(102, 153, 204); }
+    .error       { background-color: rgb(204, 0, 0); }
+    main         { margin: 2rem 1rem; }
+    h1           { display: flex; align-items: center; color: white; border-radius: .25rem; width: fit-content; }
+    h1 svg       { margin-left: 1rem; }
+    #code        { margin: .25rem 1rem; text-transform: uppercase; }
+    #debug       { background-color: rgb(27, 43, 52); border-radius: .25rem; overflow: hidden; padding: .5rem; font-size: .925rem; }
+    #status      { color: rgb(102, 153, 204); }
+    button.clip  { float: right; }
+    table        { margin-bottom: 1.5rem; }
+    td           { padding: .25rem; }
+    td.name      { background-color: rgb(27, 43, 52); }
+    td.value     { color: rgb(249, 145, 87); font-family: monospace; font-size: .925rem; }
+    button       { background-color: rgb(61, 76, 85); color: white; cursor: pointer; padding: .25rem .5rem; border-radius: .15rem; border: none; }
+    button:hover { background-color: rgb(102, 153, 204); transition: all 150ms; }
+  </style>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+  <main>
+    <!-- Debug output -->
+    <h1 class="{{kind}}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-bug" viewBox="0 0 16 16">
+        <path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/>
+      </svg>
+      <span id="code">{{kind}}</span>
+    </h1>
+    <div id="debug">
+      <button class="clip" title="Copy to clipboard" onclick="clip(document.getElementById('output').innerText); flash(document.getElementById('debug'))">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-plus" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7"/>
+          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+        </svg>
+      </button>
+      <pre id="output">{{debug}}</pre>
     </div>
-    <script type="text/javascript">
-      function clip(text) {
-        if (window.clipboardData) {
-          window.clipboardData.setData('Text', text);
-        } else {
-          var t = document.createElement('textarea');
-          t.value = text;
-          t.style.position = 'fixed';
-          t.style.top = 0;
-          t.style.left = 0;
-          t.style.width = '2em';
-          t.style.height = '2em';
-          t.style.background = 'transparent';
-          t.style.border = 'none';
-          document.body.appendChild(t);
-          t.select();
-          document.execCommand('copy');
-          document.body.removeChild(t);
-        }
-      }
 
-      function flash(div) {
-        div.style.transition = 'all 150ms linear';
-        div.style.backgroundColor = 'rgb(41, 56, 65)';
-        setTimeout(function() { div.style.backgroundColor = null; }, 100);
+    <!-- Original HTTP response -->
+    <h2>HTTP/1.1 <span id="status">{{status}} {{message}}</span></h2>
+    <table id="headers">
+      {{#rows headers}}
+    </table>
+    <pre id="body">{{contents}}</pre>
+  </main>
+  <script type="text/javascript">
+    function clip(text) {
+      if (window.clipboardData) {
+        window.clipboardData.setData('Text', text);
+      } else {
+        var t = document.createElement('textarea');
+        t.value = text;
+        t.style.position = 'fixed';
+        t.style.top = 0;
+        t.style.left = 0;
+        t.style.width = '2em';
+        t.style.height = '2em';
+        t.style.background = 'transparent';
+        t.style.border = 'none';
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        document.body.removeChild(t);
       }
-    </script>
-  </body>
+    }
+
+    function flash(div) {
+      div.style.transition = 'all 200ms linear';
+      div.style.backgroundColor = 'rgb(61, 76, 85)';
+      setTimeout(function() { div.style.backgroundColor = null; }, 200);
+    }
+  </script>
+</body>
 </html>

@@ -1,7 +1,8 @@
 <?php namespace xp\web\dev;
 
-use Closure;
-use web\{Filter, Response};
+use Closure, Throwable;
+use lang\XPException;
+use web\{Filter, Response, Error};
 
 /**
  * The development console captures content written via `var_dump()`,
@@ -51,9 +52,14 @@ class Console implements Filter {
     try {
       ob_start();
       yield from $invocation->proceed($req, $buffer);
+      $kind= 'debug';
+      $debug= ob_get_clean();
+    } catch (Throwable $t) {
+      $kind= 'error';
+      $buffer->answer($t instanceof Error ? $t->status() : 500);
+      $debug= ob_get_clean()."\n".XPException::wrap($t)->toString();
     } finally {
       $buffer->end();
-      $debug= ob_get_clean();
     }
 
     $res->trace= $buffer->trace;
@@ -62,7 +68,8 @@ class Console implements Filter {
       $out->drain($res);
     } else {
       $res->status(200, 'Debug');
-      $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template),  [
+      $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template), [
+        'kind'     => $kind,
         'debug'    => $debug,
         'status'   => $out->status,
         'message'  => $out->message,
