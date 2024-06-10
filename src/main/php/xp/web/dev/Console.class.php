@@ -52,11 +52,12 @@ class Console implements Filter {
     try {
       ob_start();
       yield from $invocation->proceed($req, $buffer);
+      $status= 200;
       $kind= 'debug';
       $debug= ob_get_clean();
     } catch (Throwable $t) {
+      $buffer->answer($status= $t instanceof Error ? $t->status() : 500);
       $kind= 'error';
-      $buffer->answer($t instanceof Error ? $t->status() : 500);
       $debug= ob_get_clean()."\n".XPException::wrap($t)->toString();
     } finally {
       $buffer->end();
@@ -67,7 +68,8 @@ class Console implements Filter {
     if (0 === strlen($debug)) {
       $out->drain($res);
     } else {
-      $res->status(200, 'Debug');
+      $res->trace+= ['console' => $kind];
+      $res->answer($status, $kind);
       $res->send($this->transform(typeof($this)->getClassLoader()->getResource($this->template), [
         'kind'     => $kind,
         'debug'    => $debug,
