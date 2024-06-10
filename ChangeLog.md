@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.4.0 / 2024-06-10
+
 * Merged PR #117: Catch errors and display them in development console.
   (@thekid)
 * Fixed `echo 0;` (or 0.0, or "0") not triggering the development console
