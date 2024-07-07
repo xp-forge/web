@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.4.1 / 2024-07-07
+
+* Fixed request dispatching inside development webserver - @thekid
+
 ## 4.4.0 / 2024-06-10
 
 * Added trace marker (*debug* or *error*) to the server log files when

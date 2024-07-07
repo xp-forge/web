@@ -49,9 +49,12 @@ class Console implements Filter {
   public function filter($req, $res, $invocation) {
     $buffer= new Response(new Buffer());
 
+    $proceed= [];
     try {
       ob_start();
-      yield from $invocation->proceed($req, $buffer);
+      foreach ($invocation->proceed($req, $buffer) as $event => $arg) {
+        $proceed[$event]= $arg;
+      }
       $status= 200;
       $kind= 'debug';
       $debug= ob_get_clean();
@@ -61,6 +64,7 @@ class Console implements Filter {
       $debug= ob_get_clean()."\n".XPException::wrap($t)->toString();
     } finally {
       $buffer->end();
+      yield from $proceed;
     }
 
     $res->trace= $buffer->trace;
