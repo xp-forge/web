@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed accessing params from a request with content-type, but without
+  content; following the *be liberal in what you accept* paradigm.
+  (@thekid)
+
 ## 4.4.1 / 2024-07-07
 
 * Fixed request dispatching inside development webserver - @thekid
