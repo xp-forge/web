@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.4.2 / 2024-08-26
+
 * Fixed accessing params from a request with content-type, but without
   content; following the *be liberal in what you accept* paradigm.
   (@thekid)
