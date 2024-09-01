@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Make passing an empty value for logging like such: `xp web -l "" [...]`
+  disable logging.
+  (@thekid)
+
 ## 4.4.2 / 2024-08-26
 
 * Fixed accessing params from a request with content-type, but without
