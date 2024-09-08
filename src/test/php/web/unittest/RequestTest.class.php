@@ -314,4 +314,13 @@ class RequestTest {
     $req= new Request(new TestInput('GET', '/', ['Host' => 'localhost', 'Connection' => 'close']));
     Assert::equals(spl_object_hash($req), $req->hashCode());
   }
+
+  #[Test]
+  public function form_encoded_without_payload() {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded'];
+    Assert::equals(
+      ['source' => 'query'],
+      (new Request(new TestInput('DELETE', '/?source=query', $headers)))->params()
+    );
+  }
 }

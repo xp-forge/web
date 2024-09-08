@@ -31,7 +31,7 @@ abstract class Sink {
   public static function of($arg) {
     if ('-' === $arg) {
       return new ToConsole();
-    } else if (null === $arg) {
+    } else if (null === $arg || '' === $arg) {
       return null;
     } else if (is_callable($arg)) {
       return new ToFunction($arg);

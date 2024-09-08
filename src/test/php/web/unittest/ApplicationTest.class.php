@@ -169,11 +169,43 @@ class ApplicationTest {
           $passed= $request->params();
         },
         '/' => function($request, $response) {
+          return $request->dispatch('/deref?url=http://example.com/');
+        },
+      ];
+    });
+    Assert::equals(['url' => 'http://example.com/'], $passed);
+  }
+
+  #[Test]
+  public function dispatch_request_with_params() {
+    $passed= null;
+    $this->handle(function() use(&$passed) {
+      return [
+        '/deref' => function($request, $response) use(&$passed) {
+          $passed= $request->params();
+        },
+        '/' => function($request, $response) {
           return $request->dispatch('/deref', ['url' => 'http://example.com/']);
         },
       ];
     });
     Assert::equals(['url' => 'http://example.com/'], $passed);
+  }
+
+  #[Test, Values([['/test?a=b&c=d', []], ['/test?a=b', ['c' => 'd']], ['/test', ['a' => 'b', 'c' => 'd']], ['/test?a=#', ['a' => 'b', 'c' => 'd']], ['/test', ['a' => 'b', 'c' => 'd']], ['/test?x=#', ['a' => 'b', 'c' => 'd', 'x' => null]]])]
+  public function dispatch_request_with_query_and_params($path, $params) {
+    $passed= null;
+    $this->handle(function() use($path, $params, &$passed) {
+      return [
+        '/test' => function($request, $response) use(&$passed) {
+          $passed= $request->params();
+        },
+        '/' => function($request, $response) use($path, $params) {
+          return $request->dispatch($path, $params);
+        },
+      ];
+    });
+    Assert::equals(['a' => 'b', 'c' => 'd'], $passed);
   }
 
   #[Test, Expect(class: Error::class, message: '/Internal redirect loop/')]

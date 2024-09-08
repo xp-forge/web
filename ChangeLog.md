@@ -3,6 +3,44 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Make passing an empty value for logging like such: `xp web -l "" [...]`
+  disable logging.
+  (@thekid)
+
+## 4.4.2 / 2024-08-26
+
+* Fixed accessing params from a request with content-type, but without
+  content; following the *be liberal in what you accept* paradigm.
+  (@thekid)
+
+## 4.4.1 / 2024-07-07
+
+* Fixed request dispatching inside development webserver - @thekid
+
+## 4.4.0 / 2024-06-10
+
+* Added trace marker (*debug* or *error*) to the server log files when
+  the development console is shown.
+  (@thekid)
+* Merged PR #117: Catch errors and display them in development console.
+  (@thekid)
+* Fixed `echo 0;` (or 0.0, or "0") not triggering the development console
+  (@thekid)
+* Fixed trace data not appearing in logfile in development mode - @thekid
+* Merged PR #115: Add `web.Headers::qfactors()`, which can be used when
+  implementing content negotiation
+  (@thekid)
+
+## 4.3.0 / 2024-05-20
+
+* Extended `web.Request::dispatch()` to accept query strings inside path
+  (@thekid)
+
+## 4.2.0 / 2024-05-20
+
+* Deprecated the `web.Dispatch` class. This class was never intended to
+  be used directly, one would call `web.Request::dispatch()` instead.
+  (@thekid)
 * Merged PR #112: Refactor dispatching to be handled inside application
   (@thekid)
 

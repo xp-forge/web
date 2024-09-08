@@ -34,6 +34,11 @@ class LoggingTest {
     Assert::equals('(no logging)', (new Logging(null))->target());
   }
 
+  #[Test, Values([null, ''])]
+  public function no_logging_target_of($target) {
+    Assert::equals('(no logging)', Logging::of($target)->target());
+  }
+
   #[Test, Values(from: 'arguments')]
   public function log($expected, $error) {
     $req= new Request(new TestInput('GET', '/'));
