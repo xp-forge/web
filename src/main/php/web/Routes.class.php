@@ -11,7 +11,6 @@ use web\handler\Call;
  */
 class Routes implements Handler {
   private $routes= [];
-  private $top= false;
   private $default= null;
 
   /**
