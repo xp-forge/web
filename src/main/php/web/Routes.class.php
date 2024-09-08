@@ -131,18 +131,6 @@ class Routes implements Handler {
    * @return var
    */
   public function handle($request, $response) {
-    $seen= [];
-
-    dispatch: $result= $this->target($request)->handle($request, $response);
-    if ($this->top && $result instanceof Dispatch) {
-      $seen[$request->uri()->hashCode()]= true;
-      $request->rewrite($result->uri());
-      if (isset($seen[$request->uri()->hashCode()])) {
-        throw new Error(508, 'Internal redirect loop caused by dispatch to '.$result->uri());
-      }
-      goto dispatch;
-    }
-
-    return $result;
+    return $this->target($request)->handle($request, $response);
   }
 }
