@@ -17,6 +17,8 @@ class RequestTest {
       ['fixture=b', 'b'],
       ['fixture[]=b', ['b']],
       ['fixture[][]=b', [['b']]],
+      ['fixture[a]=b', ['a' => 'b']],
+      ['fixture[0][]=b&fixture[0][]=c', [['b', 'c']]],
       ['fixture=%2F', '/'],
       ['fixture=%2f', '/'],
       ['fixture=%fc', 'ü'],
