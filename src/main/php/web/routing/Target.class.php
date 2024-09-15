@@ -3,6 +3,7 @@
 /**
  * Matches a request method and, optionally a target
  *
+ * @deprecated
  * @test  xp://web.unittest.routing.TargetTest
  */
 class Target implements RouteMatch {
