@@ -138,7 +138,7 @@ class MultipartRequestTest {
   }
 
   #[Test]
-  public function map_parameters__merged() {
+  public function map_parameters_merged() {
     $req= new Request(new TestInput('POST', '/', self::$MULTIPART, $this->multipart([
       $this->param('accepted[tc]', 'true'),
       $this->param('accepted[privacy]', 'true'),

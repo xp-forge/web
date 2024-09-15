@@ -47,7 +47,7 @@ class Multipart {
       $part= $this->parts->current();
       if (Part::PARAM !== $part->kind()) break;
 
-      $this->params= $part->append($this->params);
+      $part->merge($this->params[$part->name()]);
       $this->parts->next();
       $this->peeked[]= $part;
     }
@@ -69,7 +69,7 @@ class Multipart {
       $name= $this->parts->key();
       $part= $this->parts->current();
       if (Part::PARAM === $part->kind()) {
-        $this->params= $part->append($this->params);
+        $part->merge($this->params[$part->name()]);
       }
       yield $name => $part;
       $this->parts->next();
@@ -89,7 +89,7 @@ class Multipart {
       $part= $this->parts->current();
       $kind= $part->kind();
       if (Part::PARAM === $kind) {
-        $this->params= $part->append($this->params);
+        $part->merge($this->params[$part->name()]);
       } else if (Part::FILE === $kind) {
         yield $part->name() => $part;
       }

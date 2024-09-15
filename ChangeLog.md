@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #119: Array parameter inconsistency with multipart/formdata
+  (@thekid)
 * Make passing an empty value for logging like such: `xp web -l "" [...]`
   disable logging.
   (@thekid)
