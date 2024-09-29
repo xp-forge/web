@@ -15,8 +15,7 @@ class ParamsTest {
     yield ['key[0][a]', [['a' => 'value']]];
     yield ['key[a]', ['a' => 'value']];
     yield ['key[a][b]', ['a' => ['b' => 'value']]];
-    yield ['key[%C3%BC]', ['ü' => 'value']];
-    yield ['key[%C3%BC]', ['ü' => 'value']];
+    yield ['key[ü]', ['ü' => 'value']];
   }
 
   /** @return iterable */
@@ -30,8 +29,6 @@ class ParamsTest {
       ['key.name', 'value'],
       ['color name', 'green'],
       [' price', '12.99'],
-      ['gr%c3%bcn', 'de'],
-      ['de', 'gr%c3%bcn'],
     ]];
     yield [[
       ['accepted', 'true'],
@@ -107,10 +104,18 @@ class ParamsTest {
     Assert::equals($expected, $outcome);
   }
 
+  #[Test, Values(['a&b', 'a+b', 'a%5B%5Db'])]
+  public function name_used_as_is($name) {
+    Assert::equals($name, Param::parse($name, ['value'])->name());
+  }
+
+  #[Test, Values(['a&b', 'a+b', 'a%5B%5Db'])]
+  public function value_used_as_is($value) {
+    Assert::equals($value, Param::parse('key', [$value])->value());
+  }
+
   #[Test]
   public function encoded_brackets_in_offset() {
-
-    // IMO this should be ["[]" => "value"] but we'll be consistent with PHP here
-    Assert::equals(['[' => ['value']], Param::parse('key[%5B%5D]', ['value'])->value());
+    Assert::equals(['%5B%5D' => 'value'], Param::parse('key[%5B%5D]', ['value'])->value());
   }
 }

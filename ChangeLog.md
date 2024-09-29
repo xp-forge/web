@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed multipart/formdata field names and values decoding, these are not
+  urlencoded. Ignore the specification which states `"`, `\r` and `\n`
+  need to be escaped for consistency with PHP, see php/php-src#8206
+  (@thekid)
+
 ## 4.5.0 / 2024-09-15
 
 * Fixed issue #119: Array parameter inconsistency with multipart/formdata

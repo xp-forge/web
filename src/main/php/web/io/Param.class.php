@@ -41,23 +41,23 @@ class Param extends Part {
    * @throws lang.FormatException When input variable nesting level exceeded
    */
   public static function parse($name, $chunks) {
-    $encoded= '';
+    $value= '';
     foreach ($chunks as $chunk) {
-      $encoded.= $chunk;
+      $value.= $chunk;
     }
 
     // Trim leading spaces, replace '.' and ' ' inbetween with underscores, see
     // https://github.com/php/php-src/blob/php-8.4.0beta5/main/php_variables.c#L133
     if (false === ($p= strpos($name, '['))) {
-      $self= new self(urldecode(strtr(ltrim($name, ' '), '. ', '__')));
+      $self= new self(strtr(ltrim($name, ' '), '. ', '__'));
     } else if (substr_count($name, '[') <= self::$nesting) {
-      $self= new self(urldecode(strtr(ltrim(substr($name, 0, $p), ' '), '. ', '__')));
-      $self->array= urldecode(substr($name, $p));
+      $self= new self(strtr(ltrim(substr($name, 0, $p), ' '), '. ', '__'));
+      $self->array= substr($name, $p);
     } else {
       throw new FormatException('Cannot parse '.$name.' (nesting level > '.self::$nesting.')');
     }
 
-    $self->value= urldecode($encoded);
+    $self->value= $value;
     return $self;
   }
 
