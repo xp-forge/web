@@ -75,6 +75,8 @@ class Param extends Part {
         $p= strcspn($this->array, ']', $o);
         $token= substr($this->array, $o + 1, $p - 1);
 
+        is_array($ptr) || $ptr= [];
+
         if ('' === $token) {
           $ptr= &$ptr[];
         } else {

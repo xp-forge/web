@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed error *[] operator not supported for strings* when handling array
+  parameters
+  (@thekid)
 * Fixed multipart/formdata field names and values decoding, these are not
   urlencoded. Ignore the specification which states `"`, `\r` and `\n`
   need to be escaped for consistency with PHP, see php/php-src#8206

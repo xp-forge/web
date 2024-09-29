@@ -72,6 +72,10 @@ class ParamsTest {
       ['access[0][]', 'calendar'],
       ['access[1][]', 'wiki'],
     ]];
+    yield [[
+      ['key', 'value'],
+      ['key[]', 'test'],
+    ]];
   }
 
   #[Test, Values(from: 'params')]
