@@ -3,6 +3,7 @@
 /**
  * Matches a path suffix
  *
+ * @deprecated
  * @test  xp://web.unittest.routing.PathTest
  */
 class Path implements RouteMatch {

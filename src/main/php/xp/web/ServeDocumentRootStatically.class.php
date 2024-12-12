@@ -5,8 +5,8 @@ use web\handler\FilesFrom;
 
 class ServeDocumentRootStatically extends Application {
 
-  /** @return web.Routing|[:var] */
+  /** @return web.Routes|[:var] */
   public function routes() {
-    return ['/' => new FilesFrom($this->environment->docroot())];
+    return new FilesFrom($this->environment->docroot());
   }
 }
