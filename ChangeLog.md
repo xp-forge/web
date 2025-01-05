@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.5.2 / 2025-01-05
+
 * Fixed server to write warnings when not being able to send HTTP headers
   (@thekid)
 * Added logic to prevent double-closing file when serving partial content
