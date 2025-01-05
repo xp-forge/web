@@ -3,6 +3,9 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Added logic to prevent double-closing file when serving partial content
+  (@thekid)
+
 ## 4.5.1 / 2024-09-29
 
 * Fixed error *[] operator not supported for strings* when handling array
