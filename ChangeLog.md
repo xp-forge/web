@@ -3,6 +3,8 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed server to write warnings when not being able to send HTTP headers
+  (@thekid)
 * Added logic to prevent double-closing file when serving partial content
   (@thekid)
 

@@ -3,6 +3,7 @@
 use peer\SocketException;
 use web\io\{Buffered, WriteChunks, Output as Base};
 
+/** @test web.unittest.server.OutputTest */
 class Output extends Base {
   private $socket, $version;
 
@@ -36,13 +37,13 @@ class Output extends Base {
    * @return void
    */
   public function begin($status, $message, $headers) {
-    $this->socket->write(sprintf("HTTP/%s %d %s\r\n", $this->version, $status, $message));
+    $this->write(sprintf("HTTP/%s %d %s\r\n", $this->version, $status, $message));
     foreach ($headers as $name => $header) {
       foreach ($header as $value) {
-        $this->socket->write($name.': '.$value."\r\n");
+        $this->write($name.': '.$value."\r\n");
       }
     }
-    $this->socket->write("\r\n");
+    $this->write("\r\n");
   }
 
   /**
