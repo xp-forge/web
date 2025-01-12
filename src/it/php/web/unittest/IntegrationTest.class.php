@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
 use test\{Assert, After, Test, Values};
+use websocket\WebSocket;
 
 #[StartServer(TestingServer::class)]
 class IntegrationTest {
@@ -160,5 +161,18 @@ class IntegrationTest {
     $header= 'cookie='.str_repeat('*', $length);
     $r= $this->send('GET', '/cookie', '1.0', ['Cookie' => $header]);
     Assert::equals((string)strlen($header), $r['body']);
+  }
+
+  #[Test]
+  public function websocket_message() {
+    try {
+      $ws= new WebSocket($this->server->connection, '/ws');
+      $ws->connect();
+      $ws->send('Test');
+      $echo= $ws->receive();
+    } finally {
+      $ws->close();
+    }
+    Assert::equals('Echo: Test', $echo);
   }
 }
