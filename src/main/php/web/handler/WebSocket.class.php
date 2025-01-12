@@ -3,7 +3,12 @@
 use web\Handler;
 use websocket\Listeners;
 
-/** @see https://www.rfc-editor.org/rfc/rfc6455 */
+/**
+ * WebSocket handler used for routing websocket handshake requests
+ *
+ * @test  web.unittest.handler.WebSocketTest
+ * @see   https://www.rfc-editor.org/rfc/rfc6455
+ */
 class WebSocket implements Handler {
   const GUID= '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
