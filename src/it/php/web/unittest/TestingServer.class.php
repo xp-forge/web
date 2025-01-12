@@ -26,7 +26,7 @@ class TestingServer {
 
     $s= new AsyncServer();
     try {
-      $s->listen($socket, HttpProtocol::executing($application, new Logging(null)));
+      $s->listen($socket, new HttpProtocol($application, new Logging(null)));
       $s->init();
       Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
       $s->service();
