@@ -80,9 +80,10 @@ class Protocol implements ServerProtocol {
    */
   public function handleDisconnect($socket) {
     $handle= spl_object_id($socket);
-    $this->protocols[$handle]->handleDisconnect($socket);
-
-    unset($this->protocols[$handle]);
+    if (isset($this->protocols[$handle])) {
+      $this->protocols[$handle]->handleDisconnect($socket);
+      unset($this->protocols[$handle]);
+    }
     $socket->close();
   }
 
@@ -94,9 +95,10 @@ class Protocol implements ServerProtocol {
    */
   public function handleError($socket, $e) {
     $handle= spl_object_id($socket);
-    $this->protocols[$handle]->handleError($socket, $e);
-
-    unset($this->protocols[$handle]);
+    if (isset($this->protocols[$handle])) {
+      $this->protocols[$handle]->handleError($socket, $e);
+      unset($this->protocols[$handle]);
+    }
     $socket->close();
   }
 }
