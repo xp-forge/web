@@ -86,6 +86,7 @@ abstract class Application implements Value {
 
     // Handle dispatching
     dispatch: $result= $this->routing()->handle($request, $response);
+    $return= null;
     if ($result instanceof Traversable) {
       foreach ($result as $kind => $argument) {
         if ('dispatch' === $kind) {
@@ -98,12 +99,13 @@ abstract class Application implements Value {
         } else if ('connection' === $kind) {
           $response->header('Connection', 'upgrade');
           $response->header('Upgrade', $argument[0]);
-          return $argument;
+          $return= $argument;
+        } else {
+          yield $kind => $argument;
         }
-
-        yield $kind => $argument;
       }
     }
+    return $return;
   }
 
   /** @return string */
