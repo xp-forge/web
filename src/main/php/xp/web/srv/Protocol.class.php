@@ -7,14 +7,6 @@ use peer\server\{AsyncServer, ServerProtocol};
 class Protocol implements ServerProtocol {
   private $protocols= [];
 
-  static function __static() {
-
-    // PHP 7.0 and 7.1 compatibility
-    if (!function_exists('spl_object_id')) {
-      function spl_object_id($object) { return spl_object_hash($object); }
-    }
-  }
-
   /** Creates a new instance of this multiplex protocol */
   public static function multiplex(): self {
 
