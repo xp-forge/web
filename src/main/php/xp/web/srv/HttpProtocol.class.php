@@ -53,7 +53,7 @@ class HttpProtocol extends Switchable {
         break;
       }
     }
-    $this->logging->log($request, $response, $response->trace + ['error' => $error]);
+    $this->logging->exchange($request, $response, ['error' => $error]);
   }
 
   /**
@@ -113,9 +113,9 @@ class HttpProtocol extends Switchable {
           $close= true;
         }
 
-        $this->logging->log($request, $response, $response->trace);
+        $this->logging->exchange($request, $response);
       } catch (CannotWrite $e) {
-        $this->logging->log($request, $response, $response->trace + ['warn' => $e]);
+        $this->logging->exchange($request, $response, ['warn' => $e]);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
       } catch (Throwable $e) {

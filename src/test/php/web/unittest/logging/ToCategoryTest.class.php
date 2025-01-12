@@ -2,9 +2,8 @@
 
 use test\{Assert, Test};
 use util\log\{BufferedAppender, LogCategory};
-use web\io\{TestInput, TestOutput};
+use web\Error;
 use web\logging\ToCategory;
-use web\{Error, Request, Response};
 
 class ToCategoryTest {
 
@@ -21,24 +20,19 @@ class ToCategoryTest {
 
   #[Test]
   public function log() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
     $buffered= new BufferedAppender();
-    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log($req, $res, []);
+    (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log(200, 'GET', '/', []);
 
     Assert::notEquals(0, strlen($buffered->getBuffer()));
   }
 
   #[Test]
   public function log_with_error() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
     $buffered= new BufferedAppender();
     (new ToCategory((new LogCategory('test'))->withAppender($buffered)))->log(
-      $req,
-      $res,
+      404,
+      'GET',
+      '/not-found',
       ['error' => new Error(404, 'Test')]
     );
 

@@ -50,26 +50,16 @@ class WsProtocol extends Switchable {
       try {
         if (Opcodes::CLOSE === $type) {
           $conn->close();
-          $hint= 'status='.unpack('n', $message)[1];
+          $hints= unpack('nstatus/a*reason', $message);
         } else {
           yield from $conn->on($message) ?? [];
-          $hint= '';
+          $hints= [];
         }
       } catch (Any $e) {
-        $hint= Throwable::wrap($e)->compoundMessage();
+        $hint= ['error' => Throwable::wrap($e)];
       }
 
-      // TODO: Use logging facility
-      // $this->logging->log($request, $response);
-      \util\cmd\Console::writeLinef(
-        "  \e[33m[%s %d %.3fkB]\e[0m WS %s %s%s",
-        date('Y-m-d H:i:s'),
-        getmypid(),
-        memory_get_usage() / 1024,
-        Opcodes::nameOf($type),
-        $conn->path(),
-        $hint ? " \e[2m[{$hint}]\e[0m" : ''
-      );
+      $this->logging->log('WS', Opcodes::nameOf($type), $conn->path(), $hints);
     }
   }
 

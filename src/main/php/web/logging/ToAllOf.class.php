@@ -3,7 +3,7 @@
 /**
  * Log sink which logs to all given sinks
  *
- * @test  xp://web.unittest.logging.ToAllOfTest
+ * @test  web.unittest.logging.ToAllOfTest
  */
 class ToAllOf extends Sink {
   private $sinks= [];
@@ -11,7 +11,7 @@ class ToAllOf extends Sink {
   /**
    * Creates a sink writing to all given other sinks
    *
-   * @param  (web.log.Sink|util.log.LogCategory|function(web.Request, web.Response, string): void)... $arg
+   * @param  (web.log.Sink|util.log.LogCategory|function(string, string, string, [:var]): void)... $arg
    */
   public function __construct(... $args) {
     foreach ($args as $arg) {
@@ -40,14 +40,15 @@ class ToAllOf extends Sink {
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $status
+   * @param  string $method
+   * @param  string $uri
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($request, $response, $hints) {
+  public function log($status, $method, $uri, $hints) {
     foreach ($this->sinks as $sink) {
-      $sink->log($request, $response, $hints);
+      $sink->log($status, $method, $uri, $hints);
     }
   }
 }

@@ -2,14 +2,15 @@
 
 use io\streams\Streams;
 use peer\SocketException;
-use test\{Assert, AssertionFailed, Test, Values};
+use test\{Assert, Before, AssertionFailed, Test, Values};
 use web\{Application, Environment, Logging};
 use xp\web\srv\{CannotWrite, HttpProtocol};
 
 class HttpProtocolTest {
   private $log;
 
-  public function __construct() {
+  #[Before]
+  public function log() {
     $this->log= new Logging(null);
   }
 
@@ -155,7 +156,7 @@ class HttpProtocolTest {
           throw new CannotWrite('Test error', new SocketException('...'));
         });
       }),
-      Logging::of(function($req, $res, $hints) use(&$caught) { $caught= $hints['warn']; })
+      Logging::of(function($status, $method, $uri, $hints) use(&$caught) { $caught= $hints['warn']; })
     );
 
     $this->assertHttp(
@@ -177,7 +178,7 @@ class HttpProtocolTest {
       $this->application(function($req, $res) {
         $res->trace('request-time-ms', 1);
       }),
-      Logging::of(function($req, $res, $hints) use(&$logged) { $logged= $hints; })
+      Logging::of(function($status, $method, $uri, $hints) use(&$logged) { $logged= $hints; })
     );
 
     $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"]);

@@ -5,18 +5,19 @@ class ToFunction extends Sink {
 
   /** @param callable $function */
   public function __construct($function) {
-    $this->function= cast($function, 'function(web.Request, web.Response, [:var]): void');
+    $this->function= cast($function, 'function(string, string, string, [:var]): void');
   }
 
   /**
    * Writes a log entry
    *
-   * @param  web.Request $response
-   * @param  web.Response $response
+   * @param  string $status
+   * @param  string $method
+   * @param  string $uri
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($request, $response, $hints) {
-    $this->function->__invoke($request, $response, $hints);
+  public function log($status, $method, $uri, $hints) {
+    $this->function->__invoke($status, $method, $uri, $hints);
   }
 }

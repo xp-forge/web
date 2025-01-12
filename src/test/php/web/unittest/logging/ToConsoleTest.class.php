@@ -3,9 +3,8 @@
 use io\streams\MemoryOutputStream;
 use test\{Assert, Test};
 use util\cmd\Console;
-use web\io\{TestInput, TestOutput};
+use web\Error;
 use web\logging\ToConsole;
-use web\{Error, Request, Response};
 
 class ToConsoleTest {
 
@@ -16,15 +15,12 @@ class ToConsoleTest {
    * @return string
    */
   private function log($hints) {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
     $memory= new MemoryOutputStream();
     $restore= Console::$out->stream();
     Console::$out->redirect($memory);
 
     try {
-      (new ToConsole())->log($req, $res, $hints);
+      (new ToConsole())->log(200, 'GET', '/', $hints);
       return $memory->bytes();
     } finally {
       Console::$out->redirect($restore);

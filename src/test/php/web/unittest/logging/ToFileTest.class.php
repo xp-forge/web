@@ -3,9 +3,8 @@
 use io\TempFile;
 use lang\IllegalArgumentException;
 use test\{After, Before, Assert, Expect, Test};
-use web\io\{TestInput, TestOutput};
+use web\Error;
 use web\logging\ToFile;
-use web\{Error, Request, Response};
 
 class ToFileTest {
   private $temp;
@@ -51,21 +50,13 @@ class ToFileTest {
 
   #[Test]
   public function log() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
-    (new ToFile($this->temp))->log($req, $res, []);
-
+    (new ToFile($this->temp))->log(200, 'GET', '/', []);
     Assert::notEquals(0, $this->temp->size());
   }
 
   #[Test]
   public function log_with_error() {
-    $req= new Request(new TestInput('GET', '/'));
-    $res= new Response(new TestOutput());
-
-    (new ToFile($this->temp))->log($req, $res, ['error' => new Error(404, 'Test')]);
-
+    (new ToFile($this->temp))->log(404, 'GET', '/not-found', ['error' => new Error(404, 'Test')]);
     Assert::notEquals(0, $this->temp->size());
   }
 }
