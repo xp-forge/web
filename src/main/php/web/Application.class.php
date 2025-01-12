@@ -79,7 +79,7 @@ abstract class Application implements Value {
    *
    * @param  web.Request $request
    * @param  web.Response $response
-   * @return var
+   * @return iterable
    */
   public function service($request, $response) {
     $seen= [];
@@ -95,7 +95,12 @@ abstract class Application implements Value {
             throw new Error(508, 'Internal redirect loop caused by dispatch to '.$argument);
           }
           goto dispatch;
+        } else if ('connection' === $kind) {
+          $response->header('Connection', 'upgrade');
+          $response->header('Upgrade', $argument[0]);
+          return $argument;
         }
+
         yield $kind => $argument;
       }
     }

@@ -60,7 +60,10 @@ class Standalone extends Server {
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
-    $this->impl->listen($socket, HttpProtocol::executing($application, $environment->logging()));
+    $this->impl->listen($socket, Protocol::multiplex()
+      ->serving('http', new HttpProtocol($application, $environment->logging()))
+      ->serving('websocket', new WsProtocol($environment->logging()))
+    );
     $this->impl->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");

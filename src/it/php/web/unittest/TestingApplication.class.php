@@ -2,6 +2,7 @@
 
 use lang\XPClass;
 use test\Assert;
+use web\handler\WebSocket;
 use web\{Application, Error};
 
 class TestingApplication extends Application {
@@ -9,6 +10,9 @@ class TestingApplication extends Application {
   /** @return var */
   public function routes() {
     return [
+      '/ws' => new WebSocket(function($conn, $payload) {
+        $conn->send('Echo: '.$payload);
+      }),
       '/status/420' => function($req, $res) {
         $res->answer(420, $req->param('message') ?? 'Enhance your calm');
         $res->send('Answered with status 420', 'text/plain');

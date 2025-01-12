@@ -2,7 +2,6 @@
 
 use Throwable;
 use lang\ClassLoader;
-use peer\server\{AsyncServer, ServerProtocol};
 use web\{Error, InternalServerError, Request, Response, Headers, Status};
 
 /**
@@ -10,7 +9,7 @@ use web\{Error, InternalServerError, Request, Response, Headers, Status};
  *
  * @test  xp://web.unittest.HttpProtocolTest
  */
-class HttpProtocol implements ServerProtocol {
+class HttpProtocol extends Switchable {
   private $application, $logging;
   public $server= null;
   private $close= false;
@@ -21,32 +20,9 @@ class HttpProtocol implements ServerProtocol {
    * @param  web.Application $application
    * @param  web.Logging $logging
    */
-  private function __construct($application, $logging) {
+  public function __construct($application, $logging) {
     $this->application= $application;
     $this->logging= $logging;
-  }
-
-  /**
-   * Creates an instance of HTTP protocol executing the given application
-   *
-   * @param  web.Application $application
-   * @param  web.Logging $logging
-   * @return self
-   */
-  public static function executing($application, $logging) {
-
-    // Compatibility with older xp-framework/networking libraries, see issue #79
-    // Unwind generators returned from handleData() to guarantee their complete
-    // execution.
-    if (class_exists(AsyncServer::class, true)) {
-      return new self($application, $logging);
-    } else {
-      return new class($application, $logging) extends HttpProtocol {
-        public function handleData($socket) {
-          foreach (parent::handleData($socket) as $_) { }
-        }
-      };
-    }
   }
 
   /**
@@ -91,24 +67,6 @@ class HttpProtocol implements ServerProtocol {
   }
 
   /**
-   * Handle client connect
-   *
-   * @param  peer.Socket $socket
-   */
-  public function handleConnect($socket) {
-    // Intentionally empty
-  }
-
-  /**
-   * Handle client disconnect
-   *
-   * @param  peer.Socket $socket
-   */
-  public function handleDisconnect($socket) {
-    $socket->close();
-  }
-
-  /**
    * Handle client data
    *
    * @param  peer.Socket $socket
@@ -140,8 +98,11 @@ class HttpProtocol implements ServerProtocol {
       }
 
       try {
+        $result= null;
         if (Input::REQUEST === $input->kind) {
-          yield from $this->application->service($request, $response) ?? [];
+          $handler= $this->application->service($request, $response);
+          yield from $handler;
+          $result= $handler->getReturn();
         } else if ($input->kind & Input::TIMEOUT) {
           $response->answer(408);
           $response->send('Client timed out sending status line and request headers', 'text/plain');
@@ -168,7 +129,7 @@ class HttpProtocol implements ServerProtocol {
         clearstatcache();
         \xp::gc();
       }
-      return;
+      return $result;
     }
 
     // Handle request errors and close the socket
@@ -182,17 +143,6 @@ class HttpProtocol implements ServerProtocol {
         $error
       ));
     }
-    $socket->close();
-  }
-
-  /**
-   * Handle I/O error
-   *
-   * @param  peer.Socket $socket
-   * @param  lang.XPException $e
-   */
-  public function handleError($socket, $e) {
-    // $e->printStackTrace();
     $socket->close();
   }
 }
