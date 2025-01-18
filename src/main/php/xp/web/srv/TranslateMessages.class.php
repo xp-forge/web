@@ -54,13 +54,18 @@ class TranslateMessages extends Listener {
         switch ($event) {
           case null: case 'text': $conn->send($value); break;
           case 'bytes': $conn->send(new Bytes($value)); break;
-          case 'close': $conn->close(...explode(':', $value)); break;
+          case 'close': {
+            sscanf($value, "%d:%[^\r]", $code, $reason);
+            $conn->answer(Opcodes::CLOSE, pack('na*', $code, $reason));
+            $conn->close();
+            break;
+          }
           default: throw new IllegalStateException('Unexpected event '.$event);
         }
       }
     } catch (Any $e) {
       $conn->answer(Opcodes::CLOSE, pack('na*', 1011, $e->getMessage()));
-      $conn->close(1011, $e->getMessage());
+      $conn->close();
     } finally {
       $this->backend->close();
     }
