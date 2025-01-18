@@ -46,15 +46,20 @@ class ReadLengthTest {
     Assert::equals(0, $fixture->available());
   }
 
+  #[Test]
+  public function raises_exception_on_eof_before_length_reached() {
+    $fixture= new ReadLength($this->input('Test'), 10);
+    $fixture->read();
+
+    Assert::throws(IOException::class, fn() => $fixture->read(1));
+  }
+
   #[Test, Values([4, 8192])]
-  public function reading_after_eof_raises_exception($length) {
+  public function reading_after_eof_returns_empty_string($length) {
     $fixture= new ReadLength($this->input('Test'), 4);
     $fixture->read($length);
 
-    try {
-      $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+    Assert::equals('', $fixture->read(1));
   }
 
   #[Test]
