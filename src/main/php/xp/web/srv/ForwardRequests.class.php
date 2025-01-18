@@ -66,7 +66,7 @@ class ForwardRequests extends Switchable {
       // \util\cmd\Console::writeLine('>>> ', $message);
       $this->backend->write($message."\r\n");
       foreach ($this->transmit($request->incoming(), $this->backend) as $step) {
-        yield 'read' => $socket;
+        // yield 'read' => $socket;
       }
 
       $response= new Input($this->backend);
@@ -79,7 +79,7 @@ class ForwardRequests extends Switchable {
         $result= null;
       }
 
-      yield 'write' => $socket;
+      // yield 'write' => $socket;
       $message= "HTTP/{$response->version()} {$response->status()} {$response->message()}\r\n";
       foreach ($response->headers() as $name => $value) {
         isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
@@ -88,7 +88,7 @@ class ForwardRequests extends Switchable {
       $socket->write($message."\r\n");
 
       foreach ($this->transmit($response->incoming(), $socket) as $step) {
-        yield 'write' => $socket;
+        // yield 'write' => $socket;
       }
       $this->backend->close();
 
