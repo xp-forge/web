@@ -34,9 +34,7 @@ class HttpProtocol extends Switchable {
    * @return void
    */
   private function sendError($request, $response, $error) {
-    if ($response->flushed()) {
-      $error->printStackTrace();
-    } else {
+    if (!$response->flushed()) {
       $loader= ClassLoader::getDefault();
       $message= Status::message($error->status());
 
