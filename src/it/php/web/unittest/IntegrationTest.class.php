@@ -1,6 +1,7 @@
 <?php namespace web\unittest;
 
-use test\{Assert, After, Test, Values};
+use peer\ProtocolException;
+use test\{Assert, After, Expect, Test, Values};
 use util\Bytes;
 use websocket\WebSocket;
 
@@ -176,6 +177,18 @@ class IntegrationTest {
       $ws->close();
     }
     Assert::equals($output, $result);
+  }
+
+  #[Test, Expect(class: ProtocolException::class, message: 'Connection closed (#1007): Not valid utf-8')]
+  public function invalid_utf8_passed_to_websocket_text_message() {
+    try {
+      $ws= new WebSocket($this->server->connection, '/ws');
+      $ws->connect();
+      $ws->send("\xfc");
+      $ws->receive();
+    } finally {
+      $ws->close();
+    }
   }
 
   #[After]

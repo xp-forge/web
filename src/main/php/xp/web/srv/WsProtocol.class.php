@@ -54,7 +54,7 @@ class WsProtocol extends Switchable {
         switch ($opcode) {
           case Opcodes::TEXT:
             if (!preg_match('//u', $payload)) {
-              $conn->answer(Opcodes::CLOSE, pack('n', 1007));
+              $conn->answer(Opcodes::CLOSE, pack('na*', 1007, 'Not valid utf-8'));
               $hints= ['error' => new FormatException('Malformed payload')];
               $socket->close();
               break;
