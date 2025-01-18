@@ -103,6 +103,34 @@ class TranslateMessagesTest {
   }
 
   #[Test]
+  public function unexpected_type() {
+    $request= $this->message(
+      'POST /ws HTTP/1.1',
+      'Sec-WebSocket-Version: 9',
+      'Content-Type: text/plain',
+      'Content-Length: 4',
+      '',
+      'Test',
+    );
+    $response= $this->message(
+      'HTTP/1.1 200 OK',
+      'Content-Type: text/event-stream',
+      'Transfer-Encoding: chunked',
+      '',
+      "16\r\nevent: unknown\ndata: \n\r\n0\r\n\r\n"
+    );
+
+    $backend= new Channel([$response]);
+    $ws= new Channel([]);
+    $fixture= new TranslateMessages($backend);
+    $fixture->message(new Connection($ws, 1, null, '/ws', []), 'Test');
+
+    Assert::equals($request, implode('', $backend->out));
+    Assert::equals("\210\056\003\363Unexpected event from backend:///ws: unknown", implode('', $ws->out));
+    Assert::false($ws->isConnected());
+  }
+
+  #[Test]
   public function backend_error() {
     $request= $this->message(
       'POST /ws HTTP/1.1',

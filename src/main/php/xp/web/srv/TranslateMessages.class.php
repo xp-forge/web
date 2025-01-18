@@ -60,7 +60,7 @@ class TranslateMessages extends Listener {
             $conn->close();
             break;
           }
-          default: throw new IllegalStateException('Unexpected event '.$event);
+          default: throw new IllegalStateException('Unexpected event from backend://'.$conn->path().': '.$event);
         }
       }
     } catch (Any $e) {
