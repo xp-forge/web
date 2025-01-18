@@ -46,7 +46,7 @@ class ForwardRequests extends Switchable {
 
       // Switch protocols
       if (101 === $response->status()) {
-        $result= ['websocket', ['uri' => $request->uri(), 'headers' => $headers]];
+        $result= ['websocket', ['path' => $request->uri(), 'headers' => $headers]];
       } else {
         $result= null;
       }

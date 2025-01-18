@@ -64,6 +64,14 @@ class WebSocket implements Handler {
         return;
     }
 
-    yield 'connection' => ['websocket', ['request' => $request, 'listener' => $this->listener]];
+    $path= $request->uri()->path();
+    if ($query= $request->uri()->query()) {
+      $path.= '?'.$query;
+    }
+    yield 'connection' => ['websocket', [
+      'path'     => $path,
+      'headers'  => $request->headers(),
+      'listener' => $this->listener,
+    ]];
   }
 }

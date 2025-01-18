@@ -12,12 +12,12 @@ class EventSink extends Connection {
     $this->request= $request;
     $this->out= $response->stream();
 
-    $uri= $request->uri()->path();
+    $path= $request->uri()->path();
     if ($query= $request->uri()->query()) {
-      $uri.= '?'.$query;
+      $path.= '?'.$query;
     }
 
-    parent::__construct(null, null, null, $uri, $request->headers());
+    parent::__construct(null, null, null, $path, $request->headers());
   }
 
   public function receive() {

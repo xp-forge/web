@@ -6,16 +6,18 @@ use util\Bytes;
 use websocket\protocol\{Opcodes, Connection};
 
 class WsProtocol extends Switchable {
-  private $logging;
+  private $logging, $listener;
   private $connections= [];
 
   /**
    * Creates a new protocol instance
    *
    * @param  web.Logging $logging
+   * @param  ?websocket.Listener $listener
    */
-  public function __construct($logging) {
+  public function __construct($logging, $listener= null) {
     $this->logging= $logging;
+    $this->listener= $listener;
   }
 
   /**
@@ -32,9 +34,9 @@ class WsProtocol extends Switchable {
     $this->connections[$id]= new Connection(
       $socket,
       $id,
-      $context['listener'],
-      $context['request']->uri()->path(),
-      $context['request']->headers()
+      $context['listener'] ?? $this->listener,
+      $context['path'],
+      $context['headers']
     );
     $this->connections[$id]->open();
   }
