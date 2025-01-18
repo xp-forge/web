@@ -3,7 +3,8 @@
 use io\IOException;
 use lang\archive\ArchiveClassLoader;
 use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
-use peer\Socket;
+use peer\server\AsyncServer;
+use peer\{Socket, ServerSocket};
 use util\cmd\Console;
 use web\{Application, Environment, Logging};
 use xp\web\Source;
@@ -26,6 +27,7 @@ class Develop extends Server {
     $application= (new Source($source, $environment))->application($args);
     $application->initialize();
 
+    // Start the development webserver in the background
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
       $docroot= getcwd();
@@ -42,7 +44,7 @@ class Develop extends Server {
     // Start `php -S`, the development webserver
     $runtime= Runtime::getInstance();
     $os= CommandLine::forName(PHP_OS);
-    $arguments= ['-S', ('localhost' === $this->host ? '127.0.0.1' : $this->host).':'.$this->port, '-t', $docroot];
+    $arguments= ['-S', '127.0.0.1:0', '-t', $docroot];
     $cmd= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
       $arguments,
       $runtime->startupOptions()
@@ -67,15 +69,20 @@ class Develop extends Server {
     Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
 
-    if ('WINDOWS' === $os->name()) {
-      $nul= 'NUL';
-    } else {
-      $nul= '/dev/null';
-      $cmd= 'exec '.$cmd;      // Replace launching shell with PHP
-    }
-    if (!($proc= proc_open($cmd, [STDIN, STDOUT, ['file', $nul, 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
+    // Replace launching shell with PHP
+    if ('WINDOWS' !== $os->name()) $cmd= 'exec '.$cmd;
+    if (!($proc= proc_open($cmd, [STDIN, STDOUT, ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
       throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
     }
+
+    // Parse `[...] PHP 8.3.15 Development Server (http://127.0.0.1:60922) started`
+    $line= fgets($pipes[2], 1024);
+    if (!preg_match('/\([a-z]+:\/\/([0-9.]+):([0-9]+)\)/', $line, $matches)) {
+      proc_terminate($proc, 2);
+      proc_close($proc);
+      throw new IOException('Cannot determine bound port: `'.trim($line).'`');
+    }
+    $backend= new Socket($matches[1], $matches[2]);
 
     Console::writeLinef(
       "\e[33;1m>\e[0m Server started: \e[35;4mhttp://%s:%d/\e[0m in %.3f seconds\n".
@@ -87,6 +94,15 @@ class Develop extends Server {
       getmypid(),
       proc_get_status($proc)['pid']
     );
+
+    // Start the multiplex protocol in the foreground and forward requests
+    $impl= new AsyncServer();
+    $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
+      ->serving('http', new ForwardRequests($backend))
+      ->serving('websocket', new TranslateMessages($backend))
+    );
+    $impl->init();
+    $impl->service();
 
     // Inside `xp -supervise`, connect to signalling socket
     if ($port= getenv('XP_SIGNAL')) {

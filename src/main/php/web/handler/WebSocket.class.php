@@ -1,6 +1,7 @@
 <?php namespace web\handler;
 
 use web\Handler;
+use web\io\EventSink;
 use websocket\Listeners;
 
 /**
@@ -28,7 +29,7 @@ class WebSocket implements Handler {
    */
   public function handle($request, $response) {
     switch ($version= (int)$request->header('Sec-WebSocket-Version')) {
-      case 13:
+      case 13: // RFC 6455
         $key= $request->header('Sec-WebSocket-Key');
         $response->answer(101);
         $response->header('Sec-WebSocket-Accept', base64_encode(sha1($key.self::GUID, true)));
@@ -36,6 +37,21 @@ class WebSocket implements Handler {
           $response->header('Sec-WebSocket-Protocol', $protocol, true);
         }
         break;
+
+      case 9: // Reserved version, use for WS <-> SSE translation
+        $response->answer(200);
+        $response->header('Content-Type', 'text/event-stream');
+        $response->header('Transfer-Encoding', 'chunked');
+
+        $events= new EventSink($request, $response);
+        try {
+          foreach ($events->receive() as $message) {
+            $this->listener->message($events, $message);
+          }
+        } finally {
+          $events->flush();
+        }
+        return;
 
       case 0:
         $response->answer(426);

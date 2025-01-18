@@ -77,10 +77,22 @@ class InputTest {
 
   #[Test]
   public function request_kind() {
-    Assert::equals(
-      Input::REQUEST,
-      $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->kind
-    );
+    $input= $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"));
+
+    Assert::equals(Input::REQUEST, $input->kind);
+    Assert::equals('GET', $input->method());
+    Assert::equals('/', $input->uri());
+    Assert::equals('1.1', $input->version());
+  }
+
+  #[Test]
+  public function response_kind() {
+    $input= $this->consume($this->socket("HTTP/1.1 101 Switching Protocols\r\n\r\n"));
+
+    Assert::equals(Input::RESPONSE, $input->kind);
+    Assert::equals('1.1', $input->version());
+    Assert::equals(101, $input->status());
+    Assert::equals('Switching Protocols', $input->message());
   }
 
   #[Test]

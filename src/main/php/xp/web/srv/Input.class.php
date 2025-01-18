@@ -6,16 +6,18 @@ use web\Headers;
 use web\io\{ReadChunks, ReadLength, Parts, Input as Base};
 
 class Input implements Base {
-  const REQUEST    = 0x01;
+  const MESSAGE    = 0x01;
   const CLOSE      = 0x02;
   const MALFORMED  = 0x04;
   const EXCESSIVE  = 0x08;
   const TIMEOUT    = 0x10;
+  const REQUEST    = 0x21;
+  const RESPONSE   = 0x41;
 
   public $kind= null;
   public $buffer= null;
   private $socket;
-  private $method, $uri, $version;
+  private $method, $uri, $version, $status, $message;
   private $incoming= null;
 
   /**
@@ -60,7 +62,10 @@ class Input implements Base {
     } while (true);
 
     // Parse status line
-    if (3 === sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
+    if (3 === sscanf($this->buffer, "HTTP/%[0-9.] %d %[^\r]\r\n", $this->version, $this->status, $this->message)) {
+      $this->kind|= self::RESPONSE;
+      $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
+    } else if (3 === sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
       $this->kind|= self::REQUEST;
       $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
     } else {
@@ -96,13 +101,19 @@ class Input implements Base {
   /** @return string */
   public function method() { return $this->method; }
 
-  /** @return sring */
+  /** @return string */
   public function uri() { return $this->uri; }
+
+  /** @return int */
+  public function status() { return $this->status; }
+
+  /** @return string */
+  public function message() { return $this->message; }
 
   /** @return iterable */
   public function headers() {
     yield 'Remote-Addr' => $this->socket->remoteEndpoint()->getHost();
-    if (self::REQUEST !== $this->kind) return;
+    if (0 === ($this->kind & self::MESSAGE)) return;
 
     while ($line= $this->readLine()) {
       sscanf($line, "%[^:]: %[^\r]", $name, $value);
