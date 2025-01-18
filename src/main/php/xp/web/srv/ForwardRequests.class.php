@@ -39,7 +39,7 @@ class ForwardRequests extends Switchable {
           $this->backend->write($stream->read());
         }
       }
-      yield 'write' => $this->socket;
+      yield 'write' => $socket;
 
       $response= new Input($this->backend);
       foreach ($response->consume() as $_) { }
