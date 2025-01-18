@@ -10,6 +10,8 @@ class Channel extends Socket {
 
   public function connect($timeout= 2.0) { $this->closed= false; }
 
+  public function isConnected() { return !$this->closed; }
+
   public function remoteEndpoint() { return new SocketEndpoint('127.0.0.1', 6666); }
 
   public function canRead($timeout= 0.0) { return !empty($this->in); }

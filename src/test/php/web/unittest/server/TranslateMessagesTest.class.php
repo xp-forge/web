@@ -43,6 +43,7 @@ class TranslateMessagesTest {
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\201\006Tested", implode('', $ws->out));
+    Assert::true($ws->isConnected());
   }
 
   #[Test]
@@ -70,5 +71,34 @@ class TranslateMessagesTest {
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\202\002\047\011", implode('', $ws->out));
+    Assert::true($ws->isConnected());
+  }
+
+  #[Test]
+  public function backend_error() {
+    $request= $this->message(
+      'POST /ws HTTP/1.1',
+      'Sec-WebSocket-Version: 9',
+      'Content-Type: text/plain',
+      'Content-Length: 4',
+      '',
+      'Test',
+    );
+    $response= $this->message(
+      'HTTP/1.1 500 Internal Server Errror',
+      'Content-Type: text/plain',
+      'Content-Length: 7',
+      '',
+      'Testing'
+    );
+
+    $backend= new Channel([$response]);
+    $ws= new Channel([]);
+    $fixture= new TranslateMessages($backend);
+    $fixture->message(new Connection($ws, 1, null, '/ws', []), 'Test');
+
+    Assert::equals($request, implode('', $backend->out));
+    Assert::equals("\210\060\003\363Unexpected status code from backend:///ws: 500", implode('', $ws->out));
+    Assert::false($ws->isConnected());
   }
 }

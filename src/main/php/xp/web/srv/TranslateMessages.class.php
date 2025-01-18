@@ -6,6 +6,7 @@ use peer\Socket;
 use util\Bytes;
 use web\io\EventSource;
 use websocket\Listener;
+use websocket\protocol\Opcodes;
 
 /**
  * Translates websocket messages into HTTP requests to an SSE endpoint
@@ -58,6 +59,7 @@ class TranslateMessages extends Listener {
         }
       }
     } catch (Any $e) {
+      $conn->answer(Opcodes::CLOSE, pack('na*', 1011, $e->getMessage()));
       $conn->close(1011, $e->getMessage());
     } finally {
       $this->backend->close();
