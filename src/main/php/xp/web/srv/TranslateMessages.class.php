@@ -42,10 +42,6 @@ class TranslateMessages extends Switchable {
     $this->connections[$id]->open();
   }
 
-  private function decode($data) {
-    return strtr($data, ['\r' => "\r", '\n' => "\n"]);
-  }
-
   /**
    * Handle client data
    *
