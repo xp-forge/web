@@ -1,7 +1,7 @@
 <?php namespace web\unittest;
 
+use Throwable;
 use lang\XPClass;
-use test\Assert;
 use util\Bytes;
 use web\handler\WebSocket;
 use web\{Application, Error};
@@ -29,7 +29,7 @@ class TestingApplication extends Application {
       },
       '/raise/exception' => function($req, $res) {
         $class= XPClass::forName(basename($req->uri()->path()));
-        if ($class->isSubclassOf(\Throwable::class)) throw $class->newInstance('Raised');
+        if ($class->isSubclassOf(Throwable::class)) throw $class->newInstance('Raised');
 
         // A non-exception class was passed!
         $res->answer(200, 'No error');
