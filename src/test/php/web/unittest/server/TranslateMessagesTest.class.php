@@ -7,6 +7,7 @@ use websocket\protocol\Connection;
 use xp\web\srv\TranslateMessages;
 
 class TranslateMessagesTest {
+  const WSID= 6100;
 
   /** Creates a HTTP message */
   private function message(...$lines): string {
@@ -23,6 +24,7 @@ class TranslateMessagesTest {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
+      'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
       'Content-Length: 4',
       '',
@@ -39,7 +41,7 @@ class TranslateMessagesTest {
     $backend= new Channel([$response]);
     $ws= new Channel([]);
     $fixture= new TranslateMessages($backend);
-    $fixture->message(new Connection($ws, 1, null, '/ws', []), 'Test');
+    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\201\006Tested", implode('', $ws->out));
@@ -51,6 +53,7 @@ class TranslateMessagesTest {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
+      'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: application/octet-stream',
       'Content-Length: 2',
       '',
@@ -67,7 +70,7 @@ class TranslateMessagesTest {
     $backend= new Channel([$response]);
     $ws= new Channel([]);
     $fixture= new TranslateMessages($backend);
-    $fixture->message(new Connection($ws, 1, null, '/ws', []), new Bytes([8, 15]));
+    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\202\002\047\011", implode('', $ws->out));
@@ -79,6 +82,7 @@ class TranslateMessagesTest {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
+      'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: application/octet-stream',
       'Content-Length: 2',
       '',
@@ -95,7 +99,7 @@ class TranslateMessagesTest {
     $backend= new Channel([$response]);
     $ws= new Channel([]);
     $fixture= new TranslateMessages($backend);
-    $fixture->message(new Connection($ws, 1, null, '/ws', []), new Bytes([8, 15]));
+    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\007\003\363Error", implode('', $ws->out));
@@ -107,6 +111,7 @@ class TranslateMessagesTest {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
+      'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
       'Content-Length: 4',
       '',
@@ -123,7 +128,7 @@ class TranslateMessagesTest {
     $backend= new Channel([$response]);
     $ws= new Channel([]);
     $fixture= new TranslateMessages($backend);
-    $fixture->message(new Connection($ws, 1, null, '/ws', []), 'Test');
+    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\056\003\363Unexpected event from backend:///ws: unknown", implode('', $ws->out));
@@ -135,6 +140,7 @@ class TranslateMessagesTest {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
+      'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
       'Content-Length: 4',
       '',
@@ -151,7 +157,7 @@ class TranslateMessagesTest {
     $backend= new Channel([$response]);
     $ws= new Channel([]);
     $fixture= new TranslateMessages($backend);
-    $fixture->message(new Connection($ws, 1, null, '/ws', []), 'Test');
+    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\060\003\363Unexpected status code from backend:///ws: 500", implode('', $ws->out));

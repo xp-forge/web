@@ -30,9 +30,13 @@ class TranslateMessages extends Listener {
    * @return var
    */
   public function message($conn, $message) {
-    $type= $message instanceof Bytes ? 'application/octet-stream' : 'text/plain';
     $request= "POST {$conn->path()} HTTP/1.1\r\n";
-    $headers= ['Sec-WebSocket-Version' => 9, 'Content-Type' => $type, 'Content-Length' => strlen($message)];
+    $headers= [
+      'Sec-WebSocket-Version' => 9,
+      'Sec-WebSocket-Id'      => $conn->id(),
+      'Content-Type'          => $message instanceof Bytes ? 'application/octet-stream' : 'text/plain',
+      'Content-Length'        => strlen($message),
+    ];
     foreach ($headers + $conn->headers() as $name => $value) {
       $request.= "{$name}: {$value}\r\n";
     }

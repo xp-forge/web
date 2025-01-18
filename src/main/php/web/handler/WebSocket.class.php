@@ -42,6 +42,7 @@ class WebSocket implements Handler {
         $response->answer(200);
         $response->header('Content-Type', 'text/event-stream');
         $response->header('Transfer-Encoding', 'chunked');
+        $response->trace('websocket', $request->header('Sec-WebSocket-Id'));
 
         $events= new EventSink($request, $response);
         try {
