@@ -1,7 +1,8 @@
 <?php namespace xp\web\srv;
 
 use Throwable as Any;
-use lang\Throwable;
+use lang\{Throwable, FormatException};
+use util\Bytes;
 use websocket\protocol\{Opcodes, Connection};
 
 class WsProtocol extends Switchable {
@@ -46,17 +47,56 @@ class WsProtocol extends Switchable {
    */
   public function handleData($socket) {
     $conn= $this->connections[spl_object_id($socket)];
-    foreach ($conn->receive() as $type => $message) {
+    foreach ($conn->receive() as $opcode => $payload) {
       try {
-        if (Opcodes::CLOSE === $type) {
-          $conn->close();
-          $hints= unpack('nstatus/a*reason', $message);
-        } else {
-          yield from $conn->on($message) ?? [];
-          $hints= [];
+        switch ($opcode) {
+          case Opcodes::TEXT:
+            if (!preg_match('//u', $payload)) {
+              $conn->answer(Opcodes::CLOSE, pack('n', 1007));
+              $hints= ['error' => new FormatException('Malformed payload')];
+              $socket->close();
+              break;
+            }
+
+            yield from $conn->on($payload) ?? [];
+            $hints= [];
+            break;
+
+          case Opcodes::BINARY:
+            yield from $conn->on(new Bytes($payload)) ?? [];
+            $hints= [];
+            break;
+
+          case Opcodes::PING:  // Answer a PING frame with a PONG
+            $conn->answer(Opcodes::PONG, $payload);
+            $hints= [];
+            break;
+
+          case Opcodes::PONG:  // Do not answer PONGs
+            $hints= [];
+            break;
+
+          case Opcodes::CLOSE: // Close connection
+            if ('' === $payload) {
+              $close= ['code' => 1000, 'reason' => ''];
+            } else {
+              $close= unpack('ncode/a*reason', $payload);
+              if (!preg_match('//u', $close['reason'])) {
+                $close= ['code' => 1007, 'reason' => ''];
+              } else if ($close['code'] > 2999 || in_array($close['code'], [1000, 1001, 1002, 1003, 1007, 1008, 1009, 1010, 1011])) {
+                // Answer with client code and reason
+              } else {
+                $close= ['code' => 1002, 'reason' => ''];
+              }
+            }
+
+            $conn->answer(Opcodes::CLOSE, pack('na*', $close['code'], $close['reason']));
+            $conn->close();
+            $hints= $close;
+            break;
         }
       } catch (Any $e) {
-        $hint= ['error' => Throwable::wrap($e)];
+        $hints= ['error' => Throwable::wrap($e)];
       }
 
       $this->logging->log('WS', Opcodes::nameOf($type), $conn->path(), $hints);

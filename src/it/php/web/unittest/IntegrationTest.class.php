@@ -1,11 +1,12 @@
 <?php namespace web\unittest;
 
 use test\{Assert, After, Test, Values};
+use util\Bytes;
 use websocket\WebSocket;
 
 #[StartServer(TestingServer::class)]
 class IntegrationTest {
-  const FORM_URLENCODED = 'application/x-www-form-urlencoded';
+  const FORM_URLENCODED= 'application/x-www-form-urlencoded';
 
   private $server;
 
@@ -14,9 +15,10 @@ class IntegrationTest {
     $this->server= $server;
   }
 
-  #[After]
-  public function shutdown() {
-    $this->server->shutdown();
+  /** @return iterable */
+  private function messages() {
+    yield ['Test', 'Echo: Test'];
+    yield [new Bytes([8, 15]), new Bytes([47, 11, 8, 15])];
   }
 
   /**
@@ -163,16 +165,21 @@ class IntegrationTest {
     Assert::equals((string)strlen($header), $r['body']);
   }
 
-  #[Test]
-  public function websocket_message() {
+  #[Test, Values(from: 'messages')]
+  public function websocket_message($input, $output) {
     try {
       $ws= new WebSocket($this->server->connection, '/ws');
       $ws->connect();
-      $ws->send('Test');
-      $echo= $ws->receive();
+      $ws->send($input);
+      $result= $ws->receive();
     } finally {
       $ws->close();
     }
-    Assert::equals('Echo: Test', $echo);
+    Assert::equals($output, $result);
+  }
+
+  #[After]
+  public function shutdown() {
+    $this->server->shutdown();
   }
 }

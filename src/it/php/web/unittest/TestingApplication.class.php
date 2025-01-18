@@ -2,6 +2,7 @@
 
 use lang\XPClass;
 use test\Assert;
+use util\Bytes;
 use web\handler\WebSocket;
 use web\{Application, Error};
 
@@ -11,7 +12,11 @@ class TestingApplication extends Application {
   public function routes() {
     return [
       '/ws' => new WebSocket(function($conn, $payload) {
-        $conn->send('Echo: '.$payload);
+        if ($payload instanceof Bytes) {
+          $conn->send(new Bytes("\057\013{$payload}"));
+        } else {
+          $conn->send('Echo: '.$payload);
+        }
       }),
       '/status/420' => function($req, $res) {
         $res->answer(420, $req->param('message') ?? 'Enhance your calm');
