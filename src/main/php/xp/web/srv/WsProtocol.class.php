@@ -99,7 +99,7 @@ class WsProtocol extends Switchable {
         $hints= ['error' => Throwable::wrap($e)];
       }
 
-      $this->logging->log('WS', Opcodes::nameOf($type), $conn->path(), $hints);
+      $this->logging->log('WS', Opcodes::nameOf($opcode), $conn->path(), $hints);
     }
   }
 
