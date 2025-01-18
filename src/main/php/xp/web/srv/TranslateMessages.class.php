@@ -10,7 +10,8 @@ use websocket\Listener;
 /**
  * Translates websocket messages into HTTP requests to an SSE endpoint
  *
- * @see  https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+ * @test  web.unittest.server.TranslateMessagesTest
+ * @see   https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
  */
 class TranslateMessages extends Listener {
   private $backend;

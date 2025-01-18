@@ -1,12 +1,14 @@
 <?php namespace web\unittest;
 
-use peer\SocketEndpoint;
+use peer\{Socket, SocketEndpoint};
 
-class Channel {
+class Channel extends Socket {
   public $in, $out;
   public $closed= false;
 
   public function __construct($chunks) { $this->in= $chunks; }
+
+  public function connect($timeout= 2.0) { $this->closed= false; }
 
   public function remoteEndpoint() { return new SocketEndpoint('127.0.0.1', 6666); }
 
