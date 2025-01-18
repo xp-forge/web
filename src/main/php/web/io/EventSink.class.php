@@ -41,6 +41,6 @@ class EventSink extends Connection {
   }
 
   public function flush() {
-    $this->out->close();
+    $this->out->finish();
   }
 }
