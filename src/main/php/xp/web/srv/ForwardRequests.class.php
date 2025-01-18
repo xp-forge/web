@@ -1,14 +1,46 @@
 <?php namespace xp\web\srv;
 
 use peer\Socket;
+use web\io\{ReadChunks, ReadLength};
 
-/** Forwards HTTP requests to the given backend */
+/**
+ * Forwards HTTP requests to the given backend
+ *
+ * @test  web.unittest.server.ForwardRequestsTest
+ */
 class ForwardRequests extends Switchable {
   private $backend;
 
   /** Creates a new instance */
   public function __construct(Socket $backend) {
     $this->backend= $backend;
+  }
+
+  /**
+   * Transmits data from an optional stream to a given target socket,
+   * handling chunked transfer-encoding.
+   *
+   * @see    https://developer.mozilla.org/de/docs/Web/HTTP/Headers/Transfer-Encoding
+   * @param  io.streams.InputStream $stream
+   * @param  peer.Socket $target
+   * @return void
+   */
+  private function transmit($stream, $target) {
+    if (null === $stream) {
+      // NOOP
+    } else if ($stream instanceof ReadChunks) {
+      while ($stream->available()) {
+        yield;
+        $chunk= $stream->read();
+        $target->write(dechex(strlen($chunk))."\r\n".$chunk."\r\n");
+      }
+      $target->write("0\r\n\r\n");
+    } else {
+      while ($stream->available()) {
+        yield;
+        $target->write($stream->read());
+      }
+    }
   }
 
   /**
@@ -33,13 +65,9 @@ class ForwardRequests extends Switchable {
       }
       // \util\cmd\Console::writeLine('>>> ', $message);
       $this->backend->write($message."\r\n");
-
-      if ($stream= $request->incoming()) {
-        while ($stream->available()) {
-          $this->backend->write($stream->read());
-        }
+      foreach ($this->transmit($request->incoming(), $this->backend) as $step) {
+        yield 'read' => $socket;
       }
-      yield 'write' => $socket;
 
       $response= new Input($this->backend);
       foreach ($response->consume() as $_) { }
@@ -51,6 +79,7 @@ class ForwardRequests extends Switchable {
         $result= null;
       }
 
+      yield 'write' => $socket;
       $message= "HTTP/{$response->version()} {$response->status()} {$response->message()}\r\n";
       foreach ($response->headers() as $name => $value) {
         isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
@@ -58,10 +87,8 @@ class ForwardRequests extends Switchable {
       // \util\cmd\Console::writeLine('<<< ', $message);
       $socket->write($message."\r\n");
 
-      if ($stream= $response->incoming()) {
-        while ($stream->available()) {
-          $socket->write($stream->read());
-        }
+      foreach ($this->transmit($response->incoming(), $socket) as $step) {
+        yield 'write' => $socket;
       }
       $this->backend->close();
 
