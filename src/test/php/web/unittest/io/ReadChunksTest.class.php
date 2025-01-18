@@ -130,21 +130,15 @@ class ReadChunksTest {
     $fixture= new ReadChunks($this->input("ff\r\n...💣"));
     $fixture->read();
 
-    try {
-      $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+    Assert::throws(IOException::class, fn() => $fixture->read(1));
   }
 
   #[Test, Values([4, 8192])]
-  public function reading_after_eof_raises_exception($length) {
+  public function reading_after_eof_returns_empty_string($length) {
     $fixture= new ReadChunks($this->input("4\r\nTest\r\n0\r\n\r\n"));
     $fixture->read($length);
 
-    try {
-      $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+    Assert::equals('', $fixture->read(1));
   }
 
   #[Test]
