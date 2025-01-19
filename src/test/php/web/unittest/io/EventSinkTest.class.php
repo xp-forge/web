@@ -24,7 +24,7 @@ class EventSinkTest {
 
     Assert::equals(
       [Opcodes::TEXT => 'Test'],
-      [...(new EventSink($request, new Response(new TestOutput())))->receive()]
+      iterator_to_array((new EventSink($request, new Response(new TestOutput())))->receive())
     );
   }
 
@@ -39,7 +39,7 @@ class EventSinkTest {
 
     Assert::equals(
       [Opcodes::BINARY => new Bytes("\x47\x11")],
-      [...(new EventSink($request, new Response(new TestOutput())))->receive()]
+      iterator_to_array((new EventSink($request, new Response(new TestOutput())))->receive())
     );
   }
 
