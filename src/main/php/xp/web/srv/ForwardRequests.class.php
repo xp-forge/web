@@ -23,7 +23,7 @@ class ForwardRequests extends Switchable {
    * @see    https://developer.mozilla.org/de/docs/Web/HTTP/Headers/Transfer-Encoding
    * @param  io.streams.InputStream $stream
    * @param  peer.Socket $target
-   * @return void
+   * @return iterable
    */
   private function transmit($stream, $target) {
     if (null === $stream) {
@@ -47,7 +47,7 @@ class ForwardRequests extends Switchable {
    * Handle client data
    *
    * @param  peer.Socket $socket
-   * @return void
+   * @return iterable
    */
   public function handleData($socket) {
     static $exclude= ['Remote-Addr' => true];

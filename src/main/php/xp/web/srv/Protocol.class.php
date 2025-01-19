@@ -46,6 +46,7 @@ class Protocol implements ServerProtocol {
    * Handle client connect
    *
    * @param  peer.Socket $socket
+   * @return void
    */
   public function handleConnect($socket) {
     $this->protocols[spl_object_id($socket)]= current($this->protocols);
@@ -55,7 +56,7 @@ class Protocol implements ServerProtocol {
    * Handle client data
    *
    * @param  peer.Socket $socket
-   * @return void
+   * @return iterable
    */
   public function handleData($socket) {
     $handle= spl_object_id($socket);
@@ -77,6 +78,7 @@ class Protocol implements ServerProtocol {
    * Handle client disconnect
    *
    * @param  peer.Socket $socket
+   * @return void
    */
   public function handleDisconnect($socket) {
     $handle= spl_object_id($socket);
@@ -92,6 +94,7 @@ class Protocol implements ServerProtocol {
    *
    * @param  peer.Socket $socket
    * @param  lang.XPException $e
+   * @return void
    */
   public function handleError($socket, $e) {
     $handle= spl_object_id($socket);
