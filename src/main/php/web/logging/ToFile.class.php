@@ -30,11 +30,11 @@ class ToFile extends Sink {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($status, $method, $uri, $hints) {
+  public function log($status, $method, $resource, $hints) {
     $hint= '';
     foreach ($hints as $kind => $value) {
       $hint.= ', '.$kind.': '.(is_string($value) ? $value : Objects::stringOf($value));
@@ -47,7 +47,7 @@ class ToFile extends Sink {
       memory_get_usage() / 1024,
       $status,
       $method,
-      $uri,
+      $resource,
       $hint ? ' ['.substr($hint, 2).']' : ''
     );
     file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);

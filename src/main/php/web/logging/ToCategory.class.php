@@ -16,15 +16,15 @@ class ToCategory extends Sink {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($status, $method, $uri, $hints) {
+  public function log($status, $method, $resource, $hints) {
     if ($hints) {
-      $this->cat->warn($status, $method, $uri, $hints);
+      $this->cat->warn($status, $method, $resource, $hints);
     } else {
-      $this->cat->info($status, $method, $uri);
+      $this->cat->info($status, $method, $resource);
     }
   }
 }

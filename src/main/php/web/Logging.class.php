@@ -58,7 +58,7 @@ class Logging {
   }
 
   /**
-   * Writes a HTTP exchange to the log
+   * Writes an HTTP exchange to the log
    *
    * @param  web.Request $response
    * @param  web.Response $response
@@ -79,12 +79,12 @@ class Logging {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($status, $method, $uri, $hints= []) {
-    $this->sink && $this->sink->log($status, $method, $uri, $hints);
+  public function log($status, $method, $resource, $hints= []) {
+    $this->sink && $this->sink->log($status, $method, $resource, $hints);
   }
 
   /**

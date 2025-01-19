@@ -14,11 +14,11 @@ abstract class Sink {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public abstract function log($status, $method, $uri, $hints);
+  public abstract function log($status, $method, $resource, $hints);
 
   /** @return string */
   public function target() { return nameof($this); }

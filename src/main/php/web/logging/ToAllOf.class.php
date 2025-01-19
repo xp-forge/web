@@ -42,13 +42,13 @@ class ToAllOf extends Sink {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($status, $method, $uri, $hints) {
+  public function log($status, $method, $resource, $hints) {
     foreach ($this->sinks as $sink) {
-      $sink->log($status, $method, $uri, $hints);
+      $sink->log($status, $method, $resource, $hints);
     }
   }
 }

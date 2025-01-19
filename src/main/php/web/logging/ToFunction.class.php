@@ -13,11 +13,11 @@ class ToFunction extends Sink {
    *
    * @param  string $status
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($status, $method, $uri, $hints) {
-    $this->function->__invoke($status, $method, $uri, $hints);
+  public function log($status, $method, $resource, $hints) {
+    $this->function->__invoke($status, $method, $resource, $hints);
   }
 }
