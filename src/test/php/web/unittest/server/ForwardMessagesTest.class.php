@@ -4,9 +4,9 @@ use test\{Assert, Test};
 use util\Bytes;
 use web\unittest\Channel;
 use websocket\protocol\Connection;
-use xp\web\srv\TranslateMessages;
+use xp\web\srv\ForwardMessages;
 
-class TranslateMessagesTest {
+class ForwardMessagesTest {
   const WSID= 6100;
 
   /** Creates a HTTP message */
@@ -16,7 +16,7 @@ class TranslateMessagesTest {
 
   #[Test]
   public function can_create() {
-    new TranslateMessages(new Channel([]));
+    new ForwardMessages(new Channel([]));
   }
 
   #[Test]
@@ -40,7 +40,7 @@ class TranslateMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new TranslateMessages($backend);
+    $fixture= new ForwardMessages($backend);
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
     
     Assert::equals($request, implode('', $backend->out));
@@ -69,7 +69,7 @@ class TranslateMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new TranslateMessages($backend);
+    $fixture= new ForwardMessages($backend);
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
     
     Assert::equals($request, implode('', $backend->out));
@@ -98,7 +98,7 @@ class TranslateMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new TranslateMessages($backend);
+    $fixture= new ForwardMessages($backend);
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
 
     Assert::equals($request, implode('', $backend->out));
@@ -127,7 +127,7 @@ class TranslateMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new TranslateMessages($backend);
+    $fixture= new ForwardMessages($backend);
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));
@@ -156,7 +156,7 @@ class TranslateMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new TranslateMessages($backend);
+    $fixture= new ForwardMessages($backend);
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));

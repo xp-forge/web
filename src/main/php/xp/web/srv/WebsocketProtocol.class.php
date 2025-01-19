@@ -3,6 +3,7 @@
 use Throwable as Any;
 use lang\{Throwable, FormatException};
 use util\Bytes;
+use web\Logging;
 use websocket\protocol\{Opcodes, Connection};
 
 class WebsocketProtocol extends Switchable {
@@ -13,11 +14,11 @@ class WebsocketProtocol extends Switchable {
    * Creates a new protocol instance
    *
    * @param  ?websocket.Listener $listener
-   * @param  web.Logging $logging
+   * @param  ?web.Logging $logging
    */
-  public function __construct($listener, $logging) {
+  public function __construct($listener, $logging= null) {
     $this->listener= $listener;
-    $this->logging= $logging;
+    $this->logging= $logging ?? new Logging(null);
   }
 
   /**

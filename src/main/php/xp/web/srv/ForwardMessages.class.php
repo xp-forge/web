@@ -9,12 +9,12 @@ use websocket\Listener;
 use websocket\protocol\Opcodes;
 
 /**
- * Translates websocket messages into HTTP requests to an SSE endpoint
+ * Forwards websocket messages to an HTTP SSE endpoint.
  *
- * @test  web.unittest.server.TranslateMessagesTest
+ * @test  web.unittest.server.ForwardMessagesTest
  * @see   https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
  */
-class TranslateMessages extends Listener {
+class ForwardMessages extends Listener {
   private $backend;
 
   /** Creates a new instance */
