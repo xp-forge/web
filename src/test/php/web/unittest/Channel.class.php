@@ -14,6 +14,10 @@ class Channel extends Socket {
 
   public function remoteEndpoint() { return new SocketEndpoint('127.0.0.1', 6666); }
 
+  public function setTimeout($timeout) { }
+
+  public function useNoDelay() { }
+
   public function canRead($timeout= 0.0) { return !empty($this->in); }
 
   public function read($maxLen= 4096) { return array_shift($this->in); }

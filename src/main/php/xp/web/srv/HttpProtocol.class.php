@@ -4,11 +4,7 @@ use Throwable;
 use lang\ClassLoader;
 use web\{Error, InternalServerError, Request, Response, Headers, Status};
 
-/**
- * HTTP protocol implementation
- *
- * @test  web.unittest.server.HttpProtocolTest
- */
+/** @test web.unittest.server.HttpProtocolTest */
 class HttpProtocol extends Switchable {
   private $application, $logging;
   public $server= null;

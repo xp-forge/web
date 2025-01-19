@@ -6,6 +6,7 @@ use util\Bytes;
 use web\Logging;
 use websocket\protocol\{Opcodes, Connection};
 
+/** @test web.unittest.server.WebsocketProtocolTest */
 class WebsocketProtocol extends Switchable {
   private $listener, $logging;
   private $connections= [];
