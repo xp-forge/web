@@ -66,13 +66,12 @@ class Logging {
    * @return void
    */
   public function exchange($request, $response, $hints= []) {
-    if (!$this->sink) return;
-
-    $uri= $request->uri()->path();
-    if ($query= $request->uri()->query()) {
-      $uri.= '?'.$query;
-    }
-    $this->sink->log($response->status(), $request->method(), $uri, $response->trace + $hints);
+    $this->sink && $this->sink->log(
+      $response->status(),
+      $request->method(),
+      $request->uri()->resource(),
+      $response->trace + $hints
+    );
   }
 
   /**
