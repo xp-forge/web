@@ -56,7 +56,7 @@ class ForwardMessages extends Listener {
       foreach (new EventSource($response->incoming()) as $event => $data) {
         $value= strtr($data, ['\r' => "\r", '\n' => "\n"]);
         switch ($event) {
-          case null: case 'text': $conn->send($value); break;
+          case 'text': case null: $conn->send($value); break;
           case 'bytes': $conn->send(new Bytes($value)); break;
           case 'close': {
             sscanf($value, "%d:%[^\r]", $code, $reason);

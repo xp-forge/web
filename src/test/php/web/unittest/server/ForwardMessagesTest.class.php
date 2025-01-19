@@ -1,6 +1,6 @@
 <?php namespace web\unittest\server;
 
-use test\{Assert, Test};
+use test\{Assert, Test, Values};
 use util\Bytes;
 use web\unittest\Channel;
 use websocket\protocol\Connection;
@@ -19,8 +19,8 @@ class ForwardMessagesTest {
     new ForwardMessages(new Channel([]));
   }
 
-  #[Test]
-  public function text() {
+  #[Test, Values(["d\r\ndata: Tested\n\r\n0\r\n\r\n", "19\r\nevent: text\ndata: Tested\n\r\n0\r\n\r\n"])]
+  public function text($payload) {
     $request= $this->message(
       'POST /ws HTTP/1.1',
       'Sec-WebSocket-Version: 9',
@@ -35,7 +35,7 @@ class ForwardMessagesTest {
       'Content-Type: text/event-stream',
       'Transfer-Encoding: chunked',
       '',
-      "d\r\ndata: Tested\n\r\n0\r\n\r\n"
+      $payload
     );
 
     $backend= new Channel([$response]);
