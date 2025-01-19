@@ -17,7 +17,7 @@ class Input implements Base {
   public $kind= null;
   public $buffer= null;
   private $socket;
-  private $method, $uri, $version, $status, $message;
+  private $method, $resource, $version, $status, $message;
   private $incoming= null;
 
   /**
@@ -65,7 +65,7 @@ class Input implements Base {
     if (3 === sscanf($this->buffer, "HTTP/%[0-9.] %d %[^\r]\r\n", $this->version, $this->status, $this->message)) {
       $this->kind|= self::RESPONSE;
       $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
-    } else if (3 === sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->uri, $this->version)) {
+    } else if (3 === sscanf($this->buffer, "%s %s HTTP/%[0-9.]\r\n", $this->method, $this->resource, $this->version)) {
       $this->kind|= self::REQUEST;
       $this->buffer= substr($this->buffer, strpos($this->buffer, "\r\n") + 2);
     } else {
@@ -102,7 +102,7 @@ class Input implements Base {
   public function method() { return $this->method; }
 
   /** @return string */
-  public function uri() { return $this->uri; }
+  public function resource() { return $this->resource; }
 
   /** @return int */
   public function status() { return $this->status; }

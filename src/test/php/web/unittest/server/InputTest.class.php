@@ -81,7 +81,7 @@ class InputTest {
 
     Assert::equals(Input::REQUEST, $input->kind);
     Assert::equals('GET', $input->method());
-    Assert::equals('/', $input->uri());
+    Assert::equals('/', $input->resource());
     Assert::equals('1.1', $input->version());
   }
 
@@ -148,8 +148,13 @@ class InputTest {
   }
 
   #[Test]
-  public function uri() {
-    Assert::equals('/', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->uri());
+  public function resource() {
+    Assert::equals('/', $this->consume($this->socket("GET / HTTP/1.1\r\n\r\n"))->resource());
+  }
+
+  #[Test]
+  public function resource_with_query() {
+    Assert::equals('/?q=Test', $this->consume($this->socket("GET /?q=Test HTTP/1.1\r\n\r\n"))->resource());
   }
 
   #[Test]

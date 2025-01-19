@@ -57,7 +57,7 @@ class ForwardRequests extends Switchable {
 
     if (Input::REQUEST === $request->kind) {
       $this->backend->connect();
-      $message= "{$request->method()} {$request->uri()} HTTP/{$request->version()}\r\n";
+      $message= "{$request->method()} {$request->resource()} HTTP/{$request->version()}\r\n";
       $headers= [];
       foreach ($request->headers() as $name => $value) {
         isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
@@ -74,7 +74,7 @@ class ForwardRequests extends Switchable {
 
       // Switch protocols
       if (101 === $response->status()) {
-        $result= ['websocket', ['path' => $request->uri(), 'headers' => $headers]];
+        $result= ['websocket', ['path' => $request->resource(), 'headers' => $headers]];
       } else {
         $result= null;
       }
