@@ -1,8 +1,9 @@
-<?php namespace web\unittest;
+<?php namespace web\unittest\server;
 
 use io\streams\Streams;
 use peer\SocketException;
 use test\{Assert, Before, AssertionFailed, Test, Values};
+use web\unittest\Channel;
 use web\{Application, Environment, Logging};
 use xp\web\srv\{CannotWrite, HttpProtocol};
 
