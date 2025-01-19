@@ -45,12 +45,8 @@ class WebSocket implements Handler {
         $response->trace('websocket', $request->header('Sec-WebSocket-Id'));
 
         $events= new EventSink($request, $response);
-        try {
-          foreach ($events->receive() as $message) {
-            $this->listener->message($events, $message);
-          }
-        } finally {
-          $events->flush();
+        foreach ($events->receive() as $message) {
+          $this->listener->message($events, $message);
         }
         return;
 
