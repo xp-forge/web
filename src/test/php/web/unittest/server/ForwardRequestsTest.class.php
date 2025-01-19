@@ -1,5 +1,6 @@
 <?php namespace web\unittest\server;
 
+use io\IOException;
 use test\{Assert, Test};
 use web\unittest\Channel;
 use xp\web\srv\ForwardRequests;
@@ -105,5 +106,55 @@ class ForwardRequestsTest {
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals($response, implode('', $client->out));
+  }
+
+  #[Test]
+  public function backend_socket_closed() {
+    $request= $this->message(
+      'POST / HTTP/1.0',
+      'Transfer-Encoding: chunked',
+      '',
+      "4\r\nTest\r\n0\r\n\r\n",
+    );
+    $response= $this->message(
+      'HTTP/1.0 201 Created',
+      'Location: /test/1',
+      '',
+      ''
+    );
+    $client= new Channel([$request]);
+    $backend= new Channel([$response]);
+    $this->forward($client, $backend);
+
+    Assert::false($backend->isConnected());
+  }
+
+  #[Test]
+  public function backend_socket_closed_on_errors() {
+    $request= $this->message(
+      'POST / HTTP/1.0',
+      'Transfer-Encoding: chunked',
+      '',
+      "4\r\nTest\r\n0\r\n\r\n",
+    );
+    $response= $this->message(
+      'HTTP/1.0 201 Created',
+      'Location: /test/1',
+      '',
+      ''
+    );
+    $client= new class([$request]) extends Channel {
+      public function write($chunk) {
+        throw new IOException('Test');
+      }
+    };
+    $backend= new Channel([$response]);
+    try {
+      $this->forward($client, $backend);
+    } catch (IOException $expected) {
+      // ...
+    }
+
+    Assert::false($backend->isConnected());
   }
 }

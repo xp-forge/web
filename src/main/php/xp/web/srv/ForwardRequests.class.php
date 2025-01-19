@@ -57,40 +57,43 @@ class ForwardRequests extends Switchable {
 
     if (Input::REQUEST === $request->kind) {
       $this->backend->connect();
-      $message= "{$request->method()} {$request->resource()} HTTP/{$request->version()}\r\n";
-      $headers= [];
-      foreach ($request->headers() as $name => $value) {
-        isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
-        $headers[$name]= $value;
-      }
-      // \util\cmd\Console::writeLine('>>> ', $message);
-      $this->backend->write($message."\r\n");
-      foreach ($this->transmit($request->incoming(), $this->backend) as $step) {
-        // yield 'read' => $socket;
-      }
+      try {
+        $message= "{$request->method()} {$request->resource()} HTTP/{$request->version()}\r\n";
+        $headers= [];
+        foreach ($request->headers() as $name => $value) {
+          isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
+          $headers[$name]= $value;
+        }
+        // \util\cmd\Console::writeLine('>>> ', $message);
+        $this->backend->write($message."\r\n");
+        foreach ($this->transmit($request->incoming(), $this->backend) as $step) {
+          // yield 'read' => $socket;
+        }
 
-      $response= new Input($this->backend);
-      foreach ($response->consume() as $_) { }
+        $response= new Input($this->backend);
+        foreach ($response->consume() as $_) { }
 
-      // Switch protocols
-      if (101 === $response->status()) {
-        $result= ['websocket', ['path' => $request->resource(), 'headers' => $headers]];
-      } else {
-        $result= null;
-      }
+        // Switch protocols
+        if (101 === $response->status()) {
+          $result= ['websocket', ['path' => $request->resource(), 'headers' => $headers]];
+        } else {
+          $result= null;
+        }
 
-      // yield 'write' => $socket;
-      $message= "HTTP/{$response->version()} {$response->status()} {$response->message()}\r\n";
-      foreach ($response->headers() as $name => $value) {
-        isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
-      }
-      // \util\cmd\Console::writeLine('<<< ', $message);
-      $socket->write($message."\r\n");
-
-      foreach ($this->transmit($response->incoming(), $socket) as $step) {
         // yield 'write' => $socket;
+        $message= "HTTP/{$response->version()} {$response->status()} {$response->message()}\r\n";
+        foreach ($response->headers() as $name => $value) {
+          isset($exclude[$name]) || $message.= "{$name}: {$value}\r\n";
+        }
+        // \util\cmd\Console::writeLine('<<< ', $message);
+        $socket->write($message."\r\n");
+
+        foreach ($this->transmit($response->incoming(), $socket) as $step) {
+          // yield 'write' => $socket;
+        }
+      } finally {
+        $this->backend->close();
       }
-      $this->backend->close();
 
       return $result;
     } else if (Input::CLOSE === $request->kind) {
