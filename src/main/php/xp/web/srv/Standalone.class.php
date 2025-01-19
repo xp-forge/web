@@ -62,7 +62,7 @@ class Standalone extends Server {
     $socket= new ServerSocket($this->host, $this->port);
     $this->impl->listen($socket, Protocol::multiplex()
       ->serving('http', new HttpProtocol($application, $environment->logging()))
-      ->serving('websocket', new WsProtocol($environment->logging()))
+      ->serving('websocket', new WebsocketProtocol(null, $environment->logging()))
     );
     $this->impl->init();
 

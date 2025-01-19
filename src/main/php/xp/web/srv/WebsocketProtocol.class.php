@@ -5,19 +5,19 @@ use lang\{Throwable, FormatException};
 use util\Bytes;
 use websocket\protocol\{Opcodes, Connection};
 
-class WsProtocol extends Switchable {
-  private $logging, $listener;
+class WebsocketProtocol extends Switchable {
+  private $listener, $logging;
   private $connections= [];
 
   /**
    * Creates a new protocol instance
    *
-   * @param  web.Logging $logging
    * @param  ?websocket.Listener $listener
+   * @param  web.Logging $logging
    */
-  public function __construct($logging, $listener= null) {
-    $this->logging= $logging;
+  public function __construct($listener, $logging) {
     $this->listener= $listener;
+    $this->logging= $logging;
   }
 
   /**
