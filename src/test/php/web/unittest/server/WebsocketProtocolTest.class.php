@@ -57,11 +57,48 @@ class WebsocketProtocolTest {
   }
 
   #[Test]
-  public function answer_text_message() {
-    $out= $this->handle(["\x81\x04", "Test"], function($conn, $message) use(&$received) {
+  public function send_messages() {
+    $out= $this->handle(["\x81\x04", "Test"], function($conn, $message) {
       $conn->send('Re: '.$message);
+      $conn->send(new Bytes("\x47\x11"));
     });
 
-    Assert::equals(["\x81\x08Re: Test"], $out);
+    Assert::equals(["\x81\x08Re: Test", "\x82\x02\x47\x11"], $out);
+  }
+
+  #[Test]
+  public function answers_ping_with_pong_automatically() {
+    $out= $this->handle(["\x89\x04", "Test"], function($conn, $message) {
+      // NOOP
+    });
+
+    Assert::equals(["\x8a\x04Test"], $out);
+  }
+
+  #[Test]
+  public function default_close() {
+    $out= $this->handle(["\x88\x00"], function($conn, $message) {
+      // NOOP
+    });
+
+    Assert::equals(["\x88\x02\x03\xe8"], $out);
+  }
+
+  #[Test]
+  public function answer_with_client_code_and_reason() {
+    $out= $this->handle(["\x88\x06", "\x03\xe8Test"], function($conn, $message) {
+      // NOOP
+    });
+
+    Assert::equals(["\x88\x06\x03\xe8Test"], $out);
+  }
+
+  #[Test]
+  public function protocol_error() {
+    $out= $this->handle(["\x88\x02", "\x03\xf7"], function($conn, $message) {
+      // NOOP
+    });
+
+    Assert::equals(["\x88\x02\x03\xea"], $out);
   }
 }
