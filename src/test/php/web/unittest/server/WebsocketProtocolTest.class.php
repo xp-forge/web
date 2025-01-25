@@ -1,7 +1,8 @@
 <?php namespace web\unittest\server;
 
-use test\{Assert, Before, Test};
-use util\Bytes;
+use test\{Assert, Before, Test, Values};
+use util\{Bytes, Objects};
+use web\Logging;
 use web\unittest\Channel;
 use websocket\Listener;
 use xp\web\srv\WebsocketProtocol;
@@ -14,12 +15,13 @@ class WebsocketProtocolTest {
    *
    * @param  string[] $chunks
    * @param  function(websocket.protocol.Connection, string|util.Bytes): var $listener
+   * @param  ?function(string, string, string, [:var]): var $logging
    * @return string[]
    */
-  private function handle($chunks, $listener) {
+  private function handle($chunks, $listener, $logging= null) {
     $socket= new Channel($chunks);
 
-    $protocol= new WebsocketProtocol(newinstance(Listener::class, [], $listener));
+    $protocol= new WebsocketProtocol(newinstance(Listener::class, [], $listener), Logging::of($logging));
     $protocol->handleSwitch($socket, ['path' => '/ws', 'headers' => []]);
     try {
       foreach ($protocol->handleData($socket) as $_) { }
@@ -96,5 +98,14 @@ class WebsocketProtocolTest {
   public function protocol_error() {
     $out= $this->handle(["\x88\x02", "\x03\xf7"], $this->noop);
     Assert::equals(["\x88\x02\x03\xea"], $out);
+  }
+
+  #[Test, Values([[["\x81\x04", "Test"], 'TEXT /ws'], [["\x82\x02", "\x47\x11"], 'BINARY /ws']])]
+  public function logs_messages($input, $expected) {
+    $logged= [];
+    $this->handle($input, $this->noop, function($status, $method, $uri, $hints) use(&$logged) {
+      $logged[]= $method.' '.$uri.($hints ? ' '.Objects::stringOf($hints) : '');
+    });
+    Assert::equals([$expected], $logged);
   }
 }
