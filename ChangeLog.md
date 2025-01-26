@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 5.0.0 / ????-??-??
+
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
+
 ## 4.5.2 / 2025-01-05
 
 * Fixed server to write warnings when not being able to send HTTP headers

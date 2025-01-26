@@ -29,7 +29,7 @@ class Request implements Value {
     }
 
     $this->method= $input->method();
-    $this->uri= (new URI($input->scheme().'://'.$this->header('Host', 'localhost').$input->uri()))->canonicalize();
+    $this->uri= (new URI($input->scheme().'://'.$this->header('Host', 'localhost').$input->resource()))->canonicalize();
     $this->input= $input;
   }
 

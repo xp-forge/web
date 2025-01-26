@@ -91,9 +91,9 @@ class SAPITest {
   }
 
   #[Test]
-  public function uri() {
+  public function resource() {
     $_SERVER['REQUEST_URI']= '/favicon.ico';
-    Assert::equals('/favicon.ico', (new SAPI())->uri());
+    Assert::equals('/favicon.ico', (new SAPI())->resource());
   }
 
   #[Test]

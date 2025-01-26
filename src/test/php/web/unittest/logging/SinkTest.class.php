@@ -19,7 +19,7 @@ class SinkTest {
 
   #[Test]
   public function logging_to_function() {
-    Assert::instance(ToFunction::class, Sink::of(function($req, $res, $error) { }));
+    Assert::instance(ToFunction::class, Sink::of(function($status, $method, $uri, $hints) { }));
   }
 
   #[Test]

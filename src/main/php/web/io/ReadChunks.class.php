@@ -76,11 +76,12 @@ class ReadChunks implements InputStream {
    */
   public function read($limit= 8192) {
     $remaining= $this->remaining ?? $this->scan();
+    if (0 === $remaining) return ''; // Expected EOF
 
     $chunk= substr($this->buffer, 0, min($limit, $remaining));
     if ('' === $chunk) {
       $this->remaining= 0;
-      throw new IOException('EOF');
+      throw new IOException('Unexpected EOF');
     }
 
     $length= strlen($chunk);
