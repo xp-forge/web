@@ -100,7 +100,7 @@ class Develop extends Server {
     $impl= new AsyncServer();
     $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
       ->serving('http', new ForwardRequests($backend))
-      ->serving('websocket', new WebsocketProtocol(new ForwardMessages($backend)))
+      ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backend)))
     );
     $impl->init();
     $impl->service();

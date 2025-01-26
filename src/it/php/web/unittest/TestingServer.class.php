@@ -5,7 +5,7 @@ use peer\ServerSocket;
 use peer\server\AsyncServer;
 use util\cmd\Console;
 use web\{Environment, Logging};
-use xp\web\srv\{Protocol, HttpProtocol, WebsocketProtocol};
+use xp\web\srv\{Protocol, HttpProtocol, WebSocketProtocol};
 
 /**
  * Socket server used by integration tests. 
@@ -29,7 +29,7 @@ class TestingServer {
     try {
       $s->listen($socket, Protocol::multiplex()
         ->serving('http', new HttpProtocol($application, $log))
-        ->serving('websocket', new WebsocketProtocol(null, $log))
+        ->serving('websocket', new WebSocketProtocol(null, $log))
       );
       $s->init();
       Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);

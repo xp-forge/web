@@ -5,9 +5,9 @@ use util\{Bytes, Objects};
 use web\Logging;
 use web\unittest\Channel;
 use websocket\Listener;
-use xp\web\srv\WebsocketProtocol;
+use xp\web\srv\WebSocketProtocol;
 
-class WebsocketProtocolTest {
+class WebSocketProtocolTest {
   private $noop;
 
   /**
@@ -21,7 +21,7 @@ class WebsocketProtocolTest {
   private function handle($chunks, $listener, $logging= null) {
     $socket= new Channel($chunks);
 
-    $protocol= new WebsocketProtocol(newinstance(Listener::class, [], $listener), Logging::of($logging));
+    $protocol= new WebSocketProtocol(newinstance(Listener::class, [], $listener), Logging::of($logging));
     $protocol->handleSwitch($socket, ['path' => '/ws', 'headers' => []]);
     try {
       foreach ($protocol->handleData($socket) as $_) { }
@@ -41,7 +41,7 @@ class WebsocketProtocolTest {
 
   #[Test]
   public function can_create() {
-    new WebsocketProtocol(new class() extends Listener {
+    new WebSocketProtocol(new class() extends Listener {
       public function message($conn, $message) { }
     });
   }
