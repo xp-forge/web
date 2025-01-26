@@ -9,19 +9,7 @@ class Protocol implements ServerProtocol {
 
   /** Creates a new instance of this multiplex protocol */
   public static function multiplex(): self {
-
-    // Compatibility with older xp-framework/networking libraries, see issue #79
-    // Unwind generators returned from handleData() to guarantee their complete
-    // execution.
-    if (class_exists(AsyncServer::class, true)) {
-      return new self();
-    } else {
-      return new class() extends Protocol {
-        public function handleData($socket) {
-          foreach (parent::handleData($socket) as $_) { }
-        }
-      };
-    }
+    return new self();
   }
 
   /** Serves a given protocol */
