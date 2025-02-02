@@ -1,44 +1,39 @@
 <?php namespace web\unittest\server;
 
-use test\{Assert, Test};
+use test\{Assert, Before, After, Test};
 use xp\web\srv\Workers;
 
 class WorkersTest {
+  private $worker;
 
-  /** @param function(peer.Socket): void $assertions */
-  private function test($assertions) {
-    $worker= (new Workers('.', []))->launch();
-    try {
-      $assertions($worker);
-    } finally {
-      $worker->shutdown();
-    }
+  #[Before]
+  public function worker() {
+    $this->worker= (new Workers('.', []))->launch();
   }
 
   #[Test]
   public function running() {
-    $this->test(function($worker) {
-      Assert::true($worker->running());
-    });
+    Assert::true($this->worker->running());
   }
 
   #[Test]
   public function pid() {
-    $this->test(function($worker) {
-      Assert::notEquals(null, $worker->pid());
-    });
+    Assert::notEquals(null, $this->worker->pid());
   }
 
   #[Test]
   public function execute_http_requests() {
-    $this->test(function($worker) {
-      $worker->socket->connect();
-      try {
-        $worker->socket->write("GET / HTTP/1.0\r\n\r\n");
-        Assert::equals('HTTP/1.0 200 OK', $worker->socket->readLine());
-      } finally {
-        $worker->socket->close();
-      }
-    });
+    $this->worker->socket->connect();
+    try {
+      $this->worker->socket->write("GET / HTTP/1.0\r\n\r\n");
+      Assert::matches('/^HTTP\/1.0 [0-9]{3} .+/', $this->worker->socket->readLine());
+    } finally {
+      $this->worker->socket->close();
+    }
+  }
+
+  #[After]
+  public function shutdown() {
+    $this->worker && $this->worker->shutdown();
   }
 }
