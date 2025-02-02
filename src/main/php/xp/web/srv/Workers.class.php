@@ -48,7 +48,7 @@ class Workers {
         ->withSetting('user_dir', $docroot)
         ->withSetting('include_path', $include)
         ->withSetting('output_buffering', 0)
-        ->withSetting('opcache.enable', ini_get('opcache.enable'))
+        ->withSetting('display_startup_errors', 0)
         ->asArguments()
       ,
       [$runtime->bootstrapScript('web')]
