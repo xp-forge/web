@@ -65,5 +65,8 @@ class Develop extends Server {
     );
     $impl->init();
     $impl->service();
+    $impl->shutdown();
+
+    $backend->shutdown();
   }
 }
