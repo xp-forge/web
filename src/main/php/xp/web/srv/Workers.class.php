@@ -11,7 +11,7 @@ use peer\Socket;
  * @test  web.unittest.server.WorkersTest
  */
 class Workers {
-  private $commandLine;
+  private $executable, $arguments;
 
   /**
    * Creates a new worker
@@ -30,19 +30,14 @@ class Workers {
       }
     }
 
-    // Replace launching shell with PHP on Un*x
-    $os= CommandLine::forName(PHP_OS);
-    $this->commandLine= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
-      ['-S', '127.0.0.1:0', '-t', $docroot],
-      $runtime->startupOptions()
-        ->withSetting('user_dir', $docroot)
-        ->withSetting('include_path', $include)
-        ->withSetting('output_buffering', 0)
-        ->asArguments()
-      ,
-      [$runtime->bootstrapScript('web')]
-    ));
-    if ('WINDOWS' !== $os->name()) $this->commandLine= 'exec '.$this->commandLine;
+    $this->executable= $runtime->getExecutable()->getFileName();
+    $this->arguments= $runtime->startupOptions()
+      ->withSetting('user_dir', $docroot)
+      ->withSetting('include_path', $include)
+      ->withSetting('output_buffering', 0)
+      ->asArguments()
+    ;
+    $this->arguments[]= $runtime->bootstrapScript('web');
   }
 
   /**
@@ -59,10 +54,15 @@ class Workers {
       $s= stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
       $listen= stream_socket_get_name($s, false);
       fclose($s);
-      $commandLine= str_replace('127.0.0.1:0', $listen, $this->commandLine);
     } else {
-      $commandLine= $this->commandLine;
+      $listen= '127.0.0.1:0';
     }
+
+    $os= CommandLine::forName(PHP_OS);
+    $commandLine= $os->compose($this->executable, ['-S', $listen, ...$this->arguments]);
+
+    // Replace launching shell with PHP on Un*x
+    if ('WINDOWS' !== $os->name()) $commandLine= 'exec '.$commandLine;
 
     if (!($proc= proc_open($commandLine, [STDIN, STDOUT, ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
       throw new IOException('Cannot execute `'.$commandLine.'`');
