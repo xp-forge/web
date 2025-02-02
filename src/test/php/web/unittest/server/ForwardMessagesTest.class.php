@@ -4,7 +4,7 @@ use test\{Assert, Test, Values};
 use util\Bytes;
 use web\unittest\Channel;
 use websocket\protocol\Connection;
-use xp\web\srv\ForwardMessages;
+use xp\web\srv\{ForwardMessages, Worker};
 
 class ForwardMessagesTest {
   const WSID= 6100;
@@ -16,7 +16,7 @@ class ForwardMessagesTest {
 
   #[Test]
   public function can_create() {
-    new ForwardMessages(new Channel([]));
+    new ForwardMessages(new Worker(null, new Channel([])));
   }
 
   #[Test, Values(["d\r\ndata: Tested\n\r\n0\r\n\r\n", "19\r\nevent: text\ndata: Tested\n\r\n0\r\n\r\n"])]
@@ -40,7 +40,7 @@ class ForwardMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new ForwardMessages($backend);
+    $fixture= new ForwardMessages(new Worker(null, $backend));
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
     
     Assert::equals($request, implode('', $backend->out));
@@ -69,7 +69,7 @@ class ForwardMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new ForwardMessages($backend);
+    $fixture= new ForwardMessages(new Worker(null, $backend));
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
     
     Assert::equals($request, implode('', $backend->out));
@@ -98,7 +98,7 @@ class ForwardMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new ForwardMessages($backend);
+    $fixture= new ForwardMessages(new Worker(null, $backend));
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
 
     Assert::equals($request, implode('', $backend->out));
@@ -127,7 +127,7 @@ class ForwardMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new ForwardMessages($backend);
+    $fixture= new ForwardMessages(new Worker(null, $backend));
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));
@@ -156,7 +156,7 @@ class ForwardMessagesTest {
 
     $backend= new Channel([$response]);
     $ws= new Channel([]);
-    $fixture= new ForwardMessages($backend);
+    $fixture= new ForwardMessages(new Worker(null, $backend));
     $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
 
     Assert::equals($request, implode('', $backend->out));

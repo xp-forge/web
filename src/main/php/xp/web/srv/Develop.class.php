@@ -60,8 +60,8 @@ class Develop extends Server {
     // Start the multiplex protocol in the foreground and forward requests
     $impl= new AsyncServer();
     $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
-      ->serving('http', new ForwardRequests($backend->socket))
-      ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backend->socket)))
+      ->serving('http', new ForwardRequests($backend))
+      ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backend)))
     );
     $impl->init();
     $impl->service();

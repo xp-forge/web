@@ -3,7 +3,7 @@
 use io\IOException;
 use test\{Assert, Test};
 use web\unittest\Channel;
-use xp\web\srv\ForwardRequests;
+use xp\web\srv\{ForwardRequests, Worker};
 
 class ForwardRequestsTest {
 
@@ -14,12 +14,12 @@ class ForwardRequestsTest {
 
   /** @return void */
   private function forward(Channel $client, Channel $backend) {
-    foreach ((new ForwardRequests($backend))->handleData($client) ?? [] as $_) { }
+    foreach ((new ForwardRequests(new Worker(null, $backend)))->handleData($client) ?? [] as $_) { }
   }
 
   #[Test]
   public function can_create() {
-    new ForwardRequests(new Channel([]));
+    new ForwardRequests(new Worker(null, new Channel([])));
   }
 
   #[Test]

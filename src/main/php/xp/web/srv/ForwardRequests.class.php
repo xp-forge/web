@@ -12,8 +12,8 @@ class ForwardRequests extends Switchable {
   private $backend;
 
   /** Creates a new instance */
-  public function __construct(Socket $backend) {
-    $this->backend= $backend;
+  public function __construct(Worker $worker) {
+    $this->backend= $worker->socket;
   }
 
   /**
