@@ -30,10 +30,20 @@ class Workers {
       }
     }
 
+    // PHP 7.4 doesn't support ephemeral ports, see this commit which went into PHP 8.0:
+    // https://github.com/php/php-src/commit/a61a9fe9a0d63734136f995451a1fd35b0176292
+    if (PHP_VERSION_ID <= 80000) {
+      $s= stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
+      $listen= stream_socket_get_name($s, false);
+      fclose($s);
+    } else {
+      $listen= '127.0.0.1:0';
+    }
+
     // Replace launching shell with PHP on Un*x
     $os= CommandLine::forName(PHP_OS);
     $this->commandLine= $os->compose($runtime->getExecutable()->getFileName(), array_merge(
-      ['-S', '127.0.0.1:0', '-t', $docroot],
+      ['-S', $listen, '-t', $docroot],
       $runtime->startupOptions()
         ->withSetting('user_dir', $docroot)
         ->withSetting('include_path', $include)
