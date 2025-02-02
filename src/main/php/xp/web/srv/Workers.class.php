@@ -5,7 +5,11 @@ use lang\archive\ArchiveClassLoader;
 use lang\{Runtime, RuntimeOptions, CommandLine, FileSystemClassLoader};
 use peer\Socket;
 
-/** Start PHP development webservers as background workers */
+/**
+ * Start PHP development webservers as background workers
+ *
+ * @test  web.unittest.server.WorkersTest
+ */
 class Workers {
   private $commandLine;
 
