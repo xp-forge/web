@@ -1,15 +1,17 @@
-<?php namespace web\unittest;
+<?php namespace web\unittest\server;
 
 use io\streams\Streams;
 use peer\SocketException;
-use test\{Assert, AssertionFailed, Test, Values};
+use test\{Assert, Before, AssertionFailed, Test, Values};
+use web\unittest\Channel;
 use web\{Application, Environment, Logging};
 use xp\web\srv\{CannotWrite, HttpProtocol};
 
 class HttpProtocolTest {
   private $log;
 
-  public function __construct() {
+  #[Before]
+  public function log() {
     $this->log= new Logging(null);
   }
 
@@ -56,12 +58,12 @@ class HttpProtocolTest {
 
   #[Test]
   public function can_create() {
-    HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
+    new HttpProtocol($this->application(function($req, $res) { }), $this->log);
   }
 
   #[Test]
   public function default_headers() {
-    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
+    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -74,7 +76,7 @@ class HttpProtocolTest {
 
   #[Test]
   public function connection_close_is_honoured() {
-    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
+    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -88,7 +90,7 @@ class HttpProtocolTest {
 
   #[Test]
   public function responds_with_http_10_for_http_10_requests() {
-    $p= HttpProtocol::executing($this->application(function($req, $res) { }), $this->log);
+    $p= new HttpProtocol($this->application(function($req, $res) { }), $this->log);
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -102,7 +104,7 @@ class HttpProtocolTest {
   #[Test]
   public function handles_chunked_transfer_input() {
     $echo= function($req, $res) { $res->send(Streams::readAll($req->stream()), 'text/plain'); };
-    $p= HttpProtocol::executing($this->application($echo), $this->log);
+    $p= new HttpProtocol($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -120,7 +122,7 @@ class HttpProtocolTest {
   #[Test]
   public function buffers_and_sets_content_length_for_http10() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= HttpProtocol::executing($this->application($echo), $this->log);
+    $p= new HttpProtocol($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.0 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -134,7 +136,7 @@ class HttpProtocolTest {
   #[Test]
   public function produces_chunked_transfer_output_for_http11() {
     $echo= function($req, $res) { with ($res->stream(), function($s) { $s->write('Test'); }); };
-    $p= HttpProtocol::executing($this->application($echo), $this->log);
+    $p= new HttpProtocol($this->application($echo), $this->log);
     $this->assertHttp(
       "HTTP/1.1 200 OK\r\n".
       "Date: [A-Za-z]+, [0-9]+ [A-Za-z]+ [0-9]+ [0-9]+:[0-9]+:[0-9]+ GMT\r\n".
@@ -148,14 +150,14 @@ class HttpProtocolTest {
   #[Test]
   public function catches_write_errors_and_logs_them_as_warning() {
     $caught= null;
-    $p= HttpProtocol::executing(
+    $p= new HttpProtocol(
       $this->application(function($req, $res) {
         with ($res->stream(), function($s) {
           $s->write('Test');
           throw new CannotWrite('Test error', new SocketException('...'));
         });
       }),
-      Logging::of(function($req, $res, $hints) use(&$caught) { $caught= $hints['warn']; })
+      Logging::of(function($status, $method, $uri, $hints) use(&$caught) { $caught= $hints['warn']; })
     );
 
     $this->assertHttp(
@@ -173,11 +175,11 @@ class HttpProtocolTest {
   #[Test]
   public function response_trace_appears_in_log() {
     $logged= null;
-    $p= HttpProtocol::executing(
+    $p= new HttpProtocol(
       $this->application(function($req, $res) {
         $res->trace('request-time-ms', 1);
       }),
-      Logging::of(function($req, $res, $hints) use(&$logged) { $logged= $hints; })
+      Logging::of(function($status, $method, $uri, $hints) use(&$logged) { $logged= $hints; })
     );
 
     $this->handle($p, ["GET / HTTP/1.1\r\n\r\n"]);

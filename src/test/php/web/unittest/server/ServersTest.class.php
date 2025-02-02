@@ -9,7 +9,6 @@ class ServersTest {
   /** @return iterable */
   private function servers() {
     yield ['async', Servers::$ASYNC];
-    yield ['sequential', Servers::$SEQUENTIAL];
     yield ['prefork', Servers::$PREFORK];
     yield ['develop', Servers::$DEVELOP];
 
