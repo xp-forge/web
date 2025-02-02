@@ -48,7 +48,6 @@ class Workers {
         ->withSetting('user_dir', $docroot)
         ->withSetting('include_path', $include)
         ->withSetting('output_buffering', 0)
-        ->withSetting('display_startup_errors', 0)
         ->asArguments()
       ,
       [$runtime->bootstrapScript('web')]
@@ -68,11 +67,16 @@ class Workers {
     }
 
     // Parse `[...] PHP 8.3.15 Development Server (http://127.0.0.1:60922) started`
-    $line= fgets($pipes[2], 1024);
+    $lines= [];
+    do {
+      $line= fgets($pipes[2], 1024);
+      $lines[]= $line;
+    } while ($line && preg_match('/PHP Warning: /', $line));
+
     if (!preg_match('/\([a-z]+:\/\/([0-9.]+):([0-9]+)\)/', $line, $matches)) {
       proc_terminate($proc, 2);
       proc_close($proc);
-      throw new IOException('Cannot determine bound port: `'.trim($line).'`');
+      throw new IOException('Cannot determine bound port: `'.implode('', $lines).'`');
     }
 
     return new Worker($proc, new Socket($matches[1], (int)$matches[2]));
