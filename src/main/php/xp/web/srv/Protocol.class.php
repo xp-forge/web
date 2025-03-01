@@ -6,6 +6,7 @@ use peer\server\{AsyncServer, ServerProtocol};
 /** Multiplex protocol */
 class Protocol implements ServerProtocol {
   private $protocols= [];
+  public $server= null;
 
   /** Creates a new instance of this multiplex protocol */
   public static function multiplex(): self {

@@ -7,7 +7,6 @@ use web\{Error, InternalServerError, Request, Response, Headers, Status};
 /** @test web.unittest.server.HttpProtocolTest */
 class HttpProtocol extends Switchable {
   private $application, $logging;
-  public $server= null;
   private $close= false;
 
   /**
