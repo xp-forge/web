@@ -52,7 +52,7 @@ class RequestTest {
   public function attach_session() {
     $session= new class() extends Session {
 
-      public function remainingTime() { return 1; }
+      public function id() { return uniqid(); }
 
       public function register($name, $value) { }
 

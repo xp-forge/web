@@ -2,7 +2,7 @@
 
 abstract class Session {
 
-  public abstract function remainingTime();
+  public abstract function id();
 
   public abstract function register($name, $value);
 
