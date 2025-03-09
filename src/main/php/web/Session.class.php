@@ -1,5 +1,6 @@
 <?php namespace web;
 
+/** @test web.unittest.SessionTest */
 abstract class Session {
 
   public abstract function id();
@@ -12,11 +13,11 @@ abstract class Session {
 
   public abstract function destroy();
 
-  public function cache($name, $provider, $ttl= null, $time= null) {
+  public function cache(string $name, callable $provider, $ttl= null, $time= null) {
     $time??= time();
     if ($cached= $this->value($name)) {
       [$stored, $value]= $cached;
-      if (null === $ttl || $stored < $time + $ttl) return $value;
+      if (null === $ttl || $time <= $stored + $ttl) return $value;
     }
 
     $value= $provider();
