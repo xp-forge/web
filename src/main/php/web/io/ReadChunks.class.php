@@ -6,7 +6,7 @@ use io\streams\InputStream;
 /**
  * Reads chunked transfer encoding 
  *
- * @test  xp://web.unittest.io.ReadChunksTest
+ * @test  web.unittest.io.ReadChunksTest
  * @see   https://tools.ietf.org/html/rfc7230#section-4.1
  */
 class ReadChunks implements InputStream {

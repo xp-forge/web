@@ -5,7 +5,7 @@ use lang\XPClass;
 /**
  * Input for testing purposes
  *
- * @test  xp://web.unittest.io.TestOutputTest
+ * @test  web.unittest.io.TestOutputTest
  */
 class TestOutput extends Output {
   private $stream;

@@ -1,6 +1,6 @@
 <?php namespace web\io;
 
-/* @see xp://web.io.Ranges */
+/* @see web.io.Ranges */
 class Range {
   private $start, $end;
 

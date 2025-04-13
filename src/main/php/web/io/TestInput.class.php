@@ -3,7 +3,7 @@
 /**
  * Input for testing purposes
  *
- * @test  xp://web.unittest.io.TestInputTest
+ * @test  web.unittest.io.TestInputTest
  */
 class TestInput implements Input {
   private $method, $resource, $headers, $body;

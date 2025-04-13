@@ -8,7 +8,7 @@ use web\io\WriteChunks;
 /**
  * Response
  *
- * @test  xp://web.unittest.ResponseTest
+ * @test  web.unittest.ResponseTest
  */
 class Response {
   private $output;

@@ -6,6 +6,13 @@ Web change log
 ## 5.0.0 / ????-??-??
 
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+
+## 4.6.0 / 2025-04-13
+
+* QA: Cleaned up code base by standardizing `@see` and `@test` apidoc tags
+  (@thekid)
+* Merged PR #122: Sessions. Note: This does not contain any session storage
+  implementations, only the base class and accessors in `web.Request`
   (@thekid)
 
 ## 4.5.2 / 2025-01-05

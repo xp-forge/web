@@ -3,7 +3,7 @@
 /**
  * Matches a request method and, optionally a target
  *
- * @test  xp://web.unittest.routing.TargetTest
+ * @test  web.unittest.routing.TargetTest
  */
 class Target implements RouteMatch {
   private $methods, $target;

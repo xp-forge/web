@@ -7,7 +7,7 @@ use util\Objects;
 /**
  * Logfile sink writing to a file
  *
- * @test  xp://web.unittest.logging.ToFileTest
+ * @test  web.unittest.logging.ToFileTest
  */
 class ToFile extends Sink {
   private $file;

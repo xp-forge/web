@@ -6,7 +6,7 @@ use io\streams\InputStream;
 /**
  * Reads from an input with a given legth
  *
- * @test  xp://web.unittest.io.ReadLengthTest
+ * @test  web.unittest.io.ReadLengthTest
  */
 class ReadLength implements InputStream {
   private $input, $remaininig;

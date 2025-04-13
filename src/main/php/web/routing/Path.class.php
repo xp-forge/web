@@ -3,7 +3,7 @@
 /**
  * Matches a path suffix
  *
- * @test  xp://web.unittest.routing.PathTest
+ * @test  web.unittest.routing.PathTest
  */
 class Path implements RouteMatch {
   private $suffix;

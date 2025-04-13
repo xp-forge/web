@@ -8,7 +8,7 @@ use util\{CompositeProperties, FilesystemPropertySource, Objects, PropertySource
  * Environment wraps profile, web and document roots as well as configuration
  * and provides accessors for them.
  *
- * @test  xp://web.unittest.EnvironmentTest
+ * @test  web.unittest.EnvironmentTest
  */
 class Environment {
   private $profile, $webroot, $docroot, $arguments, $logging;
