@@ -24,6 +24,8 @@ class SessionTest {
 
       public function id() { return $this->id; }
 
+      public function expires() { return time() + 86400; }
+
       public function register($name, $value) { $this->values[$name]= $value; }
 
       public function value($name, $default= null) { return $this->values[$name] ?? $default; }

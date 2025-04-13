@@ -11,6 +11,13 @@ abstract class Session {
   public abstract function id();
 
   /**
+   * Returns session expiration time
+   *
+   * @return int
+   */
+  public abstract function expires();
+
+  /**
    * Registers a value by a given a name in this session
    *
    * @param  string $name

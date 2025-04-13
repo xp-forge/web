@@ -54,6 +54,8 @@ class RequestTest {
 
       public function id() { return uniqid(); }
 
+      public function expires() { return time() + 86400; }
+
       public function register($name, $value) { }
 
       public function value($name, $default= null) { return null; }
