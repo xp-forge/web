@@ -50,25 +50,4 @@ abstract class Session {
    */
   public abstract function destroy();
 
-  /**
-   * Retrieves a cached value by its given name. If no previous value exists,
-   * or if it has expired, the provider function is invoked.
-   *
-   * @param  string $name
-   * @param  function(): var $provider
-   * @param  ?int $ttl Number of seconds until the value expires, NULL for never.
-   * @param  ?int $time
-   * @return void
-   */
-  public function cache(string $name, callable $provider, $ttl= null, $time= null) {
-    $time ?? $time= time();
-    if ($cached= $this->value($name)) {
-      list($stored, $value)= $cached;
-      if (null === $ttl || $time <= $stored + $ttl) return $value;
-    }
-
-    $value= $provider();
-    $this->register($name, [$time, $value]);
-    return $value;
-  }
 }

@@ -5,6 +5,7 @@ use web\Session;
 
 class SessionTest {
   const ID= '0815-4711';
+  const EXPIRES= 1744535832;
 
   /** Returns a provider for the cached value */
   private function provider() {
@@ -17,14 +18,14 @@ class SessionTest {
 
   /** Creates a new in-memory session */
   private function fixture() {
-    return new class(self::ID) extends Session {
-      private $id, $values= [];
+    return new class(self::ID, self::EXPIRES) extends Session {
+      private $id, $expires, $values= [];
 
-      public function __construct($id) { $this->id= $id; }
+      public function __construct($id) { $this->id= $id; $this->expires= $expires; }
 
       public function id() { return $this->id; }
 
-      public function expires() { return time() + 86400; }
+      public function expires() { return $this->expires; }
 
       public function register($name, $value) { $this->values[$name]= $value; }
 
@@ -42,6 +43,11 @@ class SessionTest {
   }
 
   #[Test]
+  public function expires() {
+    Assert::equals(self::EXPIRES, $this->fixture()->expires());
+  }
+
+  #[Test]
   public function register_value() {
     $fixture= $this->fixture();
     $fixture->register('test', 'value');
@@ -56,30 +62,6 @@ class SessionTest {
     $fixture->remove('test');
 
     Assert::null($fixture->value('test'));
-  }
-
-  #[Test, Values([null, 3600])]
-  public function cache($ttl) {
-    $provider= $this->provider();
-    $fixture= $this->fixture();
-
-    $a= $fixture->cache('test', $provider, $ttl);
-    $b= $fixture->cache('test', $provider, $ttl);
-
-    Assert::equals([1, 1], [$a, $b]);
-  }
-
-  #[Test]
-  public function cache_expiry() {
-    $provider= $this->provider();
-    $fixture= $this->fixture();
-
-    $time= time();
-    $a= $fixture->cache('test', $provider, 3600, $time);
-    $b= $fixture->cache('test', $provider, 3600, $time + 3600);
-    $c= $fixture->cache('test', $provider, 3600, $time + 3601);
-
-    Assert::equals([1, 1, 2], [$a, $b, $c]);
   }
 
   #[Test]
