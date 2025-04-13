@@ -21,7 +21,7 @@ class SessionTest {
     return new class(self::ID, self::EXPIRES) extends Session {
       private $id, $expires, $values= [];
 
-      public function __construct($id) { $this->id= $id; $this->expires= $expires; }
+      public function __construct($id, $expires) { $this->id= $id; $this->expires= $expires; }
 
       public function id() { return $this->id; }
 
