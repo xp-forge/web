@@ -7,7 +7,7 @@ use web\Filter;
 /**
  * Rewrites URLs if behind a proxy
  *
- * @test  xp://web.unittest.filters.BehindProxyTest
+ * @test  web.unittest.filters.BehindProxyTest
  */
 class BehindProxy implements Filter {
   private $remote, $replace;

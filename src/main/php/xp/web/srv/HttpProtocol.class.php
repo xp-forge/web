@@ -8,7 +8,7 @@ use web\{Error, InternalServerError, Request, Response, Headers, Status};
 /**
  * HTTP protocol implementation
  *
- * @test  xp://web.unittest.HttpProtocolTest
+ * @test  web.unittest.HttpProtocolTest
  */
 class HttpProtocol implements ServerProtocol {
   private $application, $logging;

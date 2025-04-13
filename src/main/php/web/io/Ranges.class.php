@@ -5,7 +5,7 @@ use lang\{FormatException, IllegalArgumentException};
 /**
  * Range Requests
  *
- * @test  xp://web.unittest.RangesTest
+ * @test  web.unittest.RangesTest
  * @see   https://tools.ietf.org/html/rfc7233
  */
 class Ranges {

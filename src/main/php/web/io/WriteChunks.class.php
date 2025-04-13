@@ -4,7 +4,7 @@
  * Writes Chunked transfer encoding
  *
  * @see   https://tools.ietf.org/html/rfc7230#section-4.1
- * @test  xp://web.unittest.io.WriteChunksTest
+ * @test  web.unittest.io.WriteChunksTest
  */
 class WriteChunks extends Output {
   const BUFFER_SIZE = 4096;

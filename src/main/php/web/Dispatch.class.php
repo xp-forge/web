@@ -16,7 +16,7 @@ use util\URI;
  * ```
  *
  * @deprecated See https://github.com/xp-forge/web/issues/113#issuecomment-2118673725
- * @see   xp://web.Request#dispatch
+ * @see   web.Request#dispatch
  */
 class Dispatch implements IteratorAggregate {
   private $uri;
