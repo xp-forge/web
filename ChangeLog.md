@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 5.0.0 / ????-??-??
+
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+
 ## 4.6.0 / 2025-04-13
 
 * QA: Cleaned up code base by standardizing `@see` and `@test` apidoc tags

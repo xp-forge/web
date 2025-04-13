@@ -47,7 +47,7 @@ class WebRunner {
         break;
       }
     }
-    $env->logging()->log($request, $response, $response->trace + ['error' => $error]);
+    $env->logging()->exchange($request, $response, ['error' => $error]);
   }
 
   /**
@@ -83,7 +83,7 @@ class WebRunner {
       foreach ($application->service($request, $response) ?? [] as $event => $arg) {
         if ('delay' === $event) usleep($arg * 1000);
       }
-      $env->logging()->log($request, $response, $response->trace);
+      $env->logging()->exchange($request, $response);
     } catch (Error $e) {
       self::error($request, $response, $env, $e);
     } catch (Throwable $e) {

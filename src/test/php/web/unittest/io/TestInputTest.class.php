@@ -27,9 +27,9 @@ class TestInputTest {
     Assert::equals($name, (new TestInput($name, '/'))->method());
   }
 
-  #[Test, Values(['/', '/test'])]
-  public function uri($path) {
-    Assert::equals($path, (new TestInput('GET', $path))->uri());
+  #[Test, Values(['/', '/test', '/?q=Test'])]
+  public function resource($path) {
+    Assert::equals($path, (new TestInput('GET', $path))->resource());
   }
 
   #[Test]
