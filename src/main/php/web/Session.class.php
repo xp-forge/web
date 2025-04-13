@@ -53,7 +53,7 @@ abstract class Session {
    * @return void
    */
   public function cache(string $name, callable $provider, $ttl= null, $time= null) {
-    $time??= time();
+    $time ?? $time= time();
     if ($cached= $this->value($name)) {
       [$stored, $value]= $cached;
       if (null === $ttl || $time <= $stored + $ttl) return $value;
