@@ -26,7 +26,7 @@ class SessionTest {
 
       public function register($name, $value) { $this->values[$name]= $value; }
 
-      public function value($name) { return $this->values[$name] ?? null; }
+      public function value($name, $default= null) { return $this->values[$name] ?? $default; }
 
       public function remove($name) { unset($this->values[$name]); }
 

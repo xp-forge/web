@@ -56,7 +56,7 @@ class RequestTest {
 
       public function register($name, $value) { }
 
-      public function value($name) { return null; }
+      public function value($name, $default= null) { return null; }
 
       public function remove($name) { }
 

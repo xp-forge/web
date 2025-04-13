@@ -23,9 +23,10 @@ abstract class Session {
    * Returns a previously registered value by its given name
    *
    * @param  string $name
+   * @param  var $default
    * @return var
    */
-  public abstract function value($name);
+  public abstract function value($name, $default= null);
 
   /**
    * Removes a previously registered value by its given name
