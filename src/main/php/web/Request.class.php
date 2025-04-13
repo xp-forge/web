@@ -14,6 +14,7 @@ class Request implements Value {
   private $encoding= null;
   private $params= null;
   private $cookies= null;
+  private $session= null;
   private $method, $uri, $input;
 
   /** @param web.io.Input $input */
@@ -35,6 +36,17 @@ class Request implements Value {
 
   /** @return web.io.Input */
   public function input() { return $this->input; }
+
+  /**
+   * Attach a given session
+   *
+   * @param  web.Session $sesion
+   * @return self
+   */
+  public function attach(Session $session) {
+    $this->session= $session;
+    return $this;
+  }
 
   /**
    * Pass a named value along with this request
@@ -82,6 +94,9 @@ class Request implements Value {
 
   /** @return util.URI */
   public function uri() { return $this->uri; }
+
+  /** @return ?web.Session */
+  public function session() { return $this->session; }
 
   /** @return [:string|string[]] */
   public function headers() {

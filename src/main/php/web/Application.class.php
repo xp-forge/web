@@ -62,7 +62,7 @@ abstract class Application implements Value {
    * Installs global filters
    *
    * @param  web.Filter|function(web.Request, web.Response, web.filters.Invocation): var|web.Filter[] $arg
-   * @return void
+   * @return web.Filter|function(web.Request, web.Response, web.filters.Invocation): var|web.Filter[]
    */
   public function install($arg) {
     if ($arg instanceof Filter || $arg instanceof Closure) {
@@ -72,6 +72,7 @@ abstract class Application implements Value {
         $this->filters[]= $filter;
       }
     }
+    return $arg;
   }
 
   /**

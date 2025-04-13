@@ -291,6 +291,14 @@ class ApplicationTest {
   }
 
   #[Test, Values(from: 'filters')]
+  public function install($install) {
+    $app= new class($this->environment) extends Application {
+      public function routes() { /* Implementation irrelevant for this test */ }
+    };
+    Assert::equals($install, $app->install($install));
+  }
+
+  #[Test, Values(from: 'filters')]
   public function install_filter($install) {
     list($request, $response)= $this->handle(function() use($install) {
       $this->install($install);

@@ -3,8 +3,8 @@
 use io\streams\Streams;
 use test\{Assert, Test, Values};
 use util\URI;
-use web\Request;
 use web\io\TestInput;
+use web\{Request, Session};
 
 class RequestTest {
   use Chunking;
@@ -41,6 +41,30 @@ class RequestTest {
   #[Test]
   public function uri() {
     Assert::equals(new URI('http://localhost/'), (new Request(new TestInput('GET', '/')))->uri());
+  }
+
+  #[Test]
+  public function no_session_by_default() {
+    Assert::null((new Request(new TestInput('GET', '/')))->session());
+  }
+
+  #[Test]
+  public function attach_session() {
+    $session= new class() extends Session {
+
+      public function id() { return uniqid(); }
+
+      public function expires() { return time() + 86400; }
+
+      public function register($name, $value) { }
+
+      public function value($name, $default= null) { return null; }
+
+      public function remove($name) { }
+
+      public function destroy() { }
+    };
+    Assert::equals($session, (new Request(new TestInput('GET', '/')))->attach($session)->session());
   }
 
   #[Test, Values(eval: '["http://localhost/r", new URI("http://localhost/r")]')]
