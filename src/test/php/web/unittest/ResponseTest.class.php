@@ -309,10 +309,59 @@ class ResponseTest {
     Assert::true($res->flushed());
   }
 
+  #[Test]
+  public function ended() {
+    $res= new Response(new TestOutput());
+    Assert::false($res->flushed());
+    $res->end();
+    Assert::true($res->flushed());
+  }
+
   #[Test, Expect(IllegalStateException::class)]
   public function flush_twice() {
     $res= new Response(new TestOutput());
     $res->flush();
     $res->flush();
+  }
+
+  #[Test]
+  public function flushing_explicitely() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->flush();
+    Assert::equals(1, $executed);
+  }
+
+  #[Test]
+  public function flushing_implicitely() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->send('Test', 'text/plain');
+    Assert::equals(1, $executed);
+  }
+
+  #[Test]
+  public function flushing_on_end() {
+    $executed= 0;
+    $res= (new Response(new TestOutput()))->flushing(function() use(&$executed) {
+      $executed++;
+    });
+    $res->end();
+    Assert::equals(1, $executed);
+  }
+
+  #[Test]
+  public function multiple_flushing_functions() {
+    $executed= ['one' => 0, 'two' => 0];
+    $res= (new Response(new TestOutput()))
+      ->flushing(function() use(&$executed) { $executed['one']++; })
+      ->flushing(function() use(&$executed) { $executed['two']++; })
+    ;
+    $res->flush();
+    Assert::equals(['one' => 1, 'two' => 1], $executed);
   }
 }
