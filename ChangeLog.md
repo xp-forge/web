@@ -5,6 +5,8 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #111: Add pattern-based routing implemented as `web.Routes`
+  (@thekid)
 * Removed deprecated `web.Routing::service()` method, which was formerly
   used internally by the `web.Application` instance
   (@thekid)
