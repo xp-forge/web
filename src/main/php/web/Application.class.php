@@ -33,7 +33,7 @@ abstract class Application implements Value {
   public final function routing() {
     if (null === $this->routing) {
       $routes= $this->routes();
-      $this->routing= $this->filters ? new Filters($this->filters, $routes) : Routing::cast($routes);
+      $this->routing= $this->filters ? new Filters($this->filters, $routes) : Routes::cast($routes);
     }
     return $this->routing;
   }
@@ -49,7 +49,7 @@ abstract class Application implements Value {
   }
 
   /**
-   * Returns this application's routes, which are either a `Routing`
+   * Returns this application's routes, which are either a `Routes`
    * instance or a map of paths to routing targets.
    *
    * _Overwrite this in your implementation!_

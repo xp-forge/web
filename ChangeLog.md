@@ -5,7 +5,20 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #111: Add pattern-based routing implemented as `web.Routes`
+  (@thekid)
+* Removed deprecated `web.Routing::service()` method, which was formerly
+  used internally by the `web.Application` instance
+  (@thekid)
+* Removed deprecated `web.handler.FilesFrom::serve()` method. Instead,
+  use the `web.io.StaticContent` class directly.
+  (@thekid)
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
+* Added PHP 8.5 to test matrix - @thekid
+* Removed deprecated `web.Dispatch` class. Instead of returning instances
+  of this from handlers, use the *dispatch()* method on the request
+  (@thekid)
 
 ## 4.6.0 / 2025-04-13
 
