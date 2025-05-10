@@ -4,7 +4,7 @@
  * Matches a path suffix
  *
  * @deprecated
- * @test  xp://web.unittest.routing.PathTest
+ * @test  web.unittest.routing.PathTest
  */
 class Path implements RouteMatch {
   private $suffix;

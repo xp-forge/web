@@ -10,8 +10,8 @@ use web\Headers;
  *
  * @see   https://tools.ietf.org/html/rfc7578
  * @see   https://stackoverflow.com/a/4762734 Boundaries in payload
- * @see   xp://web.Multipart
- * @test  xp://web.unittest.io.PartsTest
+ * @see   web.Multipart
+ * @test  web.unittest.io.PartsTest
  */
 class Parts implements IteratorAggregate {
   private $in, $boundary;

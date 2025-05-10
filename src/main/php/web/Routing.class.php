@@ -146,9 +146,4 @@ class Routing implements Handler {
   public function handle($request, $response) {
     return $this->route($request)->handle($request, $response);
   }
-
-  /** @deprecated */
-  public function service($request, $response) {
-    return $this->route($request)->handle($request, $response);
-  }
 }

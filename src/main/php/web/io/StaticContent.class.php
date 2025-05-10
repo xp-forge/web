@@ -153,7 +153,7 @@ class StaticContent {
         $out->write($trailer);
       }
     } finally {
-      $file->close();
+      $file->isOpen() && $file->close();
       $out->close();
     }
   }

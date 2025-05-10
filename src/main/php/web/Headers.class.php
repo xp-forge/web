@@ -157,6 +157,9 @@ abstract class Headers {
                 throw new FormatException('Unclosed string in parameter "'.$name.'"');
               }
             } while ('\\' === $input[$p++ - 1]);
+
+            // Ignore the spec stating `"`, `\r` and `\n` should be percent-encoded for
+            // consistency with PHP, see https://github.com/php/php-src/issues/8206
             $parameters[$name]= strtr(substr($input, $offset + 1, $p - $offset - 2), ['\"' => '"']);
             $offset= $p + 1;
           } else {

@@ -11,12 +11,18 @@ use util\Objects;
  */
 class Param extends Part {
   private $value;
+  private $array= null;
+  private static $nesting;
+
+  static function __static() {
+    self::$nesting= ini_get('max_input_nesting_level');
+  }
 
   /**
    * Creates an instance from a given name and value
    * 
    * @param  string $name
-   * @param  var $valu
+   * @param  var $value
    */
   public static function from($name, $value) {
     $self= new self($name);
@@ -28,48 +34,77 @@ class Param extends Part {
    * Parse parameters from the `name` parameter of the Content-Disposition
    * header and its payload, including array handling.
    *
+   * @see    https://www.php.net/parse_str
    * @param  string $name
    * @param  iterable $chunks
    * @return self
    * @throws lang.FormatException When input variable nesting level exceeded
    */
   public static function parse($name, $chunks) {
-    $encoded= '';
+    $value= '';
     foreach ($chunks as $chunk) {
-      $encoded.= $chunk;
-    }
-    parse_str($name.'='.urlencode($encoded), $param);
-
-    // Check if the input variable nesting level was exceeded
-    if (empty($param)) {
-      $e= new FormatException('Cannot parse '.$name);
-      \xp::gc(__FILE__);
-      throw $e;
+      $value.= $chunk;
     }
 
-    $self= new self(key($param));
-    $self->value= current($param);
+    // Trim leading spaces, replace '.' and ' ' inbetween with underscores, see
+    // https://github.com/php/php-src/blob/php-8.4.0beta5/main/php_variables.c#L133
+    if (false === ($p= strpos($name, '['))) {
+      $self= new self(strtr(ltrim($name, ' '), '. ', '__'));
+    } else if (substr_count($name, '[') <= self::$nesting) {
+      $self= new self(strtr(ltrim(substr($name, 0, $p), ' '), '. ', '__'));
+      $self->array= substr($name, $p);
+    } else {
+      throw new FormatException('Cannot parse '.$name.' (nesting level > '.self::$nesting.')');
+    }
+
+    $self->value= $value;
     return $self;
   }
 
   /**
-   * Append this parameter to a given list of parameters and return the new list
+   * Merge this parameter with a given pointer
    *
-   * @param  [:var] $params
-   * @return [:var]
+   * @param  var $ptr
+   * @return void
    */
-  public function append($params) {
-    return array_merge_recursive($params, [$this->name => $this->value]);
+  public function merge(&$ptr) {
+    if ($this->array) {
+      $o= 0;
+      $l= strlen($this->array);
+      do {
+        $p= strcspn($this->array, ']', $o);
+        $token= substr($this->array, $o + 1, $p - 1);
+
+        is_array($ptr) || $ptr= [];
+
+        if ('' === $token) {
+          $ptr= &$ptr[];
+        } else {
+          $ptr= &$ptr[$token];
+        }
+
+        $o+= $p + 1;
+      } while ($o < $l);
+    }
+
+    $ptr= $this->value;
   }
 
   /** @return int */
   public function kind() { return Part::PARAM; }
 
   /** @return var */
-  public function value() { return $this->value; }
+  public function value() {
+    if ($this->array) {
+      $this->merge($value);
+      return $value;
+    } else {
+      return $this->value;
+    }
+  }
 
   /** @return string */
   public function toString() {
-    return nameof($this).'("'.$this->name.'", value= '.Objects::stringOf($this->value).')';
+    return nameof($this).'("'.$this->name.$this->array.'", value= '.Objects::stringOf($this->value).')';
   }
 }

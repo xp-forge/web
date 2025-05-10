@@ -4,7 +4,7 @@ use lang\IllegalStateException;
 use test\{Assert, Expect, Test, Values};
 use util\Objects;
 use web\io\{TestInput, TestOutput};
-use web\{Application, Dispatch, Environment, Error, Filter, Filters, Handler, Request, Response, Routes};
+use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routes};
 
 class ApplicationTest {
   private $environment;
@@ -250,21 +250,6 @@ class ApplicationTest {
     });
   }
 
-  /** @deprecated */
-  #[Test]
-  public function dispatch_request_via_dispatch_instance() {
-    $this->assertHandled($handled, function() use(&$handled) {
-      return [
-        '/home' => function($request, $response) use(&$handled) {
-          $handled[]= [$request, $response];
-        },
-        '/' => function($request, $response) {
-          return new Dispatch('/home');
-        },
-      ];
-    });
-  }
-
   #[Test]
   public function dispatch_works_with_nesting() {
     $this->assertHandled($handled, function() use(&$handled) {
@@ -304,6 +289,14 @@ class ApplicationTest {
   public function does_not_equal_clone() {
     $app= new HelloWorld($this->environment);
     Assert::equals(1, $app->compareTo(clone $app));
+  }
+
+  #[Test, Values(from: 'filters')]
+  public function install($install) {
+    $app= new class($this->environment) extends Application {
+      public function routes() { /* Implementation irrelevant for this test */ }
+    };
+    Assert::equals($install, $app->install($install));
   }
 
   #[Test, Values(from: 'filters')]

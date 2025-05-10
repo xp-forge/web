@@ -92,7 +92,7 @@ class Runner {
       Console::$err->writeLine("\033[33m@xp.web.Runner\033[0m");
       Console::$err->writeLine("\033[41;1;37m ERROR \033[0;37m {$e->getMessage()}\033[0m");
       Console::$err->writeLine();
-      Console::$err->writeLine(($e->getCause() ?? $e)->compoundMessage());
+      Console::$err->writeLine($e);
       return 1;
     }
   }

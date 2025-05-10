@@ -15,14 +15,15 @@ class StaticContentTest {
    * @param  ?io.File $file
    * @param  ?string $mimeType
    * @param  ?web.io.TestInput $input
+   * @param  function(Iterator): void $writer
    * @return string
    */
-  private function serve($content, $file, $mimeType= null, $input= null) {
+  private function serve($content, $file, $mimeType= null, $input= null, $writer= 'iterator_count') {
     $res= new Response(new TestOutput());
     $req= new Request($input ?? new TestInput('GET', '/'));
 
     try {
-      foreach ($content->serve($req, $res, $file, $mimeType) ?? [] as $_) { }
+      $writer($content->serve($req, $res, $file, $mimeType));
     } finally {
       $res->end();
     }
@@ -272,6 +273,34 @@ class StaticContentTest {
       $this->serve(new StaticContent(), $this->file, null, new TestInput('GET', '/', [
         'Range' => $range
       ]))
+    );
+  }
+
+  #[Test]
+  public function file_closed_after_first_chunk() {
+    $chunk= StaticContent::CHUNKSIZE;
+    $headers= ['Range' => "bytes=0-{$chunk}"];
+    $file= (new TempFile(self::class))->containing(str_repeat('*', $chunk + 1));
+
+    // Close files after having written
+    $writer= function($it) use($file) {
+      $it->next();
+      $file->close();
+      while ($it->valid()) $it->next();
+    };
+
+    // Assert first chunk has been written
+    Assert::equals(
+      "HTTP/1.1 206 Partial Content\r\n".
+      "Accept-Ranges: bytes\r\n".
+      "Last-Modified: <Date>\r\n".
+      "X-Content-Type-Options: nosniff\r\n".
+      "Content-Type: application/octet-stream\r\n".
+      "Content-Range: bytes 0-{$chunk}/".($chunk + 1)."\r\n".
+      "Content-Length: ".($chunk + 1)."\r\n".
+      "\r\n".
+      str_repeat('*', $chunk + 1),
+      $this->serve(new StaticContent(), $file, null, new TestInput('GET', '/', $headers), $writer)
     );
   }
 }

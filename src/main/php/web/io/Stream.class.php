@@ -7,7 +7,7 @@ use lang\IllegalArgumentException;
 /**
  * A file as part of a multipart request which can be accessed as a stream
  *
- * @see  xp://web.io.Parts
+ * @see  web.io.Parts
  */
 class Stream extends Part implements InputStream {
   private $type, $chunks;

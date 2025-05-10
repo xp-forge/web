@@ -6,8 +6,8 @@ use lang\Value;
  * Base class for parameters, uploads and incomplete parts (PHP SAPI) as
  * well as streams (Standalone Server) as returned by `Multipart::parts()`.
  *
- * @see   xp://web.Multipart
- * @see   xp://web.io.Parts
+ * @see   web.Multipart
+ * @see   web.io.Parts
  */
 abstract class Part implements Value {
   const INCOMPLETE = 1;

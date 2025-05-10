@@ -3,6 +3,50 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 5.0.0 / ????-??-??
+
+* Removed deprecated `web.Routing::service()` method, which was formerly
+  used internally by the `web.Application` instance
+  (@thekid)
+* Removed deprecated `web.handler.FilesFrom::serve()` method. Instead,
+  use the `web.io.StaticContent` class directly.
+  (@thekid)
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
+* Added PHP 8.5 to test matrix - @thekid
+* Removed deprecated `web.Dispatch` class. Instead of returning instances
+  of this from handlers, use the *dispatch()* method on the request
+  (@thekid)
+
+## 4.6.0 / 2025-04-13
+
+* QA: Cleaned up code base by standardizing `@see` and `@test` apidoc tags
+  (@thekid)
+* Merged PR #122: Sessions. Note: This does not contain any session storage
+  implementations, only the base class and accessors in `web.Request`
+  (@thekid)
+
+## 4.5.2 / 2025-01-05
+
+* Fixed server to write warnings when not being able to send HTTP headers
+  (@thekid)
+* Added logic to prevent double-closing file when serving partial content
+  (@thekid)
+
+## 4.5.1 / 2024-09-29
+
+* Fixed error *[] operator not supported for strings* when handling array
+  parameters
+  (@thekid)
+* Fixed multipart/formdata field names and values decoding, these are not
+  urlencoded. Ignore the specification which states `"`, `\r` and `\n`
+  need to be escaped for consistency with PHP, see php/php-src#8206
+  (@thekid)
+
+## 4.5.0 / 2024-09-15
+
+* Fixed issue #119: Array parameter inconsistency with multipart/formdata
+  (@thekid)
 * Make passing an empty value for logging like such: `xp web -l "" [...]`
   disable logging.
   (@thekid)

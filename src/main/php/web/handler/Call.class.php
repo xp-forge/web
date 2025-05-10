@@ -5,7 +5,7 @@ use lang\FunctionType;
 /**
  * Calls to a given invokeable 
  *
- * @test  xp://web.unittest.handler.CallTest
+ * @test  web.unittest.handler.CallTest
  */
 class Call implements \web\Handler {
   private static $TYPE;
