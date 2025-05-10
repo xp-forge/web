@@ -217,35 +217,4 @@ class FilesFromTest {
       $this->handle($files, new Request(new TestInput('GET', $uri)))
     );
   }
-
-  /** @deprecated */
-  #[Test]
-  public function call_serve_directly() {
-    $files= new FilesFrom('.');
-    $file= new File($this->pathWith(['test.html' => 'Test']), 'test.html');
-
-    $res= new Response(new TestOutput());
-    $req= new Request(new TestInput('GET', '/test.html'));
-    try {
-      foreach ($files->serve($req, $res, $file) ?? [] as $_) { }
-    } finally {
-      $res->end();
-    }
-
-    Assert::equals(
-      "HTTP/1.1 200 OK\r\n".
-      "Accept-Ranges: bytes\r\n".
-      "Last-Modified: <Date>\r\n".
-      "X-Content-Type-Options: nosniff\r\n".
-      "Content-Type: text/html\r\n".
-      "Content-Length: 4\r\n".
-      "\r\n".
-      "Test",
-      preg_replace(
-        '/[a-z]{3}, [0-9]{2} [a-z]{3} [0-9]{4} [0-9:]{8} GMT/i',
-        '<Date>',
-        $res->output()->bytes()
-      )
-    );
-  }
 }

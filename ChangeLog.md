@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Removed deprecated `web.handler.FilesFrom::serve()` method. Instead,
+  use the `web.io.StaticContent` class directly.
+  (@thekid)
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
   (@thekid)
 * Added PHP 8.5 to test matrix - @thekid

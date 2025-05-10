@@ -59,18 +59,4 @@ class FilesFrom implements Handler {
 
     return $this->content->serve($request, $response, $file);
   }
-
-  /**
-   * Serves a single file.
-   *
-   * @deprecated Use `web.io.StaticContent` directly!
-   * @param   web.Request $request
-   * @param   web.Response $response
-   * @param   ?io.File|io.Path|string $target
-   * @param   ?string $mimeType
-   * @return  iterable
-   */
-  public function serve($request, $response, $target, $mimeType= null) {
-    return $this->content->serve($request, $response, $target, $mimeType);
-  }
 }
