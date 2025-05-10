@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Removed deprecated `web.Routing::service()` method, which was formerly
+  used internally by the `web.Application` instance
+  (@thekid)
 * Removed deprecated `web.handler.FilesFrom::serve()` method. Instead,
   use the `web.io.StaticContent` class directly.
   (@thekid)
