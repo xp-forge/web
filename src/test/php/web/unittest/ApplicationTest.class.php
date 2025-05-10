@@ -4,7 +4,7 @@ use lang\IllegalStateException;
 use test\{Assert, Expect, Test, Values};
 use util\Objects;
 use web\io\{TestInput, TestOutput};
-use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routing};
+use web\{Application, Environment, Error, Filter, Filters, Handler, Request, Response, Routes};
 
 class ApplicationTest {
   private $environment;
@@ -69,7 +69,7 @@ class ApplicationTest {
 
   #[Test]
   public function routing() {
-    $routing= new Routing();
+    $routing= new Routes();
     $app= newinstance(Application::class, [$this->environment], [
       'routes' => function() use($routing) { return $routing; }
     ]);
@@ -78,7 +78,7 @@ class ApplicationTest {
 
   #[Test]
   public function routes_only_called_once() {
-    $routing= new Routing();
+    $routing= new Routes();
     $called= 0;
     $app= newinstance(Application::class, [$this->environment], [
       'routes' => function() use($routing, &$called) {
@@ -95,7 +95,7 @@ class ApplicationTest {
   #[Test]
   public function with_routing() {
     $this->assertHandled($handled, function() use(&$handled) {
-      return (new Routing())->fallbacks(function($request, $response) use(&$handled) {
+      return (new Routes())->default(function($request, $response) use(&$handled) {
         $handled[]= [$request, $response];
       });
     });
@@ -245,6 +245,22 @@ class ApplicationTest {
         },
         '/' => new Filters([], function($request, $response) {
           return $request->dispatch('/home');
+        }),
+      ];
+    });
+  }
+
+  #[Test]
+  public function dispatch_works_with_nesting() {
+    $this->assertHandled($handled, function() use(&$handled) {
+      return [
+        '/home' => [
+          '/test' => function($request, $response) use(&$handled) {
+            $handled[]= [$request, $response];
+          },
+        ],
+        '/' => new Filters([], function($request, $response) {
+          return $request->dispatch('/home/test');
         }),
       ];
     });
