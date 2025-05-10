@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 5.0.0 / ????-??-??
+
+* Removed deprecated `web.Dispatch` class. Instead of returning instances
+  of this from handlers, use the *dispatch()* method on the request
+  (@thekid)
+
 ## 4.6.0 / 2025-04-13
 
 * QA: Cleaned up code base by standardizing `@see` and `@test` apidoc tags
