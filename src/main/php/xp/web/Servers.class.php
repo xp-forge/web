@@ -18,15 +18,35 @@ abstract class Servers extends Enum {
     self::$PREFORK= new class(1, 'PREFORK') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Standalone($address, new PreforkingServer(null, null, ...$arguments));
+        return new Standalone($address, new PreforkingServer(
+          null,
+          null,
+          $this->select($arguments, 'children') ?? $arguments[0] ?? 10
+        ));
       }
     };
     self::$DEVELOP= new class(2, 'DEVELOP') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Develop($address);
+        return new Develop($address, $this->select($arguments, 'workers') ?? $arguments[0] ?? 1);
       }
     };
+  }
+
+  /**
+   * Selects a named argument supplied as `[name]=[value]`.
+   *
+   * @param  string[] $arguments
+   * @param  string $name
+   * @return ?string
+   */
+  protected function select($arguments, $name) {
+    foreach ($arguments as $i => $argument) {
+      if (false !== ($p= strpos($argument, '=')) && 0 === strncmp($argument, $name, $p)) {
+        return substr($argument, $p + 1);
+      }
+    }
+    return null;
   }
 
   /**

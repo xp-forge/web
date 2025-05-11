@@ -15,12 +15,7 @@ use websocket\protocol\Opcodes;
  * @see   https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
  */
 class ForwardMessages extends Listener {
-  private $backend;
-
-  /** Creates a new instance */
-  public function __construct(Worker $worker) {
-    $this->backend= $worker->socket;
-  }
+  use Distribution;
 
   /**
    * Handles incoming message
@@ -41,11 +36,16 @@ class ForwardMessages extends Listener {
       $request.= "{$name}: {$value}\r\n";
     }
 
-    try {
-      $this->backend->connect();
-      $this->backend->write($request."\r\n".$message);
+    // Wait briefly before retrying to find an available worker
+    while (null === ($backend= $this->select())) {
+      yield 'delay' => 1;
+    }
 
-      $response= new Input($this->backend);
+    try {
+      $backend->connect();
+      $backend->write($request."\r\n".$message);
+
+      $response= new Input($backend);
       foreach ($response->consume() as $_) { }
       if (200 !== $response->status()) {
         throw new IllegalStateException('Unexpected status code from backend://'.$conn->path().': '.$response->status());
@@ -71,7 +71,7 @@ class ForwardMessages extends Listener {
       $conn->answer(Opcodes::CLOSE, pack('na*', 1011, $e->getMessage()));
       $conn->close();
     } finally {
-      $this->backend->close();
+      $backend->close();
     }
   }
 }

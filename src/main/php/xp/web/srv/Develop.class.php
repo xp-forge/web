@@ -1,13 +1,25 @@
 <?php namespace xp\web\srv;
 
 use lang\ClassLoader;
-use peer\ServerSocket;
 use peer\server\AsyncServer;
+use peer\{Socket, ServerSocket, SocketTimeoutException};
 use util\cmd\Console;
 use web\{Application, Environment, Logging};
 use xp\web\Source;
 
 class Develop extends Server {
+  private $workers;
+
+  /**
+   * Creates a new instance
+   *
+   * @param  string $address
+   * @param  int $workers
+   */
+  public function __construct($address, $workers= 1) {
+    parent::__construct($address);
+    $this->workers= $workers;
+  }
 
   /**
    * Serve requests
@@ -29,7 +41,6 @@ class Develop extends Server {
     if (!$docroot->exists()) {
       $docroot= getcwd();
     }
-    $workers= new Workers($docroot, ClassLoader::getLoaders());
 
     // Export environment
     putenv('DOCUMENT_ROOT='.$docroot);
@@ -44,29 +55,56 @@ class Develop extends Server {
     Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
 
-    $backend= $workers->launch();
+    $workers= new Workers($docroot, ClassLoader::getLoaders());
+    $backends= [];
+    for ($i= 0; $i < $this->workers; $i++) {
+      $backends[]= $workers->launch();
+    }
     Console::writeLinef(
       "\e[33;1m>\e[0m Server started: \e[35;4mhttp://%s:%d/\e[0m in %.3f seconds\n".
-      "  %s - PID %d -> %d @ :%d; press Enter to exit\n",
-      '0.0.0.0' === $this->host ? '127.0.0.1' : $this->host,
+      "  %s - PID %d -> %d worker(s); press Enter to exit\n",
+      '0.0.0.0' === $this->host ? 'localhost' : $this->host,
       $this->port,
       microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
       date('r'),
       getmypid(),
-      $backend->pid(),
-      $backend->socket->port,
+      $this->workers,
     );
 
     // Start the multiplex protocol in the foreground and forward requests
     $impl= new AsyncServer();
     $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
-      ->serving('http', new ForwardRequests($backend))
-      ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backend)))
+      ->serving('http', new ForwardRequests($backends))
+      ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backends)))
     );
-    $impl->init();
-    $impl->service();
-    $impl->shutdown();
 
-    $backend->shutdown();
+    // Inside `xp -supervise`, connect to signalling socket. Unfortunately, there
+    // is no way to signal "no timeout", so set a pretty high timeout of one year,
+    // then catch and handle it by continuing to check for reads.
+    if ($port= getenv('XP_SIGNAL')) {
+      $signal= new Socket('127.0.0.1', $port);
+      $signal->setTimeout(31536000);
+      $signal->connect();
+      $impl->select($signal, function() use($impl) {
+        try {
+          next: yield 'read' => null;
+        } catch (SocketTimeoutException $e) {
+          goto next;
+        }
+        $impl->shutdown();
+      });
+    }
+
+    try {
+      $impl->init();
+      $impl->service();
+    } finally {
+      Console::write('[');
+      foreach ($backends as $backend) {
+        Console::write('.');
+        $backend->shutdown();
+      }
+      Console::writeLine(']');
+    }
   }
 }

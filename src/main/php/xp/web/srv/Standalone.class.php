@@ -58,6 +58,5 @@ class Standalone extends Server {
     );
 
     $this->impl->service();
-    $this->impl->shutdown();
   }
 }
