@@ -14,9 +14,15 @@ class ForwardMessagesTest {
     return implode("\r\n", $lines);
   }
 
+  /** @return void */
+  private function forward(Channel $ws, Channel $backend, $payload) {
+    $conn= new Connection($ws, self::WSID, null, '/ws', []);
+    foreach ((new ForwardMessages([new Worker(null, $backend)]))->message($conn, $payload) ?? [] as $_) { }
+  }
+
   #[Test]
   public function can_create() {
-    new ForwardMessages(new Worker(null, new Channel([])));
+    new ForwardMessages([new Worker(null, new Channel([]))]);
   }
 
   #[Test, Values(["d\r\ndata: Tested\n\r\n0\r\n\r\n", "19\r\nevent: text\ndata: Tested\n\r\n0\r\n\r\n"])]
@@ -39,9 +45,8 @@ class ForwardMessagesTest {
     );
 
     $backend= new Channel([$response]);
-    $ws= new Channel([]);
-    $fixture= new ForwardMessages(new Worker(null, $backend));
-    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
+    $ws= new Channel([], true);
+    $this->forward($ws, $backend, 'Test');
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\201\006Tested", implode('', $ws->out));
@@ -68,9 +73,8 @@ class ForwardMessagesTest {
     );
 
     $backend= new Channel([$response]);
-    $ws= new Channel([]);
-    $fixture= new ForwardMessages(new Worker(null, $backend));
-    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
+    $ws= new Channel([], true);
+    $this->forward($ws, $backend, new Bytes([8, 15]));
     
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\202\002\047\011", implode('', $ws->out));
@@ -97,9 +101,8 @@ class ForwardMessagesTest {
     );
 
     $backend= new Channel([$response]);
-    $ws= new Channel([]);
-    $fixture= new ForwardMessages(new Worker(null, $backend));
-    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), new Bytes([8, 15]));
+    $ws= new Channel([], true);
+    $this->forward($ws, $backend, new Bytes([8, 15]));
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\007\003\363Error", implode('', $ws->out));
@@ -126,9 +129,8 @@ class ForwardMessagesTest {
     );
 
     $backend= new Channel([$response]);
-    $ws= new Channel([]);
-    $fixture= new ForwardMessages(new Worker(null, $backend));
-    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
+    $ws= new Channel([], true);
+    $this->forward($ws, $backend, 'Test');
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\056\003\363Unexpected event from backend:///ws: unknown", implode('', $ws->out));
@@ -155,9 +157,8 @@ class ForwardMessagesTest {
     );
 
     $backend= new Channel([$response]);
-    $ws= new Channel([]);
-    $fixture= new ForwardMessages(new Worker(null, $backend));
-    $fixture->message(new Connection($ws, self::WSID, null, '/ws', []), 'Test');
+    $ws= new Channel([], true);
+    $this->forward($ws, $backend, 'Test');
 
     Assert::equals($request, implode('', $backend->out));
     Assert::equals("\210\060\003\363Unexpected status code from backend:///ws: 500", implode('', $ws->out));

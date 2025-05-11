@@ -14,12 +14,12 @@ class ForwardRequestsTest {
 
   /** @return void */
   private function forward(Channel $client, Channel $backend) {
-    foreach ((new ForwardRequests(new Worker(null, $backend)))->handleData($client) ?? [] as $_) { }
+    foreach ((new ForwardRequests([new Worker(null, $backend)]))->handleData($client) ?? [] as $_) { }
   }
 
   #[Test]
   public function can_create() {
-    new ForwardRequests(new Worker(null, new Channel([])));
+    new ForwardRequests([new Worker(null, new Channel([]))]);
   }
 
   #[Test]

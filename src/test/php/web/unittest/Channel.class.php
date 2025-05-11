@@ -3,10 +3,9 @@
 use peer\{Socket, SocketEndpoint};
 
 class Channel extends Socket {
-  public $in, $out;
-  public $closed= false;
+  public $in, $out, $closed;
 
-  public function __construct($chunks) { $this->in= $chunks; }
+  public function __construct($chunks, $connected= false) { $this->in= $chunks; $this->closed= !$connected; }
 
   public function connect($timeout= 2.0) { $this->closed= false; }
 
