@@ -181,4 +181,31 @@ class ForwardRequestsTest {
     Assert::equals($request, implode('', $backends['idle']->out));
     Assert::equals($response, implode('', $client->out));
   }
+
+  #[Test]
+  public function waits_for_worker_to_become_idle() {
+    $request= $this->message(
+      'GET / HTTP/1.0',
+      '',
+      '',
+    );
+    $response= $this->message(
+      'HTTP/1.0 204 No content',
+      'Content-Length: 0',
+      '',
+      '',
+    );
+    $client= new Channel([$request]);
+    $backend= new Channel([$response], true);
+    $workers= [new Worker(null, $backend)];
+
+    foreach ((new ForwardRequests($workers))->handleData($client) ?? [] as $event => $arguments) {
+
+      // Close connection to mark backend as idle
+      if ('delay' === $event) $backend->close();
+    }
+
+    Assert::equals($request, implode('', $backend->out));
+    Assert::equals($response, implode('', $client->out));
+  }
 }
