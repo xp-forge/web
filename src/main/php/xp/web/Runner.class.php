@@ -21,7 +21,7 @@ use xp\runtime\Help;
  *   ```sh
  *   $ xp web -m prefork,50 ...
  *   ```
- * - Use [development webserver](http://php.net/features.commandline.webserver):
+ * - Use [development webserver](https://www.php.net/features.commandline.webserver):
  *   ```sh
  *   $ xp web -m develop ...
  *   ```
