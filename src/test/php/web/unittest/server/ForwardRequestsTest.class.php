@@ -157,4 +157,28 @@ class ForwardRequestsTest {
 
     Assert::false($backend->isConnected());
   }
+
+  #[Test]
+  public function distribute_request_to_first_idle_backend() {
+    $request= $this->message(
+      'GET / HTTP/1.0',
+      '',
+      '',
+    );
+    $response= $this->message(
+      'HTTP/1.0 204 No content',
+      'Content-Length: 0',
+      '',
+      '',
+    );
+    $client= new Channel([$request]);
+    $backends= ['busy' => new Channel([], true), 'idle' => new Channel([$response], false)];
+
+    $workers= [new Worker(null, $backends['busy']), new Worker(null, $backends['idle'])];
+    foreach ((new ForwardRequests($workers))->handleData($client) ?? [] as $_) { }
+
+    Assert::null($backends['busy']->out);
+    Assert::equals($request, implode('', $backends['idle']->out));
+    Assert::equals($response, implode('', $client->out));
+  }
 }
