@@ -2,17 +2,11 @@
 
 use Throwable;
 use lang\ClassLoader;
-use peer\server\{AsyncServer, ServerProtocol};
 use web\{Error, InternalServerError, Request, Response, Headers, Status};
 
-/**
- * HTTP protocol implementation
- *
- * @test  web.unittest.HttpProtocolTest
- */
-class HttpProtocol implements ServerProtocol {
+/** @test web.unittest.server.HttpProtocolTest */
+class HttpProtocol extends Switchable {
   private $application, $logging;
-  public $server= null;
   private $close= false;
 
   /**
@@ -21,32 +15,9 @@ class HttpProtocol implements ServerProtocol {
    * @param  web.Application $application
    * @param  web.Logging $logging
    */
-  private function __construct($application, $logging) {
+  public function __construct($application, $logging) {
     $this->application= $application;
     $this->logging= $logging;
-  }
-
-  /**
-   * Creates an instance of HTTP protocol executing the given application
-   *
-   * @param  web.Application $application
-   * @param  web.Logging $logging
-   * @return self
-   */
-  public static function executing($application, $logging) {
-
-    // Compatibility with older xp-framework/networking libraries, see issue #79
-    // Unwind generators returned from handleData() to guarantee their complete
-    // execution.
-    if (class_exists(AsyncServer::class, true)) {
-      return new self($application, $logging);
-    } else {
-      return new class($application, $logging) extends HttpProtocol {
-        public function handleData($socket) {
-          foreach (parent::handleData($socket) as $_) { }
-        }
-      };
-    }
   }
 
   /**
@@ -58,9 +29,7 @@ class HttpProtocol implements ServerProtocol {
    * @return void
    */
   private function sendError($request, $response, $error) {
-    if ($response->flushed()) {
-      $error->printStackTrace();
-    } else {
+    if (!$response->flushed()) {
       $loader= ClassLoader::getDefault();
       $message= Status::message($error->status());
 
@@ -77,7 +46,7 @@ class HttpProtocol implements ServerProtocol {
         break;
       }
     }
-    $this->logging->log($request, $response, $response->trace + ['error' => $error]);
+    $this->logging->exchange($request, $response, ['error' => $error]);
   }
 
   /**
@@ -88,24 +57,6 @@ class HttpProtocol implements ServerProtocol {
   public function initialize() {
     $this->close= (bool)getenv('NO_KEEPALIVE');
     return true;
-  }
-
-  /**
-   * Handle client connect
-   *
-   * @param  peer.Socket $socket
-   */
-  public function handleConnect($socket) {
-    // Intentionally empty
-  }
-
-  /**
-   * Handle client disconnect
-   *
-   * @param  peer.Socket $socket
-   */
-  public function handleDisconnect($socket) {
-    $socket->close();
   }
 
   /**
@@ -140,8 +91,11 @@ class HttpProtocol implements ServerProtocol {
       }
 
       try {
+        $result= null;
         if (Input::REQUEST === $input->kind) {
-          yield from $this->application->service($request, $response) ?? [];
+          $handler= $this->application->service($request, $response);
+          yield from $handler;
+          $result= $handler->getReturn();
         } else if ($input->kind & Input::TIMEOUT) {
           $response->answer(408);
           $response->send('Client timed out sending status line and request headers', 'text/plain');
@@ -152,9 +106,9 @@ class HttpProtocol implements ServerProtocol {
           $close= true;
         }
 
-        $this->logging->log($request, $response, $response->trace);
+        $this->logging->exchange($request, $response);
       } catch (CannotWrite $e) {
-        $this->logging->log($request, $response, $response->trace + ['warn' => $e]);
+        $this->logging->exchange($request, $response, ['warn' => $e]);
       } catch (Error $e) {
         $this->sendError($request, $response, $e);
       } catch (Throwable $e) {
@@ -168,7 +122,7 @@ class HttpProtocol implements ServerProtocol {
         clearstatcache();
         \xp::gc();
       }
-      return;
+      return $result;
     }
 
     // Handle request errors and close the socket
@@ -182,17 +136,6 @@ class HttpProtocol implements ServerProtocol {
         $error
       ));
     }
-    $socket->close();
-  }
-
-  /**
-   * Handle I/O error
-   *
-   * @param  peer.Socket $socket
-   * @param  lang.XPException $e
-   */
-  public function handleError($socket, $e) {
-    // $e->printStackTrace();
     $socket->close();
   }
 }
