@@ -2,12 +2,13 @@
 
 use io\OperationNotSupportedException;
 use io\streams\{MemoryInputStream, Streams};
+use lang\IllegalStateException;
 use test\{Assert, Expect, Test, Values};
-use web\io\{ReadLength, ReadStream};
+use web\io\{ReadLength, ReadStream, Part};
 use xp\web\SAPI;
 
 class SAPITest {
-  const BOUNDARY = '------------------------899f0c287170dd63';
+  const BOUNDARY= '------------------------899f0c287170dd63';
 
   /**
    * Retrieve files for a given $_FILES layout
@@ -16,6 +17,7 @@ class SAPITest {
    * @return [:string]
    */
   private function parts($files) {
+    $_SERVER['REQUEST_METHOD']= 'POST';
     $_FILES= $files(Streams::readableUri(new MemoryInputStream('Test')));
     return iterator_to_array((new SAPI())->parts(self::BOUNDARY));
   }
@@ -124,6 +126,7 @@ class SAPITest {
 
   #[Test]
   public function parts_without_files() {
+    $_SERVER['REQUEST_METHOD']= 'POST';
     $_FILES= [];
     Assert::equals([], iterator_to_array((new SAPI())->parts(self::BOUNDARY)));
   }
@@ -217,17 +220,48 @@ class SAPITest {
 
   #[Test]
   public function parameter_unnecessary_urlencode_regression() {
+    $_SERVER['REQUEST_METHOD']= 'POST';
     $_REQUEST= ['varname' => 'the value'];
     $fixture= new SAPI();
-    $parts = iterator_to_array($fixture->parts(''));
+    $parts= iterator_to_array($fixture->parts(''));
     Assert::equals('the value', $parts['varname']->value());
   }
 
   #[Test, Values([[['the value']], [['key' => 'value']]])]
   public function array_parameter_no_string_conversion_error($input) {
+    $_SERVER['REQUEST_METHOD']= 'POST';
     $_REQUEST= ['varname' => $input];
     $fixture= new SAPI();
-    $parts = iterator_to_array($fixture->parts(''));
+    $parts= iterator_to_array($fixture->parts(''));
     Assert::equals($input, $parts['varname']->value());
+  }
+
+  #[Test, Values(['PUT', 'PATCH'])]
+  public function rfc1867_non_post($method) {
+    $_SERVER['REQUEST_METHOD']= $method;
+    $fixture= new SAPI(new MemoryInputStream(implode("\r\n", [
+      '--'.self::BOUNDARY,
+      'Content-Disposition: form-data; name="tc"',
+      '',
+      'Checked',
+      '--'.self::BOUNDARY,
+      'Content-Disposition: form-data; name="file"; filename="test.txt"',
+      'Content-Type: text/plain',
+      '',
+      'Test',
+      '--'.self::BOUNDARY.'--',
+      ''
+    ])));
+
+    $parts= [];
+    foreach ($fixture->parts(self::BOUNDARY) as $part) {
+      switch ($part->kind()) {
+        case Part::FILE: $parts[$part->name()]= $part->bytes(); break;
+        case Part::PARAM: $parts[$part->name()]= $part->value(); break;
+        default: throw new IllegalStateException('Unexpected '.$part->toString());
+      }
+    }
+
+    Assert::equals(['tc' => 'Checked', 'test.txt' => 'Test'], $parts);
   }
 }
