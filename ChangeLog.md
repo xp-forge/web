@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Added support for file uploads in development webserver for non-POST
+  requests, see https://wiki.php.net/rfc/rfc1867-non-post
+  (@thekid)
 * Merged PR #111: Add pattern-based routing implemented as `web.Routes`
   (@thekid)
 * Removed deprecated `web.Routing::service()` method, which was formerly

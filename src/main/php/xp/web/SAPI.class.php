@@ -1,18 +1,18 @@
 <?php namespace xp\web;
 
-use web\io\{Buffered, Input, Output, Param, ReadStream, ReadLength, WriteChunks, Incomplete};
+use web\io\{Buffered, Input, Output, Param, Parts, ReadStream, ReadLength, WriteChunks, Incomplete};
 
 /**
  * Wrapper for PHP's Server API ("SAPI").
  *
  * @see  http://www.faqs.org/rfcs/rfc3875.html
- * @see  http://php.net/reserved.variables.server
- * @see  http://php.net/wrappers.php
- * @see  http://php.net/php-sapi-name
+ * @see  https://php.net/reserved.variables.server
+ * @see  https://php.net/wrappers.php
+ * @see  https://php.net/php-sapi-name
  */
 class SAPI extends Output implements Input {
   private $in= null;
-  private $incoming= null;
+  private $incoming;
   private $out;
 
   static function __static() {
@@ -36,7 +36,8 @@ class SAPI extends Output implements Input {
   }
 
   /** Creates a new per-request SAPI I/O instance */
-  public function __construct() {
+  public function __construct($incoming= null) {
+    $this->incoming= $incoming;
     ob_start(function($buffer) {
       fputs(STDOUT, $buffer);
     });
@@ -89,24 +90,33 @@ class SAPI extends Output implements Input {
    * @return iterable
    */
   public function parts($boundary) {
-    foreach ($_REQUEST as $name => $value) {
-      yield $name => Param::from($name, $value);
-    }
-    foreach ($_FILES as $name => $file) {
-      if (is_array($file['error'])) {
-        $name.= '[]';
-        foreach ($file['error'] as $i => $error) {
-          if (UPLOAD_ERR_OK === $error) {
-            yield $name => new Upload($file['name'][$i], $file['type'][$i], $file['tmp_name'][$i]);
-          } else {
-            yield $name => new Incomplete($file['name'][$i], $error);
-          }
-        }
-      } else if (UPLOAD_ERR_OK === $file['error']) {
-        yield $name => new Upload($file['name'], $file['type'], $file['tmp_name']);
-      } else {
-        yield $name => new Incomplete($file['name'], $file['error']);
+
+    // Use superglobals pre-populated by PHP SAPI for POST requests. Otherwise,
+    // fall back to parsing request "by hand". We could use request_parse_body(),
+    // see https://wiki.php.net/rfc/rfc1867-non-post, but would need a fallback
+    // for PHP < 8.4, so we might as well just stream the parts.
+    if ('POST' === $_SERVER['REQUEST_METHOD']) {
+      foreach ($_REQUEST as $name => $value) {
+        yield $name => Param::from($name, $value);
       }
+      foreach ($_FILES as $name => $file) {
+        if (is_array($file['error'])) {
+          $name.= '[]';
+          foreach ($file['error'] as $i => $error) {
+            if (UPLOAD_ERR_OK === $error) {
+              yield $name => new Upload($file['name'][$i], $file['type'][$i], $file['tmp_name'][$i]);
+            } else {
+              yield $name => new Incomplete($file['name'][$i], $error);
+            }
+          }
+        } else if (UPLOAD_ERR_OK === $file['error']) {
+          yield $name => new Upload($file['name'], $file['type'], $file['tmp_name']);
+        } else {
+          yield $name => new Incomplete($file['name'], $file['error']);
+        }
+      }
+    } else {
+      yield from new Parts($this->incoming, $boundary);
     }
   }
 
@@ -206,5 +216,10 @@ class SAPI extends Output implements Input {
       fclose($this->in);
     }
     echo $this->out;
+  }
+
+  /** End output buffering if begin() was not called */
+  public function __destruct() {
+    isset($this->out) || ob_end_clean();
   }
 }
