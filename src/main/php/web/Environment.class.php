@@ -73,7 +73,8 @@ class Environment {
    * @return io.Path
    */
   public function path($path) {
-    return new Path($this->webroot, $path);
+    $p= $path instanceof Path ? $path : new Path($path);
+    return $p->isAbsolute() ? $p : new Path($this->webroot, $p);
   }
 
   /**
