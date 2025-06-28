@@ -3,6 +3,7 @@
 use io\{File, Files, Path};
 use lang\{ElementNotFoundException, Environment as System};
 use test\{Assert, Expect, Test, Values};
+use test\verify\Runtime;
 use util\{Properties, PropertySource, RegisteredPropertySource};
 use web\{Environment, Logging};
 
@@ -86,6 +87,33 @@ class EnvironmentTest {
     Assert::equals(
       new Path($environment->webroot(), 'src/main/handlebars'),
       $environment->path('src/main/handlebars')
+    );
+  }
+
+  #[Test]
+  public function relative_path() {
+    $environment= new Environment('dev', '.', 'static', []);
+    Assert::equals(
+      new Path($environment->webroot(), 'src/main/handlebars'),
+      $environment->path('src/main/handlebars')
+    );
+  }
+
+  #[Test, Runtime(os: 'BSD|Darwin|Solaris|Linux')]
+  public function absolute_unix_path() {
+    $environment= new Environment('dev', '.', 'static', []);
+    Assert::equals(
+      new Path('/etc'),
+      $environment->path('/etc')
+    );
+  }
+
+  #[Test, Runtime(os: 'Windows')]
+  public function absolute_windows_path() {
+    $environment= new Environment('dev', '.', 'static', []);
+    Assert::equals(
+      new Path('C:\\Windows'),
+      $environment->path('C:\\Windows')
     );
   }
 
