@@ -1,16 +1,22 @@
 <?php namespace web\unittest;
 
-use test\{Assert, Test, Values};
+use test\{Assert, Before, Test, Values};
 use web\io\{TestInput, TestOutput};
 use web\logging\{ToAllOf, ToConsole, ToFunction};
 use web\{Error, Logging, Request, Response};
 
 class LoggingTest {
+  private $noop;
 
   /** @return iterable */
   private function arguments() {
-    yield ['GET /', null];
-    yield ['GET / Test', new Error(404, 'Test')];
+    yield ['GET /', []];
+    yield ['GET / Test', ['error' => new Error(404, 'Test')]];
+  }
+
+  #[Before]
+  public function noop() {
+    $this->noop= function($status, $method, $uri, $hints) { };
   }
 
   #[Test]
@@ -20,12 +26,12 @@ class LoggingTest {
 
   #[Test]
   public function can_create_with_sink() {
-    new Logging(new ToFunction(function($req, $res, $error) { }));
+    new Logging(new ToFunction($this->noop));
   }
 
   #[Test]
   public function target() {
-    $sink= new ToFunction(function($req, $res, $error) { });
+    $sink= new ToFunction($this->noop);
     Assert::equals($sink->target(), (new Logging($sink))->target());
   }
 
@@ -40,23 +46,34 @@ class LoggingTest {
   }
 
   #[Test, Values(from: 'arguments')]
-  public function log($expected, $error) {
+  public function log($expected, $hints) {
+    $logged= [];
+    $log= new Logging(new ToFunction(function($status, $method, $uri, $hints) use(&$logged) {
+      $logged[]= $method.' '.$uri.($hints ? ' '.$hints['error']->getMessage() : '');
+    }));
+    $log->log(200, 'GET', '/', $hints);
+
+    Assert::equals([$expected], $logged);
+  }
+
+  #[Test, Values(from: 'arguments')]
+  public function exchange($expected, $hints) {
     $req= new Request(new TestInput('GET', '/'));
     $res= new Response(new TestOutput());
 
     $logged= [];
-    $log= new Logging(new ToFunction(function($req, $res, $error) use(&$logged) {
-      $logged[]= $req->method().' '.$req->uri()->path().($error ? ' '.$error->getMessage() : '');
+    $log= new Logging(new ToFunction(function($status, $method, $uri, $hints) use(&$logged) {
+      $logged[]= $method.' '.$uri.($hints ? ' '.$hints['error']->getMessage() : '');
     }));
-    $log->log($req, $res, $error);
+    $log->exchange($req, $res, $hints);
 
     Assert::equals([$expected], $logged);
   }
 
   #[Test]
   public function pipe() {
-    $a= new ToFunction(function($req, $res, $error) { /* a */ });
-    $b= new ToFunction(function($req, $res, $error) { /* b */ });
+    $a= new ToFunction($this->noop);
+    $b= new ToFunction($this->noop);
     Assert::equals($b, (new Logging($a))->pipe($b)->sink());
   }
 
@@ -67,28 +84,28 @@ class LoggingTest {
 
   #[Test]
   public function tee() {
-    $a= new ToFunction(function($req, $res, $error) { /* a */ });
-    $b= new ToFunction(function($req, $res, $error) { /* b */ });
+    $a= new ToFunction($this->noop);
+    $b= new ToFunction($this->noop);
     Assert::equals(new ToAllOf($a, $b), (new Logging($a))->tee($b)->sink());
   }
 
   #[Test]
   public function tee_multiple() {
-    $a= new ToFunction(function($req, $res, $error) { /* a */ });
-    $b= new ToFunction(function($req, $res, $error) { /* b */ });
-    $c= new ToFunction(function($req, $res, $error) { /* c */ });
+    $a= new ToFunction($this->noop);
+    $b= new ToFunction($this->noop);
+    $c= new ToFunction($this->noop);
     Assert::equals(new ToAllOf($a, $b, $c), (new Logging($a))->tee($b)->tee($c)->sink());
   }
 
   #[Test]
   public function pipe_on_no_logging() {
-    $sink= new ToFunction(function($req, $res, $error) { });
+    $sink= new ToFunction($this->noop);
     Assert::equals($sink, (new Logging(null))->pipe($sink)->sink());
   }
 
   #[Test]
   public function tee_on_no_logging() {
-    $sink= new ToFunction(function($req, $res, $error) { });
+    $sink= new ToFunction($this->noop);
     Assert::equals($sink, (new Logging(null))->tee($sink)->sink());
   }
 }

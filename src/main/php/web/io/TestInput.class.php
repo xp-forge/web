@@ -6,20 +6,20 @@
  * @test  web.unittest.io.TestInputTest
  */
 class TestInput implements Input {
-  private $method, $uri, $headers, $body;
+  private $method, $resource, $headers, $body;
   private $incoming= null;
 
   /**
    * Creates a new instance
    *
    * @param  string $method
-   * @param  string $uri
+   * @param  string $resource
    * @param  [:string] $headers
    * @param  string|[:string] $body
    */
-  public function __construct($method, $uri, $headers= [], $body= '') {
+  public function __construct($method, $resource, $headers= [], $body= '') {
     $this->method= $method;
-    $this->uri= $uri;
+    $this->resource= $resource;
     $this->headers= $headers;
 
     if (is_array($body)) {
@@ -45,7 +45,7 @@ class TestInput implements Input {
   public function method() { return $this->method; }
 
   /** @return string */
-  public function uri() { return $this->uri; }
+  public function resource() { return $this->resource; }
 
   /** @return iterable */
   public function headers() { return $this->headers; }

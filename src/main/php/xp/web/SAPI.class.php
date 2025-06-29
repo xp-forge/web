@@ -58,7 +58,7 @@ class SAPI extends Output implements Input {
   }
 
   /** @return string */
-  public function uri() { return $_SERVER['REQUEST_URI']; }
+  public function resource() { return $_SERVER['REQUEST_URI']; }
 
   /** @return [:string] */
   public function headers() {
