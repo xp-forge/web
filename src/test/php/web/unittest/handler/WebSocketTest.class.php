@@ -35,6 +35,9 @@ class WebSocketTest {
     yield ['http://example.localhost', 403];
     yield ['http://localhost.example.com', 403];
     yield ['https://localhost', 403];
+    yield ['http://localhost:81@evil.example.com', 403];
+    yield ['http://evil.example.com/#http://localhost', 403];
+    yield ['http://evil.example.com/?page=http://localhost', 403];
   }
 
   /** @return iterable */
@@ -51,7 +54,9 @@ class WebSocketTest {
     // Not allowed: Other localhost subdomains and unrelated domains
     yield ['http://example.localhost', 403];
     yield ['http://localhost.example.com', 403];
-    yield ['http://evil.example.com', 403];
+    yield ['http://localhost:81@evil.example.com', 403];
+    yield ['http://evil.example.com/#http://localhost', 403];
+    yield ['http://evil.example.com/?page=http://localhost', 403];
   }
 
   #[Test]
