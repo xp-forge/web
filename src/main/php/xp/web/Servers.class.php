@@ -21,14 +21,14 @@ abstract class Servers extends Enum {
         return new Standalone($address, new PreforkingServer(
           null,
           null,
-          $this->select($arguments, 'children') ?? $arguments[0] ?? 10
+          self::argument($arguments, 'children') ?? $arguments[0] ?? 10
         ));
       }
     };
     self::$DEVELOP= new class(2, 'DEVELOP') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Develop($address, $this->select($arguments, 'workers') ?? $arguments[0] ?? 1);
+        return new Develop($address, self::argument($arguments, 'workers') ?? $arguments[0] ?? 1);
       }
     };
   }
@@ -40,8 +40,8 @@ abstract class Servers extends Enum {
    * @param  string $name
    * @return ?string
    */
-  protected function select($arguments, $name) {
-    foreach ($arguments as $i => $argument) {
+  public static function argument($arguments, $name) {
+    foreach ($arguments as $argument) {
       if (false !== ($p= strpos($argument, '=')) && 0 === strncmp($argument, $name, $p)) {
         return substr($argument, $p + 1);
       }

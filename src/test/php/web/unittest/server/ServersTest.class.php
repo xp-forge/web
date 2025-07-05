@@ -66,4 +66,14 @@ class ServersTest {
   public function supports_ipv6_notation_with_port() {
     Assert::equals(8080, Servers::named('serve')->newInstance('[::1]:8080')->port());
   }
+
+  #[Test]
+  public function select_named_argument() {
+    Assert::equals('1', Servers::argument(['name=test', 'workers=1'], 'workers'));
+  }
+
+  #[Test]
+  public function select_non_existant_named_argument() {
+    Assert::null(Servers::argument([], 'workers'));
+  }
 }
