@@ -41,7 +41,7 @@ Supports a development webserver which is slower but allows an easy edit/save/re
 
 ```bash
 $ xp -supervise web -m develop Service
-@xp.web.srv.Develop(HTTP @ `php -S 127.0.0.1:8080 -t  /home/example/devel/shorturl`)
+@xp.web.srv.Develop(HTTP @ `php -S [...] -t /home/example/devel/shorturl`)
 # ...
 ```
 
@@ -49,11 +49,11 @@ Now open the website at http://localhost:8080/hello
 
 Server models
 -------------
-The four server models (*selectable via `-m <model>` on the command line*) are:
+The four server models (*selectable via `-m <model>[,argument[,argument...]]` on the command line*) are:
 
-* **async** (*the default since 3.0.0*): A single-threaded web server. Handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
-* **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension.
-* **develop**: As mentioned above, built ontop of the PHP development wenserver. Application code is recompiled and application setup performed from scratch on every request, errors and debug output are handled by the [development console](https://github.com/xp-forge/web/pull/35).
+* **async** (*the default*): A single-threaded web server. Handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
+* **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension. Use `prefork,children=<n>` to control the number of child processes.
+* **develop**: As mentioned above, built ontop of the PHP development webserver. Application code is recompiled and application setup performed from scratch on every request, errors and debug output are handled by the [development console](https://github.com/xp-forge/web/pull/35). Use `develop,workers=<n>` to control the number of worker processes.
 
 Request and response
 --------------------
