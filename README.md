@@ -49,7 +49,7 @@ Now open the website at http://localhost:8080/hello
 
 Server models
 -------------
-The four server models (*selectable via `-m <model>[,argument[,argument...]]` on the command line*) are:
+The server models (*selectable via `-m <model>[,argument[,argument...]]` on the command line*) are:
 
 * **async** (*the default*): A single-threaded web server. Handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
 * **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension. Use `prefork,children=<n>` to control the number of child processes.
@@ -253,6 +253,8 @@ class Ws extends Application {
   }
 }
 ```
+
+See https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
 
 Logging
 -------
