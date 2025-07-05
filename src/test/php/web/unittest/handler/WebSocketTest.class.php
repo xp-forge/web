@@ -46,8 +46,9 @@ class WebSocketTest {
     yield ['http://localhost:8080', 101];
     yield ['https://localhost:8443', 101];
     yield ['http://Localhost', 101];
+    yield ['http://api.localhost', 101];
 
-    // Not allowed: localhost subdomains and unrelated domains
+    // Not allowed: Other localhost subdomains and unrelated domains
     yield ['http://example.localhost', 403];
     yield ['http://localhost.example.com', 403];
     yield ['http://evil.example.com', 403];
@@ -100,7 +101,7 @@ class WebSocketTest {
       'Sec-WebSocket-Key'     => 'test',
     ]));
 
-    Assert::equals($expected, $this->handle($request, ['*://localhost:*'])->status());
+    Assert::equals($expected, $this->handle($request, ['*://localhost:*', '*://api.localhost:*'])->status());
   }
 
   #[Test]
