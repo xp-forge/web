@@ -23,7 +23,7 @@ class WebSocket implements Handler {
    * @param function(websocket.protocol.Connection, string|util.Bytes): var|websocket.Listener $listener
    * @param string[] $origins
    */
-  public function __construct($listener, $origins= []) {
+  public function __construct($listener, array $origins= []) {
     $this->listener= Listeners::cast($listener);
     foreach ($origins as $allowed) {
       $this->allowed[]= '#'.strtr(preg_quote($allowed, '#'), ['\\*' => '.+']).'#i';
