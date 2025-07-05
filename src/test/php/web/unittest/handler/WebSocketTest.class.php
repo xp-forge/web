@@ -30,8 +30,10 @@ class WebSocketTest {
     yield ['http://localhost', 101];
     yield ['http://Localhost', 101];
 
-    // Not allowed: Differing ports or scheme
+    // Not allowed: Differing hosts, ports or scheme
     yield ['http://localhost:81', 403];
+    yield ['http://example.localhost', 403];
+    yield ['http://localhost.example.com', 403];
     yield ['https://localhost', 403];
   }
 
