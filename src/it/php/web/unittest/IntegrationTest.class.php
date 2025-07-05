@@ -170,7 +170,7 @@ class IntegrationTest {
   public function websocket_message($input, $output) {
     try {
       $ws= new WebSocket($this->server->connection, '/ws');
-      $ws->connect();
+      $ws->connect(['Origin' => 'http://localhost']);
       $ws->send($input);
       $result= $ws->receive();
     } finally {
@@ -183,7 +183,7 @@ class IntegrationTest {
   public function invalid_utf8_passed_to_websocket_text_message() {
     try {
       $ws= new WebSocket($this->server->connection, '/ws');
-      $ws->connect();
+      $ws->connect(['Origin' => 'http://localhost']);
       $ws->send("\xfc");
       $ws->receive();
     } finally {
