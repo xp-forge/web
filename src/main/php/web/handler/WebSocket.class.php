@@ -84,7 +84,14 @@ class WebSocket implements Handler {
         foreach ($this->listener->protocols ?? [] as $protocol) {
           $response->header('Sec-WebSocket-Protocol', $protocol, true);
         }
-        break;
+
+        // Signal server implementation to switch protocols
+        yield 'connection' => ['websocket', [
+          'path'     => $request->uri()->resource(),
+          'headers'  => $request->headers(),
+          'listener' => $this->listener,
+        ]];
+        return;
 
       case 9: // Reserved version, use for WS <-> SSE translation
         if (!$this->verify($request, $response)) return;
@@ -110,11 +117,5 @@ class WebSocket implements Handler {
         $response->send('This service does not support WebSocket version '.$version, 'text/plain');
         return;
     }
-
-    yield 'connection' => ['websocket', [
-      'path'     => $request->uri()->resource(),
-      'headers'  => $request->headers(),
-      'listener' => $this->listener,
-    ]];
   }
 }
