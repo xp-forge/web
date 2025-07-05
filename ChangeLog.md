@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #126: Verify websocket origin, which is an effective measure
+  against Cross Site WebSocket Hijacking
+  (@thekid)
 * Merged PR #121: Websockets support, including PHP development mode.
   See https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API
   (@thekid)
