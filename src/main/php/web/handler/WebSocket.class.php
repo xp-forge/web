@@ -1,5 +1,6 @@
 <?php namespace web\handler;
 
+use util\URI;
 use web\Handler;
 use web\io\EventSink;
 use websocket\Listeners;
@@ -22,11 +23,23 @@ class WebSocket implements Handler {
    * @param function(websocket.protocol.Connection, string|util.Bytes): var|websocket.Listener $listener
    * @param string[] $origins
    */
-  public function __construct($listener, $origins= ['*']) {
+  public function __construct($listener, $origins= []) {
     $this->listener= Listeners::cast($listener);
     foreach ($origins as $allowed) {
-      $this->allowed[]= '#'.strtr(preg_quote($allowed), ['\\*' => '.+']).'#';
+      $this->allowed[]= '#'.strtr(preg_quote($allowed, '#'), ['\\*' => '.+']).'#i';
     }
+  }
+
+  /**
+   * Returns canonicalized base URI
+   *
+   * @param  util.URI $uri
+   * @return string
+   */
+  private function base($uri) {
+    static $ports= ['http' => 80, 'https' => 443];
+
+    return $uri->scheme().'://'.$uri->host().':'.($uri->port() ?? $ports[$uri->scheme()] ?? 0);
   }
 
   /**
@@ -38,15 +51,14 @@ class WebSocket implements Handler {
    * @return  bool
    */
   public function verify($request, $response) {
-    static $ports= ['http' => 80, 'https' => 443];
-
     if ($origin= $request->header('Origin')) {
-      $url= parse_url($origin);
-      $canonical= $url['scheme'].'://'.$url['host'].':'.($url['port'] ?? $ports[$url['scheme']]);
-
+      $base= $this->base(new URI($origin));
       foreach ($this->allowed as $pattern) {
-        if (preg_match($pattern, $canonical)) return true;
+        if (preg_match($pattern, $base)) return true;
       }
+
+      // Same-origin policy
+      if (0 === strcasecmp($this->base($request->uri()), $base)) return true;
     }
 
     $response->answer(403);

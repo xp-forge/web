@@ -23,6 +23,19 @@ class WebSocketTest {
   }
 
   /** @return iterable */
+  private function same() {
+
+    // By default, enforces same-origin policy
+    yield ['http://localhost:80', 101];
+    yield ['http://localhost', 101];
+    yield ['http://Localhost', 101];
+
+    // Not allowed: Differing ports or scheme
+    yield ['http://localhost:81', 403];
+    yield ['https://localhost', 403];
+  }
+
+  /** @return iterable */
   private function origins() {
 
     // We allow all ports and schemes on localhost
@@ -30,6 +43,7 @@ class WebSocketTest {
     yield ['https://localhost', 101];
     yield ['http://localhost:8080', 101];
     yield ['https://localhost:8443', 101];
+    yield ['http://Localhost', 101];
 
     // Not allowed: localhost subdomains and unrelated domains
     yield ['http://example.localhost', 403];
@@ -63,10 +77,23 @@ class WebSocketTest {
     Assert::equals(403, $this->handle($request)->status());
   }
 
+  #[Test, Values(from: 'same')]
+  public function verify_same_origin($origin, $expected) {
+    $request= new Request(new TestInput('GET', '/ws', [
+      'Origin'                => $origin,
+      'Host'                  => 'localhost:80',
+      'Sec-WebSocket-Version' => 13,
+      'Sec-WebSocket-Key'     => 'test',
+    ]));
+
+    Assert::equals($expected, $this->handle($request, [])->status());
+  }
+
   #[Test, Values(from: 'origins')]
   public function verify_localhost_origin($origin, $expected) {
     $request= new Request(new TestInput('GET', '/ws', [
       'Origin'                => $origin,
+      'Host'                  => 'localhost:8080',
       'Sec-WebSocket-Version' => 13,
       'Sec-WebSocket-Key'     => 'test',
     ]));
