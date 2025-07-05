@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #121: Websockets support, including PHP development mode.
+  See https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API
+  (@thekid)
 * Merged PR #125: Allow absolute paths in `Environment::path()` - @thekid
 * Added support for file uploads in development webserver for non-POST
   requests, see https://wiki.php.net/rfc/rfc1867-non-post
