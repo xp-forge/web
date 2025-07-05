@@ -223,6 +223,37 @@ class Site extends Application {
 }
 ```
 
+WebSockets
+----------
+To use two-way interactive communication sessions between the user's browser and our server, route to the *WebSocket* handler as follows:
+
+```php
+use web\Application;
+use web\handler\WebSocket;
+
+class Ws extends Application {
+
+  public function routes() {
+    return [
+      '/ws/echo' => new WebSocket(function($conn, $payload) {
+        $conn->send('You said: '.$payload);
+      }),
+      '/'   => function($request, $response) {
+        $html= <<<'HTML'
+          <!-- Shortened for brevity -->
+          <script type="module">
+            const socket = new WebSocket(`ws://${location.host}/ws/echo`);
+            socket.addEventListener('open', e => socket.send('Hello World!'));
+            socket.addEventListener('message', e => console.log(e.data));
+          </script>
+        HTML;
+        $res->send($html, 'text/html; charset=utf-8');
+      }
+    ];
+  }
+}
+```
+
 Logging
 -------
 By default, logging goes to standard output and will be visible in the console the `xp web` command was invoked from. It can be influenced via the command line as follows:
