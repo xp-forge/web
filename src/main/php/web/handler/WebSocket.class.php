@@ -14,10 +14,44 @@ class WebSocket implements Handler {
   const GUID= '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
   private $listener;
+  private $allowed= [];
 
-  /** @param function(websocket.protocol.Connection, string|util.Bytes): var|websocket.Listener $listener */
-  public function __construct($listener) {
+  /**
+   * Creates a new websocket handler
+   *
+   * @param function(websocket.protocol.Connection, string|util.Bytes): var|websocket.Listener $listener
+   * @param string[] $origins
+   */
+  public function __construct($listener, $origins= ['*']) {
     $this->listener= Listeners::cast($listener);
+    foreach ($origins as $allowed) {
+      $this->allowed[]= '#'.strtr(preg_quote($allowed), ['\\*' => '.+']).'#';
+    }
+  }
+
+  /**
+   * Verifies request `Origin` header matches the allowed origins. This
+   * header cannot be set by client-side JavaScript in browsers!
+   *
+   * @param   web.Request $request
+   * @param   web.Response $response
+   * @return  bool
+   */
+  public function verify($request, $response) {
+    static $ports= ['http' => 80, 'https' => 443];
+
+    if ($origin= $request->header('Origin')) {
+      $url= parse_url($origin);
+      $canonical= $url['scheme'].'://'.$url['host'].':'.($url['port'] ?? $ports[$url['scheme']]);
+
+      foreach ($this->allowed as $pattern) {
+        if (preg_match($pattern, $canonical)) return true;
+      }
+    }
+
+    $response->answer(403);
+    $response->send('Origin not allowed', 'text/plain');
+    return false;
   }
 
   /**
@@ -30,6 +64,8 @@ class WebSocket implements Handler {
   public function handle($request, $response) {
     switch ($version= (int)$request->header('Sec-WebSocket-Version')) {
       case 13: // RFC 6455
+        if (!$this->verify($request, $response)) return;
+
         $key= $request->header('Sec-WebSocket-Key');
         $response->answer(101);
         $response->header('Sec-WebSocket-Accept', base64_encode(sha1($key.self::GUID, true)));
@@ -39,6 +75,8 @@ class WebSocket implements Handler {
         break;
 
       case 9: // Reserved version, use for WS <-> SSE translation
+        if (!$this->verify($request, $response)) return;
+
         $response->answer(200);
         $response->header('Content-Type', 'text/event-stream');
         $response->header('Transfer-Encoding', 'chunked');
