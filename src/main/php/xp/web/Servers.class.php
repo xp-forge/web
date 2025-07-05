@@ -1,7 +1,7 @@
 <?php namespace xp\web;
 
 use lang\{Enum, IllegalArgumentException};
-use peer\server\{AsyncServer, PreforkingServer, Server};
+use peer\server\{AsyncServer, PreforkingServer};
 use xp\web\srv\{Standalone, Develop};
 
 /** @test web.unittest.server.ServersTest */
@@ -15,24 +15,38 @@ abstract class Servers extends Enum {
         return new Standalone($address, new AsyncServer());
       }
     };
-    self::$SEQUENTIAL= new class(1, 'SEQUENTIAL') extends Servers {
+    self::$PREFORK= new class(1, 'PREFORK') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Standalone($address, new Server());
+        return new Standalone($address, new PreforkingServer(
+          null,
+          null,
+          self::argument($arguments, 'children') ?? $arguments[0] ?? 10
+        ));
       }
     };
-    self::$PREFORK= new class(2, 'PREFORK') extends Servers {
+    self::$DEVELOP= new class(2, 'DEVELOP') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Standalone($address, new PreforkingServer(null, null, ...$arguments));
+        return new Develop($address, self::argument($arguments, 'workers') ?? $arguments[0] ?? 1);
       }
     };
-    self::$DEVELOP= new class(3, 'DEVELOP') extends Servers {
-      static function __static() { }
-      public function newInstance($address, $arguments= []) {
-        return new Develop($address);
+  }
+
+  /**
+   * Selects a named argument supplied as `[name]=[value]`.
+   *
+   * @param  string[] $arguments
+   * @param  string $name
+   * @return ?string
+   */
+  public static function argument($arguments, $name) {
+    foreach ($arguments as $argument) {
+      if (false !== ($p= strpos($argument, '=')) && 0 === strncmp($argument, $name, $p)) {
+        return substr($argument, $p + 1);
       }
-    };
+    }
+    return null;
   }
 
   /**
@@ -56,7 +70,6 @@ abstract class Servers extends Enum {
       case 'async': case 'serve': return self::$ASYNC;
       case 'develop': case 'dev': return self::$DEVELOP;
       case 'prefork': return self::$PREFORK;
-      case 'sequential': return self::$SEQUENTIAL;
       default: throw new IllegalArgumentException(sprintf(
         'Unknown server "%s", supported: [%s]',
         $name,

@@ -29,6 +29,8 @@ class ReadLength implements InputStream {
    * @return string
    */
   public function read($limit= 8192) {
+    if (0 === $this->remaininig) return '';
+
     $chunk= $this->input->read(min($limit, $this->remaininig));
     if ('' === $chunk) {
       $this->remaininig= 0;

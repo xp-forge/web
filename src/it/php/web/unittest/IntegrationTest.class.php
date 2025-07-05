@@ -1,10 +1,13 @@
 <?php namespace web\unittest;
 
-use test\{Assert, After, Test, Values};
+use peer\ProtocolException;
+use test\{Assert, After, Expect, Test, Values};
+use util\Bytes;
+use websocket\WebSocket;
 
 #[StartServer(TestingServer::class)]
 class IntegrationTest {
-  const FORM_URLENCODED = 'application/x-www-form-urlencoded';
+  const FORM_URLENCODED= 'application/x-www-form-urlencoded';
 
   private $server;
 
@@ -13,9 +16,10 @@ class IntegrationTest {
     $this->server= $server;
   }
 
-  #[After]
-  public function shutdown() {
-    $this->server->shutdown();
+  /** @return iterable */
+  private function messages() {
+    yield ['Test', 'Echo: Test'];
+    yield [new Bytes([8, 15]), new Bytes([47, 11, 8, 15])];
   }
 
   /**
@@ -160,5 +164,35 @@ class IntegrationTest {
     $header= 'cookie='.str_repeat('*', $length);
     $r= $this->send('GET', '/cookie', '1.0', ['Cookie' => $header]);
     Assert::equals((string)strlen($header), $r['body']);
+  }
+
+  #[Test, Values(from: 'messages')]
+  public function websocket_message($input, $output) {
+    try {
+      $ws= new WebSocket($this->server->connection, '/ws');
+      $ws->connect();
+      $ws->send($input);
+      $result= $ws->receive();
+    } finally {
+      $ws->close();
+    }
+    Assert::equals($output, $result);
+  }
+
+  #[Test, Expect(class: ProtocolException::class, message: 'Connection closed (#1007): Not valid utf-8')]
+  public function invalid_utf8_passed_to_websocket_text_message() {
+    try {
+      $ws= new WebSocket($this->server->connection, '/ws');
+      $ws->connect();
+      $ws->send("\xfc");
+      $ws->receive();
+    } finally {
+      $ws->close();
+    }
+  }
+
+  #[After]
+  public function shutdown() {
+    $this->server->shutdown();
   }
 }

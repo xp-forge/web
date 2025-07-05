@@ -11,8 +11,8 @@ interface Input {
   /** @return string */
   public function scheme();
 
-  /** @return sring */
-  public function uri();
+  /** @return string */
+  public function resource();
 
   /** @return iterable */
   public function headers();

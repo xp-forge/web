@@ -58,15 +58,33 @@ class Logging {
   }
 
   /**
-   * Writes a log entry
+   * Writes an HTTP exchange to the log
    *
    * @param  web.Request $response
    * @param  web.Response $response
    * @param  [:var] $hints Optional hints
    * @return void
    */
-  public function log($request, $response, $hints= []) {
-    $this->sink && $this->sink->log($request, $response, $hints);
+  public function exchange($request, $response, $hints= []) {
+    $this->sink && $this->sink->log(
+      $response->status(),
+      $request->method(),
+      $request->uri()->resource(),
+      $response->trace + $hints
+    );
+  }
+
+  /**
+   * Writes a log entry
+   *
+   * @param  string $status
+   * @param  string $method
+   * @param  string $resource
+   * @param  [:var] $hints Optional hints
+   * @return void
+   */
+  public function log($status, $method, $resource, $hints= []) {
+    $this->sink && $this->sink->log($status, $method, $resource, $hints);
   }
 
   /**

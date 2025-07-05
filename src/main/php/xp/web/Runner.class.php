@@ -19,11 +19,11 @@ use xp\runtime\Help;
  *   ```
  * - On Un*x systems, start multiprocess server with 50 children:
  *   ```sh
- *   $ xp web -m prefork,50 ...
+ *   $ xp web -m prefork,children=50 ...
  *   ```
- * - Use [development webserver](http://php.net/features.commandline.webserver):
+ * - Use [development webserver](https://www.php.net/features.commandline.webserver):
  *   ```sh
- *   $ xp web -m develop ...
+ *   $ xp web -m develop[,workers=5] ...
  *   ```
  * The address the server listens to can be supplied via *-a {host}[:{port}]*.
  * The profile can be changed via *-p {profile}* (and can be anything!). One

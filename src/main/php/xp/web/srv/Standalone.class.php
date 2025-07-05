@@ -8,29 +8,6 @@ use xp\web\Source;
 class Standalone extends Server {
   private $impl;
 
-  static function __static() {
-    if (defined('SOMAXCONN')) return;
-
-    // Discover SOMAXCONN depending on platform, using 128 as fallback
-    // See https://stackoverflow.com/q/1198564
-    if (0 === strncasecmp(PHP_OS, 'Win', 3)) {
-      $value= 0x7fffffff;
-    } else if (file_exists('/proc/sys/net/core/somaxconn')) {
-      $value= (int)file_get_contents('/proc/sys/net/core/somaxconn');
-    } else if (file_exists('/etc/sysctl.conf')) {
-      $value= 128;
-      foreach (file('/etc/sysctl.conf') as $line) {
-        if (0 === strncmp($line, 'kern.ipc.somaxconn=', 19)) {
-          $value= (int)substr($line, 19);
-          break;
-        }
-      }
-    } else {
-      $value= 128;
-    }
-    define('SOMAXCONN', $value);
-  }
-
   /**
    * Creates a new instance
    *
@@ -60,7 +37,10 @@ class Standalone extends Server {
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
-    $this->impl->listen($socket, HttpProtocol::executing($application, $environment->logging()));
+    $this->impl->listen($socket, Protocol::multiplex()
+      ->serving('http', new HttpProtocol($application, $environment->logging()))
+      ->serving('websocket', new WebSocketProtocol(null, $environment->logging()))
+    );
     $this->impl->init();
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");
@@ -78,6 +58,5 @@ class Standalone extends Server {
     );
 
     $this->impl->service();
-    $this->impl->shutdown();
   }
 }

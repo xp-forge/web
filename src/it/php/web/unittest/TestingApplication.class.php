@@ -1,7 +1,9 @@
 <?php namespace web\unittest;
 
+use Throwable;
 use lang\XPClass;
-use test\Assert;
+use util\Bytes;
+use web\handler\WebSocket;
 use web\{Application, Error};
 
 class TestingApplication extends Application {
@@ -9,6 +11,13 @@ class TestingApplication extends Application {
   /** @return var */
   public function routes() {
     return [
+      '/ws' => new WebSocket(function($conn, $payload) {
+        if ($payload instanceof Bytes) {
+          $conn->send(new Bytes("\057\013{$payload}"));
+        } else {
+          $conn->send('Echo: '.$payload);
+        }
+      }),
       '/status/420' => function($req, $res) {
         $res->answer(420, $req->param('message') ?? 'Enhance your calm');
         $res->send('Answered with status 420', 'text/plain');
@@ -20,7 +29,7 @@ class TestingApplication extends Application {
       },
       '/raise/exception' => function($req, $res) {
         $class= XPClass::forName(basename($req->uri()->path()));
-        if ($class->isSubclassOf(\Throwable::class)) throw $class->newInstance('Raised');
+        if ($class->isSubclassOf(Throwable::class)) throw $class->newInstance('Raised');
 
         // A non-exception class was passed!
         $res->answer(200, 'No error');
