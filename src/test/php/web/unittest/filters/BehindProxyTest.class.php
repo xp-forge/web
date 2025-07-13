@@ -9,8 +9,21 @@ use web\{Request, Response};
 class BehindProxyTest {
 
   #[Test]
-  public function can_create() {
+  public function can_create_with_mapping() {
     new BehindProxy(['http://remote' => '/']);
+  }
+
+  #[Test]
+  public function can_create_with_remote_and_local() {
+    new BehindProxy('http://remote', '/');
+  }
+
+  #[Test]
+  public function mapping_and_remote_and_local_equal() {
+    Assert::equals(
+      new BehindProxy(['http://remote' => '/']),
+      new BehindProxy('http://remote', '/')
+    );
   }
 
   #[Test, Expect(IllegalArgumentException::class), Values([[[]], [[1]], [[1, 2, 3]]])]

@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Extended `web.filters.BehindProxy` to also accept separate arguments
+  for remote URL and local path
+  (@thekid)
 * Merged PR #126: Verify websocket origin, which is an effective measure
   against Cross Site WebSocket Hijacking
   (@thekid)
