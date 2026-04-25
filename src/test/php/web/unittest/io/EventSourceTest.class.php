@@ -10,12 +10,12 @@ class EventSourceTest {
   private function inputs() {
     yield [[], []];
     yield [[''], []];
-    yield [['data: One'], [[null => 'One']]];
-    yield [['', 'data: One'], [[null => 'One']]];
-    yield [['data: One', ''], [[null => 'One']]];
-    yield [['data: One', '', 'data: Two'], [[null => 'One'], [null => 'Two']]];
+    yield [['data: One'], [['' => 'One']]];
+    yield [['', 'data: One'], [['' => 'One']]];
+    yield [['data: One', ''], [['' => 'One']]];
+    yield [['data: One', '', 'data: Two'], [['' => 'One'], ['' => 'Two']]];
     yield [['event: test', 'data: One'], [['test' => 'One']]];
-    yield [['event: test', 'data: One', '', 'data: Two'], [['test' => 'One'], [null => 'Two']]];
+    yield [['event: test', 'data: One', '', 'data: Two'], [['test' => 'One'], ['' => 'Two']]];
     yield [['event: one', 'data: 1', '', 'event: two', 'data: 2'], [['one' => '1'], ['two' => '2']]];
   }
 
@@ -29,7 +29,7 @@ class EventSourceTest {
     $events= new EventSource(new MemoryInputStream(implode("\n", $lines)));
     $actual= [];
     foreach ($events as $type => $event) {
-      $actual[]= [$type => $event];
+      $actual[]= [(string)$type => $event];
     }
     Assert::equals($expected, $actual);
   }
