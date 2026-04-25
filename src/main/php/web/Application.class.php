@@ -42,9 +42,10 @@ abstract class Application implements Value {
    * Initializes this application, being run once when the server starts.
    * Empty in this default implementation, overwrite in subclasses.
    *
+   * @param  peer.server.ServerImplementation $impl
    * @return void
    */
-  public function initialize() {
+  public function initialize($impl) {
     // Empty
   }
 

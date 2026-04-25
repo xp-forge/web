@@ -1,7 +1,7 @@
 <?php namespace xp\web;
 
 use lang\{Enum, IllegalArgumentException};
-use peer\server\{AsyncServer, PreforkingServer};
+use peer\server\{AsynchronousServer, ForkedServer};
 use xp\web\srv\{Standalone, Develop};
 
 /** @test web.unittest.server.ServersTest */
@@ -12,15 +12,13 @@ abstract class Servers extends Enum {
     self::$ASYNC= new class(0, 'ASYNC') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Standalone($address, new AsyncServer());
+        return new Standalone($address, new AsynchronousServer());
       }
     };
     self::$PREFORK= new class(1, 'PREFORK') extends Servers {
       static function __static() { }
       public function newInstance($address, $arguments= []) {
-        return new Standalone($address, new PreforkingServer(
-          null,
-          null,
+        return new Standalone($address, new ForkedServer(
           self::argument($arguments, 'children') ?? $arguments[0] ?? 10
         ));
       }
