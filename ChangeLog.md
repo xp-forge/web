@@ -28,10 +28,14 @@ Web change log
   (@thekid)
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
   (@thekid)
-* Added PHP 8.5 and 8.6 to test matrix - @thekid
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
   (@thekid)
+
+## 4.7.0 / 2026-04-25
+
+* Made compatible with `xp-framework/networking` version 11.0 - @thekid
+* Added PHP 8.5 and 8.6 to the test matrix - @thekid
 
 ## 4.6.0 / 2025-04-13
 
