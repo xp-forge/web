@@ -24,10 +24,10 @@ class BehindProxy implements Filter {
    * ```
    *
    * @param  [:string]|string $mapping
-   * @param  ?string $target
+   * @param  string $target
    * @throws lang.IllegalArgumentException
    */
-  public function __construct($mapping, $target= null) {
+  public function __construct($mapping, $target= '/') {
     if (is_array($mapping)) {
       if (1 !== sizeof($mapping)) {
         throw new IllegalArgumentException('Expected a map in the form ["http://remote.url/" => "/local.path"]');

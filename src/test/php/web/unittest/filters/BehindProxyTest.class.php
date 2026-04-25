@@ -37,6 +37,15 @@ class BehindProxyTest {
   }
 
   #[Test, Values(['/', '/path', '/path/', '/path/index.html'])]
+  public function rewrite_subdomain($path) {
+    $request= new Request(new TestInput('GET', $path));
+    $fixture= new BehindProxy('https://service.example.com/');
+    $fixture->filter($request, new Response(new TestOutput()), new Invocation(function($req, $res) { }));
+
+    Assert::equals('https://service.example.com'.$path, (string)$request->uri());
+  }
+
+  #[Test, Values(['/', '/path', '/path/', '/path/index.html'])]
   public function rewrite_subdomain_to_base($path) {
     $request= new Request(new TestInput('GET', $path));
     $fixture= new BehindProxy(['https://service.example.com/' => '/']);

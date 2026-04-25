@@ -9,7 +9,7 @@ Web change log
   constraint on `xp-framework/networking`
   (@thekid)
 * Extended `web.filters.BehindProxy` to also accept separate arguments
-  for remote URL and local path
+  for remote URL and local path, defaulting the latter to `/`.
   (@thekid)
 * Merged PR #126: Verify websocket origin, which is an effective measure
   against Cross Site WebSocket Hijacking
