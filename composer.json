@@ -7,7 +7,7 @@
   "keywords": ["module", "xp"],
   "require" : {
     "xp-framework/core": "^12.0 | ^11.0 | ^10.0",
-    "xp-framework/networking": "^10.1",
+    "xp-framework/networking": "^11.0",
     "xp-forge/uri": "^3.1",
     "xp-forge/websockets": "^4.1",
     "php": ">=7.4.0"

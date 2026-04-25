@@ -33,7 +33,7 @@ class Standalone extends Server {
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
-    $application->initialize();
+    $application->initialize($this->impl);
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
@@ -41,6 +41,7 @@ class Standalone extends Server {
       ->serving('http', new HttpProtocol($application, $environment->logging()))
       ->serving('websocket', new WebSocketProtocol(null, $environment->logging()))
     );
+    // DEBUG $this->impl->setTrace(\util\log\Logging::all()->toConsole());
 
     Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");
     Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
@@ -56,6 +57,11 @@ class Standalone extends Server {
       getmypid()
     );
 
-    $this->impl->service();
+    $this->connect(getenv('XP_SIGNAL'), $this->impl);
+    try {
+      $this->impl->service();
+    } finally {
+      Console::writeLine('[.]');
+    }
   }
 }

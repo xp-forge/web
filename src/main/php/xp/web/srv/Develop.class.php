@@ -1,8 +1,8 @@
 <?php namespace xp\web\srv;
 
 use lang\ClassLoader;
-use peer\server\AsyncServer;
-use peer\{Socket, ServerSocket, SocketTimeoutException};
+use peer\server\AsynchronousServer;
+use peer\{ServerSocket, SocketTimeoutException};
 use util\cmd\Console;
 use web\{Application, Environment, Logging};
 use xp\web\Source;
@@ -33,9 +33,10 @@ class Develop extends Server {
    * @param  string[] $logging
    */
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
+    $impl= new AsynchronousServer();
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
-    $application->initialize();
+    $application->initialize($impl);
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
@@ -72,31 +73,13 @@ class Develop extends Server {
     );
 
     // Start the multiplex protocol in the foreground and forward requests
-    $impl= new AsyncServer();
     $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
       ->serving('http', new ForwardRequests($backends))
       ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backends)))
     );
 
-    // Inside `xp -supervise`, connect to signalling socket. Unfortunately, there
-    // is no way to signal "no timeout", so set a pretty high timeout of one year,
-    // then catch and handle it by continuing to check for reads.
-    if ($port= getenv('XP_SIGNAL')) {
-      $signal= new Socket('127.0.0.1', $port);
-      $signal->setTimeout(31536000);
-      $signal->connect();
-      $impl->select($signal, function() use($impl) {
-        try {
-          next: yield 'read' => null;
-        } catch (SocketTimeoutException $e) {
-          goto next;
-        }
-        $impl->shutdown();
-      });
-    }
-
+    $this->connect(getenv('XP_SIGNAL'), $impl);
     try {
-      $impl->init();
       $impl->service();
     } finally {
       Console::write('[');
