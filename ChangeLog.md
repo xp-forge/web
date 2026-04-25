@@ -3,6 +3,11 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.7.0 / 2026-04-25
+
+* Made compatible with `xp-framework/networking` version 11.0 - @thekid
+* Added PHP 8.5 and 8.6 to the test matrix - @thekid
+
 ## 4.6.0 / 2025-04-13
 
 * QA: Cleaned up code base by standardizing `@see` and `@test` apidoc tags
