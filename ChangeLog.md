@@ -5,6 +5,9 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #129: Migrate to new server implementation; upgrading version
+  constraint on `xp-framework/networking`
+  (@thekid)
 * Extended `web.filters.BehindProxy` to also accept separate arguments
   for remote URL and local path
   (@thekid)
