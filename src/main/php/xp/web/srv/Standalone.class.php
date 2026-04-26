@@ -6,7 +6,7 @@ use web\Environment;
 use xp\web\Source;
 
 class Standalone extends Server {
-  private $impl;
+  private $kernel;
 
   /**
    * Creates a new instance
@@ -16,7 +16,7 @@ class Standalone extends Server {
    */
   public function __construct($address, $impl) {
     parent::__construct($address);
-    $this->impl= $impl;
+    $this->kernel= new Kernel($impl);
   }
 
   /**
@@ -33,17 +33,17 @@ class Standalone extends Server {
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
-    $application->initialize($this->impl);
+    $application->initialize($this->kernel);
     $application->routing();
 
     $socket= new ServerSocket($this->host, $this->port);
-    $this->impl->listen($socket, Protocol::multiplex()
+    $this->kernel
       ->serving('http', new HttpProtocol($application, $environment->logging()))
       ->serving('websocket', new WebSocketProtocol(null, $environment->logging()))
-    );
+    ;
     // DEBUG $this->impl->setTrace(\util\log\Logging::all()->toConsole());
 
-    Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', $socket->toString(), ")\e[0m");
+    Console::writeLine("\e[33m@", nameof($this), '(HTTP @ ', nameof($this->kernel->server), ")\e[0m");
     Console::writeLine("\e[1mServing {$profile}:", $application, $config, "\e[0m > ", $environment->logging()->target());
     Console::writeLine("\e[36m", str_repeat('═', 72), "\e[0m");
 
@@ -57,9 +57,9 @@ class Standalone extends Server {
       getmypid()
     );
 
-    $this->connect(getenv('XP_SIGNAL'), $this->impl);
+    $this->connect(getenv('XP_SIGNAL'), $this->kernel->server);
     try {
-      $this->impl->service();
+      $this->kernel->serve(new ServerSocket($this->host, $this->port));
     } finally {
       Console::writeLine('[.]');
     }

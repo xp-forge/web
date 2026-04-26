@@ -1,22 +1,31 @@
 <?php namespace xp\web\srv;
 
 use Generator;
-use peer\server\{AsyncServer, ServerProtocol};
+use peer\ServerSocket;
+use peer\server\{ServerImplementation, ServerProtocol};
+use util\NoSuchElementException;
 
-/** Multiplex protocol */
-class Protocol implements ServerProtocol {
+/** @test web.unittest.server.KernelTest */
+class Kernel implements ServerProtocol {
   private $protocols= [];
-  public $server= null;
+  public $server;
 
-  /** Creates a new instance of this multiplex protocol */
-  public static function multiplex(): self {
-    return new self();
+  /** Creates new kernel */
+  public function __construct(ServerImplementation $server) {
+    $this->server= $server;
   }
 
   /** Serves a given protocol */
   public function serving(string $protocol, Switchable $delegate): self {
     $this->protocols[$protocol]= $delegate;
     return $this;
+  }
+
+  /** Returns the protocol by its name */
+  public function protocol(string $protocol): ServerProtocol {
+    if ($instance= ($this->protocols[$protocol] ?? null)) return $instance;
+
+    throw new NoSuchElementException('No protocol named '.$protocol);
   }
 
   /**
@@ -92,5 +101,11 @@ class Protocol implements ServerProtocol {
       unset($this->protocols[$handle]);
     }
     $socket->close();
+  }
+
+  /** Listens on a given server socket */
+  public function serve(ServerSocket $socket) {
+    $this->server->listen($socket, $this);
+    $this->server->service();
   }
 }

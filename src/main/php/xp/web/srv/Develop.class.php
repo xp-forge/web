@@ -33,10 +33,10 @@ class Develop extends Server {
    * @param  string[] $logging
    */
   public function serve($source, $profile, $webroot, $docroot, $config, $args, $logging) {
-    $impl= new AsynchronousServer();
+    $kernel= new Kernel(new AsynchronousServer());
     $environment= new Environment($profile, $webroot, $docroot, $config, $args, $logging);
     $application= (new Source($source, $environment))->application($args);
-    $application->initialize($impl);
+    $application->initialize($kernel);
 
     // PHP doesn't start with a nonexistant document root
     if (!$docroot->exists()) {
@@ -73,14 +73,14 @@ class Develop extends Server {
     );
 
     // Start the multiplex protocol in the foreground and forward requests
-    $impl->listen(new ServerSocket($this->host, $this->port), Protocol::multiplex()
+    $kernel
       ->serving('http', new ForwardRequests($backends))
       ->serving('websocket', new WebSocketProtocol(new ForwardMessages($backends)))
-    );
+    ;
 
-    $this->connect(getenv('XP_SIGNAL'), $impl);
+    $this->connect(getenv('XP_SIGNAL'), $kernel->server);
     try {
-      $impl->service();
+      $kernel->serve(new ServerSocket($this->host, $this->port));
     } finally {
       Console::write('[');
       foreach ($backends as $backend) {

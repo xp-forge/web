@@ -42,10 +42,10 @@ abstract class Application implements Value {
    * Initializes this application, being run once when the server starts.
    * Empty in this default implementation, overwrite in subclasses.
    *
-   * @param  peer.server.ServerImplementation $impl
+   * @param  xp.web.srv.Kernel $kernel
    * @return void
    */
-  public function initialize($impl) {
+  public function initialize($kernel) {
     // Empty
   }
 
