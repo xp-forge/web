@@ -36,7 +36,6 @@ class Standalone extends Server {
     $application->initialize($this->kernel);
     $application->routing();
 
-    $socket= new ServerSocket($this->host, $this->port);
     $this->kernel
       ->serving('http', new HttpProtocol($application, $environment->logging()))
       ->serving('websocket', new WebSocketProtocol(null, $environment->logging()))
