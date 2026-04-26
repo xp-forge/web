@@ -25,7 +25,7 @@ class ForwardMessages extends Listener {
    * @return var
    */
   public function message($conn, $message) {
-    $request= "POST {$conn->path()} HTTP/1.1\r\n";
+    $request= 'POST '.$conn->path().'?'.http_build_query($conn->params())." HTTP/1.1\r\n";
     $headers= [
       'Sec-WebSocket-Version' => 9,
       'Sec-WebSocket-Id'      => $conn->id(),

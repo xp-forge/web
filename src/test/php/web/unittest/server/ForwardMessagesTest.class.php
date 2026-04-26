@@ -28,7 +28,7 @@ class ForwardMessagesTest {
   #[Test, Values(["d\r\ndata: Tested\n\r\n0\r\n\r\n", "19\r\nevent: text\ndata: Tested\n\r\n0\r\n\r\n"])]
   public function text($payload) {
     $request= $this->message(
-      'POST /ws HTTP/1.1',
+      'POST /ws? HTTP/1.1',
       'Sec-WebSocket-Version: 9',
       'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
@@ -56,7 +56,7 @@ class ForwardMessagesTest {
   #[Test]
   public function binary() {
     $request= $this->message(
-      'POST /ws HTTP/1.1',
+      'POST /ws? HTTP/1.1',
       'Sec-WebSocket-Version: 9',
       'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: application/octet-stream',
@@ -84,7 +84,7 @@ class ForwardMessagesTest {
   #[Test]
   public function close() {
     $request= $this->message(
-      'POST /ws HTTP/1.1',
+      'POST /ws? HTTP/1.1',
       'Sec-WebSocket-Version: 9',
       'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: application/octet-stream',
@@ -112,7 +112,7 @@ class ForwardMessagesTest {
   #[Test]
   public function unexpected_type() {
     $request= $this->message(
-      'POST /ws HTTP/1.1',
+      'POST /ws? HTTP/1.1',
       'Sec-WebSocket-Version: 9',
       'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
@@ -140,7 +140,7 @@ class ForwardMessagesTest {
   #[Test]
   public function backend_error() {
     $request= $this->message(
-      'POST /ws HTTP/1.1',
+      'POST /ws? HTTP/1.1',
       'Sec-WebSocket-Version: 9',
       'Sec-WebSocket-Id: '.self::WSID,
       'Content-Type: text/plain',
