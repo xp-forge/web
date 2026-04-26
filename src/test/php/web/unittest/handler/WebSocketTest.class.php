@@ -120,7 +120,7 @@ class WebSocketTest {
     ], 'Test')));
     Assert::equals(200, $response->status());
     Assert::equals('text/event-stream', $response->headers()['Content-Type']);
-    Assert::matches('/10\r\ndata: Re: Test\n/', $response->output()->bytes());
+    Assert::matches('/[0-9a-f]+\r\ndata: Re: Test\n/', $response->output()->bytes());
   }
 
   #[Test]
@@ -134,7 +134,7 @@ class WebSocketTest {
     ], "\x47\x11")));
     Assert::equals(200, $response->status());
     Assert::equals('text/event-stream', $response->headers()['Content-Type']);
-    Assert::matches('/19\r\nevent: bytes\ndata: .{4}\n/', $response->output()->bytes());
+    Assert::matches('/[0-9a-f]+\r\nevent: bytes\ndata: .{4}\n/', $response->output()->bytes());
   }
 
   #[Test]

@@ -105,6 +105,7 @@ class WebSocket implements Handler {
         foreach ($events->receive() as $message) {
           $this->listener->message($events, $message);
         }
+        $events->flush();
         return;
 
       case 0:

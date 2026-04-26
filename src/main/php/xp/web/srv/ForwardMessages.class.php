@@ -58,6 +58,7 @@ class ForwardMessages extends Listener {
         switch ($event) {
           case 'text': case null: $conn->send($value); break;
           case 'bytes': $conn->send(new Bytes($value)); break;
+          case 'flush': break;
           case 'close': {
             sscanf($value, "%d:%[^\r]", $code, $reason);
             $conn->answer(Opcodes::CLOSE, pack('na*', $code, $reason));

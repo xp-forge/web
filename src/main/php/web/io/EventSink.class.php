@@ -49,6 +49,15 @@ class EventSink extends Connection {
   }
 
   /**
+   * Flushes the websocket connection
+   *
+   * @return void
+   */
+  public function flush() {
+    $this->out->write("event: flush\n\n");
+  }
+
+  /**
    * Closes the websocket connection
    *
    * @param  int $code
