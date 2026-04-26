@@ -2,10 +2,10 @@
 
 use lang\Throwable;
 use peer\ServerSocket;
-use peer\server\AsyncServer;
+use peer\server\AsynchronousServer;
 use util\cmd\Console;
 use web\{Environment, Logging};
-use xp\web\srv\{Protocol, HttpProtocol, WebSocketProtocol};
+use xp\web\srv\{Kernel, HttpProtocol, WebSocketProtocol};
 
 /**
  * Socket server used by integration tests. 
@@ -21,20 +21,20 @@ class TestingServer {
 
   /** Starts the server */
   public static function main(array $args) {
-    $application= new TestingApplication(new Environment('test', '.', '.', '.', [], null));
-    $socket= new ServerSocket('127.0.0.1', $args[0] ?? 0);
     $log= new Logging(null);
+    $kernel= new Kernel(new AsynchronousServer());
+    $application= new TestingApplication(new Environment('test', '.', '.', '.', [], null));
+    $application->initialize($kernel
+      ->serving('http', new HttpProtocol($application, $log))
+      ->serving('websocket', new WebSocketProtocol(null, $log))
+    );
 
-    $s= new AsyncServer();
+    $socket= new ServerSocket('127.0.0.1', $args[0] ?? 0);
     try {
-      $s->listen($socket, Protocol::multiplex()
-        ->serving('http', new HttpProtocol($application, $log))
-        ->serving('websocket', new WebSocketProtocol(null, $log))
-      );
-      $s->init();
+      $kernel->server->listen($socket, $kernel);
       Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
-      $s->service();
-      $s->shutdown();
+
+      $kernel->server->service();
     } catch (Throwable $e) {
       Console::writeLine('- ', $e->getMessage());
     }
