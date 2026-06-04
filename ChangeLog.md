@@ -33,6 +33,10 @@ Web change log
   (@thekid)
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
+
+
+* Fixed `Request::rewrite()` discarding any `form-urlencoded` parameters
+  present in the request.
   (@thekid)
 
 ## 4.7.0 / 2026-04-25

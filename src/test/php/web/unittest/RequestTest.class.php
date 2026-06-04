@@ -85,6 +85,15 @@ class RequestTest {
     Assert::equals($expected, $req->rewrite($uri)->params());
   }
 
+  #[Test, Values([['', ['a' => ['QUERY']]], ['a[]=FORM&c=d', ['a' => ['QUERY', 'FORM'], 'c' => 'd']]])]
+  public function form_parameters_merged_when_rewriting($body, $expected) {
+    $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => strlen($body)];
+    $req= new Request(new TestInput('GET', '/?a=b&c=d', $headers, $body));
+    $req->params(); // Ensure params are passed from the query string
+
+    Assert::equals($expected, $req->rewrite('/?a[]=QUERY')->params());
+  }
+
   #[Test]
   public function uri_respects_host_header() {
     Assert::equals(
