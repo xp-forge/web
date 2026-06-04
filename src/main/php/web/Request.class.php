@@ -2,6 +2,7 @@
 
 use io\streams\{MemoryInputStream, Streams};
 use lang\Value;
+use util\uri\Parameters;
 use util\{Objects, URI};
 use web\io\Input;
 
@@ -64,10 +65,19 @@ class Request implements Value {
    * Rewrite request URI
    *
    * @param  string|util.URI $uri
+   * @param  [:mixed] $params
    * @return self
    */
-  public function rewrite($uri) {
-    $this->uri= $this->uri->resolve($uri instanceof URI ? $uri : new URI($uri));
+  public function rewrite($uri, $params= []) {
+    $resolved= $this->uri->resolve($uri instanceof URI ? $uri : new URI($uri));
+
+    // http_build_query() returns ['a' => [1, 2]] as `a[0]=1&a[1]=2`, but we want
+    // it as `a[]=1&a=2` for it to merge with `a[]=...` supplied via query string.
+    $this->uri= empty($params) ? $resolved : $resolved
+      ->using()
+      ->query($resolved->query().'&'.Parameters::encode($params), false)
+      ->create()
+    ;
     $this->params= null; // Force re-evaluation
     return $this;
   }

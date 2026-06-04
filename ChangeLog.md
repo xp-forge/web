@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.8.0 / 2026-06-04
+
+* Made it possible to optionally pass parameters when rewriting requests
+  (@thekid)
 * Fixed `Request::rewrite()` discarding any `form-urlencoded` parameters
   present in the request.
   (@thekid)

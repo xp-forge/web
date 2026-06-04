@@ -85,6 +85,14 @@ class RequestTest {
     Assert::equals($expected, $req->rewrite($uri)->params());
   }
 
+  #[Test, Values([[[], ['a' => ['QUERY']]], [['a' => ['ARG']], ['a' => ['QUERY', 'ARG']]]])]
+  public function parameters_merged_rewriting($params, $expected) {
+    $req= new Request(new TestInput('GET', '/?a=b&c=d'));
+    $req->params(); // Ensure params are passed from the query string
+
+    Assert::equals($expected, $req->rewrite('/?a[]=QUERY', $params)->params());
+  }
+
   #[Test, Values([['', ['a' => ['QUERY']]], ['a[]=FORM&c=d', ['a' => ['QUERY', 'FORM'], 'c' => 'd']]])]
   public function form_parameters_merged_when_rewriting($body, $expected) {
     $headers= ['Content-Type' => 'application/x-www-form-urlencoded', 'Content-Length' => strlen($body)];
