@@ -34,7 +34,10 @@ Web change log
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
 
+## 4.8.0 / 2026-06-04
 
+* Made it possible to optionally pass parameters when rewriting requests
+  (@thekid)
 * Fixed `Request::rewrite()` discarding any `form-urlencoded` parameters
   present in the request.
   (@thekid)
