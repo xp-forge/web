@@ -3,6 +3,10 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+* Fixed `Request::rewrite()` discarding any `form-urlencoded` parameters
+  present in the request.
+  (@thekid)
+
 ## 4.7.0 / 2026-04-25
 
 * Made compatible with `xp-framework/networking` version 11.0 - @thekid

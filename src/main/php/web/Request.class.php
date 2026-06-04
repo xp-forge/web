@@ -6,13 +6,13 @@ use util\{Objects, URI};
 use web\io\Input;
 
 class Request implements Value {
-  private $stream= null;
   private $multipart= null;
   private $lookup= [];
   private $headers= [];
   private $values= [];
   private $encoding= null;
   private $params= null;
+  private $form= null;
   private $cookies= null;
   private $session= null;
   private $method, $uri, $input;
@@ -124,7 +124,7 @@ class Request implements Value {
 
   /** @return ?io.streams.InputStream */
   public function stream() {
-    return $this->stream ?? $this->stream= $this->input->incoming();
+    return null === $this->form ? $this->input->incoming() : new MemoryInputStream($this->form);
   }
 
   /**
@@ -140,11 +140,13 @@ class Request implements Value {
     // Merge parameters from URL and urlencoded payload.
     $query= $this->uri->query(false) ?? '';
     $type= Headers::parameterized()->parse($this->header('Content-Type', ''));
-    if ('application/x-www-form-urlencoded' === $type->value() && $stream= $this->input->incoming()) {
-      $data= Streams::readAll($stream);
-      $this->stream= new MemoryInputStream($data);
-      $query.= '&'.$data;
+    if (null === $this->form) {
+      if ('application/x-www-form-urlencoded' === $type->value() && $stream= $this->input->incoming()) {
+        $this->form= Streams::readAll($stream);
+      }
     }
+
+    $query.= '&'.$this->form;
     parse_str($query, $this->params);
 
     // Read multipart bodies up until the first non-parameter part
@@ -315,16 +317,13 @@ class Request implements Value {
    * @return int
    */
   public function consume() {
-    $stream= $this->stream();
-    if (null === $this->stream) {
-      return -1;
-    } else {
-      $r= 0;
-      while ($stream->available()) {
-        $r+= strlen($stream->read());
-      }
-      return $r;
+    if (null !== $this->form || null === ($stream= $this->input->incoming())) return -1;
+
+    $r= 0;
+    while ($stream->available()) {
+      $r+= strlen($stream->read());
     }
+    return $r;
   }
 
   /** @return string */
