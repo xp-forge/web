@@ -41,14 +41,14 @@ class Origins {
       $this->ports= [];
       foreach (is_array($ports) ? $ports : [$ports] as $arg) {
         if (null === $arg) {
-          $this->ports[]= function($port) { return null === $port; };
+          $this->ports[]= fn($port) => null === $port;
         } else if ('*' === $arg) {
-          $this->ports[]= function($port) { return true; };
+          $this->ports[]= fn($port) => true;
         } else if (is_numeric($arg)) {
           $cmp= (int)$arg;
-          $this->ports[]= function($port) use($cmp) { return $cmp === $port; };
+          $this->ports[]= fn($port) => $cmp === $port;
         } else if (is_string($arg) && 2 === sscanf($arg, '%d..%d', $lo, $hi)) {
-          $this->ports[]= function($port) use($lo, $hi) { return $port >= $lo && $port <= $hi; };
+          $this->ports[]= fn($port) => $port >= $lo && $port <= $hi;
         } else {
           throw new IllegalArgumentException('Unexpected '.Objects::stringOf($arg));
         }
