@@ -24,7 +24,7 @@ class CORSTest {
   }
 
   /** Values for preflight test */
-  private function preflights(): iterable {
+  private function preflights() {
     yield [$this->fixture(), []];
     yield [$this->fixture()->origins(function($origin) { return self::ORIGIN === $origin ? $origin : null; }), []];
     yield [$this->fixture()->origins('*'), ['Access-Control-Allow-Origin' => '*']];
@@ -58,7 +58,7 @@ class CORSTest {
   }
 
   /** Values for request test */
-  private function requests(): iterable {
+  private function requests() {
     yield [$this->fixture(), []];
 
     // Only included in preflight
@@ -72,7 +72,7 @@ class CORSTest {
   }
 
   /** Values for allowing_origin_with_any_4_digit_port */
-  private function origins(): iterable {
+  private function origins() {
     yield [self::ORIGIN, true];
     yield [self::ORIGIN.':3000', true];
 
