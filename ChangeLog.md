@@ -34,6 +34,12 @@ Web change log
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
 
+## 4.9.0 / 2026-06-07
+
+* Merged PR #131: Implement `web.filters.CORS` (feature requested in #128),
+  see https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
+  (@thekid)
+
 ## 4.8.0 / 2026-06-04
 
 * Made it possible to optionally pass parameters when rewriting requests
