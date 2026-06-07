@@ -26,7 +26,7 @@ class CORSTest {
   /** Values for preflight test */
   private function preflights(): iterable {
     yield [$this->fixture(), []];
-    yield [$this->fixture()->origins(fn($origin) => self::ORIGIN === $origin ? $origin : null), []];
+    yield [$this->fixture()->origins(function($origin) { return self::ORIGIN === $origin ? $origin : null; }), []];
     yield [$this->fixture()->origins('*'), ['Access-Control-Allow-Origin' => '*']];
 
     // Methods
