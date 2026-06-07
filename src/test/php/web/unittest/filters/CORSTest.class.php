@@ -18,54 +18,57 @@ class CORSTest {
     return $res;
   }
 
+  /** Returns fixture with the origin set */
+  private function fixture(): CORS {
+    return (new CORS())->origins(self::ORIGIN);
+  }
+
   /** Values for preflight test */
   private function preflights(): iterable {
-    $cors= (new CORS())->origins(self::ORIGIN);
-    yield [$cors, []];
-    yield [(clone $cors)->origins(fn($origin) => self::ORIGIN === $origin ? $origin : null), []];
-    yield [(clone $cors)->origins('*'), ['Access-Control-Allow-Origin' => '*']];
+    yield [$this->fixture(), []];
+    yield [$this->fixture()->origins(fn($origin) => self::ORIGIN === $origin ? $origin : null), []];
+    yield [$this->fixture()->origins('*'), ['Access-Control-Allow-Origin' => '*']];
 
     // Methods
-    yield [(clone $cors)->methods(null), []];
-    yield [(clone $cors)->methods([]), []];
-    yield [(clone $cors)->methods('GET, POST'), ['Access-Control-Allow-Methods'  => 'GET, POST']];
-    yield [(clone $cors)->methods(['GET', 'POST']), ['Access-Control-Allow-Methods'  => 'GET, POST']];
+    yield [$this->fixture()->methods(null), []];
+    yield [$this->fixture()->methods([]), []];
+    yield [$this->fixture()->methods('GET, POST'), ['Access-Control-Allow-Methods'  => 'GET, POST']];
+    yield [$this->fixture()->methods(['GET', 'POST']), ['Access-Control-Allow-Methods'  => 'GET, POST']];
 
     // Headers
-    yield [(clone $cors)->headers(null), []];
-    yield [(clone $cors)->headers([]), []];
-    yield [(clone $cors)->headers('X-Input'), ['Access-Control-Allow-Headers'  => 'X-Input']];
-    yield [(clone $cors)->headers(['X-Input']), ['Access-Control-Allow-Headers'  => 'X-Input']];
+    yield [$this->fixture()->headers(null), []];
+    yield [$this->fixture()->headers([]), []];
+    yield [$this->fixture()->headers('X-Input'), ['Access-Control-Allow-Headers'  => 'X-Input']];
+    yield [$this->fixture()->headers(['X-Input']), ['Access-Control-Allow-Headers'  => 'X-Input']];
 
     // Age
-    yield [(clone $cors)->maxAge(null), []];
-    yield [(clone $cors)->maxAge(0), []];
-    yield [(clone $cors)->maxAge(86400), ['Access-Control-Max-Age'  => '86400']];
+    yield [$this->fixture()->maxAge(null), []];
+    yield [$this->fixture()->maxAge(0), []];
+    yield [$this->fixture()->maxAge(86400), ['Access-Control-Max-Age'  => '86400']];
 
     // Expose
-    yield [(clone $cors)->expose(null), []];
-    yield [(clone $cors)->expose([]), []];
-    yield [(clone $cors)->expose('X-Output'), ['Access-Control-Expose-Headers'  => 'X-Output']];
-    yield [(clone $cors)->expose(['X-Output']), ['Access-Control-Expose-Headers'  => 'X-Output']];
+    yield [$this->fixture()->expose(null), []];
+    yield [$this->fixture()->expose([]), []];
+    yield [$this->fixture()->expose('X-Output'), ['Access-Control-Expose-Headers'  => 'X-Output']];
+    yield [$this->fixture()->expose(['X-Output']), ['Access-Control-Expose-Headers'  => 'X-Output']];
 
     // Credentials
-    yield [(clone $cors)->credentials(false), []];
-    yield [(clone $cors)->credentials(true), ['Access-Control-Allow-Credentials'  => 'true']];
+    yield [$this->fixture()->credentials(false), []];
+    yield [$this->fixture()->credentials(true), ['Access-Control-Allow-Credentials'  => 'true']];
   }
 
   /** Values for request test */
   private function requests(): iterable {
-    $cors= (new CORS())->origins(self::ORIGIN);
-    yield [$cors, []];
+    yield [$this->fixture(), []];
 
     // Only included in preflight
-    yield [(clone $cors)->methods(['GET', 'POST']), []];
-    yield [(clone $cors)->headers(['X-Input']), []];
-    yield [(clone $cors)->maxAge(86400), []];
+    yield [$this->fixture()->methods(['GET', 'POST']), []];
+    yield [$this->fixture()->headers(['X-Input']), []];
+    yield [$this->fixture()->maxAge(86400), []];
 
     // Included in all requests
-    yield [(clone $cors)->expose(['X-Output']), ['Access-Control-Expose-Headers'  => 'X-Output']];
-    yield [(clone $cors)->credentials(true), ['Access-Control-Allow-Credentials'  => 'true']];
+    yield [$this->fixture()->expose(['X-Output']), ['Access-Control-Expose-Headers'  => 'X-Output']];
+    yield [$this->fixture()->credentials(true), ['Access-Control-Allow-Credentials'  => 'true']];
   }
 
   /** Values for allowing_origin_with_any_4_digit_port */
