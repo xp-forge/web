@@ -1,6 +1,5 @@
 <?php namespace web\filters;
 
-use Closure;
 use web\Filter;
 
 /**
@@ -94,9 +93,9 @@ class CORS implements Filter {
     $origin= $request->header('Origin');
     if (null !== $origin) {
       $response->header('Vary', 'Origin');
-      $response->header('Access-Control-Allow-Origin', $this->origins instanceof Closure
-        ? ($this->origins)($origin)
-        : $this->origins
+      $response->header('Access-Control-Allow-Origin', is_string($this->origins ?? '')
+        ? $this->origins
+        : ($this->origins)($origin)
       );
 
       // All requests include expose-headers and credentials

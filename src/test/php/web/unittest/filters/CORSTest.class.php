@@ -1,7 +1,7 @@
 <?php namespace web\unittest\filters;
 
 use test\{Assert, Test, Values};
-use web\filters\{CORS, Invocation};
+use web\filters\{CORS, Origins, Invocation};
 use web\io\{TestInput, TestOutput};
 use web\{Filter, Request, Response};
 
@@ -123,10 +123,8 @@ class CORSTest {
   }
 
   #[Test, Values(from: 'origins')]
-  public function allowing_origin_with_any_4_digit_port($origin, $allow) {
-    $fixture= (new CORS())->origins(function($origin) {
-      return preg_match('/^'.preg_quote(self::ORIGIN, '/').'(:[0-9]{4})?$/', $origin) ? $origin : null;
-    });
+  public function allowing_origin_plain_or_with_port_3000($origin, $allow) {
+    $fixture= (new CORS())->origins((new Origins(self::ORIGIN))->ports([null, 3000]));
     $response= $this->filter($fixture, 'GET', '/', ['Origin' => $origin]);
 
     Assert::equals(200, $response->status());
