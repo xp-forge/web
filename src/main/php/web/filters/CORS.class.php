@@ -56,8 +56,10 @@ class CORS implements Filter {
   /**
    * Sets the `Access-Control-Max-Age` header, indicating how long the results of
    * a preflight request can be cached. Pass `null` to use the browser's default.
+   *
+   * @param  ?int
    */
-  public function maxAge(?int $seconds): self {
+  public function maxAge($seconds): self {
     $this->maxAge= $seconds;
     return $this;
   }
