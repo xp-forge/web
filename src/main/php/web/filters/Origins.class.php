@@ -25,7 +25,7 @@ class Origins {
   /**
    * Matches ports
    * 
-   * - `null`: Do not match ports
+   * - `null`: Directly match origins
    * - `'*'`: Match any port
    * - `80`: Match exactly port 80
    * - `[80, 443]`: Match ports 80 or 443
