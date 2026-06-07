@@ -83,7 +83,15 @@ class CORS implements Filter {
     $this->credentials= $flag;
     return $this;
   }
-  
+
+  /**
+   * Filter request
+   *
+   * @param  web.Request $request
+   * @param  web.Response $response
+   * @param  web.filters.Invocation $invocation
+   * @return var
+   */
   public function filter($request, $response, $invocation) {
     $origin= $request->header('Origin');
     if (null !== $origin) {
