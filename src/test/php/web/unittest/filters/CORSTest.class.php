@@ -20,7 +20,7 @@ class CORSTest {
 
   /** Values for preflight test */
   private function preflights(): iterable {
-    $cors= (new CORS()->origins(self::ORIGIN));
+    $cors= (new CORS())->origins(self::ORIGIN);
     yield [$cors, []];
     yield [(clone $cors)->origins(fn($origin) => self::ORIGIN === $origin ? $origin : null), []];
     yield [(clone $cors)->origins('*'), ['Access-Control-Allow-Origin' => '*']];
@@ -55,7 +55,7 @@ class CORSTest {
 
   /** Values for request test */
   private function requests(): iterable {
-    $cors= (new CORS()->origins(self::ORIGIN));
+    $cors= (new CORS())->origins(self::ORIGIN);
     yield [$cors, []];
 
     // Only included in preflight
@@ -114,7 +114,7 @@ class CORSTest {
 
     Assert::equals(200, $response->status());
     Assert::equals(
-      $expected + ['Vary' => 'Origin', 'Access-Control-Allow-Origin' => self::ORIGIN, ...self::RESPONSE],
+      $expected + ['Vary' => 'Origin', 'Access-Control-Allow-Origin' => self::ORIGIN] + self::RESPONSE,
       $response->headers()
     );
   }
@@ -128,7 +128,7 @@ class CORSTest {
 
     Assert::equals(200, $response->status());
     Assert::equals(
-      ($allow ? ['Access-Control-Allow-Origin' => $origin] : []) + ['Vary' => 'Origin', ...self::RESPONSE],
+      ($allow ? ['Access-Control-Allow-Origin' => $origin] : []) + ['Vary' => 'Origin'] + self::RESPONSE,
       $response->headers()
     );
   }
