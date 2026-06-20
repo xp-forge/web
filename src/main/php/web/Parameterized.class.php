@@ -62,6 +62,18 @@ class Parameterized {
     }
   }
 
+  /**
+   * Gets a parameter equivalent by its name, returning a default value
+   * if it's not present.
+   *
+   * @param  string $name
+   * @param  var $default
+   * @return var
+   */
+  public function equivalent($name, $default= null) {
+    return $this->params[$name] ?? $default;
+  }
+
   /** @return string */
   public function __toString() {
     $s= $this->value;

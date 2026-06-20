@@ -41,6 +41,7 @@ class HeadersTest {
     Assert::equals('attachment', $parameterized->value());
     Assert::equals(['filename*' => ['lang' => null, 'value' => 'über name.jpg']], $parameterized->params());
     Assert::equals('über name.jpg', $parameterized->param('filename'));
+    Assert::null($parameterized->equivalent('filename'));
   }
 
   #[Test]
@@ -50,6 +51,7 @@ class HeadersTest {
     Assert::equals('attachment', $parameterized->value());
     Assert::equals(['filename*' => ['lang' => 'en', 'value' => 'file name.jpg']], $parameterized->params());
     Assert::equals('file name.jpg', $parameterized->param('filename'));
+    Assert::null($parameterized->equivalent('filename'));
   }
 
   #[Test]
@@ -61,6 +63,7 @@ class HeadersTest {
       $parameterized->params()
     );
     Assert::equals('unicode.jpg', $parameterized->param('filename'));
+    Assert::equals('ascii.jpg', $parameterized->equivalent('filename'));
   }
 
   #[Test, Values(['5;url=http://www.w3.org/pub/WWW/People.html', '5; url=http://www.w3.org/pub/WWW/People.html',])]
