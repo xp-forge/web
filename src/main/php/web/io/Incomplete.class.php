@@ -1,6 +1,6 @@
 <?php namespace web\io;
 
-use io\OperationNotSupportedException;
+use io\NotSupported;
 use io\streams\InputStream;
 use web\io\Part;
 
@@ -42,9 +42,9 @@ class Incomplete extends Part implements InputStream {
   /** @return string */
   public function error() { return $this->error; }
 
-  /** @return io.IOException */
+  /** @return io.OperationFailed */
   private function notSupported() {
-    return new OperationNotSupportedException('Cannot read from incomplete part (error= '.$this->error.')');
+    return new NotSupported('Cannot read from incomplete part (error= '.$this->error.')');
   }
 
   /** @return string */
@@ -56,7 +56,7 @@ class Incomplete extends Part implements InputStream {
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return iterable
    * @throws lang.IllegalArgumentException if filename is invalid
-   * @throws io.IOException
+   * @throws io.OperationFailed
    */
   public function transmit($target) { throw $this->notSupported(); yield; }
 

@@ -1,7 +1,7 @@
 <?php namespace web\unittest\server;
 
 use io\streams\{MemoryInputStream, MemoryOutputStream, Streams};
-use io\{File, Files, Folder, IOException, Path, TempFile};
+use io\{File, Files, Folder, OperationFailed, Path, TempFile};
 use lang\{Environment, IllegalArgumentException};
 use test\{Assert, Expect, Test, Values};
 use web\io\Part;
@@ -117,11 +117,11 @@ class UploadTest {
     Assert::equals('Test', $out->bytes());
   }
 
-  #[Test, Expect(IOException::class)]
+  #[Test, Expect(OperationFailed::class)]
   public function exceptions_raised_while_storing() {
     $in= new MemoryInputStream('Test');
     $out= new class() extends MemoryOutputStream {
-      public function write($bytes) { throw new IOException('Disk full'); }
+      public function write($bytes) { throw new OperationFailed('Disk full'); }
     };
 
     $it= $this->newFixture(self::NAME, Streams::readableUri($in))->transmit($out);

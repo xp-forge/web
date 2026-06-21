@@ -65,7 +65,7 @@ class Upload extends Part implements InputStream {
    * @param  io.Path|io.Folder|io.streams.OutputStream|string $target
    * @return iterable
    * @throws lang.IllegalArgumentException if filename is invalid
-   * @throws io.IOException
+   * @throws io.OperationFailed
    */
   public function transmit($target) {
 

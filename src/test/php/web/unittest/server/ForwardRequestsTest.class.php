@@ -1,6 +1,6 @@
 <?php namespace web\unittest\server;
 
-use io\IOException;
+use io\OperationFailed;
 use test\{Assert, Test};
 use web\unittest\Channel;
 use xp\web\srv\{ForwardRequests, Worker};
@@ -145,13 +145,13 @@ class ForwardRequestsTest {
     );
     $client= new class([$request]) extends Channel {
       public function write($chunk) {
-        throw new IOException('Test');
+        throw new OperationFailed('Test');
       }
     };
     $backend= new Channel([$response]);
     try {
       $this->forward($client, $backend);
-    } catch (IOException $expected) {
+    } catch (OperationFailed $expected) {
       // ...
     }
 
