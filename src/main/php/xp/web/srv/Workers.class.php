@@ -1,6 +1,6 @@
 <?php namespace xp\web\srv;
 
-use io\{Path, IOException};
+use io\{Path, OperationFailed};
 use lang\archive\ArchiveClassLoader;
 use lang\{Runtime, RuntimeOptions, CommandLine, FileSystemClassLoader};
 use peer\Socket;
@@ -43,7 +43,7 @@ class Workers {
   /**
    * Launches a worker and returns it.
    * 
-   * @throws io.IOException
+   * @throws io.OperationFailed
    * @return xp.web.srv.Worker
    */
   public function launch() {
@@ -65,7 +65,7 @@ class Workers {
     if ('WINDOWS' !== $os->name()) $commandLine= 'exec '.$commandLine;
 
     if (!($proc= proc_open($commandLine, [STDIN, STDOUT, ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
-      throw new IOException('Cannot execute `'.$commandLine.'`');
+      throw new OperationFailed('Cannot execute `'.$commandLine.'`');
     }
 
     // Parse `[...] PHP 8.3.15 Development Server (http://127.0.0.1:60922) started`
@@ -78,7 +78,7 @@ class Workers {
     if (!preg_match('/\([a-z]+:\/\/([0-9.]+):([0-9]+)\)/', $line, $matches)) {
       proc_terminate($proc, 2);
       proc_close($proc);
-      throw new IOException('Cannot determine bound port: `'.implode('', $lines).'`');
+      throw new OperationFailed('Cannot determine bound port: `'.implode('', $lines).'`');
     }
 
     return new Worker($proc, new Socket($matches[1], (int)$matches[2]));
