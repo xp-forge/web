@@ -5,6 +5,10 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #134: Refactor I/O exceptions, dropping XP 10 support in the
+  doing. See xp-framework/core#363 for a write-up on the reason behind
+  this and the plan to move forward.
+  (@thekid)
 * Merged PR #129: Migrate to new server implementation; upgrading version
   constraint on `xp-framework/networking`
   (@thekid)
