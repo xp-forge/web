@@ -5,6 +5,8 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
+* Merged PR #133: Support for encoding and language in header parameters
+  (@thekid)
 * Merged PR #129: Migrate to new server implementation; upgrading version
   constraint on `xp-framework/networking`
   (@thekid)
