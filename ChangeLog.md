@@ -34,6 +34,13 @@ Web change log
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
 
+## 4.10.0 / 2026-06-21
+
+* Merged PR #134: Refactor I/O exceptions, dropping XP 10 support in the
+  doing. See xp-framework/core#363 for a write-up on the reason behind
+  this and the plan to move forward.
+  (@thekid)
+
 ## 4.9.0 / 2026-06-07
 
 * Merged PR #131: Implement `web.filters.CORS` (feature requested in #128),

@@ -6,7 +6,7 @@
   "description" : "Web applications for the XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^12.0 | ^11.0 | ^10.0",
+    "xp-framework/core": "^12.11 | ^11.11",
     "xp-framework/networking": "^11.0",
     "xp-forge/uri": "^3.1",
     "xp-forge/websockets": "^4.1",

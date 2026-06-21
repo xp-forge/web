@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use io\IOException;
+use io\OperationFailed;
 use test\{Assert, Test, Values};
 use web\io\{ReadLength, TestInput};
 
@@ -51,7 +51,7 @@ class ReadLengthTest {
     $fixture= new ReadLength($this->input('Test'), 10);
     $fixture->read();
 
-    Assert::throws(IOException::class, fn() => $fixture->read(1));
+    Assert::throws(OperationFailed::class, fn() => $fixture->read(1));
   }
 
   #[Test, Values([4, 8192])]

@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use io\OperationNotSupportedException;
+use io\NotSupported;
 use test\{Assert, Expect, Test};
 use web\io\{Incomplete, Part};
 
@@ -29,12 +29,12 @@ class IncompleteTest {
     );
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function cannot_access_bytes() {
     (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->bytes();
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function cannot_transmit() {
     $it= (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->transmit('./uploads');
     while ($it->valid()) {
@@ -42,7 +42,7 @@ class IncompleteTest {
     }
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function cannot_read_bytes() {
     (new Incomplete('upload', UPLOAD_ERR_INI_SIZE))->read();
   }

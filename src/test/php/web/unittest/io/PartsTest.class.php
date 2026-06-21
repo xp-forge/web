@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use io\OperationNotSupportedException;
+use io\NotSupported;
 use io\streams\{InputStream, MemoryInputStream, Streams};
 use lang\FormatException;
 use test\{Assert, Expect, Test, Values};
@@ -213,7 +213,7 @@ class PartsTest {
     Assert::equals('...', $bytes);
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function cannot_read_from_incomplete_file() {
     $parts= $this->parts(
       '--%1$s',
