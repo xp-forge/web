@@ -6,19 +6,42 @@ use lang\{IllegalArgumentException, IllegalStateException};
 use test\{Assert, Expect, Test, Values};
 use util\URI;
 use web\io\{Buffered, TestOutput};
-use web\{Cookie, Response};
+use web\{Cookie, Response, Parameterized};
 
 class ResponseTest {
 
-  /**
-   * Assertion helper
-   *
-   * @param  string $expected
-   * @param  web.Response $response
-   * @throws unittest.AssertionFailedError
-   */
-  private function assertResponse($expected, $response) {
-    Assert::equals($expected, $response->output()->bytes());
+  /** @return iterable */
+  private function answers() {
+
+    // Supplied as-is
+    yield [200, 'OK', 'HTTP/1.1 200 OK'];
+    yield [404, 'Not Found', 'HTTP/1.1 404 Not Found'];
+
+    // Status message derived from code
+    yield [200, null, 'HTTP/1.1 200 OK'];
+    yield [404, null, 'HTTP/1.1 404 Not Found'];
+
+    // Status message overridden
+    yield [200, 'Okay', 'HTTP/1.1 200 Okay'];
+    yield [404, 'Nope', 'HTTP/1.1 404 Nope'];
+  }
+
+  /** @return iterable */
+  private function filenames() {
+
+    // Simple file names
+    yield ['test.txt', 'filename=test.txt'];
+    yield ['a b.txt', 'filename="a b.txt"'];
+    yield ['"hello".txt', 'filename="\"hello\".txt"'];
+    yield ['über.txt', "filename*=UTF-8''%C3%BCber.txt"];
+
+    // In the form of [name => lang]
+    yield [['test.txt' => null], "filename*=UTF-8''test.txt"];
+    yield [['über.txt' => null], "filename*=UTF-8''%C3%BCber.txt"];
+    yield [['über.txt' => 'de'], "filename*=UTF-8'de'%C3%BCber.txt"];
+
+    // As received from Parameterized::params()
+    yield [['lang' => 'de', 'value' => 'über.txt'], "filename*=UTF-8'de'%C3%BCber.txt"];
   }
 
   #[Test]
@@ -71,10 +94,7 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     $res->header('Content-Type', 'text/plain');
     $res->header('Content-Length', '0');
-    Assert::equals(
-      ['Content-Type' => 'text/plain', 'Content-Length' => '0'],
-      $res->headers()
-    );
+    Assert::equals(['Content-Type' => 'text/plain', 'Content-Length' => '0'], $res->headers());
   }
 
   #[Test]
@@ -142,7 +162,7 @@ class ResponseTest {
     Assert::equals($cookies, $res->cookies());
   }
 
-  #[Test, Values([[200, 'OK', 'HTTP/1.1 200 OK'], [404, 'Not Found', 'HTTP/1.1 404 Not Found'], [200, null, 'HTTP/1.1 200 OK'], [404, null, 'HTTP/1.1 404 Not Found'], [200, 'Okay', 'HTTP/1.1 200 Okay'], [404, 'Nope', 'HTTP/1.1 404 Nope']])]
+  #[Test, Values(from: 'answers')]
   public function answer($status, $message, $line) {
     $out= new TestOutput();
 
@@ -150,7 +170,7 @@ class ResponseTest {
     $res->answer($status, $message);
     $res->flush();
 
-    $this->assertResponse($line."\r\n\r\n", $res);
+    Assert::that($res->output()->bytes())->isEqualTo($line."\r\n\r\n");
   }
 
   #[Test]
@@ -167,7 +187,7 @@ class ResponseTest {
     $res->answer(200, 'OK');
     $res->flush();
 
-    $this->assertResponse("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n", $res);
+    Assert::that($res->output()->bytes())->isEqualTo("HTTP/1.1 100 Continue\r\n\r\nHTTP/1.1 200 OK\r\n\r\n");
   }
 
   #[Test]
@@ -178,12 +198,11 @@ class ResponseTest {
       'Connection' => 'Upgrade'
     ]);
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 101 Switching Protocols\r\n".
       "Upgrade: websocket\r\n".
       "Connection: Upgrade\r\n".
-      "\r\n",
-      $res
+      "\r\n"
     );
   }
 
@@ -195,7 +214,7 @@ class ResponseTest {
     $res->answer(200, 'OK');
     $res->flush();
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 103 Early Hints\r\n".
       "Link: </main.css>; rel=preload; as=style\r\n".
       "Link: </script.js>; rel=preload; as=script\r\n".
@@ -203,8 +222,7 @@ class ResponseTest {
       "HTTP/1.1 200 OK\r\n".
       "Link: </main.css>; rel=preload; as=style\r\n".
       "Link: </script.js>; rel=preload; as=script\r\n".
-      "\r\n",
-      $res
+      "\r\n"
     );
   }
 
@@ -215,7 +233,12 @@ class ResponseTest {
     $res->header('Content-Length', '0');
     $res->flush();
 
-    $this->assertResponse("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n", $res);
+    Assert::that($res->output()->bytes())->isEqualTo(
+      "HTTP/1.1 200 OK\r\n".
+      "Content-Type: text/plain\r\n".
+      "Content-Length: 0\r\n".
+      "\r\n"
+    );
   }
 
   #[Test]
@@ -223,10 +246,39 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     $res->send('<h1>Test</h1>', 'text/html');
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
-      "<h1>Test</h1>",
-      $res
+      "<h1>Test</h1>"
+    );
+  }
+
+  #[Test, Values(from: 'filenames')]
+  public function send_file($name, $params) {
+    $res= new Response(new TestOutput());
+    $res->header('Content-Disposition', (new Parameterized('attachment'))->with('filename', $name));
+    $res->flush();
+
+    Assert::that($res->output()->bytes())->isEqualTo(
+      "HTTP/1.1 200 OK\r\n".
+      "Content-Disposition: attachment; {$params}\r\n".
+      "\r\n"
+    );
+  }
+
+  #[Test, Values(['uber.txt', 'über.txt'])]
+  public function send_file_rfc8187_with_ascii_equivalent($name) {
+    $res= new Response(new TestOutput());
+    $res->header('Content-Disposition', (new Parameterized('attachment'))->with(
+      'filename',
+      $name,
+      $equivalent= 'uber.txt'
+    ));
+    $res->flush();
+
+    Assert::that($res->output()->bytes())->isEqualTo(
+      "HTTP/1.1 200 OK\r\n".
+      "Content-Disposition: attachment; filename=uber.txt; filename*=UTF-8''".rawurlencode($name)."\r\n".
+      "\r\n"
     );
   }
 
@@ -235,10 +287,9 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html', 13) as $_) { }
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
-      "<h1>Test</h1>",
-      $res
+      "<h1>Test</h1>"
     );
   }
 
@@ -247,10 +298,9 @@ class ResponseTest {
     $res= new Response(new TestOutput());
     foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html') as $_) { }
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\n\r\n".
-      "d\r\n<h1>Test</h1>\r\n0\r\n\r\n",
-      $res
+      "d\r\n<h1>Test</h1>\r\n0\r\n\r\n"
     );
   }
 
@@ -259,10 +309,9 @@ class ResponseTest {
     $res= new Response(new TestOutput(Buffered::class));
     foreach ($res->transmit(new MemoryInputStream('<h1>Test</h1>'), 'text/html') as $_) { }
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
-      "<h1>Test</h1>",
-      $res
+      "<h1>Test</h1>"
     );
   }
 
@@ -275,10 +324,9 @@ class ResponseTest {
     };
     foreach ($res->transmit($channel, 'text/html', 13) as $_) { }
 
-    $this->assertResponse(
+    Assert::that($res->output()->bytes())->isEqualTo(
       "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\n\r\n".
-      "<h1>Test</h1>",
-      $res
+      "<h1>Test</h1>"
     );
   }
 
@@ -295,9 +343,11 @@ class ResponseTest {
     $res->cookie(new Cookie('toggle', 'future'));
     $res->flush();
 
-    $this->assertResponse(
-      "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: toggle=future; SameSite=Lax; HttpOnly\r\n\r\n",
-      $res
+    Assert::that($res->output()->bytes())->isEqualTo(
+      "HTTP/1.1 200 OK\r\n".
+      "Content-Type: text/html\r\n".
+      "Set-Cookie: toggle=future; SameSite=Lax; HttpOnly\r\n".
+      "\r\n"
     );
   }
 

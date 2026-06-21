@@ -34,6 +34,38 @@ class HeadersTest {
     );
   }
 
+  #[Test]
+  public function rfc8187_encoding() {
+    $parameterized= Headers::parameterized()->parse("attachment; filename*=UTF-8''%C3%BCber%20name.jpg");
+
+    Assert::equals('attachment', $parameterized->value());
+    Assert::equals(['filename*' => ['lang' => null, 'value' => 'über name.jpg']], $parameterized->params());
+    Assert::equals('über name.jpg', $parameterized->param('filename'));
+    Assert::null($parameterized->equivalent('filename'));
+  }
+
+  #[Test]
+  public function rfc8187_encoding_and_language() {
+    $parameterized= Headers::parameterized()->parse("attachment; filename*=UTF-8'en'file%20name.jpg");
+
+    Assert::equals('attachment', $parameterized->value());
+    Assert::equals(['filename*' => ['lang' => 'en', 'value' => 'file name.jpg']], $parameterized->params());
+    Assert::equals('file name.jpg', $parameterized->param('filename'));
+    Assert::null($parameterized->equivalent('filename'));
+  }
+
+  #[Test]
+  public function rfc8187_encoded_takes_precedence() {
+    $parameterized= Headers::parameterized()->parse("attachment; filename=\"ascii.jpg\"; filename*=UTF-8''unicode.jpg");
+
+    Assert::equals(
+      ['filename' => 'ascii.jpg', 'filename*' => ['lang' => null, 'value' => 'unicode.jpg']],
+      $parameterized->params()
+    );
+    Assert::equals('unicode.jpg', $parameterized->param('filename'));
+    Assert::equals('ascii.jpg', $parameterized->equivalent('filename'));
+  }
+
   #[Test, Values(['5;url=http://www.w3.org/pub/WWW/People.html', '5; url=http://www.w3.org/pub/WWW/People.html',])]
   public function refresh($header) {
     Assert::equals(

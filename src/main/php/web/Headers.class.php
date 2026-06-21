@@ -11,6 +11,7 @@ use util\Date;
  * @test  web.unittest.HeadersTest
  */
 abstract class Headers {
+  const ATTR_CHAR= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_';
 
   /**
    * Formats a date for use in headers
@@ -162,6 +163,23 @@ abstract class Headers {
             // consistency with PHP, see https://github.com/php/php-src/issues/8206
             $parameters[$name]= strtr(substr($input, $offset + 1, $p - $offset - 2), ['\"' => '"']);
             $offset= $p + 1;
+          } else if ('*' === $name[strlen($name) - 1]) {
+
+            // RFC 8187: Character Encoding and Language for HTTP Header Field Parameters
+            $s= strcspn($input, "'", $offset);
+            $charset= substr($input, $offset, $s);
+            $offset+= $s + 1;
+
+            $s= strcspn($input, "'", $offset);
+            $lang= substr($input, $offset, $s);
+            $offset+= $s + 1;
+
+            $s= strcspn($input, ',;', $offset);
+            $parameters[$name]= [
+              'lang'  => $lang ?: null,
+              'value' => iconv($charset, \xp::ENCODING, urldecode(substr($input, $offset, $s)))
+            ];
+            $offset+= $s + 1;
           } else {
             $s= strcspn($input, ',;', $offset);
             $parameters[$name]= substr($input, $offset, $s);
