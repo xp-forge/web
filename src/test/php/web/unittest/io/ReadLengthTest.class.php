@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use io\IOException;
+use io\OperationFailed;
 use test\{Assert, Test, Values};
 use web\io\{ReadLength, TestInput};
 
@@ -53,8 +53,8 @@ class ReadLengthTest {
 
     try {
       $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+      $this->fail('No exception raised', null, OperationFailed::class);
+    } catch (OperationFailed $expected) { }
   }
 
   #[Test]

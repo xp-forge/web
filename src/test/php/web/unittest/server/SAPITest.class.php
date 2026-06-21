@@ -1,6 +1,6 @@
 <?php namespace web\unittest\server;
 
-use io\OperationNotSupportedException;
+use io\NotSupported;
 use io\streams\{MemoryInputStream, Streams};
 use test\{Assert, Expect, Test, Values};
 use web\io\{ReadLength, ReadStream};
@@ -194,13 +194,13 @@ class SAPITest {
     ));
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function read_from_incomplete_upload() {
     $parts= $this->parts($this->incomplete('test.txt', UPLOAD_ERR_PARTIAL));
     $parts['file']->bytes();
   }
 
-  #[Test, Expect(OperationNotSupportedException::class)]
+  #[Test, Expect(NotSupported::class)]
   public function stream_incomplete_upload() {
     $parts= $this->parts($this->incomplete('test.txt', UPLOAD_ERR_PARTIAL));
     Streams::readAll($parts['file']);

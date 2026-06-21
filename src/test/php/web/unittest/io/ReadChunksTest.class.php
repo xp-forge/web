@@ -1,6 +1,6 @@
 <?php namespace web\unittest\io;
 
-use io\IOException;
+use io\OperationFailed;
 use test\{Assert, Expect, Test, Values};
 use web\io\{ReadChunks, TestInput};
 use web\unittest\Chunking;
@@ -23,13 +23,13 @@ class ReadChunksTest {
     new ReadChunks($this->input("0\r\n\r\n"));
   }
 
-  #[Test, Expect(IOException::class)]
+  #[Test, Expect(OperationFailed::class)]
   public function raises_exception_from_read_when_non_chunked_data_appears() {
     $fixture= new ReadChunks($this->input(''));
     $fixture->read();
   }
 
-  #[Test, Expect(IOException::class)]
+  #[Test, Expect(OperationFailed::class)]
   public function raises_exception_from_available_when_non_chunked_data_appears() {
     $fixture= new ReadChunks($this->input(''));
     $fixture->available();
@@ -132,8 +132,8 @@ class ReadChunksTest {
 
     try {
       $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+      $this->fail('No exception raised', null, OperationFailed::class);
+    } catch (OperationFailed $expected) { }
   }
 
   #[Test, Values([4, 8192])]
@@ -143,8 +143,8 @@ class ReadChunksTest {
 
     try {
       $fixture->read(1);
-      $this->fail('No exception raised', null, IOException::class);
-    } catch (IOException $expected) { }
+      $this->fail('No exception raised', null, OperationFailed::class);
+    } catch (OperationFailed $expected) { }
   }
 
   #[Test]

@@ -3,6 +3,13 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.10.0 / 2026-06-21
+
+* Merged PR #22: Refactor I/O exceptions, dropping XP 10 support in the
+  doing. See xp-framework/core#363 for a write-up on the reason behind
+  this and the plan to move forward.
+  (@thekid)
+
 ## 4.9.0 / 2026-06-07
 
 * Merged PR #131: Implement `web.filters.CORS` (feature requested in #128),

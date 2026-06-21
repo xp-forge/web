@@ -1,6 +1,6 @@
 <?php namespace xp\web\srv;
 
-use io\IOException;
+use io\OperationFailed;
 use lang\archive\ArchiveClassLoader;
 use lang\{ClassLoader, CommandLine, FileSystemClassLoader, Runtime, RuntimeOptions};
 use peer\Socket;
@@ -74,7 +74,7 @@ class Develop extends Server {
       $cmd= 'exec '.$cmd;      // Replace launching shell with PHP
     }
     if (!($proc= proc_open($cmd, [STDIN, STDOUT, ['file', $nul, 'w']], $pipes, null, null, ['bypass_shell' => true]))) {
-      throw new IOException('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
+      throw new OperationFailed('Cannot execute `'.$runtime->getExecutable()->getFileName().'`');
     }
 
     Console::writeLinef(

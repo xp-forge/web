@@ -1,6 +1,6 @@
 <?php namespace web\io;
 
-use io\IOException;
+use io\OperationFailed;
 use io\streams\InputStream;
 
 /**
@@ -18,13 +18,13 @@ class ReadChunks implements InputStream {
    * Scans a chunk, populating length and buffer
    *
    * @return int
-   * @throws io.IOException for chunked format errors
+   * @throws io.OperationFailed for chunked format errors
    */
   private function scan() {
     $size= $this->input->readLine() ?? '';
 
     if (1 !== sscanf($size, '%x', $l)) {
-      throw new IOException('No chunk segment present (`'.addcslashes($size, "\0..\37").'`)');
+      throw new OperationFailed('No chunk segment present (`'.addcslashes($size, "\0..\37").'`)');
     }
 
     // Chunk with 0 length indicates EOF
@@ -80,7 +80,7 @@ class ReadChunks implements InputStream {
     $chunk= substr($this->buffer, 0, min($limit, $remaining));
     if ('' === $chunk) {
       $this->remaining= 0;
-      throw new IOException('EOF');
+      throw new OperationFailed('EOF');
     }
 
     $length= strlen($chunk);
