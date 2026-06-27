@@ -114,7 +114,7 @@ abstract class Application implements Value {
   public function toString() { return nameof($this).'('.$this->environment->docroot().')'; }
 
   /** @return string */
-  public function hashCode() { return spl_object_hash($this); }
+  public function hashCode() { return spl_object_id($this); }
 
   /**
    * Comparison

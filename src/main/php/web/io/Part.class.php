@@ -26,7 +26,7 @@ abstract class Part implements Value {
   public function name() { return $this->name; }
 
   /** @return string */
-  public function hashCode() { return spl_object_hash($this); }
+  public function hashCode() { return spl_object_id($this); }
 
   /**
    * Compares this part to a given value
