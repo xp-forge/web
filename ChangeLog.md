@@ -3,6 +3,12 @@ Web change log
 
 ## ?.?.? / ????-??-??
 
+## 4.10.1 / 2026-08-01
+
+* Added forward-compatibility with the upcoming XP 13 by replacing calls
+  to reflection with native functionality
+  (@thekid)
+
 ## 4.10.0 / 2026-06-21
 
 * Merged PR #134: Refactor I/O exceptions, dropping XP 10 support in the
