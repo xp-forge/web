@@ -35,7 +35,7 @@ class Source {
       throw new IllegalArgumentException('Cannot load web application '.$application, $e);
     }
 
-    if (!$class->isSubclassOf(Application::class)) {
+    if (!is_subclass_of($class->literal(), Application::class)) {
       throw new IllegalArgumentException($class->getName().' is not a web application');
     }
 
