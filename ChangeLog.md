@@ -5,9 +5,6 @@ Web change log
 
 ## 5.0.0 / ????-??-??
 
-* Fixed forward compatibility with XP 13 by replacing reflection with
-  native functionality
-  (@thekid)
 * Merged PR #133: Support for encoding and language in header parameters
   (@thekid)
 * Merged PR #129: Migrate to new server implementation; upgrading version
@@ -38,6 +35,12 @@ Web change log
   (@thekid)
 * Removed deprecated `web.Dispatch` class. Instead of returning instances
   of this from handlers, use the *dispatch()* method on the request
+
+## 4.10.1 / 2026-08-01
+
+* Added forward-compatibility with the upcoming XP 13 by replacing calls
+  to reflection with native functionality
+  (@thekid)
 
 ## 4.10.0 / 2026-06-21
 
