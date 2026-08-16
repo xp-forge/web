@@ -22,6 +22,65 @@ class WebsocketProtocol extends Switchable {
     $this->logging= $logging ?? new Logging(null);
   }
 
+  /** Adds a connection */
+  public function add(Connection $connection): Connection {
+    $this->connections[$connection->id()]= $connection;
+    return $connection;
+  }
+
+  /**
+   * Returns a given connection by its specified ID
+   *
+   * @param  int|string $id
+   * @return ?websocket.protocol.Connection
+   */
+  public function connection($id) {
+    return $this->connections[$id] ?? null;
+  }
+
+  /**
+   * Transmits a given payload to the specified targets, which may
+   * either be IDs or `websocket.protocol.Connection` instances.
+   *
+   * @param  iterable $targets
+   * @param  string|util.Bytes $payload
+   * @return void
+   */
+  public function transmit(iterable $targets, $payload) {
+    foreach ($targets as $target) {
+      if ($target instanceof Connection) {
+        $target->send($payload);
+      } else if ($connection= ($this->connections[$target] ?? null)) {
+        $connection->send($payload);
+      }
+    }
+  }
+
+  /**
+   * Broadcast a message to all connections
+   *
+   * @param  string|util.Bytes $payload
+   * @param  iterable $prioritize
+   * @return void
+   */
+  public function broadcast($payload, iterable $prioritize= []) {
+    $connections= $this->connections;
+
+    foreach ($prioritize as $target) {
+      if ($target instanceof Connection) {
+        $target->send($payload);
+        unset($connections[$connection->id()]);
+      } else if ($connection= ($this->connections[$target] ?? null)) {
+        $connection->send($payload);
+        unset($connections[$target]);
+      }
+    }
+
+    foreach ($connections as $connection) {
+      $connection->send($payload);
+    }
+  }
+
   /**
    * Handle client switch
    *

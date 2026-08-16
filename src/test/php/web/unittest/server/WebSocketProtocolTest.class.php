@@ -5,6 +5,7 @@ use util\{Bytes, Objects};
 use web\Logging;
 use web\unittest\Channel;
 use websocket\Listener;
+use websocket\protocol\Connection;
 use xp\web\srv\WebSocketProtocol;
 
 class WebSocketProtocolTest {
@@ -107,5 +108,67 @@ class WebSocketProtocolTest {
       $logged[]= $method.' '.$uri.($hints ? ' '.Objects::stringOf($hints) : '');
     });
     Assert::equals([$expected], $logged);
+  }
+
+  #[Test]
+  public function without_connection() {
+    $fixture= new WebSocketProtocol($this->noop);
+
+    Assert::null($fixture->connection('test-1'));
+  }
+
+  #[Test]
+  public function add_connections() {
+    $fixture= new WebSocketProtocol($this->noop);
+    $a= $fixture->add(new Connection(null, 'test-a', '/'));
+    $b= $fixture->add(new Connection(null, 'test-b', '/'));
+
+    Assert::equals($a, $fixture->connection('test-a'));
+    Assert::equals($b, $fixture->connection('test-b'));
+  }
+
+  #[Test, Values([[['test-a'], ['a' => ['Hello']]], [['test-b'], ['b' => ['Hello']]]])]
+  public function transmit($targets, $expected) {
+    $transmitted= [];
+    $fixture= new WebSocketProtocol($this->noop);
+    $a= $fixture->add(newinstance(Connection::class, [null, 'test-a', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['a'][]= $payload; }
+    ]));
+    $b= $fixture->add(newinstance(Connection::class, [null, 'test-b', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['b'][]= $payload; }
+    ]));
+    $fixture->transmit($targets, 'Hello');
+
+    Assert::equals($expected, $transmitted);
+  }
+
+  #[Test]
+  public function broadcast() {
+    $transmitted= [];
+    $fixture= new WebSocketProtocol($this->noop);
+    $a= $fixture->add(newinstance(Connection::class, [null, 'test-a', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['a'][]= $payload; }
+    ]));
+    $b= $fixture->add(newinstance(Connection::class, [null, 'test-b', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['b'][]= $payload; }
+    ]));
+    $fixture->broadcast('Hello');
+
+    Assert::equals(['a' => ['Hello'], 'b' => ['Hello']], $transmitted);
+  }
+
+  #[Test, Values([[['test-a'], ['a', 'b']], [['test-b'], ['b', 'a']]])]
+  public function broadcast_prioritizing($targets, $order) {
+    $transmitted= [];
+    $fixture= new WebSocketProtocol($this->noop);
+    $a= $fixture->add(newinstance(Connection::class, [null, 'test-a', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['a'][]= $payload; }
+    ]));
+    $b= $fixture->add(newinstance(Connection::class, [null, 'test-b', '/'], [
+      'send' => function($payload) use(&$transmitted) { $transmitted['b'][]= $payload; }
+    ]));
+    $fixture->broadcast('Hello', $targets);
+
+    Assert::equals($order, array_keys($transmitted));
   }
 }
