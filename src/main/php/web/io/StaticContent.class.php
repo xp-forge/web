@@ -67,6 +67,7 @@ class StaticContent {
   public function serve($request, $response, $target, $mimeType= null) {
     if (null === $target || ($file= $target instanceof File ? $target : new File($target)) && !$file->exists()) {
       $response->answer(404, 'Not Found');
+      $response->trace('target', $target);
       $response->send('The file \''.$request->uri()->path().'\' was not found', 'text/plain');
       return;
     }
