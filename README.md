@@ -32,7 +32,7 @@ Run it using:
 
 ```bash
 $ xp -supervise web Service
-@xp.web.srv.Standalone(HTTP @ peer.ServerSocket(Resource id #61 -> tcp://127.0.0.1:8080))
+@xp.web.srv.Standalone(HTTP @ peer.server.AsynchronousServer)
 # ...
 ```
 
