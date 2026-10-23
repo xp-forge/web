@@ -10,7 +10,7 @@
     "xp-framework/networking": "^11.0",
     "xp-forge/uri": "^3.1",
     "xp-forge/websockets": "^4.1",
-    "php": ">=7.4.0"
+    "php": ">=8.0.0"
   },
   "require-dev" : {
     "xp-framework/test": "^2.0 | ^1.0"
