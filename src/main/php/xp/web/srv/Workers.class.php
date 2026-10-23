@@ -47,19 +47,8 @@ class Workers {
    * @return xp.web.srv.Worker
    */
   public function launch() {
-
-    // PHP 7.4 doesn't support ephemeral ports, see this commit which went into PHP 8.0:
-    // https://github.com/php/php-src/commit/a61a9fe9a0d63734136f995451a1fd35b0176292
-    if (PHP_VERSION_ID <= 80000) {
-      $s= stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr, STREAM_SERVER_BIND);
-      $listen= stream_socket_get_name($s, false);
-      fclose($s);
-    } else {
-      $listen= '127.0.0.1:0';
-    }
-
     $os= CommandLine::forName(PHP_OS);
-    $commandLine= $os->compose($this->executable, ['-S', $listen, ...$this->arguments]);
+    $commandLine= $os->compose($this->executable, ['-S', '127.0.0.1:0', ...$this->arguments]);
 
     // Replace launching shell with PHP on Un*x
     if ('WINDOWS' !== $os->name()) $commandLine= 'exec '.$commandLine;
