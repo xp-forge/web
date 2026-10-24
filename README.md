@@ -51,7 +51,7 @@ Server models
 The server models (*selectable via `-m <model>[,argument[,argument...]]` on the command line*) are:
 
 * **async** (*the default*): A single-threaded web server. Handlers can yield control back to the server to serve other clients during lengthy operations such as file up- and downloads.
-* **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the `pcntl` extension. Use `prefork,children=<n>` to control the number of child processes.
+* **prefork**: Much like Apache, forks a given number of children to handle HTTP requests. Requires the [pcntl](https://www.php.net/pcntl) extension. Use `prefork,children=<n>` to control the number of child processes.
 * **develop**: As mentioned above, built ontop of the PHP development webserver. Application code is recompiled and application setup performed from scratch on every request, errors and debug output are handled by the [development console](https://github.com/xp-forge/web/pull/35). Use `develop,workers=<n>` to control the number of worker processes.
 
 Request and response
